@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nueva Contraseña - TourismEasy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/recuperacion.css">
+    <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
+</head>
+
+<body>
+
+    <div class="rec-card">
+
+        <!-- Cabecera -->
+        <div class="rec-header">
+            <a class="rec-logo" href="../index.html">
+                <img src="../img/TURISMEASY.png" alt="TourismEasy Logo" class="logo-img"> TOURISMEASY
+            </a>
+            <h1 class="rec-title">Nueva contraseña</h1>
+            <p class="rec-subtitle">Elige una contraseña segura de al menos 8 caracteres.</p>
+        </div>
+
+        <!-- Formulario -->
+        <form class="rec-form" id="formRestablecer" novalidate>
+            <div class="field-group">
+                <label for="password">Nueva contraseña</label>
+                <div class="field-wrap has-toggle">
+                    <i class="fa-solid fa-lock field-icon"></i>
+                    <input type="password" id="password" placeholder="Mínimo 8 caracteres" minlength="8" required>
+                    <button type="button" class="toggle-pass" id="togglePass" aria-label="Mostrar contraseña">
+            <i class="fa-solid fa-eye"></i>
+          </button>
+                </div>
+                <div class="pass-strength">
+                    <div class="pass-strength-bar" id="bar1"></div>
+                    <div class="pass-strength-bar" id="bar2"></div>
+                    <div class="pass-strength-bar" id="bar3"></div>
+                    <div class="pass-strength-bar" id="bar4"></div>
+                </div>
+                <span class="pass-strength-label" id="strengthLabel"></span>
+            </div>
+
+            <button type="submit" class="btn-rec" id="btnActualizar">
+        <span class="btn-text"><i class="fa-solid fa-key"></i> Actualizar contraseña</span>
+        <span class="spinner"></span>
+      </button>
+        </form>
+
+        <!-- Mensaje de resultado -->
+        <div class="rec-mensaje" id="mensaje">
+            <i class="fa-solid fa-circle-check"></i>
+            <span id="mensajeTexto"></span>
+        </div>
+
+        <!-- Pie -->
+        <div class="rec-footer">
+            <a href="login.html"><i class="fa-solid fa-arrow-left"></i> Volver al inicio de sesión</a>
+            <button class="btn-dark-mode" id="darkModeToggle" aria-label="Cambiar tema">
+        <i class="fa-solid fa-moon"></i>
+      </button>
+        </div>
+
+    </div>
+
+    <script>
+        // ── Dark mode ──
+        const darkBtn = document.getElementById('darkModeToggle');
+        const icon = darkBtn.querySelector('i');
+
+        function applyTheme(dark) {
+            document.body.classList.toggle('dark-mode', dark);
+            icon.className = dark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+            localStorage.setItem('theme', dark ? 'dark' : 'light');
+        }
+        const saved = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        applyTheme(saved ? saved === 'dark' : prefersDark);
+        darkBtn.addEventListener('click', () => applyTheme(!document.body.classList.contains('dark-mode')));
+    </script>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+
+        // ── Toggle mostrar/ocultar contraseña ──
+        document.getElementById('togglePass').addEventListener('click', () => {
+            const inp = document.getElementById('password');
+            const icon = document.querySelector('#togglePass i');
+            const isHidden = inp.type === 'password';
+            inp.type = isHidden ? 'text' : 'password';
+            icon.className = isHidden ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye';
+        });
+
+        // ── Indicador de fortaleza ──
+        const bars = ['bar1', 'bar2', 'bar3', 'bar4'].map(id => document.getElementById(id));
+        const levels = [{
+            label: '',
+            cls: ''
+        }, {
+            label: 'Débil',
+            cls: 'weak'
+        }, {
+            label: 'Regular',
+            cls: 'fair'
+        }, {
+            label: 'Buena',
+            cls: 'good'
+        }, {
+            label: 'Fuerte',
+            cls: 'strong'
+        }, ];
+
+        document.getElementById('password').addEventListener('input', function() {
+            const v = this.value;
+            let score = 0;
+            if (v.length >= 8) score++;
+            if (/[A-Z]/.test(v)) score++;
+            if (/[0-9]/.test(v)) score++;
+            if (/[^A-Za-z0-9]/.test(v)) score++;
+
+            bars.forEach((b, i) => {
+                b.className = 'pass-strength-bar';
+                if (i < score) b.classList.add(levels[score].cls);
+            });
+            document.getElementById('strengthLabel').textContent = score > 0 ? levels[score].label : '';
+        });
+
+        // ── Envío ──
+        document.getElementById('formRestablecer').addEventListener('submit', async(e) => {
+            e.preventDefault();
+            const password = document.getElementById('password').value;
+            const btn = document.getElementById('btnActualizar');
+            const mensajeDiv = document.getElementById('mensaje');
+            const mensajeTexto = document.getElementById('mensajeTexto');
+
+            if (!token) {
+                mensajeTexto.textContent = 'Token inválido o ausente. Solicita un nuevo enlace.';
+                mensajeDiv.querySelector('i').className = 'fa-solid fa-circle-exclamation';
+                mensajeDiv.classList.add('show', 'error');
+                return;
+            }
+
+            btn.classList.add('loading');
+            btn.disabled = true;
+            mensajeDiv.className = 'rec-mensaje';
+
+            try {
+                const response = await fetch('../recuperacion/restablecer_contrasena.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        token,
+                        password
+                    })
+                });
+                const res = await response.json();
+
+                mensajeTexto.textContent = res.message;
+                mensajeDiv.querySelector('i').className = res.success ?
+                    'fa-solid fa-circle-check' :
+                    'fa-solid fa-circle-exclamation';
+                mensajeDiv.classList.add('show', res.success ? 'ok' : 'error');
+
+                if (res.success) {
+                    setTimeout(() => window.location.href = 'login.html', 2500);
+                }
+            } catch (err) {
+                mensajeTexto.textContent = 'Error de conexión. Intenta de nuevo.';
+                mensajeDiv.querySelector('i').className = 'fa-solid fa-circle-exclamation';
+                mensajeDiv.classList.add('show', 'error');
+            } finally {
+                btn.classList.remove('loading');
+                btn.disabled = false;
+            }
+        });
+    </script>
+    <script src="../js/santanderianidad.js"></script>
+
+
+</body>
+
+</html>

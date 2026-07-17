@@ -1,0 +1,1809 @@
+/* ===========================
+   AUTH MODAL - TourismEasy
+   Estilos del modal de login/registro.
+   El HTML del modal es inyectado por login.js,
+   no está escrito en el HTML de las páginas.
+=========================== */
+
+/* ── Fondo semitransparente con blur que bloquea la página ──
+   Invisible y no interactivo por defecto */
+.auth-overlay {
+  position: fixed;
+  inset: 0;
+  /* Sin background/backdrop-filter aquí: van en ::before para no
+     interferir con hit-testing cuando el overlay está cerrado */
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+  /* Al cerrar: opacity anima 0.3s, visibility espera a que termine */
+  transition: opacity 0.3s ease, visibility 0s linear 0.3s;
+}
+
+/* Fondo oscuro + blur en pseudo-elemento, aislado del hit-testing del padre */
+.auth-overlay::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Al activarse: visible e interactivo de inmediato, sin delay en visibility */
+.auth-overlay.active {
+  opacity: 1;
+  pointer-events: all;
+  visibility: visible;
+  transition: opacity 0.3s ease, visibility 0s linear 0s;
+}
+
+/* ── Caja principal del modal ──
+   Empieza ligeramente desplazada y pequeña, luego sube a su posición */
+.auth-box {
+  background: var(--white);
+  border-radius: 24px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 92vh;
+  overflow-y: auto;
+  /* Scroll si el contenido es largo */
+  position: relative;
+  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.28);
+  transform: translateY(30px) scale(0.97);
+  /* Estado inicial */
+  transition:
+    transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+    /* Rebote elástico */
+    opacity 0.3s ease;
+  opacity: 0;
+}
+
+/* Cuando el overlay está activo: el modal sube y escala */
+.auth-overlay.active .auth-box {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+
+/* ── Encabezado del modal: gradiente morado con logo ── */
+.auth-header {
+  background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+  padding: 36px 36px 28px;
+  text-align: center;
+  border-radius: 24px 24px 0 0;
+  position: relative;
+}
+
+.auth-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+/* Logo circular del encabezado */
+.auth-logo-img {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+}
+
+.auth-logo-text {
+  font-family: var(--font-head);
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: #ffffff;
+  letter-spacing: 1.5px;
+}
+
+.auth-header p {
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.78);
+  margin-top: 4px;
+}
+
+/* Botón × para cerrar el modal */
+.auth-close {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  background: rgba(255, 255, 255, 0.18);
+  border: none;
+  color: #ffffff;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+  line-height: 1;
+}
+
+.auth-close:hover {
+  background: rgba(255, 255, 255, 0.32);
+}
+
+/* ── Pestañas: "Iniciar sesión" / "Registrarse" ── */
+.auth-tabs {
+  display: flex;
+  background: var(--gray-100);
+  margin: 0 28px;
+  border-radius: 12px;
+  padding: 5px;
+  margin-top: 24px;
+  gap: 4px;
+}
+
+.auth-tab {
+  flex: 1;
+  background: none;
+  border: none;
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--gray-600);
+  padding: 10px;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+}
+
+/* La pestaña activa se resalta con fondo blanco y sombra */
+.auth-tab.active {
+  background: var(--white);
+  color: var(--purple);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.09);
+}
+
+/* ── Área de contenido del modal ── */
+.auth-body {
+  padding: 24px 28px 32px;
+}
+
+/* Formulario: oculto por defecto, visible cuando tiene .active */
+.auth-form {
+  display: none;
+  flex-direction: column;
+  gap: 16px;
+  animation: fadeInUp 0.3s ease;
+}
+
+.auth-form.active {
+  display: flex;
+}
+
+/* Animación de entrada del formulario */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Grupo de campo: label + input ── */
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field-group label {
+  font-family: var(--font-head);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--gray-800);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+/* Contenedor del input con ícono dentro */
+.field-wrap {
+  position: relative;
+}
+
+/* Ícono a la izquierda dentro del campo */
+.field-wrap i.field-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--gray-400);
+  font-size: 0.95rem;
+  pointer-events: none;
+  /* No bloquea clics en el input */
+  transition: color 0.2s;
+}
+
+/* Inputs con padding izquierdo para que el texto no tape el ícono */
+.field-wrap input,
+.field-wrap select {
+  width: 100%;
+  padding: 12px 14px 12px 40px;
+  /* 40px = espacio para el ícono */
+  border: 1.5px solid var(--gray-200);
+  border-radius: 10px;
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  color: var(--gray-800);
+  background: var(--gray-100);
+  outline: none;
+  transition: border-color 0.25s, background 0.25s, box-shadow 0.25s;
+}
+
+/* Al enfocar: borde morado + fondo blanco + sombra sutil */
+.field-wrap input:focus,
+.field-wrap select:focus {
+  border-color: var(--purple);
+  background: var(--white);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12);
+}
+
+/* El ícono también se pone morado al enfocar */
+.field-wrap input:focus~i.field-icon,
+.field-wrap input:focus+i.field-icon {
+  color: var(--purple);
+}
+
+/* ── Botón para mostrar/ocultar contraseña (ojo) ── */
+.toggle-pass {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--gray-400);
+  font-size: 0.95rem;
+  padding: 4px;
+  transition: color 0.2s;
+}
+
+.toggle-pass:hover {
+  color: var(--purple);
+}
+
+/* Campos con toggle necesitan padding derecho extra para no tapar el botón */
+.field-wrap.has-toggle input {
+  padding-right: 40px;
+}
+
+/* ── Estados de validación de los campos ── */
+.field-wrap input.valid {
+  border-color: #22c55e;
+  background: #f0fdf4;
+}
+
+/* Verde: válido */
+.field-wrap input.invalid {
+  border-color: #ef4444;
+  background: #fef2f2;
+}
+
+/* Rojo: inválido */
+
+/* Mensaje de validación debajo del campo */
+.field-msg {
+  font-size: 0.76rem;
+  font-weight: 600;
+  min-height: 16px;
+  padding-left: 2px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.field-msg.ok {
+  color: #16a34a;
+}
+
+/* Verde: campo correcto */
+.field-msg.error {
+  color: #dc2626;
+}
+
+/* Rojo: campo con error */
+
+/* ── Barra de fortaleza de contraseña (4 segmentos) ── */
+.pass-strength {
+  display: flex;
+  gap: 5px;
+  margin-top: 2px;
+}
+
+.pass-strength-bar {
+  flex: 1;
+  height: 4px;
+  border-radius: 99px;
+  background: var(--gray-200);
+  /* Gris = sin llenar */
+  transition: background 0.3s;
+}
+
+/* Colores según el nivel de fortaleza */
+.pass-strength-bar.weak {
+  background: #ef4444;
+}
+
+/* Rojo: débil */
+.pass-strength-bar.medium {
+  background: #f59e0b;
+}
+
+/* Amarillo: media */
+.pass-strength-bar.strong {
+  background: #22c55e;
+}
+
+/* Verde: fuerte */
+
+/* Etiqueta del nivel de fortaleza */
+.pass-strength-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  margin-top: 4px;
+  padding-left: 2px;
+}
+
+.pass-strength-label.weak {
+  color: #ef4444;
+}
+
+.pass-strength-label.medium {
+  color: #f59e0b;
+}
+
+.pass-strength-label.strong {
+  color: #22c55e;
+}
+
+/* ── Fila de dos campos en paralelo (ej: Nombre + Apellido) ── */
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+/* ── Selector de tipo de usuario (viajero / admin / empresa) ── */
+.user-type-group {
+  display: flex;
+  gap: 10px;
+}
+
+.user-type-btn {
+  flex: 1;
+  padding: 10px 8px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: 10px;
+  background: var(--gray-100);
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 0.8rem;
+  color: var(--gray-600);
+  cursor: pointer;
+  text-align: center;
+  transition: border-color 0.2s, background 0.2s, color 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.user-type-btn i {
+  font-size: 1.2rem;
+}
+
+/* Botón seleccionado: resaltado en morado */
+.user-type-btn.selected {
+  border-color: var(--purple);
+  background: rgba(124, 58, 237, 0.07);
+  color: var(--purple);
+}
+
+/* ── Checkbox de aceptar términos ── */
+.check-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.check-row input[type="checkbox"] {
+  width: 17px;
+  height: 17px;
+  accent-color: var(--purple);
+  /* El tick se pone morado en navegadores modernos */
+  margin-top: 2px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.check-row label {
+  font-size: 0.82rem;
+  color: var(--gray-600);
+  line-height: 1.5;
+  cursor: pointer;
+}
+
+.check-row a {
+  color: var(--purple);
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+/* ── Botón principal del formulario (enviar / continuar) ── */
+.btn-auth {
+  width: 100%;
+  background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+  color: #ffffff;
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+  margin-top: 4px;
+  box-shadow: 0 4px 20px rgba(124, 58, 237, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-auth:hover {
+  opacity: 0.92;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(124, 58, 237, 0.4);
+}
+
+.btn-auth:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Spinner dentro del botón (visible cuando .loading) */
+.btn-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2.5px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #ffffff;
+  /* Solo el borde superior blanco → gira */
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: none;
+  /* Oculto por defecto */
+}
+
+/* Cuando el botón está cargando: muestra spinner, oculta texto */
+.btn-auth.loading .btn-spinner {
+  display: block;
+}
+
+.btn-auth.loading .btn-text {
+  display: none;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ── Divisor "O continúa con" ── */
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 4px 0;
+}
+
+.auth-divider span {
+  font-size: 0.78rem;
+  color: var(--gray-400);
+  white-space: nowrap;
+}
+
+/* Las líneas horizontales a los lados del texto */
+.auth-divider::before,
+.auth-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--gray-200);
+}
+
+/* ── Botones de login social (Google, Facebook) ── */
+.social-auth {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.btn-social {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: 10px;
+  background: var(--white);
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 0.82rem;
+  color: var(--gray-800);
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+}
+
+.btn-social:hover {
+  border-color: var(--gray-400);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+.btn-social img {
+  width: 18px;
+  height: 18px;
+}
+
+/* ── Enlace para cambiar de tab ── */
+.auth-switch {
+  text-align: center;
+  font-size: 0.83rem;
+  color: var(--gray-600);
+  margin-top: 8px;
+}
+
+.auth-switch a {
+  color: var(--purple);
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.auth-switch a:hover {
+  text-decoration: underline;
+}
+
+/* ── Enlace "¿Olvidaste tu contraseña?" ── */
+.forgot-link {
+  text-align: right;
+  font-size: 0.78rem;
+}
+
+.forgot-link a {
+  color: var(--purple);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.forgot-link a:hover {
+  text-decoration: underline;
+}
+
+/* ── Pantalla de éxito (registro completado) ── */
+.auth-success {
+  text-align: center;
+  padding: 20px 0 8px;
+  display: none;
+  /* Oculta por defecto */
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  animation: fadeInUp 0.4s ease;
+}
+
+.auth-success.show {
+  display: flex;
+}
+
+/* Visible cuando se completa el registro */
+
+/* Círculo verde con ícono de ✓ */
+.success-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.8rem;
+}
+
+.auth-success h3 {
+  font-family: var(--font-head);
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--gray-800);
+}
+
+.auth-success p {
+  font-size: 0.88rem;
+  color: var(--gray-600);
+  line-height: 1.6;
+}
+
+/* ── Pasos del registro multi-paso ── */
+.reg-step {
+  display: none;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.reg-step.active {
+  display: flex;
+}
+
+/* Indicadores de progreso (barras horizontales) */
+.reg-steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.reg-step-dot {
+  width: 28px;
+  height: 4px;
+  border-radius: 99px;
+  background: var(--gray-200);
+  /* Gris = paso no alcanzado */
+  transition: background 0.3s;
+}
+
+.reg-step-dot.active {
+  background: var(--purple);
+}
+
+/* Morado = paso actual o completado */
+
+/* ===========================
+   DARK MODE DEL MODAL
+=========================== */
+body.dark-mode .auth-box {
+  background: #1e293b;
+}
+
+body.dark-mode .auth-tabs {
+  background: #0f172a;
+}
+
+body.dark-mode .auth-tab.active {
+  background: #1e293b;
+  color: var(--purple-light);
+}
+
+body.dark-mode .auth-tab {
+  color: #94a3b8;
+}
+
+body.dark-mode .field-group label {
+  color: #cbd5e1;
+}
+
+body.dark-mode .field-wrap input,
+body.dark-mode .field-wrap select {
+  background: #0f172a;
+  border-color: #334155;
+  color: #f1f5f9;
+}
+
+body.dark-mode .field-wrap input:focus,
+body.dark-mode .field-wrap select:focus {
+  background: #1e293b;
+  border-color: var(--purple-light);
+  box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.15);
+}
+
+body.dark-mode .field-wrap input.valid {
+  background: #052e16;
+  border-color: #22c55e;
+}
+
+body.dark-mode .field-wrap input.invalid {
+  background: #1f0a0a;
+  border-color: #ef4444;
+}
+
+body.dark-mode .pass-strength-bar {
+  background: #334155;
+}
+
+body.dark-mode .user-type-btn {
+  background: #0f172a;
+  border-color: #334155;
+  color: #94a3b8;
+}
+
+body.dark-mode .user-type-btn.selected {
+  background: rgba(168, 85, 247, 0.12);
+  border-color: var(--purple-light);
+  color: var(--purple-light);
+}
+
+body.dark-mode .auth-divider span {
+  color: #475569;
+}
+
+body.dark-mode .auth-divider::before,
+body.dark-mode .auth-divider::after {
+  background: #334155;
+}
+
+body.dark-mode .btn-social {
+  background: #0f172a;
+  border-color: #334155;
+  color: #f1f5f9;
+}
+
+body.dark-mode .btn-social:hover {
+  border-color: #475569;
+}
+
+body.dark-mode .check-row label {
+  color: #94a3b8;
+}
+
+body.dark-mode .auth-switch {
+  color: #94a3b8;
+}
+
+body.dark-mode .auth-success h3 {
+  color: #f1f5f9;
+}
+
+body.dark-mode .auth-success p {
+  color: #94a3b8;
+}
+
+/* ===========================
+   FLUJOS SEPARADOS (registro multi-paso)
+=========================== */
+
+/* Etiqueta de paso (ej: "Datos personales", "Crear contraseña") */
+.step-label {
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--purple);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid rgba(124, 58, 237, 0.12);
+  margin-bottom: 2px;
+}
+
+/* Texto "(opcional)" en campos no obligatorios */
+.opt-label {
+  font-weight: 400;
+  color: var(--gray-400);
+  font-family: var(--font-body);
+  text-transform: none;
+  font-size: 0.72rem;
+  letter-spacing: 0;
+}
+
+/* Fila de botones "← Volver" + "Continuar →" */
+.nav-btns {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+/* Botón ← Volver (cuadrado, sin texto) */
+.btn-back {
+  background: var(--gray-100);
+  border: 1.5px solid var(--gray-200);
+  color: var(--gray-600);
+  width: 46px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.2s, border-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-back:hover {
+  background: var(--gray-200);
+  border-color: var(--gray-400);
+}
+
+/* Paso 0: selector de tipo de cuenta con más separación */
+#regStep0 {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Selector de tipo de servicio de la empresa (2x2 grid) */
+.service-type-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.service-type-btn {
+  padding: 14px 10px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: 12px;
+  background: var(--gray-100);
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 0.78rem;
+  color: var(--gray-600);
+  cursor: pointer;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  transition: border-color 0.2s, background 0.2s, color 0.2s, transform 0.15s;
+  line-height: 1.3;
+}
+
+.service-type-btn i {
+  font-size: 1.4rem;
+}
+
+.service-type-btn:hover {
+  border-color: var(--purple-light);
+  color: var(--purple);
+  transform: translateY(-2px);
+}
+
+.service-type-btn.selected {
+  border-color: var(--purple);
+  background: rgba(124, 58, 237, 0.08);
+  color: var(--purple);
+}
+
+/* ── Campo de teléfono: selector de código de país + número ── */
+
+/* Versión con field-wrap */
+.tel-wrap {
+  display: flex !important;
+  align-items: stretch;
+  padding: 0 !important;
+  overflow: visible;
+  position: static !important;
+}
+
+.tel-cod {
+  width: 100px;
+  flex-shrink: 0;
+  border: 1.5px solid var(--gray-200);
+  border-right: none;
+  /* Sin borde entre código y número */
+  border-radius: 10px 0 0 10px;
+  padding: 12px 6px 12px 10px;
+  font-size: 0.85rem;
+  font-family: var(--font-body);
+  background: var(--gray-100);
+  color: var(--gray-800);
+  outline: none;
+  cursor: pointer;
+}
+
+.tel-num {
+  flex: 1;
+  min-width: 0;
+  border: 1.5px solid var(--gray-200) !important;
+  border-left: none !important;
+  /* Sin borde izquierdo (se une con el código) */
+  border-radius: 0 10px 10px 0 !important;
+  padding: 12px 14px 12px 12px !important;
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  background: var(--gray-100);
+  color: var(--gray-800);
+  outline: none;
+}
+
+.tel-num:focus {
+  border-color: var(--purple) !important;
+  background: var(--white);
+}
+
+.tel-cod:focus {
+  border-color: var(--purple);
+  background: var(--white);
+}
+
+/* Versión sin field-wrap (más simple) */
+.tel-wrap-simple {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+}
+
+.tel-wrap-simple .tel-cod {
+  width: 108px;
+  flex-shrink: 0;
+  border: 1.5px solid var(--gray-200);
+  border-right: none;
+  border-radius: 10px 0 0 10px;
+  padding: 12px 6px 12px 10px;
+  font-size: 0.88rem;
+  font-family: var(--font-body);
+  background: var(--gray-100);
+  color: var(--gray-800);
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+
+.tel-wrap-simple .tel-num {
+  flex: 1;
+  min-width: 0;
+  border: 1.5px solid var(--gray-200);
+  border-left: none;
+  border-radius: 0 10px 10px 0;
+  padding: 12px 14px;
+  font-size: 0.92rem;
+  font-family: var(--font-body);
+  background: var(--gray-100);
+  color: var(--gray-800);
+  outline: none;
+  transition: border-color 0.25s, background 0.25s;
+}
+
+.tel-wrap-simple .tel-num:focus,
+.tel-wrap-simple .tel-cod:focus {
+  border-color: var(--purple);
+  background: var(--white);
+  outline: none;
+}
+
+.tel-wrap-simple .tel-num:focus {
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12);
+}
+
+/* Dark mode de los campos de teléfono */
+body.dark-mode .step-label {
+  color: var(--purple-light);
+  border-bottom-color: rgba(168, 85, 247, 0.2);
+}
+
+body.dark-mode .btn-back {
+  background: #0f172a;
+  border-color: #334155;
+  color: #94a3b8;
+}
+
+body.dark-mode .btn-back:hover {
+  background: #1e293b;
+}
+
+body.dark-mode .service-type-btn {
+  background: #0f172a;
+  border-color: #334155;
+  color: #94a3b8;
+}
+
+body.dark-mode .service-type-btn.selected {
+  background: rgba(168, 85, 247, 0.12);
+  border-color: var(--purple-light);
+  color: var(--purple-light);
+}
+
+body.dark-mode .service-type-btn:hover {
+  border-color: var(--purple-light);
+  color: var(--purple-light);
+}
+
+body.dark-mode .tel-num,
+body.dark-mode .tel-cod {
+  background: #0f172a;
+  border-color: #334155;
+  color: #f1f5f9;
+}
+
+body.dark-mode .tel-num:focus,
+body.dark-mode .tel-cod:focus {
+  border-color: var(--purple-light);
+  background: #1e293b;
+}
+
+body.dark-mode .tel-wrap-simple .tel-cod,
+body.dark-mode .tel-wrap-simple .tel-num {
+  background: #0f172a;
+  border-color: #334155;
+  color: #f1f5f9;
+}
+
+body.dark-mode .tel-wrap-simple .tel-num:focus,
+body.dark-mode .tel-wrap-simple .tel-cod:focus {
+  border-color: var(--purple-light);
+  background: #1e293b;
+}
+
+/* Campo "Otra" discapacidad: aparece con animación al seleccionar */
+#vDiscOtraGroup {
+  animation: fadeInField 0.2s ease;
+}
+
+@keyframes fadeInField {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===========================
+   SESSION WIDGET — Dropdown de usuario logueado en la navbar
+   Muestra: avatar con iniciales + nombre + tipo + menú
+=========================== */
+.session-widget {
+  position: relative;
+  flex-shrink: 0;
+}
+
+/* Botón trigger: pastilla morada con avatar y nombre */
+.session-trigger {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(124, 58, 237, 0.08);
+  border: 1.5px solid rgba(124, 58, 237, 0.25);
+  border-radius: 50px;
+  padding: 5px 14px 5px 5px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.session-trigger:hover {
+  background: rgba(124, 58, 237, 0.14);
+  border-color: rgba(124, 58, 237, 0.45);
+}
+
+/* Círculo con las iniciales del usuario */
+.session-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #7c3aed, #a855f7);
+  color: #ffffff;
+  font-family: var(--font-head);
+  font-weight: 800;
+  font-size: 0.78rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  letter-spacing: 0.5px;
+}
+
+.session-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  text-align: left;
+  min-width: 0;
+}
+
+/* Nombre truncado con puntos suspensivos si es muy largo */
+.session-name {
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 0.82rem;
+  color: var(--gray-800);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
+}
+
+.session-tipo {
+  font-size: 0.7rem;
+  color: var(--purple);
+  font-weight: 600;
+}
+
+/* Flecha ▼ que rota al abrir el dropdown */
+.session-chevron {
+  font-size: 0.72rem;
+  color: var(--gray-400);
+  transition: transform 0.25s ease;
+  flex-shrink: 0;
+}
+
+/* ── Dropdown del widget de sesión ──
+   Invisible y desplazado por defecto, animado al abrirse */
+.session-dropdown {
+  position: absolute;
+  top: calc(100% + 12px);
+  /* Justo debajo del trigger */
+  right: 0;
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: 14px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+  min-width: 210px;
+  padding: 8px;
+  z-index: 9998;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-8px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.session-dropdown.open {
+  opacity: 1;
+  pointer-events: all;
+  transform: translateY(0);
+}
+
+/* Cada ítem del menú */
+.session-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 9px;
+  font-family: var(--font-head);
+  font-weight: 600;
+  font-size: 0.88rem;
+  color: var(--gray-800);
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s;
+  cursor: pointer;
+}
+
+.session-menu-item i {
+  width: 16px;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--gray-400);
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+
+.session-menu-item:hover {
+  background: var(--gray-100);
+  color: var(--purple);
+}
+
+.session-menu-item:hover i {
+  color: var(--purple);
+}
+
+/* Ítem resaltado (ej: link al panel admin/empresa) */
+.session-menu-highlight {
+  color: var(--purple);
+  font-weight: 700;
+}
+
+.session-menu-highlight i {
+  color: var(--purple);
+}
+
+/* Ítem de "Cerrar Sesión" (rojo con separador arriba) */
+.session-menu-danger {
+  color: #ef4444;
+  margin-top: 4px;
+  border-top: 1px solid var(--gray-200);
+  border-radius: 0 0 9px 9px;
+  padding-top: 12px;
+}
+
+.session-menu-danger i {
+  color: #ef4444;
+}
+
+.session-menu-danger:hover {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+/* Dark mode del widget de sesión */
+body.dark-mode .session-trigger {
+  background: rgba(168, 85, 247, 0.12);
+  border-color: rgba(168, 85, 247, 0.3);
+}
+
+body.dark-mode .session-name {
+  color: #f1f5f9;
+}
+
+body.dark-mode .session-tipo {
+  color: var(--purple-light);
+}
+
+body.dark-mode .session-dropdown {
+  background: #1e293b;
+  border-color: #334155;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+}
+
+body.dark-mode .session-menu-item {
+  color: #f1f5f9;
+}
+
+body.dark-mode .session-menu-item:hover {
+  background: #0f172a;
+  color: var(--purple-light);
+}
+
+body.dark-mode .session-menu-danger {
+  border-top-color: #334155;
+}
+
+body.dark-mode .session-menu-danger:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+/* ===========================
+   TOAST DE BIENVENIDA
+   Aparece tras iniciar sesión correctamente
+=========================== */
+.welcome-toast {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-left: 4px solid var(--purple);
+  /* Acento morado izquierdo */
+  border-radius: 14px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.14);
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  z-index: 9999;
+  max-width: 320px;
+  opacity: 0;
+  /* Invisible por defecto */
+  transform: translateY(20px);
+  pointer-events: none;
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+.welcome-toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Aparece con animación */
+
+.welcome-toast-icon {
+  font-size: 1.8rem;
+  flex-shrink: 0;
+}
+
+.welcome-toast-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.welcome-toast-text strong {
+  font-family: var(--font-head);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--gray-800);
+}
+
+.welcome-toast-text span {
+  font-size: 0.8rem;
+  color: var(--gray-600);
+}
+
+body.dark-mode .welcome-toast {
+  background: #1e293b;
+  border-color: #334155;
+  border-left-color: var(--purple-light);
+}
+
+body.dark-mode .welcome-toast-text strong {
+  color: #f1f5f9;
+}
+
+body.dark-mode .welcome-toast-text span {
+  color: #94a3b8;
+}
+
+/* ===========================
+   CUENTAS DEMO
+   Botones de acceso rápido con credenciales de prueba
+=========================== */
+.demo-accounts {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.demo-label {
+  font-family: var(--font-head);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--gray-400);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* 2 botones demo en una fila, el 3ro ocupa toda la fila */
+.demo-btns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.demo-btns .demo-btn:last-child {
+  grid-column: 1 / -1;
+}
+
+/* Cada botón demo */
+.demo-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: 12px;
+  background: var(--gray-100);
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, transform 0.15s;
+  text-align: left;
+}
+
+.demo-btn:hover {
+  border-color: var(--purple);
+  background: rgba(124, 58, 237, 0.05);
+  transform: translateY(-1px);
+}
+
+.demo-btn.demo-filled {
+  border-color: #22c55e;
+  background: #f0fdf4;
+}
+
+/* Verde cuando fue seleccionado */
+
+/* Avatar circular del usuario demo */
+.demo-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-family: var(--font-head);
+  font-weight: 800;
+  font-size: 0.72rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #fff;
+  letter-spacing: 0.5px;
+}
+
+.demo-avatar-v {
+  background: linear-gradient(135deg, #7c3aed, #a855f7);
+}
+
+/* Morado: viajero */
+.demo-avatar-e {
+  background: linear-gradient(135deg, #0ea5e9, #6366f1);
+}
+
+/* Azul: admin */
+
+.demo-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1;
+  min-width: 0;
+}
+
+.demo-name {
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 0.78rem;
+  color: var(--gray-800);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.demo-tipo {
+  font-size: 0.68rem;
+  color: var(--gray-400);
+  font-weight: 600;
+}
+
+/* Flecha → que se mueve al hacer hover */
+.demo-arrow {
+  font-size: 0.7rem;
+  color: var(--gray-400);
+  flex-shrink: 0;
+  transition: color 0.2s, transform 0.2s;
+}
+
+.demo-btn:hover .demo-arrow {
+  color: var(--purple);
+  transform: translateX(2px);
+}
+
+body.dark-mode .demo-btn {
+  background: #0f172a;
+  border-color: #334155;
+}
+
+body.dark-mode .demo-btn:hover {
+  border-color: var(--purple-light);
+  background: rgba(168, 85, 247, 0.08);
+}
+
+body.dark-mode .demo-btn.demo-filled {
+  border-color: #22c55e;
+  background: rgba(34, 197, 94, 0.08);
+}
+
+body.dark-mode .demo-name {
+  color: #f1f5f9;
+}
+
+/* ============================================================
+   RESPONSIVE CONSOLIDADO
+   ============================================================ */
+
+/* ── Tablet / navbar ancha (≤ 900px) ── */
+@media (max-width: 900px) {
+
+  /* Ocultar texto del widget de sesión, dejar solo el avatar */
+  .session-info,
+  .session-chevron {
+    display: none;
+  }
+
+  .session-trigger {
+    padding: 4px 8px 4px 5px;
+    gap: 6px;
+  }
+
+  .session-dropdown {
+    right: 0;
+    min-width: 180px;
+  }
+}
+
+/* ── Móvil grande (≤ 560px) ── */
+@media (max-width: 560px) {
+
+  .auth-box {
+    border-radius: 16px;
+    max-height: 96vh;
+  }
+
+  .auth-header {
+    padding: 24px 20px 18px;
+    border-radius: 16px 16px 0 0;
+  }
+
+  .auth-logo-text {
+    font-size: 0.95rem;
+  }
+
+  .auth-tabs {
+    margin: 0 14px;
+    margin-top: 20px;
+  }
+
+  .auth-body {
+    padding: 16px 16px 24px;
+  }
+
+  /* Nombre + Apellido pasan a 1 columna */
+  .field-row {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  /* Botones sociales en columna */
+  .social-auth {
+    grid-template-columns: 1fr;
+  }
+
+  /* Botones de tipo de usuario más compactos */
+  .user-type-group {
+    gap: 8px;
+  }
+
+  .user-type-btn {
+    padding: 10px 6px;
+    font-size: 0.74rem;
+  }
+
+  .user-type-btn i {
+    font-size: 1.1rem;
+  }
+
+  /* Botones de tipo de servicio de empresa más compactos */
+  .service-type-group {
+    gap: 8px;
+  }
+
+  .service-type-btn {
+    padding: 10px 6px;
+    font-size: 0.74rem;
+  }
+
+  .service-type-btn i {
+    font-size: 1.1rem;
+  }
+
+  /* Botones demo en columna */
+  .demo-btns {
+    grid-template-columns: 1fr;
+  }
+
+  .demo-btns .demo-btn:last-child {
+    grid-column: auto;
+  }
+
+  /* El 3ro ya no necesita span */
+}
+
+/* ── Móvil pequeño (≤ 480px) ── */
+@media (max-width: 480px) {
+
+  .auth-box {
+    border-radius: 14px;
+    max-height: 98vh;
+  }
+
+  .auth-header {
+    padding: 20px 16px 16px;
+    border-radius: 14px 14px 0 0;
+  }
+
+  .auth-tabs {
+    margin: 0 12px;
+    margin-top: 16px;
+  }
+
+  .auth-body {
+    padding: 14px 14px 22px;
+  }
+
+  /* El toast de bienvenida ocupa todo el ancho */
+  .welcome-toast {
+    bottom: 16px;
+    right: 16px;
+    left: 16px;
+    max-width: none;
+  }
+
+  /* Código de país más estrecho */
+  .tel-wrap-simple .tel-cod,
+  .tel-cod {
+    width: 90px;
+    font-size: 0.82rem;
+  }
+
+  /* Barra de pasos más estrecha */
+  .reg-step-dot {
+    width: 22px;
+  }
+
+  .btn-back {
+    width: 40px;
+  }
+}
+/* ===========================
+   LOGIN PAGE (página dedicada)
+   Estilos para login.html.
+   Usa las variables de index.css.
+=========================== */
+
+/* ── Fondo: claro en light mode, oscuro en dark mode ── */
+.login-page-bg {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0 16px 48px;
+  background: #f1f5f9;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.3s;
+}
+
+
+
+
+
+/* Fondo oscuro cuando dark mode está activo */
+body.dark-mode .login-page-bg {
+  background: #080f1a;
+}
+
+
+
+/* ── Barra superior: botón volver + dark mode ── */
+.login-page-topbar {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 0;
+  position: relative;
+  z-index: 1;
+}
+
+.btn-back-home {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--gray-600);
+  text-decoration: none;
+  font-family: var(--font-head);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  transition: color 0.2s;
+}
+
+.btn-back-home:hover {
+  color: var(--purple);
+}
+
+.btn-back-home i {
+  font-size: 0.78rem;
+}
+
+/* En dark mode el texto del botón volver se aclara */
+body.dark-mode .btn-back-home {
+  color: #94a3b8;
+}
+
+body.dark-mode .btn-back-home:hover {
+  color: var(--purple-light);
+}
+
+/* ── Botón dark mode sobre el fondo de la página ── */
+.login-page-bg .btn-dark-mode {
+  border-color: var(--gray-200);
+  color: var(--gray-600);
+  background: var(--white);
+}
+
+.login-page-bg .btn-dark-mode:hover {
+  background: var(--purple);
+  border-color: var(--purple);
+  color: #fff;
+  transform: rotate(20deg);
+}
+
+body.dark-mode .login-page-bg .btn-dark-mode {
+  border-color: #334155;
+  color: #94a3b8;
+  background: #1e293b;
+}
+
+body.dark-mode .login-page-bg .btn-dark-mode:hover {
+  background: var(--purple);
+  border-color: var(--purple);
+  color: #fff;
+}
+
+/* ── Tarjeta del formulario ── */
+.login-page-card {
+  width: 100%;
+  max-width: 480px;
+  border-radius: 20px;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+}
+
+.login-page-card .auth-box {
+  position: static !important;
+  transform: none !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  opacity: 1 !important;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.12) !important;
+  border-radius: 20px !important;
+}
+
+body.dark-mode .login-page-card .auth-box {
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45) !important;
+}
+
+.login-page-card .auth-close {
+  display: none !important;
+}
+
+/* ===========================
+   SCROLLBAR PERSONALIZADA
+   Coincide con los colores del sitio en light y dark mode
+=========================== */
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--purple) var(--gray-200);
+}
+
+/* Chrome, Edge, Safari */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--gray-200);     /* Gris claro — igual que los bordes del sitio */
+  border-radius: 99px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--purple);       /* Morado principal de la marca */
+  border-radius: 99px;
+  border: 2px solid var(--gray-200); /* Pequeño borde para separarla del track */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--purple-light); /* Morado más claro al pasar el cursor */
+}
+
+/* ── Dark mode ── */
+body.dark-mode * {
+  scrollbar-color: var(--purple-light) #1e293b;
+}
+
+body.dark-mode ::-webkit-scrollbar-track {
+  background: #1e293b;             /* Fondo oscuro — igual que --dark-footer */
+}
+
+body.dark-mode ::-webkit-scrollbar-thumb {
+  background: var(--purple-light); /* Morado claro sobre fondo oscuro */
+  border-color: #1e293b;
+}
+
+body.dark-mode ::-webkit-scrollbar-thumb:hover {
+  background: var(--purple);
+}
+
+@media (max-width: 520px) {
+  .login-page-card { border-radius: 16px; }
+  .login-page-topbar { max-width: 100%; }
+}

@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Configuración - TourismEasy</title>
+    <link rel="stylesheet" href="../css/index.css" />
+    <link rel="stylesheet" href="../css/login.css" />
+    <link rel="stylesheet" href="../css/paginas_usuario.css" />
+    <link rel="stylesheet" href="../css/carrito.css" />
+    <link rel="stylesheet" href="../css/agente-ia.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
+</head>
+
+<body>
+    <div id="site-navbar" data-context="subpage"></div>
+
+    <main class="pu-main">
+        <div class="perfil-layout">
+            <!-- SIDEBAR -->
+            <aside class="perfil-sidebar">
+                <div class="pu-sidebar-avatar" id="sidebarAvatar">—</div>
+                <div class="pu-sidebar-nombre" id="sidebarNombre">
+                    Cargando...
+                </div>
+                <div class="pu-sidebar-tipo">
+                    <i class="fa-solid fa-person-walking-luggage"></i> Viajero
+                </div>
+
+                <nav class="pu-sidebar-nav">
+                    <a href="perfil_viajero.html" class="pu-nav-item"><i class="fa-solid fa-user"></i> Mi Perfil</a>
+                    <a href="reservas_viajero.html" class="pu-nav-item"><i class="fa-solid fa-calendar-check"></i> Mis
+            Reservas</a>
+                    <a href="config_viajero.html" class="pu-nav-item active"><i class="fa-solid fa-gear"></i> Configuración</a>
+                </nav>
+
+                <div class="pu-sidebar-promo">
+                    <p class="pu-sidebar-promo__title">
+                        <i class="fa-solid fa-heart"></i> Gracias por elegirnos
+                    </p>
+                    <p class="pu-sidebar-promo__text">
+                        En <strong>TourismEasy</strong> trabajamos para que cada destino en Santander sea una experiencia sin barreras. ¡Tu confianza nos ayuda a crecer!
+                    </p>
+                    <div class="pu-sidebar-promo__nivel">
+                        <span class="pu-sidebar-promo__nivel-label">Nivel de Viajero</span>
+                        <div class="pu-nivel-bar">
+                            <div class="pu-nivel-bar__fill"></div>
+                        </div>
+                        <span class="pu-sidebar-promo__nivel-nombre">Explorador Silver</span>
+                    </div>
+                </div>
+
+                <div class="pu-nav-logout-wrapper">
+                    <a href="#" class="pu-nav-item pu-nav-danger" id="sidebarLogout">
+                        <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión
+                    </a>
+                </div>
+            </aside>
+
+            <!-- CONTENIDO -->
+            <div class="pu-content">
+                <div class="pu-page-header">
+                    <h1><i class="fa-solid fa-gear"></i> Configuración</h1>
+                </div>
+
+                <!-- Cuenta -->
+                <div class="pu-card">
+                    <div class="pu-card-title">
+                        <i class="fa-solid fa-user-gear"></i> Cuenta
+                    </div>
+
+                    <div class="pu-config-item">
+                        <div>
+                            <strong>Correo electrónico</strong>
+                            <p id="configEmail">viajero@tourismeasy.com</p>
+                        </div>
+                        <button class="pu-btn-secondary" id="btnCambiarEmail">
+              <i class="fa-solid fa-envelope"></i> Cambiar
+            </button>
+                    </div>
+
+                    <div class="pu-config-item">
+                        <div>
+                            <strong>Contraseña</strong>
+                            <p>••••••••</p>
+                        </div>
+                        <button class="pu-btn-secondary" id="btnCambiarPass">
+              <i class="fa-solid fa-lock"></i> Cambiar
+            </button>
+                    </div>
+                </div>
+
+                <!-- Apariencia -->
+                <div class="pu-card">
+                    <div class="pu-card-title">
+                        <i class="fa-solid fa-palette"></i> Apariencia
+                    </div>
+
+                    <div class="pu-toggle-item">
+                        <div>
+                            <strong>Modo oscuro</strong>
+                            <p>Cambia entre tema claro y oscuro</p>
+                        </div>
+                        <label class="pu-toggle">
+              <input type="checkbox" id="themeToggle" />
+              <span class="pu-toggle-slider"></span>
+            </label>
+                    </div>
+                </div>
+
+                <!-- Notificaciones -->
+                <div class="pu-card">
+                    <div class="pu-card-title">
+                        <i class="fa-solid fa-bell"></i> Notificaciones
+                    </div>
+
+                    <div class="pu-toggle-item">
+                        <div>
+                            <strong>Confirmaciones de reserva</strong>
+                            <p>Recibe un correo al confirmar una reserva</p>
+                        </div>
+                        <label class="pu-toggle">
+              <input type="checkbox" id="notifReservas" checked />
+              <span class="pu-toggle-slider"></span>
+            </label>
+                    </div>
+
+                    <div class="pu-toggle-item">
+                        <div>
+                            <strong>Ofertas y promociones</strong>
+                            <p>Descuentos exclusivos y novedades de Santander</p>
+                        </div>
+                        <label class="pu-toggle">
+              <input type="checkbox" id="notifOfertas" checked />
+              <span class="pu-toggle-slider"></span>
+            </label>
+                    </div>
+
+                    <div class="pu-toggle-item">
+                        <div>
+                            <strong>Recordatorios de viaje</strong>
+                            <p>Alertas antes de tu próximo viaje</p>
+                        </div>
+                        <label class="pu-toggle">
+              <input type="checkbox" id="notifRecordatorios" checked />
+              <span class="pu-toggle-slider"></span>
+            </label>
+                    </div>
+
+                    <button class="pu-btn-primary" id="btnGuardarNotif">
+            <i class="fa-solid fa-check"></i> Guardar preferencias
+          </button>
+                </div>
+
+                <!-- Zona de peligro -->
+                <div class="pu-card pu-card-danger">
+                    <div class="pu-card-title">
+                        <i class="fa-solid fa-triangle-exclamation"></i> Zona de peligro
+                    </div>
+                    <div class="pu-config-item">
+                        <div>
+                            <strong>Eliminar cuenta</strong>
+                            <p>Esta acción es permanente y no se puede deshacer</p>
+                        </div>
+                        <button class="pu-btn-danger" id="btnEliminarCuenta">
+              <i class="fa-solid fa-trash"></i> Eliminar
+            </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="site-footer"></div>
+
+    <!-- Componentes compartidos, mismo orden que transporte.html -->
+    <script src="../componentes/navbar.js"></script>
+    <script src="../componentes/btn-acceder.js"></script>
+    <script src="../componentes/dark-mode-toggle.js"></script>
+    <script src="../componentes/footer.js"></script>
+
+    <script src="../componentes/carrito.js"></script>
+    <script src="../js/login.js"></script>
+    <script src="../componentes/agente-ia.js"></script>
+    <script src="../js/usuario_viajero.js"></script>
+
+    <script>
+        // Preferencias del viajero (CONFIG_VIAJERO) - 100% desde la BD, sin localStorage
+        (function() {
+            var sesion = {};
+            try {
+                sesion = JSON.parse(sessionStorage.getItem("te_session") || "{}");
+            } catch (e) {}
+
+            var API_BASE = window.location.origin + '/Tourismeasy/login/';
+            var themeEl = document.getElementById("themeToggle");
+            var btnGuardar = document.getElementById("btnGuardarNotif");
+
+            // Nombre, avatar y correo reales del viajero (antes se quedaba fijo en el placeholder)
+            var nmEl = document.getElementById("sidebarNombre");
+            var avEl = document.getElementById("sidebarAvatar");
+            var emEl = document.getElementById("configEmail");
+            if (nmEl) nmEl.textContent = sesion.nombre || "Viajero";
+            if (avEl) {
+                avEl.textContent = sesion.avatar || (sesion.nombre || "").trim().split(/\s+/).map(function(w) {
+                    return w[0] || "";
+                }).join("").toUpperCase().slice(0, 2) || "VJ";
+            }
+            if (emEl) emEl.textContent = sesion.email || "";
+
+            if (!sesion.id) return;
+
+            // Cargar preferencias guardadas desde la BD
+            fetch(API_BASE + 'get_config_viajero.php?id=' + encodeURIComponent(sesion.id))
+                .then(function(r) {
+                    return r.json();
+                })
+                .then(function(data) {
+                    if (!data.ok || !data.config) return;
+                    var cfg = data.config;
+                    var el;
+                    el = document.getElementById("notifReservas");
+                    if (el) el.checked = !!cfg.notif_confirmaciones;
+                    el = document.getElementById("notifOfertas");
+                    if (el) el.checked = !!cfg.notif_ofertas;
+                    el = document.getElementById("notifRecordatorios");
+                    if (el) el.checked = !!cfg.notif_recordatorios;
+                    if (themeEl) themeEl.checked = !!cfg.tema_oscuro;
+
+                    // El tema guardado en la BD manda sobre lo detectado localmente
+                    if (cfg.tema_oscuro !== null && cfg.tema_oscuro !== undefined && typeof applyTheme === "function") {
+                        applyTheme(!!cfg.tema_oscuro);
+                    }
+                })
+                .catch(function(err) {
+                    console.error("No se pudieron cargar las preferencias:", err);
+                });
+
+            // Guardar notificaciones + tema
+            if (btnGuardar) {
+                btnGuardar.addEventListener("click", function() {
+                    var payload = {
+                        id: sesion.id,
+                        notif_confirmaciones: !!document.getElementById("notifReservas").checked,
+                        notif_ofertas: !!document.getElementById("notifOfertas").checked,
+                        notif_recordatorios: !!document.getElementById("notifRecordatorios").checked,
+                        tema_oscuro: themeEl ? !!themeEl.checked : false,
+                    };
+
+                    fetch(API_BASE + 'actualizar_config_viajero.php', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(payload),
+                        })
+                        .then(function(r) {
+                            return r.json();
+                        })
+                        .then(function(data) {
+                            if (!data.ok) {
+                                alert(data.error || "No se pudieron guardar las preferencias.");
+                                return;
+                            }
+                            if (themeEl && typeof applyTheme === "function") {
+                                applyTheme(themeEl.checked);
+                            }
+                            var btn = btnGuardar;
+                            btn.innerHTML = '<i class="fa-solid fa-circle-check"></i> ¡Guardado!';
+                            setTimeout(function() {
+                                btn.innerHTML = '<i class="fa-solid fa-check"></i> Guardar preferencias';
+                            }, 1800);
+                        })
+                        .catch(function(err) {
+                            console.error("Error al guardar las preferencias:", err);
+                            alert("No se pudieron guardar las preferencias. Intenta de nuevo.");
+                        });
+                });
+            }
+        })();
+
+        // Cambiar correo
+        document
+            .getElementById("btnCambiarEmail")
+            .addEventListener("click", function() {
+                var nuevo = prompt("Ingresa tu nuevo correo electrónico:");
+                if (nuevo && nuevo.includes("@")) {
+                    var sess = JSON.parse(sessionStorage.getItem("te_session") || "{}");
+                    sess.email = nuevo;
+                    sessionStorage.setItem("te_session", JSON.stringify(sess));
+                    var el = document.getElementById("configEmail");
+                    if (el) el.textContent = nuevo;
+                    alert("Correo actualizado correctamente.");
+                }
+            });
+
+        // Cambiar contraseña
+        document
+            .getElementById("btnCambiarPass")
+            .addEventListener("click", function() {
+                alert(
+                    "Funcionalidad de cambio de contraseña próximamente disponible.",
+                );
+            });
+
+        // Eliminar cuenta
+        document
+            .getElementById("btnEliminarCuenta")
+            .addEventListener("click", function() {
+                if (
+                    confirm(
+                        "¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer.",
+                    )
+                ) {
+                    sessionStorage.removeItem("te_session");
+                    localStorage.removeItem("te_perfil_viajero");
+                    window.location.href = "../index.html";
+                }
+            });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <script src="../js/santanderianidad.js"></script>
+</body>
+
+</html>

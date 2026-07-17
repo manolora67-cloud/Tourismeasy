@@ -1,0 +1,955 @@
+/* ═══════════════════════════════════════════════════════════════
+   carrito.css — TourismEasy
+   Estilos del carrito de reservas:
+   - Botón del carrito en la navbar (con badge de cantidad)
+   - Panel de ítems en reservas_viajero.html
+   - Toast de confirmación al añadir un ítem
+   - Modal de checkout paso a paso
+═══════════════════════════════════════════════════════════════ */
+
+/* ══════════════════════════════════════════════════════
+   BOTÓN DEL CARRITO EN LA NAVBAR
+   Círculo morado semitransparente con ícono de carrito
+══════════════════════════════════════════════════════ */
+.te-cart-nav-btn {
+  position: relative; /* Para posicionar el badge encima */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(124, 58, 237, 0.08);
+  border: 1.5px solid rgba(124, 58, 237, 0.2);
+  color: var(--purple, #7c3aed);
+  font-size: 1rem;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.15s;
+  margin-right: 6px;
+}
+
+.te-cart-nav-btn:hover {
+  background: rgba(124, 58, 237, 0.16);
+  transform: scale(1.08);
+}
+
+body.dark-mode .te-cart-nav-btn {
+  background: rgba(168, 85, 247, 0.12);
+  border-color: rgba(168, 85, 247, 0.3);
+  color: #a855f7;
+}
+
+/* Badge rojo con la cantidad de ítems en el carrito */
+.te-cart-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 999px; /* Completamente redondeado */
+  background: #7c3aed;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  border: 2px solid var(--white, #fff); /* Borde blanco para separarlo del botón */
+  font-family: var(--font-head, 'Montserrat', sans-serif);
+}
+
+body.dark-mode .te-cart-badge {
+  border-color: #1e293b; /* En dark mode el borde se adapta al fondo oscuro */
+}
+
+/* ══════════════════════════════════════════════════════
+   PANEL DEL CARRITO en reservas_viajero.html
+   Muestra la lista de ítems, el total y los botones de acción
+══════════════════════════════════════════════════════ */
+
+/* Contenedor general del panel */
+#te-carrito-wrapper { margin-top: 24px; }
+
+/* Tarjeta visual del panel */
+.te-carrito-card {
+  background: var(--white, #fff);
+  border: 1.5px solid var(--gray-200, #e2e8f0);
+  border-radius: 20px;
+  padding: 28px 28px 24px;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.05);
+}
+
+body.dark-mode .te-carrito-card {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+/* Encabezado del panel: ícono + título */
+.te-carrito-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1.5px solid var(--gray-200, #e2e8f0);
+}
+
+body.dark-mode .te-carrito-header { border-color: #334155; }
+
+.te-carrito-header i  { font-size: 1.2rem; color: var(--purple, #7c3aed); }
+
+.te-carrito-header h3 {
+  font-family: var(--font-head, 'Montserrat', sans-serif);
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--gray-800, #1e293b);
+  margin: 0;
+}
+
+body.dark-mode .te-carrito-header h3 { color: #f1f5f9; }
+
+/* ── Lista de ítems del carrito ── */
+.te-cart-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Cada ítem: ícono + info + botón quitar */
+.te-cart-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(124, 58, 237, 0.04);
+  border: 1px solid rgba(124, 58, 237, 0.1);
+  transition: background 0.15s;
+}
+
+.te-cart-item:hover { background: rgba(124, 58, 237, 0.08); }
+
+body.dark-mode .te-cart-item {
+  background: rgba(168, 85, 247, 0.07);
+  border-color: rgba(168, 85, 247, 0.15);
+}
+
+/* Cuadrado con el ícono del tipo de servicio */
+.te-cart-item-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(124, 58, 237, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--purple, #7c3aed);
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
+/* Columna de texto: nombre + tipo + precio */
+.te-cart-item-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0; /* Permite que el texto se trunque si es muy largo */
+}
+
+/* Nombre del servicio: truncado con puntos suspensivos si es largo */
+.te-cart-item-nombre {
+  font-family: var(--font-head, 'Montserrat', sans-serif);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--gray-800, #1e293b);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+body.dark-mode .te-cart-item-nombre { color: #f1f5f9; }
+
+/* Tipo de servicio en gris pequeño */
+.te-cart-item-tipo {
+  font-size: 0.75rem;
+  color: var(--gray-600, #64748b);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Precio del ítem en morado */
+.te-cart-item-precio { font-size: 0.82rem; font-weight: 700; color: var(--purple, #7c3aed); }
+
+/* Botón × para quitar el ítem del carrito */
+.te-cart-item-remove {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--gray-400, #94a3b8);
+  font-size: 0.9rem;
+  padding: 4px 6px;
+  border-radius: 6px;
+  transition: color 0.15s, background 0.15s;
+  flex-shrink: 0;
+}
+
+/* Al hacer hover: se pone rojo para indicar que es una acción destructiva */
+.te-cart-item-remove:hover {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.08);
+}
+
+/* ── Fila de total ── */
+.te-cart-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 18px;
+  padding: 14px 0 0;
+  border-top: 1.5px solid var(--gray-200, #e2e8f0);
+  font-family: var(--font-head, 'Montserrat', sans-serif);
+  font-size: 0.95rem;
+  color: var(--gray-700, #334155);
+}
+
+body.dark-mode .te-cart-total { border-color: #334155; color: #cbd5e1; }
+
+.te-cart-total strong {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--purple, #7c3aed);
+}
+
+/* ── Botones de acción del carrito ── */
+
+/* Botón principal: confirmar y pagar */
+.te-cart-confirmar {
+  width: 100%;
+  margin-top: 14px;
+  padding: 13px;
+  border: none;
+  border-radius: 12px;
+  background: var(--purple, #7c3aed);
+  color: #fff;
+  font-family: var(--font-head, 'Montserrat', sans-serif);
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: opacity 0.2s, transform 0.15s;
+}
+
+.te-cart-confirmar:hover { opacity: 0.88; transform: translateY(-1px); }
+
+/* Botón secundario: vaciar carrito (outline, se pone rojo al hacer hover) */
+.te-cart-vaciar {
+  width: 100%;
+  margin-top: 8px;
+  padding: 10px;
+  border: 1.5px solid var(--gray-200, #e2e8f0);
+  border-radius: 12px;
+  background: transparent;
+  color: var(--gray-600, #64748b);
+  font-family: var(--font-head, 'Montserrat', sans-serif);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.te-cart-vaciar:hover {
+  background: rgba(239, 68, 68, 0.07);
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+body.dark-mode .te-cart-vaciar { border-color: #334155; color: #94a3b8; }
+
+/* ── Estado vacío: cuando no hay ítems en el carrito ── */
+.te-cart-empty {
+  text-align: center;
+  padding: 32px 16px;
+  color: var(--gray-400, #94a3b8);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.te-cart-empty i { font-size: 2rem; display: block; margin-bottom: 8px; }
+
+/* ══════════════════════════════════════════════════════
+   BOTÓN "AÑADIR AL CARRITO" en tarjetas de servicio
+   Aparece junto al botón "Ver Detalles" / "Reservar"
+══════════════════════════════════════════════════════ */
+.btn-carrito {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 18px;
+  border-radius: 50px;
+  border: 1.5px solid var(--purple, #7c3aed);
+  background: transparent; /* Outline por defecto */
+  color: var(--purple, #7c3aed);
+  font-family: var(--font-head, 'Montserrat', sans-serif);
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s, transform 0.12s;
+  white-space: nowrap;
+}
+
+.btn-carrito:hover {
+  background: var(--purple, #7c3aed);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+/* Estado "añadido": el botón se rellena de morado */
+.btn-carrito--added { background: var(--purple, #7c3aed); color: #fff; }
+.btn-carrito--added:hover { background: #5b21b6; border-color: #5b21b6; }
+
+body.dark-mode .btn-carrito { color: #a855f7; border-color: #a855f7; }
+body.dark-mode .btn-carrito:hover,
+body.dark-mode .btn-carrito--added { background: #a855f7; color: #fff; border-color: #a855f7; }
+
+/* ══════════════════════════════════════════════════════
+   TOAST DE CONFIRMACIÓN
+   Notificación flotante en la esquina inferior derecha
+══════════════════════════════════════════════════════ */
+.te-toast {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 20px;
+  border-radius: 14px;
+  font-family: var(--font-head, 'Montserrat', sans-serif);
+  font-size: 0.88rem;
+  font-weight: 600;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  opacity: 0;                    /* Invisible por defecto */
+  transform: translateY(16px);   /* Desplazado abajo */
+  pointer-events: none;
+  transition: opacity 0.28s, transform 0.28s;
+  max-width: 340px;
+}
+
+/* Al agregar .te-toast--show: aparece con animación */
+.te-toast--show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+
+.te-toast--success { background: #f0fdf4; color: #15803d; border: 1.5px solid #bbf7d0; } /* Verde */
+.te-toast--info    { background: #f5f3ff; color: #6d28d9; border: 1.5px solid #ddd6fe; } /* Morado */
+
+body.dark-mode .te-toast--success { background: #14532d; color: #86efac; border-color: #166534; }
+body.dark-mode .te-toast--info    { background: #2e1065; color: #c4b5fd; border-color: #4c1d95; }
+
+/* ══════════════════════════════════════════════════════
+   CHECKOUT FLOW — Modal de pago paso a paso
+   Se abre al hacer clic en "Confirmar Reservas"
+══════════════════════════════════════════════════════ */
+
+/* Fondo semitransparente con blur */
+.chk-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: rgba(10, 5, 30, 0.65);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.chk-overlay.chk-visible {
+  display: flex;
+  animation: chkFade 0.2s ease both;
+}
+
+@keyframes chkFade { from { opacity: 0; } to { opacity: 1; } }
+
+/* Caja blanca del modal */
+.chk-box {
+  background: #fff;
+  border-radius: 22px;
+  width: 100%;
+  max-width: 540px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.28);
+  animation: chkSlide 0.28s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+
+/* El modal sube y escala al entrar */
+@keyframes chkSlide {
+  from { opacity: 0; transform: translateY(24px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Línea de acento morado en la parte superior */
+.chk-topbar { height: 5px; background: linear-gradient(90deg, #7c3aed, #a855f7); flex-shrink: 0; }
+
+/* Encabezado: título + puntos de progreso + botón X */
+.chk-header { padding: 18px 24px 14px; border-bottom: 1px solid #f1f5f9; flex-shrink: 0; }
+.chk-header-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.chk-titulo {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1rem;
+  font-weight: 800;
+  color: #1e293b;
+  line-height: 1.3;
+  flex: 1;
+}
+
+/* Badge "N de M" que indica en qué ítem va el usuario */
+.chk-item-badge {
+  display: inline-block;
+  background: rgba(124,58,237,0.1);
+  color: #7c3aed;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 50px;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+/* Botón X para cancelar el checkout */
+.chk-close {
+  background: none;
+  border: none;
+  font-size: 26px;
+  color: #94a3b8;
+  cursor: pointer;
+  line-height: 1;
+  padding: 2px 6px;
+  border-radius: 6px;
+  flex-shrink: 0;
+  transition: color 0.15s, background 0.15s;
+}
+.chk-close:hover { color: #1e293b; background: #f1f5f9; }
+
+/* ── Indicadores de progreso (uno por ítem + uno de resumen) ── */
+.chk-steps { display: flex; align-items: center; gap: 8px; }
+
+.chk-step-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  color: #94a3b8;
+  font-size: 0.72rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Montserrat', sans-serif;
+  transition: background 0.2s, color 0.2s;
+  border: 2px solid transparent;
+}
+
+.chk-step-dot--active { background: #7c3aed; color: #fff; border-color: #7c3aed; } /* Paso actual */
+.chk-step-dot--done   { background: #dcfce7; color: #16a34a; border-color: #bbf7d0; } /* Paso completado */
+
+/* Línea conectora entre puntos */
+.chk-steps .chk-step-dot + .chk-step-dot::before {
+  content: '';
+  display: block;
+  width: 16px;
+  height: 2px;
+  background: #e2e8f0;
+  margin-right: 8px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* Área de contenido con scroll */
+.chk-body { flex: 1; overflow-y: auto; padding: 20px 24px; scroll-behavior: smooth; }
+
+/* Etiqueta de sección (ej: "DATOS DE LA RESERVA", "MÉTODO DE PAGO") */
+.chk-section-label {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #7c3aed;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+/* Grid de 2 columnas para los campos del formulario */
+.chk-form { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+
+.chk-field { display: flex; flex-direction: column; gap: 5px; }
+.chk-field--full { grid-column: 1 / -1; } /* Campo que ocupa las 2 columnas */
+
+/* Etiqueta del campo */
+.chk-label {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #475569;
+}
+
+.chk-req { color: #ef4444; } /* Asterisco de campo obligatorio */
+
+/* Inputs del formulario */
+.chk-input {
+  padding: 10px 12px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 0.88rem;
+  color: #1e293b;
+  background: #fff;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.chk-input:focus { border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,0.1); }
+
+/* Estado de error: borde rojo */
+.chk-input--error {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 3px rgba(239,68,68,0.1) !important;
+}
+
+/* Textarea redimensionable verticalmente */
+.chk-textarea { resize: vertical; min-height: 68px; line-height: 1.5; }
+
+/* Resumen del ítem actual: tipo y precio */
+.chk-item-resumen {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(124,58,237,0.05);
+  border: 1px solid rgba(124,58,237,0.15);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.82rem;
+  color: #475569;
+  margin-top: 4px;
+}
+
+.chk-item-resumen strong { font-size: 1rem; color: #7c3aed; font-weight: 800; }
+
+/* ── Selector de métodos de pago (2 columnas) ── */
+.chk-metodos { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px; }
+
+.chk-metodo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1.5px solid #e2e8f0;
+  background: #f8fafc;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, transform 0.15s;
+  text-align: left;
+}
+
+.chk-metodo:hover { border-color: #7c3aed; background: rgba(124,58,237,0.04); transform: translateY(-1px); }
+
+/* Método seleccionado: fondo morado claro */
+.chk-metodo--sel { border-color: #7c3aed; background: rgba(124,58,237,0.08); color: #5b21b6; }
+.chk-metodo i    { font-size: 1.1rem; flex-shrink: 0; }
+
+/* Texto de ayuda cuando ningún método está seleccionado */
+.chk-pago-hint {
+  text-align: center;
+  color: #94a3b8;
+  font-size: 0.85rem;
+  padding: 16px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.chk-pago-form { margin-top: 4px; }
+
+/* Datos bancarios para transferencia */
+.chk-banco-info {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.chk-banco-row { display: flex; justify-content: space-between; font-size: 0.82rem; }
+.chk-banco-row span   { color: #64748b; }
+.chk-banco-row strong { color: #1e293b; }
+
+/* ── Resumen final de todas las reservas completadas ── */
+.chk-resumen-lista { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; }
+
+.chk-resumen-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.chk-resumen-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(124,58,237,0.1);
+  color: #7c3aed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
+.chk-resumen-info          { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.chk-resumen-info strong   { font-family: 'Montserrat', sans-serif; font-size: 0.85rem; font-weight: 700; color: #1e293b; }
+.chk-resumen-info span     { font-size: 0.75rem; color: #64748b; }
+.chk-resumen-precio        { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 0.95rem; color: #7c3aed; flex-shrink: 0; }
+
+/* Fila del total general */
+.chk-resumen-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(124,58,237,0.07);
+  border: 1.5px solid rgba(124,58,237,0.2);
+  border-radius: 12px;
+  padding: 14px 18px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.85rem;
+  color: #475569;
+  margin-bottom: 16px;
+}
+
+.chk-resumen-total strong { font-size: 1.2rem; font-weight: 800; color: #7c3aed; }
+
+/* Mensaje informativo al final del resumen */
+.chk-resumen-msg {
+  font-size: 0.82rem;
+  color: #64748b;
+  line-height: 1.6;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+}
+
+.chk-resumen-msg i { color: #7c3aed; margin-top: 2px; flex-shrink: 0; }
+
+/* ── Pie del modal: botones "Volver" y "Siguiente/Pagar" ── */
+.chk-footer {
+  display: flex;
+  gap: 10px;
+  padding: 16px 24px 20px;
+  border-top: 1px solid #f1f5f9;
+  flex-shrink: 0;
+}
+
+/* Botón "Volver": outline */
+.chk-btn-back {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 11px 20px;
+  border-radius: 50px;
+  border: 1.5px solid #e2e8f0;
+  background: none;
+  color: #64748b;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+  white-space: nowrap;
+}
+
+.chk-btn-back:hover { border-color: #7c3aed; color: #7c3aed; }
+
+/* Botón "Siguiente / Pagar": morado sólido, ocupa el espacio restante */
+.chk-btn-next {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-radius: 50px;
+  border: none;
+  background: #7c3aed;
+  color: #fff;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.chk-btn-next:hover { background: #5b21b6; transform: translateY(-1px); }
+
+/* ── Dark mode del checkout ── */
+body.dark-mode .chk-box           { background: #1e293b; }
+body.dark-mode .chk-header        { border-color: #334155; }
+body.dark-mode .chk-titulo        { color: #f1f5f9; }
+body.dark-mode .chk-input         { background: #0f172a; border-color: #334155; color: #f1f5f9; }
+body.dark-mode .chk-input:focus   { border-color: #a855f7; }
+body.dark-mode .chk-label         { color: #94a3b8; }
+body.dark-mode .chk-metodo        { background: #0f172a; border-color: #334155; color: #94a3b8; }
+body.dark-mode .chk-metodo:hover,
+body.dark-mode .chk-metodo--sel   { border-color: #a855f7; background: rgba(168,85,247,0.1); color: #c4b5fd; }
+body.dark-mode .chk-item-resumen  { background: rgba(168,85,247,0.07); border-color: rgba(168,85,247,0.2); }
+body.dark-mode .chk-resumen-item,
+body.dark-mode .chk-banco-info    { background: #0f172a; border-color: #334155; }
+body.dark-mode .chk-resumen-info strong,
+body.dark-mode .chk-banco-row strong { color: #f1f5f9; }
+body.dark-mode .chk-footer        { border-color: #334155; }
+body.dark-mode .chk-btn-back      { border-color: #334155; color: #94a3b8; }
+body.dark-mode .chk-btn-back:hover { border-color: #a855f7; color: #a855f7; }
+body.dark-mode .chk-step-dot      { background: #334155; color: #64748b; }
+body.dark-mode .chk-resumen-total { background: rgba(168,85,247,0.1); border-color: rgba(168,85,247,0.25); }
+
+/* ── Responsive móvil ── */
+@media (max-width: 540px) {
+  /* El modal ocupa toda la pantalla */
+  .chk-box { max-height: 100vh; border-radius: 0; }
+
+  /* Los formularios y métodos de pago pasan a 1 columna */
+  .chk-form, .chk-metodos { grid-template-columns: 1fr; }
+  .chk-field--full        { grid-column: 1; }
+
+  /* Los botones del pie se apilan verticalmente */
+  .chk-footer    { flex-direction: column-reverse; }
+  .chk-btn-back  { justify-content: center; }
+}
+
+/* ════════════════════════════════════════════════════════════
+   MODAL DATOS DEL VIAJE (dc-*)
+════════════════════════════════════════════════════════════ */
+
+.dc-modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.6);
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.dc-modal-overlay.dc-visible {
+  display: flex;
+}
+
+.dc-modal-box {
+  background: #fff;
+  color: #1e293b;
+  border-radius: 1rem;
+  padding: 2rem;
+  width: 100%;
+  max-width: 460px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.dc-modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1.2rem;
+  font-size: 1.4rem;
+  cursor: pointer;
+  color: #94a3b8;
+  line-height: 1;
+  background: none;
+  border: none;
+}
+.dc-modal-close:hover { color: #1e293b; }
+
+.dc-modal-box h2 {
+  margin: 0 0 0.25rem;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #1e293b;
+}
+
+.dc-subtitle {
+  margin: 0 0 1.5rem;
+  font-size: 0.82rem;
+  color: #64748b;
+}
+
+.dc-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.dc-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.dc-field label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.dc-field input,
+.dc-field textarea,
+.dc-field select {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  padding: 0.6rem 0.85rem;
+  color: #1e293b;
+  font-size: 0.9rem;
+  width: 100%;
+  box-sizing: border-box;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+.dc-field input:focus,
+.dc-field textarea:focus,
+.dc-field select:focus {
+  outline: none;
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+}
+
+.dc-req { color: #f87171; }
+
+/* Fila con checkbox */
+.dc-field-inline {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+}
+.dc-field-inline label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: #1e293b;
+  flex-direction: row;
+}
+.dc-field-inline input[type="checkbox"] {
+  width: auto;
+  accent-color: #7c3aed;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.dc-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  justify-content: flex-end;
+}
+
+.dc-btn-primary {
+  background: #7c3aed;
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.7rem 1.3rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: inherit;
+  transition: background 0.2s, transform 0.15s;
+}
+.dc-btn-primary:hover { background: #6d28d9; transform: translateY(-1px); }
+
+.dc-btn-secondary {
+  background: transparent;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  padding: 0.7rem 1.3rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color 0.2s, color 0.2s;
+}
+.dc-btn-secondary:hover { border-color: #7c3aed; color: #7c3aed; }
+
+/* Dark mode */
+body.dark-mode .dc-modal-box       { background: #1e293b; color: #f1f5f9; }
+body.dark-mode .dc-modal-box h2    { color: #f1f5f9; }
+body.dark-mode .dc-modal-close     { color: #64748b; }
+body.dark-mode .dc-modal-close:hover { color: #f1f5f9; }
+body.dark-mode .dc-subtitle        { color: #94a3b8; }
+body.dark-mode .dc-field label     { color: #94a3b8; }
+body.dark-mode .dc-field input,
+body.dark-mode .dc-field textarea,
+body.dark-mode .dc-field select    { background: #0f172a; border-color: #334155; color: #f1f5f9; }
+body.dark-mode .dc-field input:focus,
+body.dark-mode .dc-field textarea:focus { border-color: #a855f7; }
+body.dark-mode .dc-field-inline label { color: #f1f5f9; }
+body.dark-mode .dc-btn-secondary   { border-color: #334155; color: #94a3b8; }
+body.dark-mode .dc-btn-secondary:hover { border-color: #a855f7; color: #a855f7; }
+
+/* Responsive */
+@media (max-width: 480px) {
+  .dc-modal-box  { padding: 1.5rem 1rem; }
+  .dc-actions    { flex-direction: column-reverse; }
+  .dc-btn-primary,
+  .dc-btn-secondary { justify-content: center; width: 100%; }
+}

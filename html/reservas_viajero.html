@@ -1,0 +1,1002 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mis Reservas - TourismEasy</title>
+    <link rel="stylesheet" href="../css/index.css" />
+    <link rel="stylesheet" href="../css/login.css" />
+    <link rel="stylesheet" href="../css/paginas_usuario.css" />
+    <link rel="stylesheet" href="../css/carrito.css" />
+    <link rel="stylesheet" href="../css/agente-ia.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://checkout.epayco.co/checkout.js"></script>
+    <style>
+        /* ePayco: tamaño controlado por zoom via JS */
+    </style>
+
+
+
+
+    <style>
+        /* Estilos específicos para el modal de recibo PDF */
+        
+        #reciboModal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: rgba(15, 10, 30, 0.55);
+            backdrop-filter: blur(3px);
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        
+        #reciboModal.open {
+            display: flex;
+        }
+        /* Caja del recibo */
+        
+        .rm-box {
+            background: #fff;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 500px;
+            overflow: hidden;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
+            animation: rmSlideIn 0.22s ease;
+        }
+        
+        @keyframes rmSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(18px) scale(0.98);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        /* Header morado */
+        
+        .rm-header {
+            background: linear-gradient(135deg, #7c3aed, #a855f7);
+            padding: 22px 24px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        
+        .rm-logo {
+            font-family: "Montserrat", sans-serif;
+            font-weight: 800;
+            font-size: 1.15rem;
+            color: #fff;
+            letter-spacing: 0.5px;
+            line-height: 1.2;
+        }
+        
+        .rm-logo span {
+            display: block;
+            font-size: 0.68rem;
+            font-weight: 400;
+            opacity: 0.82;
+            margin-top: 2px;
+        }
+        
+        .rm-num {
+            text-align: right;
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 0.75rem;
+            line-height: 1.5;
+        }
+        
+        .rm-num strong {
+            display: block;
+            color: #fff;
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+        /* Cuerpo */
+        
+        .rm-body {
+            padding: 20px 24px 0;
+        }
+        
+        .rm-section-title {
+            font-family: "Montserrat", sans-serif;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #7c3aed;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 0 0 10px;
+        }
+        
+        .rm-tabla {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 16px;
+        }
+        
+        .rm-tabla td {
+            padding: 9px 0;
+            font-size: 0.85rem;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        
+        .rm-tabla td:first-child {
+            color: #64748b;
+            font-weight: 600;
+            width: 42%;
+        }
+        
+        .rm-tabla td:last-child {
+            color: #1e293b;
+            font-weight: 700;
+            text-align: right;
+        }
+        /* Badge estado */
+        
+        .rm-estado {
+            display: inline-block;
+            background: #dcfce7;
+            color: #16a34a;
+            padding: 3px 12px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+        /* Total */
+        
+        .rm-total-row {
+            background: #f8f4ff;
+            border-radius: 12px;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+        
+        .rm-total-row span {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #64748b;
+            letter-spacing: 0.5px;
+        }
+        
+        .rm-total-row strong {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: #7c3aed;
+            font-family: "Montserrat", sans-serif;
+        }
+        /* Footer info */
+        
+        .rm-footer-text {
+            text-align: center;
+            font-size: 0.72rem;
+            color: #94a3b8;
+            padding: 10px 24px 16px;
+            border-top: 1px solid #f1f5f9;
+        }
+        
+        .rm-footer-text strong {
+            color: #7c3aed;
+        }
+        /* Botones de acción */
+        
+        .rm-actions {
+            display: flex;
+            gap: 10px;
+            padding: 0 24px 24px;
+        }
+        
+        .rm-btn-pdf {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: #7c3aed;
+            color: #fff;
+            border: none;
+            border-radius: 50px;
+            padding: 11px 0;
+            font-family: "Montserrat", sans-serif;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.15s;
+        }
+        
+        .rm-btn-pdf:hover {
+            background: #6d28d9;
+            transform: translateY(-1px);
+        }
+        
+        .rm-btn-close {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: none;
+            border: 1.5px solid #e2e8f0;
+            color: #475569;
+            border-radius: 50px;
+            padding: 11px 0;
+            font-family: "Montserrat", sans-serif;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: border-color 0.2s, color 0.2s;
+        }
+        
+        .rm-btn-close:hover {
+            border-color: #7c3aed;
+            color: #7c3aed;
+        }
+        /* Botón de cerrar en la esquina */
+        
+        .rm-x {
+            position: absolute;
+            top: 14px;
+            right: 18px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: #fff;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+        
+        .rm-x:hover {
+            background: rgba(255, 255, 255, 0.35);
+        }
+        
+        .rm-header {
+            position: relative;
+        }
+        /* Dark mode */
+        
+        body.dark-mode .rm-box {
+            background: #1e1b2e;
+        }
+        
+        body.dark-mode .rm-tabla td:first-child {
+            color: #94a3b8;
+        }
+        
+        body.dark-mode .rm-tabla td:last-child {
+            color: #e2e8f0;
+        }
+        
+        body.dark-mode .rm-tabla td {
+            border-color: #334155;
+        }
+        
+        body.dark-mode .rm-total-row {
+            background: rgba(124, 58, 237, 0.15);
+        }
+        
+        body.dark-mode .rm-total-row span {
+            color: #94a3b8;
+        }
+        
+        body.dark-mode .rm-footer-text {
+            color: #64748b;
+            border-color: #334155;
+        }
+        
+        body.dark-mode .rm-btn-close {
+            border-color: #334155;
+            color: #94a3b8;
+        }
+        
+        body.dark-mode .rm-btn-close:hover {
+            border-color: #7c3aed;
+            color: #a78bfa;
+        }
+    </style>
+    <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
+</head>
+
+<body>
+    <div id="site-navbar" data-context="subpage"></div>
+
+    <main class="pu-main">
+        <div class="pu-container pu-container--stretch">
+            <aside class="pu-sidebar pu-sidebar--reservas">
+                <div class="pu-sidebar-avatar" id="sidebarAvatar">CC</div>
+                <div class="pu-sidebar-nombre" id="sidebarNombre">
+                    Carlos Chaparro
+                </div>
+                <div class="pu-sidebar-tipo">
+                    <i class="fa-solid fa-person-walking-luggage"></i> Viajero
+                </div>
+
+                <nav class="pu-sidebar-nav">
+                    <a href="perfil_viajero.html" class="pu-nav-item"><i class="fa-solid fa-user"></i> Mi Perfil</a>
+                    <a href="reservas_viajero.html" class="pu-nav-item active"><i class="fa-solid fa-calendar-check"></i> Mis
+            Reservas</a>
+                    <a href="config_viajero.html" class="pu-nav-item"><i class="fa-solid fa-gear"></i> Configuracion</a>
+                </nav>
+
+                <div class="pu-sidebar-promo">
+                    <p class="pu-sidebar-promo__title">
+                        <i class="fa-solid fa-heart"></i> Gracias por elegirnos
+                    </p>
+                    <p class="pu-sidebar-promo__text">
+                        En <strong>TourismEasy</strong> trabajamos para que cada destino en Santander sea una experiencia sin barreras.¡Tu confianza nos ayuda a crecer!
+                    </p>
+                    <div class="pu-sidebar-promo__nivel">
+                        <span class="pu-sidebar-promo__nivel-label">Nivel de Viajero</span>
+                        <div class="pu-nivel-bar">
+                            <div class="pu-nivel-bar__fill"></div>
+                        </div>
+                        <span class="pu-sidebar-promo__nivel-nombre">Explorador Silver</span>
+                    </div>
+                </div>
+
+                <!-- Resumen rapido -->
+                <div class="pu-sidebar-bloque pu-sidebar-bloque--stats">
+                    <p class="pu-sidebar-bloque__title">
+                        <i class="fa-solid fa-chart-simple"></i> Tu actividad
+                    </p>
+                    <div class="pu-sidebar-bloque__stats">
+                        <div class="pu-sidebar-bloque__stat">
+                            <span class="pu-sidebar-bloque__num" id="stat-reservas">5</span>
+                            <span class="pu-sidebar-bloque__label">Reservas</span>
+                        </div>
+                        <div class="pu-sidebar-bloque__stat">
+                            <span class="pu-sidebar-bloque__num" id="stat-viajes">4</span>
+                            <span class="pu-sidebar-bloque__label">Viajes</span>
+                        </div>
+                        <div class="pu-sidebar-bloque__stat">
+                            <span class="pu-sidebar-bloque__num" id="stat-destinos">3</span>
+                            <span class="pu-sidebar-bloque__label">Destinos</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Accesos rapidos -->
+                <div class="pu-sidebar-bloque pu-sidebar-bloque--green">
+                    <p class="pu-sidebar-bloque__title pu-sidebar-bloque__title--green">
+                        <i class="fa-solid fa-bolt"></i> Explorar mas
+                    </p>
+                    <div class="pu-sidebar-bloque__links">
+                        <a href="transporte.html" class="pu-sidebar-bloque__link"><i class="fa-solid fa-bus"></i> Ver transporte</a>
+                        <a href="hospedaje.html" class="pu-sidebar-bloque__link"><i class="fa-solid fa-hotel"></i> Ver
+              hospedajes</a>
+                        <a href="planes_turisticos.html" class="pu-sidebar-bloque__link"><i
+                class="fa-solid fa-map-location-dot"></i> Ver planes</a>
+                    </div>
+                </div>
+
+                <div class="pu-nav-logout-wrapper">
+                    <a href="#" class="pu-nav-item pu-nav-danger" id="sidebarLogout">
+                        <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesion
+                    </a>
+                </div>
+            </aside>
+
+            <!-- CONTENIDO -->
+            <div class="pu-content">
+                <div class="pu-card">
+                    <div class="pu-card-title">
+                        <i class="fa-solid fa-calendar-days"></i> Historial de Reservas
+                    </div>
+                    <div class="pu-table-wrapper">
+                        <table class="pu-table">
+                            <thead>
+                                <tr class="pu-table__head-row">
+                                    <th class="pu-table__th">FECHA</th>
+                                    <th class="pu-table__th">SERVICIO</th>
+                                    <th class="pu-table__th">ESTADO</th>
+                                    <th class="pu-table__th">TOTAL</th>
+                                    <th class="pu-table__th pu-table__th--center">ACCION</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="pu-card pu-card--promo">
+                    <div class="pu-promo-inner">
+                        <div class="pu-promo-texto">
+                            <h3 class="pu-promo-titulo">¡Tu próxima aventura te espera!</h3>
+                            <p class="pu-promo-desc">
+                                Hola, tienes un 15% de descuento en tu próxima reserva de transporte a San Gil. Nuestras rutas cuentan con asistencia personalizada.
+                            </p>
+                        </div>
+                        <div class="pu-promo-precio">
+                            <p class="pu-promo-desde">DESDE</p>
+                            <h2 class="pu-promo-valor">$180.000</h2>
+                            <a href="transporte.html" class="pu-btn-primary">Reservar Ahora</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="te-carrito-wrapper">
+                    <div class="te-carrito-card">
+                        <div class="te-carrito-header">
+                            <i class="fa-solid fa-cart-shopping"></i>
+                            <h3>Carrito de Reservas</h3>
+                        </div>
+                        <div id="te-carrito-panel"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!--MODAL RECIBO PDF-->
+    <div id="reciboModal" role="dialog" aria-modal="true" aria-labelledby="rm-titulo">
+        <div class="rm-box">
+            <div class="rm-header">
+                <div class="rm-logo">
+                    TOURISMEASY
+                    <span>Plataforma de Turismo Accesible en Santander</span>
+                </div>
+                <div class="rm-num">
+                    Referencia ePayco
+                    <strong id="rm-numero">REF-000000</strong>
+                    <span id="rm-fecha-emision"></span>
+                </div>
+                <button class="rm-x" id="rmCerrarX" aria-label="Cerrar">
+          &times;
+        </button>
+            </div>
+
+            <div class="rm-body">
+                <!-- RESUMEN VITAL -->
+                <table class="rm-tabla">
+                    <tbody>
+                        <tr>
+                            <td>Referencia</td>
+                            <td id="rm-id-factura"></td>
+                        </tr>
+                        <tr>
+                            <td>Fecha</td>
+                            <td id="rm-fecha-emision-det"></td>
+                        </tr>
+                        <tr>
+                            <td>Servicio</td>
+                            <td id="rm-servicio"></td>
+                        </tr>
+                        <tr>
+                            <td>Estado ePayco</td>
+                            <td>
+                                <span class="rm-estado" id="rm-estado"></span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- Campos ocultos para PDF (no duplicar rm-numero/rm-fecha-emision que viven en el header) -->
+                <span id="rm-viajero" style="display:none"></span>
+                <span id="rm-id-reserva" style="display:none"></span>
+                <span id="rm-ciudad" style="display:none"></span>
+                <span id="rm-linea-item" style="display:none"></span>
+                <span id="rm-forma-pago" style="display:none"></span>
+                <span id="rm-precio-unitario" style="display:none"></span>
+                <span id="rm-subtotal" style="display:none"></span>
+                <span id="rm-descuento" style="display:none"></span>
+                <span id="rm-iva" style="display:none"></span>
+
+                <div class="rm-total-row">
+                    <span>VALOR TOTAL</span>
+                    <strong id="rm-total"></strong>
+                </div>
+            </div>
+
+            <div class="rm-footer-text">
+                Gracias por confiar en <strong>TourismEasy</strong>. Este documento es un comprobante de su reserva.<br /> soporte@tourismeasy.co &nbsp;&nbsp; Bucaramanga, Santander, Colombia
+            </div>
+
+            <div class="rm-actions">
+                <button class="rm-btn-pdf" id="rmDescargar">
+          <i class="fa-solid fa-file-arrow-down"></i> Descargar PDF
+        </button>
+                <button class="rm-btn-close" id="rmCerrar">
+          <i class="fa-solid fa-xmark"></i> Cerrar
+        </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="site-footer"></div>
+
+    <!-- MODAL FLUJO DE CHECKOUT -->
+    <div id="checkoutModal" class="chk-overlay" aria-hidden="true">
+        <div class="chk-box" role="dialog" aria-modal="true">
+            <!-- Barra superior -->
+            <div class="chk-topbar"></div>
+
+            <!-- Header con progreso -->
+            <div class="chk-header">
+                <div class="chk-header-top">
+                    <div class="chk-titulo" id="chk-titulo">Completar reserva</div>
+                    <button class="chk-close" id="chk-close" aria-label="Cerrar">
+            &times;
+          </button>
+                </div>
+                <!-- Indicadores de items -->
+                <div class="chk-steps" id="chk-steps"></div>
+            </div>
+
+            <!-- Cuerpo: formulario de datos -->
+            <div class="chk-body" id="chk-body"></div>
+
+            <!-- Footer: botones -->
+            <div class="chk-footer">
+                <button class="chk-btn-back" id="chk-back">
+          <i class="fa-solid fa-arrow-left"></i> Atras
+        </button>
+                <button class="chk-btn-next" id="chk-next">
+          Continuar <i class="fa-solid fa-arrow-right"></i>
+        </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Componentes compartidos, mismo orden que transporte.html -->
+    <script src="../componentes/navbar.js"></script>
+    <script src="../componentes/btn-acceder.js"></script>
+    <script src="../componentes/dark-mode-toggle.js"></script>
+    <script src="../componentes/footer.js"></script>
+
+    <script src="../componentes/carrito.js"></script>
+    <script src="../js/login.js"></script>
+    <script src="../componentes/agente-ia.js"></script>
+    <script src="../js/usuario_viajero.js"></script>
+
+    <script>
+        //  MODAL RECIBO + BOTONES PDF (filas estáticas y nuevas)
+        (function() {
+            // ── Mapa de métodos de pago ePayco ──
+            var METODOS_EPAYCO = {
+                "CARD": "TARJETA (CRÉDITO/DÉBITO)",
+                "PSE": "PSE",
+                "NEQUI": "NEQUI",
+                "BANCOLOMBIA_TRANSFER": "BANCOLOMBIA TRANSFER",
+                "EFECTY": "EFECTY",
+                "DAVIPLATA": "DAVIPLATA",
+            };
+
+            // ── Mapa de ciudades ──
+            var CIUDADES = {
+                "68001": "BUCARAMANGA",
+                "68079": "BARICHARA",
+                "68081": "BARRANCABERMEJA",
+                "68276": "FLORIDABLANCA",
+                "68307": "GIRÓN",
+                "68547": "PIEDECUESTA",
+                "68615": "RIONEGRO",
+                "68679": "SAN GIL",
+                "68705": "SANTA BÁRBARA",
+                "68872": "ZAPATOCA"
+            };
+
+            function fmt(n) {
+                return "$" + Math.round(n).toLocaleString("es-CO");
+            }
+
+            /**
+             * Llena el modal usando los campos de PAGOS_EPAYCO.
+             * data-attributes esperados en el <tr>:
+             *   data-id-reserva           → ID_RESERVA
+             *   data-epayco-ref-payco     → EPAYCO_REF_PAYCO
+             *   data-epayco-transaction-id→ EPAYCO_TRANSACTION_ID
+             *   data-referencia           → REFERENCIA
+             *   data-monto-pesos          → MONTO_PESOS
+             *   data-moneda               → MONEDA
+             *   data-estado-epayco        → ESTADO_EPAYCO
+             *   data-metodo-pago          → METODO_PAGO
+             *   data-fecha-creacion       → FECHA_CREACION
+             *   data-precio-unitario      → precio sin IVA
+             *   data-subtotal             → subtotal
+             *   data-descuento            → descuento
+             *   data-iva                  → porcentaje IVA
+             *   data-valor-total          → VALOR TOTAL
+             *   data-id-ciudad            → código ciudad
+             */
+            function abrirRecibo(fila) {
+                var celdas = fila.querySelectorAll("td");
+
+                // Nombre del servicio
+                var nombreEl = celdas[1] ? celdas[1].querySelector("strong") : null;
+                var servicio = nombreEl ? nombreEl.textContent.trim() : (fila.dataset.servicio || "—");
+
+                // ── PAGOS_EPAYCO ──
+                var idReserva = fila.dataset.idReserva || "—";
+                var txId = fila.dataset.epaycoTransactionId || fila.dataset.epaycoRefPayco || "—";
+                var referencia = fila.dataset.referencia || "—";
+                var moneda = fila.dataset.moneda || "COP";
+                var estadoEpayco = fila.dataset.estadoEpayco || "Aceptada";
+                var metodoPago = fila.dataset.metodoPago || "";
+                var formaPago = METODOS_EPAYCO[metodoPago] ||
+                    (celdas[1] ? ((celdas[1].querySelector("small") || {}).textContent || "—") : "—");
+                var fechaCreacion = fila.dataset.fechaCreacion || (function() {
+                    var d = new Date(),
+                        ms = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+                    return d.getDate() + " " + ms[d.getMonth()] + " " + d.getFullYear();
+                })();
+
+                // Ciudad
+                var idCiudad = fila.dataset.idCiudad || "";
+                var ciudad = CIUDADES[idCiudad] || "BUCARAMANGA";
+
+                // Viajero desde sesión
+                var sess = sessionStorage.getItem("te_session");
+                var viajero = "—";
+                if (sess) {
+                    try {
+                        viajero = JSON.parse(sess).nombre || "—";
+                    } catch (e) {}
+                }
+
+                // Montos
+                var precioUnit = Number(fila.dataset.precioUnitario) || 0;
+                var subtotal = Number(fila.dataset.subtotal) || 0;
+                var descuento = Number(fila.dataset.descuento) || 0;
+                var ivaPct = Number(fila.dataset.iva) || 0;
+                var valorTotal = Number(fila.dataset.valorTotal) || Number(fila.dataset.montoPesos) || 0;
+
+                if (!precioUnit && !valorTotal) {
+                    var ts = celdas[3] ? celdas[3].textContent.trim() : "0";
+                    valorTotal = parseFloat(ts.replace(/[^0-9.]/g, "")) || 0;
+                    precioUnit = valorTotal;
+                    subtotal = precioUnit - descuento;
+                }
+
+                var totalStr = valorTotal > 0 ? fmt(valorTotal) : (celdas[3] ? celdas[3].textContent.trim() : "—");
+
+                // ── Llenar modal ──
+                document.getElementById("rm-numero").textContent = referencia;
+                document.getElementById("rm-fecha-emision").textContent = fechaCreacion;
+                document.getElementById("rm-id-factura").textContent = referencia;
+                document.getElementById("rm-fecha-emision-det").textContent = fechaCreacion;
+                document.getElementById("rm-viajero").textContent = viajero;
+                document.getElementById("rm-id-reserva").textContent = idReserva;
+                document.getElementById("rm-ciudad").textContent = ciudad;
+                document.getElementById("rm-estado").textContent = estadoEpayco;
+                document.getElementById("rm-servicio").textContent = servicio;
+                document.getElementById("rm-linea-item").textContent = txId;
+                document.getElementById("rm-forma-pago").textContent = formaPago;
+                document.getElementById("rm-precio-unitario").textContent = fmt(precioUnit);
+                document.getElementById("rm-subtotal").textContent = fmt(subtotal);
+                document.getElementById("rm-descuento").textContent = descuento > 0 ? fmt(descuento) : "$0";
+                document.getElementById("rm-iva").textContent = ivaPct + "%";
+                document.getElementById("rm-total").textContent = totalStr;
+
+                document.getElementById("reciboModal").classList.add("open");
+            }
+
+            function cerrarRecibo() {
+                document.getElementById("reciboModal").classList.remove("open");
+            }
+            document.getElementById("rmCerrar").addEventListener("click", cerrarRecibo);
+            document.getElementById("rmCerrarX").addEventListener("click", cerrarRecibo);
+            document.getElementById("reciboModal").addEventListener("click", function(e) {
+                if (e.target === this) cerrarRecibo();
+            });
+            document.addEventListener("keydown", function(e) {
+                if (e.key === "Escape") cerrarRecibo();
+            });
+
+            document.getElementById("rmDescargar").addEventListener("click", function() {
+                var {
+                    jsPDF
+                } = window.jspdf;
+                var doc = new jsPDF({
+                    unit: 'pt',
+                    format: 'a4'
+                });
+
+                var W = doc.internal.pageSize.getWidth();
+
+                // ── Leer datos del modal ──
+                var referencia = document.getElementById("rm-numero").textContent.trim();
+                var fecha = document.getElementById("rm-fecha-emision").textContent.trim();
+                var servicio = pdfSafe(document.getElementById("rm-servicio").textContent.trim());
+                var estado = document.getElementById("rm-estado").textContent.trim();
+                var formaPago = pdfSafe(document.getElementById("rm-forma-pago").textContent.trim());
+                var viajero = pdfSafe(document.getElementById("rm-viajero").textContent.trim());
+                var ciudad = pdfSafe(document.getElementById("rm-ciudad").textContent.trim());
+                var total = document.getElementById("rm-total").textContent.trim();
+
+                // ── HEADER morado ──
+                doc.setFillColor(124, 58, 237);
+                doc.rect(0, 0, W, 90, 'F');
+
+                // Logo
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(18);
+                doc.setTextColor(255, 255, 255);
+                doc.text('TOURISMEASY', 40, 38);
+
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(9);
+                doc.setTextColor(220, 210, 255);
+                doc.text('Plataforma de Turismo Accesible en Santander', 40, 54);
+
+                // Referencia (derecha)
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(8);
+                doc.setTextColor(220, 210, 255);
+                doc.text('Referencia ePayco', W - 40, 30, {
+                    align: 'right'
+                });
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(11);
+                doc.setTextColor(255, 255, 255);
+                doc.text(referencia, W - 40, 46, {
+                    align: 'right'
+                });
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(8);
+                doc.setTextColor(220, 210, 255);
+                doc.text(fecha, W - 40, 60, {
+                    align: 'right'
+                });
+
+                // ── CUERPO ──
+                var y = 110;
+                var colL = 40;
+                var colR = W - 40;
+
+                // Función helper: fila de tabla
+                function filaTabla(label, valor, yPos) {
+                    doc.setFont('helvetica', 'normal');
+                    doc.setFontSize(9.5);
+                    doc.setTextColor(100, 116, 139); // slate-500
+                    doc.text(label, colL, yPos);
+                    doc.setFont('helvetica', 'bold');
+                    doc.setTextColor(30, 41, 59); // slate-800
+                    doc.text(valor, colR, yPos, {
+                        align: 'right'
+                    });
+                    // Línea separadora
+                    doc.setDrawColor(241, 245, 249);
+                    doc.line(colL, yPos + 7, colR, yPos + 7);
+                    return yPos + 26;
+                }
+
+                y = filaTabla('Referencia', referencia, y);
+                y = filaTabla('Fecha', fecha, y);
+                y = filaTabla('Viajero', viajero, y);
+                y = filaTabla('Servicio', servicio, y);
+                y = filaTabla('Ciudad', ciudad, y);
+                y = filaTabla('Forma de pago', formaPago, y);
+
+                // Estado con badge verde/rojo
+                var esAprobado = estado === 'Aceptada';
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(9.5);
+                doc.setTextColor(100, 116, 139);
+                doc.text('Estado ePayco', colL, y);
+                var badgeW = doc.getTextWidth(estado) + 16;
+                var badgeX = colR - badgeW;
+                doc.setFillColor(esAprobado ? 220 : 254, esAprobado ? 252 : 226, esAprobado ? 231 : 226);
+                doc.roundedRect(badgeX, y - 10, badgeW, 14, 3, 3, 'F');
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(8);
+                doc.setTextColor(esAprobado ? 22 : 185, esAprobado ? 163 : 28, esAprobado ? 74 : 26);
+                doc.text(estado, colR - 8, y, {
+                    align: 'right'
+                });
+                doc.setDrawColor(241, 245, 249);
+                doc.line(colL, y + 7, colR, y + 7);
+                y += 26;
+
+                // ── Caja total ──
+                doc.setFillColor(248, 244, 255);
+                doc.roundedRect(colL, y - 14, W - 80, 34, 6, 6, 'F');
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(9);
+                doc.setTextColor(100, 116, 139);
+                doc.text('VALOR TOTAL', colL + 14, y + 6);
+                doc.setFontSize(16);
+                doc.setTextColor(124, 58, 237);
+                doc.text(total, colR - 14, y + 7, {
+                    align: 'right'
+                });
+                y += 46;
+
+                // ── Footer ──
+                doc.setDrawColor(241, 245, 249);
+                doc.line(colL, y, colR, y);
+                y += 16;
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(8);
+                doc.setTextColor(148, 163, 184);
+                doc.text('Gracias por confiar en TourismEasy. Este documento es un comprobante de su reserva.', W / 2, y, {
+                    align: 'center'
+                });
+                y += 13;
+                doc.text('soporte@tourismeasy.co   ·   Bucaramanga, Santander, Colombia', W / 2, y, {
+                    align: 'center'
+                });
+
+                doc.save('recibo-' + referencia + '.pdf');
+            });
+
+            // ── Limpiar caracteres especiales que jsPDF no soporta ──
+            function pdfSafe(str) {
+                return (str || "")
+                    .replace(/→/g, ">")
+                    .replace(/←/g, "<")
+                    .replace(/[^\x00-\x7F\xC0-\xFF]/g, function(c) {
+                        // mantener latinos comunes, reemplazar resto
+                        var code = c.charCodeAt(0);
+                        if (code >= 0xC0 && code <= 0xFF) return c;
+                        return "?";
+                    });
+            }
+
+            // Delegación de clic en tbody
+            document
+                .querySelector(".pu-table tbody")
+                .addEventListener("click", function(e) {
+                    var btn = e.target.closest(".pu-btn-secondary");
+                    if (btn) abrirRecibo(btn.closest("tr"));
+                });
+
+            // Exponer para que carrito.js lo use en filas nuevas
+            window.teAbrirRecibo = abrirRecibo;
+
+        })();
+
+        //  RESUMEN DE ACTIVIDAD DINAMICO
+        //  Cuenta todas las filas (estaticas + nuevas) y destinos unicos, y filas pagadas/confirmadas para mostrar en el resumen de actividad del usuario
+        (function() {
+            function actualizarStats() {
+                // Total de filas reales (excluye la fila de placeholder vacío)
+                var todasFilas = document.querySelectorAll(".pu-table tbody tr");
+                var totalReservas = 0;
+                todasFilas.forEach(function(tr) {
+                    if (!tr.querySelector("td[colspan]")) totalReservas++;
+                });
+
+                // Viajes = filas con estado PAGADO/CONFIRMADO
+                var pagadas = document.querySelectorAll(
+                    ".pu-table tbody tr .estado-activo",
+                ).length;
+
+                // Destinos únicos: se extraen de los nombres de servicio, asumiendo formato "Origen → Destino"
+                var destinos = new Set();
+                document
+                    .querySelectorAll(".pu-table tbody .pu-table__servicio-nombre")
+                    .forEach(function(el) {
+                        var txt = el.textContent.toUpperCase();
+                        var partes = txt.split(/\s*[-\u2192]\s*/);
+                        if (partes.length > 1) {
+                            destinos.add(partes[partes.length - 1].trim().split(" ")[0]);
+                        }
+                    });
+
+                var elR = document.getElementById("stat-reservas");
+                var elV = document.getElementById("stat-viajes");
+                var elD = document.getElementById("stat-destinos");
+                if (elR) elR.textContent = totalReservas;
+                if (elV) elV.textContent = pagadas;
+                if (elD) elD.textContent = destinos.size;
+            }
+
+            // Cargar reservas guardadas en localStorage al abrir la página
+            (function() {
+                var sesionRV = {};
+                try {
+                    sesionRV = JSON.parse(sessionStorage.getItem("te_session") || "{}");
+                } catch (e) {}
+                var emailRV = (sesionRV.email || "anonimo").toLowerCase().replace(/[^a-z0-9]/g, "_");
+                var RESERVAS_KEY = "te_reservas_" + emailRV;
+                var tbody = document.querySelector(".pu-table tbody");
+                if (!tbody) return;
+                var reservas = [];
+                try {
+                    reservas = JSON.parse(localStorage.getItem(RESERVAS_KEY)) || [];
+                } catch (e) {}
+                reservas.forEach(function(r, idx) {
+                    var tr = document.createElement("tr");
+                    tr.className = "pu-table__row";
+
+                    // ── Data-attributes PAGOS_EPAYCO ──
+                    tr.dataset.idReserva = r.idReserva || r.id || "";
+                    tr.dataset.epaycoRefPayco = r.epaycoRefPayco || "";
+                    tr.dataset.epaycoTransactionId = r.epaycoTransactionId || "";
+                    tr.dataset.referencia = r.referencia || "";
+                    tr.dataset.montoPesos = r.montoPesos || r.monto_pesos || 0;
+                    tr.dataset.moneda = r.moneda || "COP";
+                    tr.dataset.estadoEpayco = r.estadoEpayco || "Aceptada";
+                    tr.dataset.metodoPago = r.metodoPago || "";
+                    tr.dataset.fechaCreacion = r.fechaCreacion || r.fecha || "";
+                    tr.dataset.idCiudad = r.idCiudad || "68001";
+                    tr.dataset.precioUnitario = r.precioUnitario || 0;
+                    tr.dataset.subtotal = r.subtotal || 0;
+                    tr.dataset.descuento = r.descuento !== undefined ? r.descuento : 0;
+                    tr.dataset.iva = r.iva !== undefined ? r.iva : 19;
+                    tr.dataset.valorTotal = r.valorTotal || 0;
+
+                    var td1 = document.createElement("td");
+                    td1.className = "pu-table__td pu-table__td--fecha";
+                    td1.textContent = r.fecha;
+                    var td2 = document.createElement("td");
+                    td2.className = "pu-table__td";
+                    var strong = document.createElement("strong");
+                    strong.className = "pu-table__servicio-nombre";
+                    strong.textContent = r.servicio;
+                    var small = document.createElement("small");
+                    small.textContent = r.tipo;
+                    td2.appendChild(strong);
+                    td2.appendChild(small);
+                    var td3 = document.createElement("td");
+                    td3.className = "pu-table__td";
+                    var span = document.createElement("span");
+                    span.className = "estado-activo";
+                    span.textContent = r.estadoEpayco || r.estadoPago || "Aceptada";
+                    td3.appendChild(span);
+                    var td4 = document.createElement("td");
+                    td4.className = "pu-table__td pu-table__td--total";
+                    td4.textContent = r.total;
+                    var td5 = document.createElement("td");
+                    td5.className = "pu-table__td pu-table__td--center";
+                    var btn = document.createElement("button");
+                    btn.className = "pu-btn-secondary";
+                    var icon = document.createElement("i");
+                    icon.className = "fa-solid fa-file-pdf";
+                    btn.appendChild(icon);
+                    btn.dataset.idx = idx;
+                    td5.appendChild(btn);
+                    tr.appendChild(td1);
+                    tr.appendChild(td2);
+                    tr.appendChild(td3);
+                    tr.appendChild(td4);
+                    tr.appendChild(td5);
+                    tbody.appendChild(tr);
+                });
+                // Los botones de recibo ahora usan abrirRecibo() que lee los data-attributes correctos
+                tbody.querySelectorAll(".pu-btn-secondary[data-idx]").forEach(function(btn) {
+                    btn.addEventListener("click", function() {
+                        var tr = btn.closest("tr");
+                        if (tr && window.teAbrirRecibo) window.teAbrirRecibo(tr);
+                    });
+                });
+            })();
+
+            // Ejecutar al cargar
+            actualizarStats();
+
+            // Reactivo: se actualiza cuando el carrito añade filas
+            var tbody = document.querySelector(".pu-table tbody");
+            if (tbody && window.MutationObserver) {
+                new MutationObserver(actualizarStats).observe(tbody, {
+                    childList: true,
+                });
+            }
+
+            window.addEventListener("storage", actualizarStats);
+            window.teActualizarStats = actualizarStats;
+        })();
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <script src="../js/santanderianidad.js"></script>
+</body>
+
+</html>

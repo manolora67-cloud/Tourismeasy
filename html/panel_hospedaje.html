@@ -1,0 +1,1015 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Panel Hospedaje - TourismEasy</title>
+    <link rel="stylesheet" href="../css/index.css" />
+    <link rel="stylesheet" href="../css/login.css" />
+    <link rel="stylesheet" href="../css/panel_hospedaje.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="javascript:location.reload()" class="nav-logo">
+                <img src="../img/TURISMEASY.png" alt="Logo" class="logo-img" />
+                <span class="logo-text">TOURISMEASY</span>
+            </a>
+            <span class="panel-navbar-label"><i class="fa-solid fa-hotel"></i> Panel Hospedaje</span>
+            <div class="nav-slot">
+                <div id="sessionWidgetSlot"></div>
+                <button class="btn-dark-mode" id="darkModeToggle"><i class="fa-solid fa-moon"></i></button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="panel-main">
+
+        <div class="panel-header">
+            <div class="panel-header-info">
+                <div class="panel-empresa-avatar" id="panelAvatar">AV</div>
+                <div>
+                    <h1 class="panel-empresa-nombre" id="panelNombre">Mi Empresa</h1>
+                    <p class="panel-empresa-sub">Panel de empresa · TourismEasy</p>
+                </div>
+            </div>
+            <div class="panel-header-badges">
+                <span class="panel-badge"><i class="fa-solid fa-hotel"></i> Hospedaje</span>
+                <span class="panel-badge panel-badge--green"><i class="fa-solid fa-circle-check"></i> Activa</span>
+            </div>
+        </div>
+
+        <div class="panel-stats">
+            <div class="stat-card">
+                <div class="stat-icon stat-icon-blue"><i class="fa-solid fa-hotel"></i></div>
+                <div class="stat-info"><span class="stat-num" id="statPublicados">0</span><span class="stat-label">Hospedajes publicados</span></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon stat-icon-green"><i class="fa-solid fa-headset"></i></div>
+                <div class="stat-info"><span class="stat-num">0</span><span class="stat-label">Solicitudes soporte</span></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon stat-icon-purple"><i class="fa-solid fa-users"></i></div>
+                <div class="stat-info"><span class="stat-num">0</span><span class="stat-label">Viajeros atendidos</span></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon stat-icon-green"><i class="fa-solid fa-money-bill-1"></i></div>
+                <div class="stat-info"><span class="stat-num">$0</span><span class="stat-label">Valor pagos registrados</span></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon stat-icon-yellow"><i class="fa-solid fa-wheelchair"></i></div>
+                <div class="stat-info"><span class="stat-num" id="statAccesibles">0</span><span class="stat-label">Servicios accesibles</span></div>
+            </div>
+        </div>
+
+        <div class="panel-tabs">
+            <button class="panel-tab active" data-tab="servicios"><i class="fa-solid fa-hotel"></i> Mis Hospedajes</button>
+            <button class="panel-tab" data-tab="soporte"><i class="fa-solid fa-headset"></i> Soporte</button>
+            <button class="panel-tab" data-tab="accesibilidad"><i class="fa-solid fa-wheelchair"></i> Accesibilidad</button>
+        </div>
+
+        <!-- TAB: MIS HOSPEDAJES -->
+        <div class="panel-content active" id="tab-servicios">
+            <div class="panel-content-header">
+                <h2><i class="fa-solid fa-hotel"></i> Mis Hospedajes</h2>
+                <button class="btn-panel-add" id="btn-nuevo"><i class="fa-solid fa-plus"></i> Nuevo hospedaje</button>
+            </div>
+            <div class="panel-table-wrap">
+                <table class="panel-table">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Tipo</th>
+                            <th>Ciudad</th>
+                            <th>Precio / noche</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-servicios">
+                        <tr>
+                            <td colspan="6" style="text-align:center;color:#64748b;padding:32px;">No hay hospedajes registrados aun.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TAB: SOPORTE -->
+        <div class="panel-content" id="tab-soporte">
+            <div class="panel-content-header">
+                <h2><i class="fa-solid fa-headset"></i> Soporte al Viajero</h2>
+                <div class="panel-filter">
+                    <select class="panel-select">
+            <option value="">Todas las solicitudes</option>
+            <option value="abierta">Abiertas</option>
+            <option value="resuelta">Resueltas</option>
+          </select>
+                </div>
+            </div>
+            <div class="panel-table-wrap">
+                <table class="panel-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Viajero</th>
+                            <th>Motivo</th>
+                            <th>Fecha</th>
+                            <th>Prioridad</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="7" style="text-align:center;color:#64748b;padding:32px;">No hay solicitudes de soporte.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TAB: ACCESIBILIDAD -->
+        <div class="panel-content" id="tab-accesibilidad">
+            <div class="panel-content-header">
+                <h2><i class="fa-solid fa-wheelchair"></i> Accesibilidad</h2>
+                <button class="btn-panel-add" id="btn-nueva-acc"><i class="fa-solid fa-plus"></i> Nuevo servicio</button>
+            </div>
+            <div class="acc-list" id="acc-list">
+                <div class="acc-item">
+                    <i class="fa-solid fa-wheelchair acc-item__icon"></i>
+                    <div class="acc-item__text"><strong>Habitaciones accesibles</strong>
+                        <p class="acc-item__desc">Habitaciones con espacio para silla de ruedas, barras de apoyo y bano adaptado.</p>
+                    </div>
+                    <div class="acc-item__actions">
+                        <button class="btn-tbl-edit btn-acc-edit" title="Editar"><i class="fa-solid fa-pen"></i></button>
+                        <button class="btn-tbl-del btn-acc-del" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                </div>
+                <div class="acc-item">
+                    <i class="fa-solid fa-person-walking acc-item__icon"></i>
+                    <div class="acc-item__text"><strong>Rampas y ascensores</strong>
+                        <p class="acc-item__desc">Acceso sin escaleras a todas las instalaciones del hospedaje.</p>
+                    </div>
+                    <div class="acc-item__actions">
+                        <button class="btn-tbl-edit btn-acc-edit" title="Editar"><i class="fa-solid fa-pen"></i></button>
+                        <button class="btn-tbl-del btn-acc-del" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h4>Plataforma</h4>
+                    <ul>
+                        <li><a href="#" data-modal="sobre-nosotros">Sobre Nosotros</a></li>
+                        <li><a href="#" data-modal="como-funciona">Como Funciona</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Soporte</h4>
+                    <ul>
+                        <li><a href="#" data-modal="contacto">Contacto</a></li>
+                        <li><a href="#" data-modal="faq">Preguntas Frecuentes</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Legal</h4>
+                    <ul>
+                        <li><a href="#" data-modal="privacidad">Politica de Privacidad</a></li>
+                        <li><a href="#" data-modal="terminos">Terminos</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Siguenos</h4>
+                    <div class="social-icons"><a href="https://wa.me/573174613395" class="social-icon"><i class="fab fa-whatsapp"></i></a></div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 TOURISMEASY. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-box"><button class="modal-close" id="modalClose">&times;</button>
+            <h2 id="modalTitle"></h2>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <!-- MODAL: NUEVO/EDITAR HOSPEDAJE -->
+    <div id="vModal-overlay" class="vm-overlay" aria-hidden="true">
+        <div class="vm-box" role="dialog" aria-modal="true">
+            <div class="vm-topbar"></div>
+            <div class="vm-header">
+                <h2 class="vm-title" id="vModal-title">Nuevo hospedaje</h2>
+                <button class="vm-close" id="vModal-close">&times;</button>
+            </div>
+            <div class="vm-body">
+                <div class="vm-grid">
+                    <div class="vm-field"><label class="vm-label">Nombre</label><input class="vm-input" id="vm-nombre" type="text" placeholder="Ej: Hotel El Prado" /></div>
+                    <div class="vm-field"><label class="vm-label">Tipo</label><select class="vm-input" id="vm-tipo"><option value="">Selecciona...</option><option value="Hotel">Hotel</option><option value="Hotel Boutique">Hotel Boutique</option><option value="Finca">Finca</option><option value="Cabaña">Cabaña</option><option value="Hostal">Hostal</option><option value="Apartamento">Apartamento</option><option value="Glamping">Glamping</option></select></div>
+                    <div class="vm-field"><label class="vm-label">Capacidad max. (personas)</label><input class="vm-input" id="vm-capacidad" type="number" min="1" placeholder="Ej: 4" /></div>
+                    <div class="vm-field"><label class="vm-label">Precio (/ noche)</label><input class="vm-input" id="vm-precio" type="text" placeholder="Ej: 180000" /></div>
+                    <div class="vm-field vm-field--full"><label class="vm-label">Servicios incluidos</label>
+                        <div id="vm-servicios-box" style="display:flex;flex-wrap:wrap;gap:8px;padding:10px;border:1px solid rgba(148,163,184,.25);border-radius:8px;">
+                            <span style="opacity:.6;font-size:.85rem;">Cargando servicios...</span>
+                        </div>
+                    </div>
+                    <div class="vm-field vm-field--full"><label class="vm-label">Ciudad</label><select class="vm-input" id="vm-ciudad"><option value="">Cargando ciudades...</option></select></div>
+                    <div class="vm-field vm-field--full"><label class="vm-label">Descripcion (opcional)</label><textarea class="vm-input" id="vm-descripcion" rows="3" placeholder="Describe el hospedaje..." style="resize:vertical;"></textarea></div>
+                    <div class="vm-field vm-field--full">
+                        <label class="vm-label">Accesibilidad</label>
+                        <select class="vm-input" id="vm-acc">
+              <option value="none">Sin servicio especial</option>
+              <option value="wheelchair">Cuarto adaptado silla de ruedas</option>
+              <option value="deaf">Senalizacion visual para sordos</option>
+              <option value="visual">Guia para personas con discapacidad visual</option>
+              <option value="dog">Perro guia permitido</option>
+              <option value="ramp">Rampa de acceso</option>
+            </select>
+                    </div>
+                    <div class="vm-field vm-field--full">
+                        <label class="vm-label">Estado</label>
+                        <select class="vm-input" id="vm-estado">
+              <option value="activo">Activo</option>
+              <option value="pendiente">Pendiente</option>
+              <option value="cancelado">Cancelado</option>
+            </select>
+                    </div>
+                    <div class="vm-field vm-field--full">
+                        <label class="vm-label">Foto de referencia (opcional)</label>
+                        <input class="vm-input" id="vm-foto" type="file" accept="image/*" style="padding:8px 12px;cursor:pointer;">
+                        <div id="vm-foto-preview" style="margin-top:8px;display:none;">
+                            <img id="vm-foto-img" src="" alt="Vista previa" style="width:100%;max-height:160px;object-fit:cover;border-radius:10px;border:1.5px solid #334155;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="vm-footer">
+                <button class="vm-btn-cancel" id="vModal-cancel">Cancelar</button>
+                <button class="vm-btn-save" id="vModal-save"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: ELIMINAR -->
+    <div id="vDel-overlay" class="vm-overlay" aria-hidden="true">
+        <div class="vm-box vm-box--sm" role="dialog" aria-modal="true">
+            <div class="vm-topbar vm-topbar--red"></div>
+            <div class="vm-header">
+                <h2 class="vm-title vm-title--red"><i class="fa-solid fa-triangle-exclamation"></i> Eliminar hospedaje</h2>
+                <button class="vm-close" id="vDel-close">&times;</button>
+            </div>
+            <div class="vm-body">
+                <p class="vm-del-msg">Seguro de eliminar el hospedaje <strong id="vDel-ruta"></strong>? Esta accion no se puede deshacer.</p>
+            </div>
+            <div class="vm-footer">
+                <button class="vm-btn-cancel" id="vDel-cancel">Cancelar</button>
+                <button class="vm-btn-del" id="vDel-confirm"><i class="fa-solid fa-trash"></i> Si, eliminar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: DETALLE -->
+    <div id="vDetalle-overlay" class="vm-overlay" aria-hidden="true">
+        <div class="vm-box" role="dialog" aria-modal="true">
+            <div class="vm-topbar"></div>
+            <div class="vm-header">
+                <h2 class="vm-title">Detalle del hospedaje</h2>
+                <button class="vm-close" id="vDetalle-close">&times;</button>
+            </div>
+            <div class="vm-body">
+                <div id="vDetalle-foto-wrap" style="display:none;margin-bottom:16px;">
+                    <img id="vDetalle-foto" src="" alt="Foto" style="width:100%;max-height:180px;object-fit:cover;border-radius:10px;border:1.5px solid #334155;">
+                </div>
+                <h3 id="vDetalle-nombre" style="color:#a855f7;font-size:1.2rem;margin:0 0 18px 0;"></h3>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px 24px;">
+                    <div>
+                        <p style="font-size:.72rem;font-weight:700;letter-spacing:.06em;color:#64748b;margin:0 0 4px">NOMBRE</p>
+                        <p id="vDetalle-valor-nombre" style="margin:0;font-weight:600"></p>
+                    </div>
+                    <div>
+                        <p style="font-size:.72rem;font-weight:700;letter-spacing:.06em;color:#64748b;margin:0 0 4px">TIPO</p>
+                        <p id="vDetalle-tipo" style="margin:0;font-weight:600"></p>
+                    </div>
+                    <div>
+                        <p style="font-size:.72rem;font-weight:700;letter-spacing:.06em;color:#64748b;margin:0 0 4px">PRECIO / NOCHE</p>
+                        <p id="vDetalle-precio" style="margin:0;font-weight:700;color:#a855f7;font-size:1.1rem"></p>
+                    </div>
+                    <div>
+                        <p style="font-size:.72rem;font-weight:700;letter-spacing:.06em;color:#64748b;margin:0 0 4px">CAPACIDAD</p>
+                        <p id="vDetalle-capacidad" style="margin:0;font-weight:600"></p>
+                    </div>
+                    <div style="grid-column:1/-1">
+                        <p style="font-size:.72rem;font-weight:700;letter-spacing:.06em;color:#64748b;margin:0 0 4px">SERVICIOS INCLUIDOS</p>
+                        <p id="vDetalle-servicios" style="margin:0;font-weight:600"></p>
+                    </div>
+                    <div style="grid-column:1/-1">
+                        <p style="font-size:.72rem;font-weight:700;letter-spacing:.06em;color:#64748b;margin:0 0 4px">UBICACION</p>
+                        <p id="vDetalle-ubicacion" style="margin:0;font-weight:600"></p>
+                    </div>
+                    <div style="grid-column:1/-1">
+                        <p style="font-size:.72rem;font-weight:700;letter-spacing:.06em;color:#64748b;margin:0 0 6px">ACCESIBILIDAD</p>
+                        <div id="vDetalle-acc"></div>
+                    </div>
+                    <div>
+                        <p style="font-size:.72rem;font-weight:700;letter-spacing:.06em;color:#64748b;margin:0 0 4px">ESTADO</p>
+                        <div id="vDetalle-estado"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="vm-footer"><button class="vm-btn-cancel" id="vDetalle-close2">Cerrar</button></div>
+        </div>
+    </div>
+
+    <!-- MODAL: ACCESIBILIDAD -->
+    <div id="aModal-overlay" class="vm-overlay" aria-hidden="true">
+        <div class="vm-box vm-box--sm" role="dialog" aria-modal="true">
+            <div class="vm-topbar"></div>
+            <div class="vm-header">
+                <h2 class="vm-title" id="aModal-title"><i class="fa-solid fa-wheelchair"></i> Nuevo servicio</h2>
+                <button class="vm-close" id="aModal-close">&times;</button>
+            </div>
+            <div class="vm-body">
+                <div class="vm-grid">
+                    <div class="vm-field vm-field--full">
+                        <label class="vm-label">Icono</label>
+                        <select class="vm-input" id="am-icono">
+              <option value="fa-wheelchair">Silla de ruedas</option>
+              <option value="fa-ear-deaf">Discapacidad auditiva</option>
+              <option value="fa-eye-slash">Discapacidad visual</option>
+              <option value="fa-dog">Perro guia</option>
+              <option value="fa-baby-carriage">Prioridad familiar</option>
+              <option value="fa-person-walking">Movilidad reducida</option>
+              <option value="fa-heart-pulse">Condicion medica</option>
+            </select>
+                    </div>
+                    <div class="vm-field vm-field--full"><label class="vm-label">Nombre del servicio</label><input class="vm-input" id="am-nombre" type="text" placeholder="Ej: Habitacion adaptada" /></div>
+                    <div class="vm-field vm-field--full"><label class="vm-label">Descripcion</label><textarea class="vm-input vm-textarea" id="am-desc" rows="3" placeholder="Describe brevemente el servicio..."></textarea></div>
+                </div>
+            </div>
+            <div class="vm-footer">
+                <button class="vm-btn-cancel" id="aModal-cancel">Cancelar</button>
+                <button class="vm-btn-save" id="aModal-save"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: ELIMINAR ACCESIBILIDAD -->
+    <div id="aDel-overlay" class="vm-overlay" aria-hidden="true">
+        <div class="vm-box vm-box--sm" role="dialog" aria-modal="true">
+            <div class="vm-topbar vm-topbar--red"></div>
+            <div class="vm-header">
+                <h2 class="vm-title vm-title--red"><i class="fa-solid fa-triangle-exclamation"></i> Eliminar servicio</h2>
+                <button class="vm-close" id="aDel-close">&times;</button>
+            </div>
+            <div class="vm-body">
+                <p class="vm-del-msg">Seguro de eliminar el servicio <strong id="aDel-nombre"></strong>?</p>
+            </div>
+            <div class="vm-footer">
+                <button class="vm-btn-cancel" id="aDel-cancel">Cancelar</button>
+                <button class="vm-btn-del" id="aDel-confirm"><i class="fa-solid fa-trash"></i> Si, eliminar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/santanderianidad.js"></script>
+    <script>
+        // SESION
+        (function() {
+            var sess = sessionStorage.getItem("te_session");
+            if (!sess) {
+                window.location.href = "../index.html";
+                return;
+            }
+            var u = JSON.parse(sess);
+            if (u.tipo !== "empresa") {
+                window.location.href = "../index.html";
+                return;
+            }
+            var av = document.getElementById("panelAvatar"),
+                nm = document.getElementById("panelNombre");
+            if (av) av.textContent = u.avatar || "AV";
+            if (nm) nm.textContent = u.nombre || "Mi Empresa";
+        })();
+
+        // DARK MODE
+        var dmBtn = document.getElementById("darkModeToggle"),
+            dmIcon = dmBtn.querySelector("i");
+
+        function applyTheme(d) {
+            document.body.classList.toggle("dark-mode", d);
+            dmIcon.className = d ? "fa-solid fa-sun" : "fa-solid fa-moon";
+            localStorage.setItem("theme", d ? "dark" : "light");
+        }
+        var st = localStorage.getItem("theme");
+        applyTheme(st ? st === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches);
+        dmBtn.addEventListener("click", function() {
+            applyTheme(!document.body.classList.contains("dark-mode"));
+        });
+
+        // TABS
+        document.querySelectorAll(".panel-tab").forEach(function(tab) {
+            tab.addEventListener("click", function() {
+                document.querySelectorAll(".panel-tab").forEach(function(t) {
+                    t.classList.remove("active");
+                });
+                document.querySelectorAll(".panel-content").forEach(function(c) {
+                    c.classList.remove("active");
+                });
+                tab.classList.add("active");
+                document.getElementById("tab-" + tab.dataset.tab).classList.add("active");
+            });
+        });
+
+        // SESSION WIDGET
+        (function() {
+            var user = JSON.parse(sessionStorage.getItem("te_session") || "null");
+            var slot = document.getElementById("sessionWidgetSlot");
+            if (!user || !slot) return;
+            var w = document.createElement("div");
+            w.id = "sessionWidget";
+            w.className = "session-widget";
+            var ini = ((user.nombre || "AV").trim().split(/\s+/).map(function(x) {
+                return x[0] || "";
+            }).join("").toUpperCase().slice(0, 2) || "AV");
+            var _srv = (user.tipoServicio || user.servicio || "HOSPEDAJE").toUpperCase();
+            var _panelLinks = {
+                TRANSPORTE: "panel_transporte.html",
+                HOSPEDAJE: "panel_hospedaje.html",
+                PLANES: "panel_planes.html",
+                PERSONAL_AUXILIAR: "panel_auxiliar.html",
+                AUXILIAR: "panel_auxiliar.html"
+            };
+            var _panelIcons = {
+                TRANSPORTE: "fa-bus",
+                HOSPEDAJE: "fa-hotel",
+                PLANES: "fa-map-location-dot",
+                PERSONAL_AUXILIAR: "fa-person-cane",
+                AUXILIAR: "fa-person-cane"
+            };
+            var _panelHref = _panelLinks[_srv] || "panel_hospedaje.html";
+            var _panelIcon = _panelIcons[_srv] || "fa-hotel";
+            w.innerHTML = '<button class="session-trigger" id="sessionTrigger"><div class="session-avatar">' + ini + '</div><div class="session-info"><span class="session-name">' + (user.nombre || "Empresa") + '</span><span class="session-tipo">Empresa</span></div><i class="fa-solid fa-chevron-down session-chevron" id="sessionChevron"></i></button><div class="session-dropdown" id="sessionDropdown"><a class="session-menu-item session-menu-highlight" href="' + _panelHref + '"><i class="fa-solid ' + _panelIcon + '"></i> Panel Empresa</a><a class="session-menu-item" href="perfil_empresa.html"><i class="fa-solid fa-user"></i> Mi Perfil</a><a class="session-menu-item" href="config_empresa.html"><i class="fa-solid fa-gear"></i> Configuracion</a><a class="session-menu-item session-menu-danger" id="btnLogout" href="#"><i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesion</a></div>';
+            slot.appendChild(w);
+            var trig = w.querySelector("#sessionTrigger"),
+                drop = w.querySelector("#sessionDropdown"),
+                chev = w.querySelector("#sessionChevron");
+            trig.addEventListener("click", function(e) {
+                e.stopPropagation();
+                var o = drop.classList.toggle("open");
+                chev.style.transform = o ? "rotate(180deg)" : "rotate(0deg)";
+            });
+            document.addEventListener("click", function() {
+                drop.classList.remove("open");
+                chev.style.transform = "rotate(0deg)";
+            });
+            w.querySelector("#btnLogout").addEventListener("click", function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                sessionStorage.removeItem("te_session");
+                window.location.href = "../index.html";
+            });
+        })();
+
+        var ACC_MAP = {
+            none: '<span class="badge-acc"><i class="fa-solid fa-globe"></i> General</span>',
+            wheelchair: '<span class="badge-acc"><i class="fa-solid fa-wheelchair"></i> Cuarto adaptado</span>',
+            deaf: '<span class="badge-acc"><i class="fa-solid fa-ear-deaf"></i> Senalizacion visual</span>',
+            visual: '<span class="badge-acc"><i class="fa-solid fa-eye-slash"></i> Guia visual</span>',
+            dog: '<span class="badge-acc"><i class="fa-solid fa-dog"></i> Perro guia</span>',
+            ramp: '<span class="badge-acc"><i class="fa-solid fa-person-walking"></i> Rampa de acceso</span>'
+        };
+        var EST_MAP = {
+            activo: '<span class="estado-activo">Activo</span>',
+            pendiente: '<span class="estado-pendiente">Pendiente</span>',
+            cancelado: '<span class="estado-cancelado">Cancelado</span>'
+        };
+
+        var _foto64 = "",
+            editRow = null,
+            rowDel = null,
+            _editId = null,
+            _delId = null;
+
+        var _catalogoServicios = [];
+
+        fetch("../hospedaje/servicios_hospedaje.php", {
+                credentials: "include"
+            })
+            .then(function(r) {
+                return r.json();
+            })
+            .then(function(res) {
+                _catalogoServicios = (res.ok && res.data) ? res.data : [];
+                var box = document.getElementById("vm-servicios-box");
+                if (!_catalogoServicios.length) {
+                    box.innerHTML = '<span style="opacity:.6;font-size:.85rem;">No hay servicios disponibles.</span>';
+                    return;
+                }
+                box.innerHTML = _catalogoServicios.map(function(s) {
+                    return '<label style="display:flex;align-items:center;gap:6px;font-size:.85rem;cursor:pointer;">' +
+                        '<input type="checkbox" class="vm-servicio-chk" value="' + s.id + '"> ' + s.nombre + '</label>';
+                }).join("");
+            })
+            .catch(function() {
+                document.getElementById("vm-servicios-box").innerHTML = '<span style="opacity:.6;font-size:.85rem;">No se pudieron cargar los servicios.</span>';
+            });
+
+        function marcarServicios(idsSeleccionados) {
+            var ids = idsSeleccionados || [];
+            document.querySelectorAll(".vm-servicio-chk").forEach(function(chk) {
+                chk.checked = ids.indexOf(parseInt(chk.value, 10)) !== -1;
+            });
+        }
+
+        fetch("../datos_referencia.php?tipo=ciudades", {
+                credentials: "include"
+            })
+            .then(function(r) {
+                return r.json();
+            })
+            .then(function(res) {
+                var sel = document.getElementById("vm-ciudad");
+                sel.innerHTML = '<option value="">Selecciona ciudad...</option>';
+                (res.data && res.data.ciudades || []).forEach(function(c) {
+                    var o = document.createElement("option");
+                    o.value = c.id;
+                    o.textContent = c.nombre;
+                    sel.appendChild(o);
+                });
+            });
+
+        // Cierra cualquier modal que haya quedado abierto antes de mostrar uno nuevo
+        function closeAllVM() {
+            if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+            document.querySelectorAll(".vm-overlay.vm-visible").forEach(function(ov) {
+                ov.classList.remove("vm-visible");
+                ov.setAttribute("aria-hidden", "true");
+            });
+        }
+
+        function openModal(row) {
+            closeAllVM();
+            editRow = row || null;
+            _editId = row ? parseInt(row.dataset.id || "0", 10) : null;
+            document.getElementById("vModal-title").textContent = row ? "Editar hospedaje" : "Nuevo hospedaje";
+            if (row) {
+                document.getElementById("vm-nombre").value = row.dataset.nombre || "";
+                document.getElementById("vm-tipo").value = row.dataset.tipo || "";
+                document.getElementById("vm-capacidad").value = row.dataset.capacidad || "";
+                document.getElementById("vm-precio").value = row.dataset.precio || "";
+                marcarServicios(JSON.parse(row.dataset.serviciosIds || "[]"));
+                document.getElementById("vm-ciudad").value = row.dataset.idCiudad || "";
+                document.getElementById("vm-descripcion").value = row.dataset.descripcion || "";
+                document.getElementById("vm-acc").value = row.dataset.acc || "none";
+                document.getElementById("vm-estado").value = row.dataset.disponible === "true" ? "activo" : "cancelado";
+                var fp = document.getElementById("vm-foto-preview"),
+                    fi = document.getElementById("vm-foto-img");
+                var fp = document.getElementById("vm-foto-preview"),
+                    fi = document.getElementById("vm-foto-img");
+                if (row.dataset.imgUrl) {
+                    fi.src = "../" + row.dataset.imgUrl;
+                    _foto64 = "";
+                    fp.style.display = "block";
+                } else {
+                    fp.style.display = "none";
+                    fi.src = "";
+                    _foto64 = "";
+                }
+            } else {
+                ["vm-nombre", "vm-precio", "vm-descripcion"].forEach(function(id) {
+                    document.getElementById(id).value = "";
+                });
+                marcarServicios([]);
+                document.getElementById("vm-capacidad").value = "";
+                document.getElementById("vm-tipo").selectedIndex = 0;
+                document.getElementById("vm-ciudad").selectedIndex = 0;
+                document.getElementById("vm-acc").selectedIndex = 0;
+                document.getElementById("vm-estado").value = "activo";
+                document.getElementById("vm-foto").value = "";
+                document.getElementById("vm-foto-preview").style.display = "none";
+                document.getElementById("vm-foto-img").src = "";
+                _foto64 = "";
+            }
+            document.getElementById("vModal-overlay").classList.add("vm-visible");
+            document.getElementById("vModal-overlay").removeAttribute("aria-hidden");
+        }
+
+        function closeModal() {
+            document.getElementById("vModal-overlay").classList.remove("vm-visible");
+            document.getElementById("vModal-overlay").setAttribute("aria-hidden", "true");
+            editRow = null;
+            _editId = null;
+            document.getElementById("vm-foto").value = "";
+            document.getElementById("vm-foto").value = "";
+            document.getElementById("vm-foto-preview").style.display = "none";
+            document.getElementById("vm-foto-img").src = "";
+            _foto64 = "";
+        }
+        document.getElementById("vm-foto").addEventListener("change", function(e) {
+            var file = e.target.files[0];
+            if (!file) return;
+            var r = new FileReader();
+            r.onload = function(ev) {
+                _foto64 = ev.target.result;
+                document.getElementById("vm-foto-img").src = _foto64;
+                document.getElementById("vm-foto-preview").style.display = "block";
+            };
+            r.readAsDataURL(file);
+        });
+        document.getElementById("btn-nuevo").addEventListener("click", function() {
+            openModal(null);
+        });
+        document.getElementById("vModal-close").addEventListener("click", closeModal);
+        document.getElementById("vModal-cancel").addEventListener("click", closeModal);
+
+        document.getElementById("vModal-save").addEventListener("click", function() {
+            var nombre = document.getElementById("vm-nombre").value.trim();
+            var tipo = document.getElementById("vm-tipo").value;
+            var precioRaw = document.getElementById("vm-precio").value.trim().replace(/[^0-9]/g, "");
+            var cap = parseInt(document.getElementById("vm-capacidad").value || "0", 10);
+            var idCiudad = document.getElementById("vm-ciudad").value;
+            var accVal = document.getElementById("vm-acc").value;
+            var estVal = document.getElementById("vm-estado").value;
+            if (!nombre || !tipo || !precioRaw || !cap || !idCiudad) {
+                alert("Completa: Nombre, Tipo, Ciudad, Precio y Capacidad.");
+                return;
+            }
+            var ACC_LABEL = {
+                wheelchair: "Cuarto adaptado silla de ruedas",
+                deaf: "Senalizacion visual para sordos",
+                visual: "Guia para discapacidad visual",
+                dog: "Perro guia permitido",
+                ramp: "Rampa de acceso",
+                none: "Sin servicio especial"
+            };
+            var payload = {
+                nombre: nombre,
+                tipo: tipo,
+                id_ciudad: idCiudad,
+                descripcion: document.getElementById("vm-descripcion").value.trim(),
+                precio_noche: parseInt(precioRaw, 10),
+                servicios_ids: Array.prototype.slice.call(document.querySelectorAll(".vm-servicio-chk:checked")).map(function(chk) {
+                    return parseInt(chk.value, 10);
+                }),
+                accesibilidad: ACC_LABEL[accVal] || accVal || "Sin servicio especial",
+                capacidad_max: cap,
+                disponible: estVal === "activo"
+            };
+            var _fotoFile = document.getElementById("vm-foto").files[0];
+
+            function _doSave(imgUrl) {
+                payload.img_url = imgUrl || null;
+                if (_editId) payload.id = _editId;
+                var btn = document.getElementById("vModal-save");
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
+                fetch("../hospedaje/crear.php", {
+                        method: "POST",
+                        credentials: "include",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(payload)
+                    })
+                    .then(function(r) {
+                        return r.json();
+                    })
+                    .then(function(res) {
+                        if (!res.ok) {
+                            alert("Error: " + (res.error || "No se pudo guardar."));
+                            return;
+                        }
+                        cargarHospedajes();
+                        closeModal();
+                    })
+                    .catch(function() {
+                        alert("Error de conexión al guardar.");
+                    })
+                    .finally(function() {
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar';
+                    });
+            }
+            var _imgActual = document.getElementById("vm-foto-img").src;
+            var _imgUrl = _imgActual.includes("uploads/") ? _imgActual.replace(/.*uploads\//, "uploads/") : null;
+            if (_fotoFile) {
+                var fd = new FormData();
+                fd.append("imagen", _fotoFile);
+                fetch("../subir_imagen.php", {
+                        method: "POST",
+                        credentials: "include",
+                        body: fd
+                    })
+                    .then(function(r) {
+                        return r.json();
+                    })
+                    .then(function(res) {
+                        _doSave(res.ok ? res.url : _imgUrl);
+                    })
+                    .catch(function() {
+                        _doSave(_imgUrl);
+                    });
+            } else {
+                _doSave(_imgUrl);
+            }
+        });
+
+        function openDel(row) {
+            closeAllVM();
+            rowDel = row;
+            _delId = parseInt(row.dataset.id || "0", 10);
+            document.getElementById("vDel-ruta").textContent = row.querySelectorAll("td")[0].textContent.trim();
+            document.getElementById("vDel-overlay").classList.add("vm-visible");
+            document.getElementById("vDel-overlay").removeAttribute("aria-hidden");
+        }
+
+        function closeDel() {
+            document.getElementById("vDel-overlay").classList.remove("vm-visible");
+            document.getElementById("vDel-overlay").setAttribute("aria-hidden", "true");
+            rowDel = null;
+            _delId = null;
+        }
+        document.getElementById("vDel-close").addEventListener("click", closeDel);
+        document.getElementById("vDel-cancel").addEventListener("click", closeDel);
+        document.getElementById("vDel-confirm").addEventListener("click", function() {
+            if (!_delId) {
+                closeDel();
+                return;
+            }
+            var btn = document.getElementById("vDel-confirm");
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Eliminando...';
+            fetch("../hospedaje/eliminar.php", {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        id: _delId
+                    })
+                })
+                .then(function(r) {
+                    return r.json();
+                })
+                .then(function(res) {
+                    if (!res.ok) {
+                        alert("Error: " + (res.error || "No se pudo eliminar."));
+                        return;
+                    }
+                    cargarHospedajes();
+                    closeDel();
+                })
+                .catch(function() {
+                    alert("Error de conexión al eliminar.");
+                })
+                .finally(function() {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fa-solid fa-trash"></i> Si, eliminar';
+                });
+        });
+
+        function openDetalle(row) {
+            closeAllVM();
+            var cells = row.querySelectorAll("td");
+            var nombre = cells[0].textContent.trim();
+            document.getElementById("vDetalle-nombre").textContent = "Hospedaje: " + nombre;
+            document.getElementById("vDetalle-valor-nombre").textContent = nombre;
+            document.getElementById("vDetalle-tipo").textContent = row.dataset.tipo || "--";
+            document.getElementById("vDetalle-precio").textContent = "$" + Number(row.dataset.precio || 0).toLocaleString("es-CO") + " / noche";
+            document.getElementById("vDetalle-capacidad").textContent = row.dataset.capacidad || "--";
+            document.getElementById("vDetalle-servicios").textContent = row.dataset.servicios || "--";
+            document.getElementById("vDetalle-ubicacion").textContent = row.dataset.ciudad || "--";
+            document.getElementById("vDetalle-acc").textContent = row.dataset.accesibilidad || "--";
+            document.getElementById("vDetalle-estado").innerHTML = cells[4].innerHTML;
+            var fw = document.getElementById("vDetalle-foto-wrap"),
+                fi = document.getElementById("vDetalle-foto");
+            if (row.dataset.imgUrl) {
+                fi.src = "../" + row.dataset.imgUrl;
+                fw.style.display = "block";
+            } else {
+                fw.style.display = "none";
+            }
+            document.getElementById("vDetalle-overlay").classList.add("vm-visible");
+            document.getElementById("vDetalle-overlay").removeAttribute("aria-hidden");
+        }
+
+        function closeDetalle() {
+            document.getElementById("vDetalle-overlay").classList.remove("vm-visible");
+            document.getElementById("vDetalle-overlay").setAttribute("aria-hidden", "true");
+        }
+        document.getElementById("vDetalle-close").addEventListener("click", closeDetalle);
+        document.getElementById("vDetalle-close2").addEventListener("click", closeDetalle);
+        document.getElementById("tabla-servicios").addEventListener("click", function(e) {
+            var row = e.target.closest("tr");
+            if (!row) return;
+            if (e.target.closest(".btn-tbl-view")) openDetalle(row);
+            if (e.target.closest(".btn-tbl-edit")) openModal(row);
+            if (e.target.closest(".btn-tbl-del")) openDel(row);
+        });
+
+        var accEdit = null,
+            accDel = null;
+
+        function openAModal(item) {
+            closeAllVM();
+            accEdit = item || null;
+            document.getElementById("aModal-title").innerHTML = '<i class="fa-solid fa-wheelchair"></i> ' + (item ? "Editar servicio" : "Nuevo servicio");
+            if (item) {
+                var ic = item.querySelector(".acc-item__icon").className.replace("acc-item__icon", "").replace("fa-solid", "").trim();
+                var sel = document.getElementById("am-icono");
+                for (var i = 0; i < sel.options.length; i++) {
+                    if (sel.options[i].value === ic) {
+                        sel.selectedIndex = i;
+                        break;
+                    }
+                }
+                document.getElementById("am-nombre").value = item.querySelector("strong").textContent.trim();
+                document.getElementById("am-desc").value = item.querySelector(".acc-item__desc").textContent.trim();
+            } else {
+                document.getElementById("am-icono").selectedIndex = 0;
+                document.getElementById("am-nombre").value = "";
+                document.getElementById("am-desc").value = "";
+            }
+            document.getElementById("aModal-overlay").classList.add("vm-visible");
+            document.getElementById("aModal-overlay").removeAttribute("aria-hidden");
+        }
+
+        function closeAModal() {
+            document.getElementById("aModal-overlay").classList.remove("vm-visible");
+            document.getElementById("aModal-overlay").setAttribute("aria-hidden", "true");
+            accEdit = null;
+        }
+        document.getElementById("btn-nueva-acc").addEventListener("click", function() {
+            openAModal(null);
+        });
+        document.getElementById("aModal-close").addEventListener("click", closeAModal);
+        document.getElementById("aModal-cancel").addEventListener("click", closeAModal);
+        document.getElementById("aModal-save").addEventListener("click", function() {
+            var icono = document.getElementById("am-icono").value;
+            var nombre = document.getElementById("am-nombre").value.trim();
+            var desc = document.getElementById("am-desc").value.trim();
+            if (!nombre) {
+                alert("Escribe el nombre del servicio.");
+                return;
+            }
+            if (accEdit) {
+                accEdit.querySelector(".acc-item__icon").className = "fa-solid " + icono + " acc-item__icon";
+                accEdit.querySelector("strong").textContent = nombre;
+                accEdit.querySelector(".acc-item__desc").textContent = desc;
+            } else {
+                var div = document.createElement("div");
+                div.className = "acc-item";
+                div.innerHTML = '<i class="fa-solid ' + icono + ' acc-item__icon"></i><div class="acc-item__text"><strong>' + nombre + '</strong><p class="acc-item__desc">' + desc + '</p></div><div class="acc-item__actions"><button class="btn-tbl-edit btn-acc-edit" title="Editar"><i class="fa-solid fa-pen"></i></button><button class="btn-tbl-del btn-acc-del" title="Eliminar"><i class="fa-solid fa-trash"></i></button></div>';
+                document.getElementById("acc-list").appendChild(div);
+            }
+            closeAModal();
+        });
+        document.getElementById("acc-list").addEventListener("click", function(e) {
+            var item = e.target.closest(".acc-item");
+            if (!item) return;
+            if (e.target.closest(".btn-acc-edit")) openAModal(item);
+            if (e.target.closest(".btn-acc-del")) {
+                closeAllVM();
+                accDel = item;
+                document.getElementById("aDel-nombre").textContent = item.querySelector("strong").textContent.trim();
+                document.getElementById("aDel-overlay").classList.add("vm-visible");
+                document.getElementById("aDel-overlay").removeAttribute("aria-hidden");
+            }
+        });
+        document.getElementById("aDel-close").addEventListener("click", function() {
+            document.getElementById("aDel-overlay").classList.remove("vm-visible");
+            document.getElementById("aDel-overlay").setAttribute("aria-hidden", "true");
+            accDel = null;
+        });
+        document.getElementById("aDel-cancel").addEventListener("click", function() {
+            document.getElementById("aDel-overlay").classList.remove("vm-visible");
+            document.getElementById("aDel-overlay").setAttribute("aria-hidden", "true");
+            accDel = null;
+        });
+        document.getElementById("aDel-confirm").addEventListener("click", function() {
+            if (accDel) accDel.remove();
+            accDel = null;
+            document.getElementById("aDel-overlay").classList.remove("vm-visible");
+            document.getElementById("aDel-overlay").setAttribute("aria-hidden", "true");
+        });
+
+        function actualizarContador() {
+            var tbody = document.getElementById("tabla-servicios");
+            var empty = tbody.querySelector("td[colspan]");
+            document.getElementById("statPublicados").textContent = empty ? 0 : tbody.querySelectorAll("tr").length;
+        }
+
+        function renderFila(item) {
+            var tr = document.createElement("tr");
+            tr.dataset.id = item.id || "";
+            tr.dataset.nombre = item.nombre || "";
+            tr.dataset.tipo = item.tipo || "";
+            tr.dataset.idCiudad = item.id_ciudad || "";
+            tr.dataset.ciudad = item.ciudad || "";
+            tr.dataset.precio = item.precio_noche || "";
+            tr.dataset.capacidad = item.capacidad_max || "";
+            tr.dataset.servicios = item.servicios_txt || "";
+            tr.dataset.serviciosIds = JSON.stringify((item.servicios || []).map(function(s) {
+                return s.id;
+            }));
+            tr.dataset.accesibilidad = item.accesibilidad || "";
+            tr.dataset.acc = item.accesibilidad || "";
+            tr.dataset.descripcion = item.descripcion || "";
+            tr.dataset.disponible = item.disponible ? "true" : "false";
+            tr.dataset.imgUrl = item.img_url || "";
+            var dispHtml = item.disponible ? '<span class="estado-activo">Activo</span>' : '<span class="estado-cancelado">Inactivo</span>';
+            tr.innerHTML = "<td><strong>" + (item.nombre || "") + "</strong></td><td>" + (item.tipo || "") + "</td><td>" + (item.ciudad || "") + "</td><td><strong class='precio-purple'>$" + Number(item.precio_noche || 0).toLocaleString("es-CO") + "</strong></td><td>" + dispHtml + "</td><td><div class='table-actions'><button class='btn-tbl-view' title='Ver detalle'><i class='fa-solid fa-eye'></i></button><button class='btn-tbl-edit'><i class='fa-solid fa-pen'></i></button><button class='btn-tbl-del'><i class='fa-solid fa-trash'></i></button></div></td>";
+            return tr;
+        }
+
+        function cargarHospedajes() {
+            var tbody = document.getElementById("tabla-servicios");
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:#94a3b8"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</td></tr>';
+            fetch("../hospedaje/listar.php?panel=1", {
+                    credentials: "include"
+                })
+                .then(function(r) {
+                    return r.json();
+                })
+                .then(function(res) {
+                    tbody.innerHTML = "";
+                    if (!res.ok || !res.data || !res.data.length) {
+                        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:#94a3b8">Aun no has publicado hospedajes.</td></tr>';
+                        actualizarContador();
+                        return;
+                    }
+                    res.data.forEach(function(item) {
+                        tbody.appendChild(renderFila(item));
+                    });
+                    actualizarContador();
+                })
+                .catch(function() {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#ef4444;padding:24px">Error al cargar. Recarga la pagina.</td></tr>';
+                });
+        }
+        cargarHospedajes();
+
+        var mData = {
+            "sobre-nosotros": {
+                title: "Sobre Nosotros",
+                content: "<p>Tourismeasy conecta empresas turisticas con viajeros accesibles en Santander.</p>"
+            },
+            "como-funciona": {
+                title: "Como Funciona",
+                content: "<p>Registra tu empresa, aparece en la plataforma y recibe solicitudes directamente.</p>"
+            },
+            "contacto": {
+                title: "Contacto",
+                content: "<p>hola@tourismeasy.com | +57 317 461 3395</p>"
+            },
+            "faq": {
+                title: "Preguntas Frecuentes",
+                content: "<p>No somos una agencia de viajes; somos la plataforma que te conecta con los viajeros.</p>"
+            },
+            "privacidad": {
+                title: "Politica de Privacidad",
+                content: "<p>No vendemos tu informacion personal a terceros.</p>"
+            },
+            "terminos": {
+                title: "Terminos de Servicio",
+                content: "<p>Al usar Tourismeasy aceptas actuar como intermediario turistico verificado.</p>"
+            }
+        };
+        document.querySelectorAll("[data-modal]").forEach(function(link) {
+            link.addEventListener("click", function(e) {
+                e.preventDefault();
+                var key = link.getAttribute("data-modal");
+                var data = mData[key];
+                if (data) {
+                    document.getElementById("modalTitle").textContent = data.title;
+                    document.getElementById("modalContent").innerHTML = data.content;
+                    document.getElementById("modalOverlay").classList.add("active");
+                }
+            });
+        });
+        document.getElementById("modalClose").addEventListener("click", function() {
+            document.getElementById("modalOverlay").classList.remove("active");
+        });
+        document.getElementById("modalOverlay").addEventListener("click", function(e) {
+            if (e.target === document.getElementById("modalOverlay")) document.getElementById("modalOverlay").classList.remove("active");
+        });
+    </script>
+</body>
+
+</html>

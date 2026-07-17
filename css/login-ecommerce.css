@@ -1,0 +1,269 @@
+/* ── Página de login ── */
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: #f8f4ff;
+}
+
+body.dark-mode {
+    background: #0f0a1e;
+}
+
+.lec-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 28px;
+    background: var(--nav-bg, #1a1a2e);
+    border-bottom: 1px solid rgba(255, 255, 255, .08);
+    gap: 16px;
+}
+
+.lec-topbar .btn-back {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #a855f7;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: .9rem;
+    transition: opacity .2s;
+    white-space: nowrap;
+    margin-right: 16px;
+}
+
+.lec-topbar .btn-back:hover {
+    opacity: .75;
+}
+
+.lec-topbar .logo {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #fff;
+}
+
+.lec-topbar .logo span {
+    color: #a855f7;
+}
+
+.lec-bg {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 16px;
+    background: linear-gradient(135deg, #f8f4ff 0%, #ede9fe 100%);
+}
+
+body.dark-mode .lec-bg {
+    background: linear-gradient(135deg, #0f0a1e 0%, #1a1035 100%);
+}
+
+.lec-card {
+    background: #fff;
+    border: 1px solid rgba(168, 85, 247, .15);
+    border-radius: 20px;
+    padding: 36px 32px;
+    width: 100%;
+    max-width: 440px;
+    box-shadow: 0 24px 60px rgba(124, 58, 237, .1);
+}
+
+body.dark-mode .lec-card {
+    background: #1e1b2e;
+    border-color: rgba(168, 85, 247, .2);
+}
+
+.lec-tabs {
+    display: flex;
+    gap: 0;
+    background: rgba(0, 0, 0, .06);
+    border-radius: 10px;
+    padding: 4px;
+    margin-bottom: 28px;
+}
+
+body.dark-mode .lec-tabs {
+    background: rgba(255, 255, 255, .05);
+}
+
+.lec-tab {
+    flex: 1;
+    padding: 10px 0;
+    border: none;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: .88rem;
+    cursor: pointer;
+    transition: all .2s;
+    background: none;
+    color: rgba(0, 0, 0, .4);
+}
+
+body.dark-mode .lec-tab {
+    color: rgba(255, 255, 255, .5);
+}
+
+.lec-tab.active {
+    background: #a855f7;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(168, 85, 247, .3);
+}
+
+.lec-form {
+    display: none;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.lec-form.active {
+    display: flex;
+}
+
+.lec-form h2 {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #1e1b2e;
+    margin: 0 0 4px;
+}
+
+body.dark-mode .lec-form h2 {
+    color: #fff;
+}
+
+.lec-form p {
+    color: #64748b;
+    font-size: .85rem;
+    margin: 0 0 8px;
+}
+
+body.dark-mode .lec-form p {
+    color: rgba(255, 255, 255, .55);
+}
+
+.lec-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.lec-field label {
+    font-size: .82rem;
+    font-weight: 600;
+    color: #475569;
+}
+
+body.dark-mode .lec-field label {
+    color: rgba(255, 255, 255, .7);
+}
+
+.lec-field input,
+.lec-field select {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 11px 14px;
+    border-radius: 10px;
+    border: 1.5px solid #e2e8f0;
+    background: #f8fafc;
+    color: #1e293b;
+    font-size: .9rem;
+    outline: none;
+    transition: border-color .2s;
+}
+
+body.dark-mode .lec-field input,
+body.dark-mode .lec-field select {
+    border-color: rgba(255, 255, 255, .12);
+    background: rgba(255, 255, 255, .06);
+    color: #fff;
+}
+
+.lec-field input:focus,
+.lec-field select:focus {
+    border-color: #a855f7;
+}
+
+.lec-field select option {
+    background: #1e1b2e;
+    color: #fff;
+}
+/* Fila de dos columnas — apiladas en móvil */
+
+.lec-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+@media (max-width: 480px) {
+    .lec-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+.lec-btn {
+    padding: 13px;
+    border-radius: 50px;
+    border: none;
+    background: #a855f7;
+    color: #fff;
+    font-weight: 700;
+    font-size: .95rem;
+    cursor: pointer;
+    transition: background .2s, transform .15s;
+    margin-top: 4px;
+}
+
+.lec-btn:hover {
+    background: #9333ea;
+    transform: translateY(-1px);
+}
+
+.lec-btn:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.lec-msg {
+    padding: 11px 14px;
+    border-radius: 10px;
+    font-size: .85rem;
+    font-weight: 600;
+    display: none;
+}
+
+.lec-msg.error {
+    background: rgba(239, 68, 68, .1);
+    color: #dc2626;
+    display: block;
+}
+
+.lec-msg.success {
+    background: rgba(34, 197, 94, .1);
+    color: #16a34a;
+    display: block;
+}
+
+.lec-msg.info {
+    background: rgba(168, 85, 247, .1);
+    color: #7c3aed;
+    display: block;
+}
+
+body.dark-mode .lec-msg.error {
+    background: rgba(239, 68, 68, .15);
+    color: #f87171;
+}
+
+body.dark-mode .lec-msg.success {
+    background: rgba(34, 197, 94, .15);
+    color: #4ade80;
+}
+
+body.dark-mode .lec-msg.info {
+    background: rgba(168, 85, 247, .15);
+    color: #c4b5fd;
+}

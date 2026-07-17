@@ -1,0 +1,442 @@
+/* ===========================
+   VARIABLES (hereda el sistema de diseño de TourismEasy)
+=========================== */
+:root {
+  --purple:       #7c3aed;
+  --purple-light: #a855f7;
+  --purple-dark:  #5b21b6;
+  --white:        #ffffff;
+  --gray-100:     #f8fafc;
+  --gray-200:     #e2e8f0;
+  --gray-400:     #94a3b8;
+  --gray-600:     #475569;
+  --gray-800:     #1e293b;
+  --green:        #16a34a;
+  --red:          #dc2626;
+  --font-head:    "Montserrat", sans-serif;
+  --font-body:    "Open Sans", sans-serif;
+  --radius:       16px;
+  --shadow:       0 8px 40px rgba(124, 58, 237, 0.13);
+}
+
+/* ===========================
+   RESET & BASE
+=========================== */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--gray-100);
+  color: var(--gray-800);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+}
+
+a {
+  color: var(--purple);
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s;
+}
+a:hover { color: var(--purple-dark); }
+
+/* ===========================
+   TARJETA PRINCIPAL
+=========================== */
+.rec-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 64px 64px 52px;
+  width: 100%;
+  max-width: 640px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ===========================
+   CABECERA (logo + título)
+=========================== */
+.rec-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+}
+
+.rec-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-head);
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: var(--purple);
+  letter-spacing: 0.5px;
+  text-decoration: none;
+}
+
+.rec-logo .logo-img {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.rec-title {
+  font-family: var(--font-head);
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--gray-800);
+  line-height: 1.25;
+}
+
+.rec-subtitle {
+  font-size: 0.88rem;
+  color: var(--gray-600);
+  line-height: 1.6;
+  max-width: 340px;
+}
+
+/* ===========================
+   FORMULARIO
+=========================== */
+.rec-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field-group label {
+  font-family: var(--font-head);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--gray-600);
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.field-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.field-icon {
+  position: absolute;
+  left: 14px;
+  color: var(--gray-400);
+  font-size: 0.9rem;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.field-wrap input {
+  width: 100%;
+  padding: 11px 14px 11px 38px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: 10px;
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  color: var(--gray-800);
+  background: var(--gray-100);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+.field-wrap input:focus {
+  border-color: var(--purple);
+  background: var(--white);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+}
+
+.field-wrap input::placeholder {
+  color: var(--gray-400);
+}
+
+/* Toggle mostrar/ocultar contraseña */
+.toggle-pass {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  color: var(--gray-400);
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 4px;
+  transition: color 0.2s;
+}
+.toggle-pass:hover { color: var(--purple); }
+
+/* Indicador de fortaleza de contraseña */
+.pass-strength {
+  display: flex;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.pass-strength-bar {
+  flex: 1;
+  height: 4px;
+  border-radius: 4px;
+  background: var(--gray-200);
+  transition: background 0.3s;
+}
+
+.pass-strength-bar.weak   { background: #ef4444; }
+.pass-strength-bar.fair   { background: #f59e0b; }
+.pass-strength-bar.good   { background: #3b82f6; }
+.pass-strength-bar.strong { background: #16a34a; }
+
+.pass-strength-label {
+  font-size: 0.75rem;
+  color: var(--gray-400);
+  margin-top: 4px;
+}
+
+/* ===========================
+   BOTÓN PRINCIPAL
+=========================== */
+.btn-rec {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 13px 20px;
+  background: var(--purple);
+  color: var(--white);
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 0.9rem;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  margin-top: 4px;
+  letter-spacing: 0.3px;
+}
+
+.btn-rec:hover {
+  background: var(--purple-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(124, 58, 237, 0.3);
+}
+
+.btn-rec:active { transform: translateY(0); }
+
+.btn-rec:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Spinner dentro del botón */
+.btn-rec .spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255,255,255,0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: none;
+}
+
+.btn-rec.loading .btn-text { display: none; }
+.btn-rec.loading .spinner  { display: block; }
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ===========================
+   MENSAJES DE FEEDBACK
+=========================== */
+.rec-mensaje {
+  display: none;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  animation: fadeIn 0.25s ease;
+}
+
+.rec-mensaje.show { display: flex; }
+
+.rec-mensaje.ok {
+  background: rgba(22, 163, 74, 0.08);
+  border: 1px solid rgba(22, 163, 74, 0.25);
+  color: var(--green);
+}
+
+.rec-mensaje.error {
+  background: rgba(220, 38, 38, 0.07);
+  border: 1px solid rgba(220, 38, 38, 0.2);
+  color: var(--red);
+}
+
+.rec-mensaje i { font-size: 1rem; margin-top: 1px; flex-shrink: 0; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ===========================
+   PIE DE TARJETA
+=========================== */
+.rec-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.83rem;
+  color: var(--gray-600);
+}
+
+/* ===========================
+   BOTÓN DARK MODE
+=========================== */
+.btn-dark-mode {
+  background: none;
+  border: 1.5px solid var(--gray-200);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--gray-600);
+  font-size: 0.9rem;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+  flex-shrink: 0;
+}
+.btn-dark-mode:hover {
+  background: var(--gray-100);
+  border-color: var(--purple);
+  color: var(--purple);
+}
+
+/* ===========================
+   DARK MODE
+=========================== */
+body.dark-mode {
+  background: #0f172a;
+  color: #f1f5f9;
+}
+
+body.dark-mode .rec-card {
+  background: #1e293b;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4);
+}
+
+body.dark-mode .rec-title {
+  color: #f1f5f9;
+}
+
+body.dark-mode .rec-subtitle {
+  color: #94a3b8;
+}
+
+body.dark-mode .rec-logo {
+  color: var(--purple-light);
+}
+
+body.dark-mode .field-group label {
+  color: #94a3b8;
+}
+
+body.dark-mode .field-wrap input {
+  background: #0f172a;
+  border-color: #334155;
+  color: #f1f5f9;
+}
+
+body.dark-mode .field-wrap input:focus {
+  background: #1e293b;
+  border-color: var(--purple);
+}
+
+body.dark-mode .field-wrap input::placeholder {
+  color: #475569;
+}
+
+body.dark-mode .field-icon {
+  color: #475569;
+}
+
+body.dark-mode .toggle-pass {
+  color: #475569;
+}
+body.dark-mode .toggle-pass:hover {
+  color: var(--purple-light);
+}
+
+body.dark-mode .pass-strength-bar {
+  background: #334155;
+}
+
+body.dark-mode .pass-strength-label {
+  color: #64748b;
+}
+
+body.dark-mode .rec-mensaje.ok {
+  background: rgba(22, 163, 74, 0.12);
+  border-color: rgba(22, 163, 74, 0.3);
+}
+
+body.dark-mode .rec-mensaje.error {
+  background: rgba(220, 38, 38, 0.12);
+  border-color: rgba(220, 38, 38, 0.3);
+}
+
+body.dark-mode .rec-footer {
+  color: #64748b;
+}
+
+body.dark-mode .rec-footer a {
+  color: var(--purple-light);
+}
+body.dark-mode .rec-footer a:hover {
+  color: #fff;
+}
+
+body.dark-mode .btn-dark-mode {
+  border-color: #334155;
+  color: #94a3b8;
+}
+body.dark-mode .btn-dark-mode:hover {
+  background: #334155;
+  border-color: var(--purple);
+  color: var(--purple-light);
+}
+
+/* ===========================
+   RESPONSIVE
+=========================== */
+@media (max-width: 600px) {
+  .rec-card {
+    padding: 40px 28px 34px;
+  }
+  .rec-title { font-size: 1.2rem; }
+}

@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Acceder – TourismLocal</title>
+    <link rel="stylesheet" href="../css/e-comemerce.css" />
+    <link rel="stylesheet" href="../css/login-ecommerce.css" />
+    <link rel="stylesheet" href="../css/captcha.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
+</head>
+
+<body>
+
+    <div class="lec-topbar">
+        <a href="e-commerce.html" class="btn-back">
+            <i class="fa-solid fa-arrow-left"></i> Volver a la tienda
+        </a>
+        <span class="logo">Tourism<span>Local</span></span>
+        <div id="dark-mode-toggle"></div>
+    </div>
+
+    <div class="lec-bg">
+        <div class="lec-card">
+
+            <!-- Tabs -->
+            <div class="lec-tabs">
+                <button class="lec-tab active" id="tabLogin">Iniciar Sesión</button>
+                <button class="lec-tab" id="tabRegister">Registrarse</button>
+            </div>
+
+            <!-- ── FORMULARIO LOGIN ── -->
+            <form class="lec-form active" id="formLogin" autocomplete="off">
+                <h2>Bienvenido artesano</h2>
+                <p>Accede para gestionar tus productos en TourismLocal.</p>
+
+                <div class="lec-field">
+                    <label>Correo electrónico</label>
+                    <input type="email" id="loginEmail" placeholder="tu@correo.com" required />
+                </div>
+                <div class="lec-field">
+                    <label>Contraseña</label>
+                    <input type="password" id="loginPassword" placeholder="••••••••" required />
+                </div>
+
+                <div class="lec-msg" id="loginMsg"></div>
+                <button type="submit" class="lec-btn" id="btnLogin">
+                <i class="fa-solid fa-right-to-bracket"></i> Ingresar
+            </button>
+            </form>
+
+            <!-- ── FORMULARIO REGISTRO ── -->
+            <form class="lec-form" id="formRegister" autocomplete="off">
+                <h2>Registra tu taller</h2>
+                <p>Completa el formulario. Un administrador revisará tu solicitud.</p>
+
+                <div class="lec-row">
+                    <div class="lec-field">
+                        <label>Tipo de documento</label>
+                        <select id="regTipoDoc">
+                        <option value="">Selecciona</option>
+                    </select>
+                    </div>
+                    <div class="lec-field">
+                        <label>Número de documento</label>
+                        <input type="text" id="regDocumento" placeholder="1234567890" required />
+                    </div>
+                </div>
+
+                <div class="lec-row">
+                    <div class="lec-field">
+                        <label>Nombre</label>
+                        <input type="text" id="regNombre" placeholder="Tu nombre" required />
+                    </div>
+                    <div class="lec-field">
+                        <label>Apellido</label>
+                        <input type="text" id="regApellido" placeholder="Tu apellido" required />
+                    </div>
+                </div>
+
+                <div class="lec-field">
+                    <label>Celular</label>
+                    <input type="text" id="regCelular" placeholder="+57 300 000 0000" required />
+                </div>
+                <div class="lec-field">
+                    <label>Correo electrónico</label>
+                    <input type="email" id="regEmail" placeholder="tu@correo.com" required />
+                </div>
+                <div class="lec-field">
+                    <label>Contraseña</label>
+                    <input type="password" id="regPassword" placeholder="Mínimo 8 caracteres" required />
+                </div>
+                <div class="lec-field">
+                    <label>Confirmar contraseña</label>
+                    <input type="password" id="regPassword2" placeholder="Repite la contraseña" required />
+                </div>
+
+                <div class="lec-msg" id="registerMsg"></div>
+                <button type="submit" class="lec-btn" id="btnRegister">
+                <i class="fa-solid fa-user-plus"></i> Enviar solicitud
+            </button>
+            </form>
+
+        </div>
+    </div>
+
+    <script>
+        // La carpeta img/ es hermana de html/, js/ y css/ (todas en la raíz del e-commerce),
+        // igual que este archivo vive en html/login_ecommerce.html.
+        window.TE_CAPTCHA_IMG_BASE = '../img/';
+    </script>
+    <script src="../componentes/dark-mode-toggle.js"></script>
+    <script src="../js/login-ecommerce.js"></script>
+    <script src="../js/captcha.js"></script>
+    <script src="../js/santanderianidad.js"></script>
+</body>
+
+</html>

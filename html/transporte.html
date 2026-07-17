@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Transporte - TourismEasy</title>
+    <link rel="stylesheet" href="../css/index.css">
+    <link rel="stylesheet" href="../css/login.css">
+    <link rel="stylesheet" href="../css/transporte.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="../css/carrito.css">
+    <link rel="stylesheet" href="../css/captcha.css">
+    <link rel="stylesheet" href="../css/agente-ia.css" />
+    <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
+</head>
+
+<body>
+    <!-- NAVBAR: se rellena solo con componentes/navbar.js -->
+    <div id="site-navbar" data-context="subpage" data-active="transporte"></div>
+
+    <main>
+        <section class="module-hero">
+            <h1 class="module-title">Transporte Disponible</h1>
+            <p class="module-subtitle">Encuentra las mejores rutas terrestres para moverte por Santander.</p>
+        </section>
+
+        <div class="search-container">
+            <div class="search-group">
+                <label>Origen</label>
+                <select id="tOrigen">
+                    <option value="">Cualquier origen</option>
+                </select>
+            </div>
+            <div class="search-group">
+                <label>Destino</label>
+                <select id="tDestino">
+                    <option value="">Cualquier destino</option>
+                </select>
+            </div>
+            <div class="search-group">
+                <label>Fecha</label>
+                <input type="date" id="tFecha">
+            </div>
+            <button class="btn-buscar" id="btnBuscarTransporte">Buscar Transporte</button>
+        </div>
+
+        <div class="transporte-status" id="transporteStatus" style="display:none; max-width:1200px; margin:0 auto 16px; padding:0 24px;">
+            <p class="transporte-status-text" id="transporteStatusText"></p>
+        </div>
+        <div class="transporte-empty" id="transporteEmpty" style="display:none; max-width:1200px; margin:0 auto 60px; padding:0 24px;">
+            <div class="transporte-empty-box">
+                <i class="fa-solid fa-bus-slash"></i>
+                <h3>No encontramos rutas</h3>
+                <p>No hay transporte disponible para la ruta seleccionada. Intenta con otro origen o destino.</p>
+                <button class="btn-buscar" onclick="resetBusqueda()">Ver todo el transporte</button>
+            </div>
+        </div>
+
+        <div class="results-grid" id="resultsGrid">
+        </div>
+    </main>
+
+    <!-- ================================================
+     MODAL DETALLES DE TRANSPORTE (propio de esta página)
+     ================================================ -->
+    <div id="transporte-detalle-overlay" class="vd-overlay" aria-hidden="true" role="dialog" aria-modal="true">
+        <div class="vd-box">
+            <button class="vd-cerrar" id="vd-cerrar" aria-label="Cerrar">&times;</button>
+            <img class="vd-img" id="vd-img" src="" alt="">
+            <div class="vd-body">
+                <h2 class="vd-titulo" id="vd-titulo"></h2>
+                <div class="vd-info-grid">
+                    <div class="vd-info-item">
+                        <i class="fa-solid fa-location-dot"></i>
+                        <div>
+                            <span class="vd-label">Origen</span>
+                            <span class="vd-val" id="vd-origen"></span>
+                        </div>
+                    </div>
+                    <div class="vd-info-item">
+                        <i class="fa-solid fa-flag-checkered"></i>
+                        <div>
+                            <span class="vd-label">Destino</span>
+                            <span class="vd-val" id="vd-destino"></span>
+                        </div>
+                    </div>
+                    <div class="vd-info-item">
+                        <i class="fa-solid fa-calendar-days"></i>
+                        <div>
+                            <span class="vd-label">Fecha de salida</span>
+                            <span class="vd-val" id="vd-fecha"></span>
+                        </div>
+                    </div>
+                    <div class="vd-info-item">
+                        <i class="fa-solid fa-clock"></i>
+                        <div>
+                            <span class="vd-label">Hora de salida</span>
+                            <span class="vd-val" id="vd-hora"></span>
+                        </div>
+                    </div>
+                    <div class="vd-info-item">
+                        <i class="fa-solid fa-building"></i>
+                        <div>
+                            <span class="vd-label">Empresa</span>
+                            <span class="vd-val" id="vd-empresa"></span>
+                        </div>
+                    </div>
+                    <div class="vd-info-item vd-info-full">
+                        <i class="fa-solid fa-wheelchair"></i>
+                        <div>
+                            <span class="vd-label">Accesibilidad</span>
+                            <span class="vd-val" id="vd-accesibilidad"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="vd-footer">
+                    <span class="vd-precio" id="vd-precio"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER: se rellena solo con componentes/footer.js -->
+    <div id="site-footer"></div>
+
+    <!-- ==== COMPONENTES GLOBALES (mismo orden que index.html) ==== -->
+    <script src="../componentes/navbar.js"></script>
+    <script src="../componentes/btn-acceder.js"></script>
+    <script src="../componentes/dark-mode-toggle.js"></script>
+    <script src="../componentes/footer.js"></script>
+
+    <!-- ==== SCRIPTS PROPIOS DE ESTA PÁGINA ==== -->
+
+    <script src="../componentes/carrito.js"></script>
+    <script src="../js/captcha.js"></script>
+    <script src="../js/login.js"></script>
+    <script src="../componentes/agente-ia.js"></script>
+    <script src="../js/transporte.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <script src="../js/santanderianidad.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,466 @@
+/* =====================================================
+   TOURISMEASY — CAPTCHA VISUAL (v2 — Imágenes Reales)
+   Estilos del widget de verificación por imágenes reales
+   ===================================================== */
+
+/* ── Contenedor externo ── */
+.te-captcha-wrap {
+    width: 100%;
+}
+
+/* ── Caja principal ── */
+.te-captcha-box {
+    border: 1.5px solid var(--gray-200);
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--white);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    transition: border-color 0.25s, box-shadow 0.25s;
+}
+
+.te-captcha-box:focus-within {
+    border-color: var(--purple);
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+}
+
+/* ── Header ── */
+.te-cap-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+    padding: 12px 14px;
+    transition: background 0.4s;
+}
+
+.te-cap-header.te-cap-header--ok {
+    background: linear-gradient(135deg, #16a34a, #22c55e);
+}
+
+.te-cap-logo {
+    width: 32px;
+    height: 32px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.te-cap-logo i {
+    color: #fff;
+    font-size: 1rem;
+}
+
+.te-cap-title-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.te-cap-title {
+    font-family: var(--font-head);
+    font-weight: 700;
+    font-size: 0.82rem;
+    color: #fff;
+    letter-spacing: 0.3px;
+}
+
+.te-cap-sub {
+    font-size: 0.72rem;
+    color: rgba(255, 255, 255, 0.75);
+}
+
+/* ── Barra de progreso de carga ── */
+.te-cap-progress {
+    height: 3px;
+    background: var(--gray-100);
+    overflow: hidden;
+}
+
+.te-cap-progress-bar {
+    height: 100%;
+    background: var(--purple);
+    transition: width 0.35s ease;
+    width: 0%;
+}
+
+/* ── Instrucción ── */
+.te-cap-instruction {
+    padding: 10px 14px 8px;
+    font-size: 0.8rem;
+    color: var(--gray-800);
+    font-family: var(--font-head);
+    font-weight: 600;
+    background: var(--gray-100);
+    border-bottom: 1px solid var(--gray-200);
+    line-height: 1.4;
+}
+
+.te-cap-instruction strong {
+    color: var(--purple);
+}
+
+/* ── Grid de imágenes 3x3 ── */
+.te-cap-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 3px;
+    padding: 10px;
+    background: var(--gray-200);
+}
+
+/* ── Celda ── */
+.te-cap-cell {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 2.5px solid transparent;
+    transition: border-color 0.15s, transform 0.1s;
+    background: var(--gray-100);
+}
+
+.te-cap-cell:hover {
+    transform: scale(0.97);
+}
+
+/* Imagen dentro de la celda */
+.te-cap-cell img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    pointer-events: none;
+    transition: filter 0.15s;
+    user-select: none;
+}
+
+/* Spinner de carga */
+.te-cap-cell--loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.te-cap-spinner {
+    width: 22px;
+    height: 22px;
+    border: 2.5px solid var(--gray-200);
+    border-top-color: var(--purple);
+    border-radius: 50%;
+    animation: te-cap-spin 0.7s linear infinite;
+    flex-shrink: 0;
+}
+
+@keyframes te-cap-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Celda seleccionada */
+.te-cap-cell.selected {
+    border-color: var(--purple);
+}
+
+.te-cap-cell.selected img {
+    filter: brightness(0.82);
+}
+
+/* Check de selección */
+.te-cap-check {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 20px;
+    height: 20px;
+    background: var(--purple);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: scale(0.5);
+    transition: opacity 0.15s, transform 0.15s;
+    pointer-events: none;
+}
+
+.te-cap-check i {
+    color: #fff;
+    font-size: 0.6rem;
+}
+
+.te-cap-cell.selected .te-cap-check {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Celda confirmada (éxito) */
+.te-cap-cell.confirmed {
+    border-color: #22c55e;
+}
+
+.te-cap-cell.confirmed .te-cap-check {
+    background: #22c55e;
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Overlay de número de imágenes encontradas */
+.te-cap-count-badge {
+    position: absolute;
+    bottom: 5px;
+    left: 5px;
+    font-size: 0.6rem;
+    font-family: var(--font-head);
+    font-weight: 700;
+    background: rgba(0, 0, 0, 0.55);
+    color: #fff;
+    border-radius: 4px;
+    padding: 1px 5px;
+    pointer-events: none;
+    display: none;
+}
+
+/* ── Footer ── */
+.te-cap-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    border-top: 1px solid var(--gray-200);
+    background: var(--white);
+}
+
+.te-cap-refresh {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 1.5px solid var(--gray-200);
+    background: none;
+    color: var(--gray-600);
+    font-size: 0.9rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.2s, color 0.2s, transform 0.3s;
+}
+
+.te-cap-refresh:hover {
+    border-color: var(--purple);
+    color: var(--purple);
+    transform: rotate(180deg);
+}
+
+.te-cap-verify {
+    background: var(--purple);
+    color: #fff;
+    font-family: var(--font-head);
+    font-weight: 700;
+    font-size: 0.82rem;
+    padding: 8px 22px;
+    border-radius: 50px;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s, opacity 0.2s;
+}
+
+.te-cap-verify:hover {
+    background: var(--purple-dark);
+    transform: translateY(-1px);
+}
+
+.te-cap-verify:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* ── Mensajes de estado ── */
+.te-cap-msg {
+    font-family: var(--font-head);
+    font-size: 0.76rem;
+    font-weight: 600;
+    padding: 0 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 0;
+    transition: all 0.2s;
+}
+
+.te-cap-msg:not(:empty) {
+    padding: 6px 14px 10px;
+}
+
+.te-cap-msg--ok {
+    color: #16a34a;
+}
+
+.te-cap-msg--ok i {
+    color: #16a34a;
+}
+
+.te-cap-msg--err {
+    color: #dc2626;
+}
+
+.te-cap-msg--err i {
+    color: #dc2626;
+}
+
+.te-cap-msg--warn {
+    color: #d97706;
+}
+
+.te-cap-msg--warn i {
+    color: #d97706;
+}
+
+/* ── Estado éxito ── */
+.te-captcha-box.te-cap-success {
+    border-color: #22c55e;
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.12);
+}
+
+/* ── Widget colapsado: al verificarse correctamente, se ocultan el header,
+   la barra de progreso, la instrucción, la cuadrícula, el footer y el mensaje,
+   y en su lugar se muestra únicamente el cuadro compacto "Verificación completada" ── */
+.te-captcha-box.te-cap-collapsed .te-cap-header,
+.te-captcha-box.te-cap-collapsed .te-cap-progress,
+.te-captcha-box.te-cap-collapsed .te-cap-instruction,
+.te-captcha-box.te-cap-collapsed .te-cap-grid,
+.te-captcha-box.te-cap-collapsed .te-cap-footer,
+.te-captcha-box.te-cap-collapsed .te-cap-msg {
+    display: none;
+}
+
+.te-cap-success-box {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 16px;
+    background: rgba(34, 197, 94, 0.08);
+}
+
+.te-captcha-box.te-cap-collapsed .te-cap-success-box {
+    display: flex;
+}
+
+.te-cap-success-box i {
+    color: #16a34a;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.te-cap-success-box span {
+    font-family: var(--font-head);
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: #16a34a;
+}
+
+body.dark-mode .te-cap-success-box { background: rgba(34, 197, 94, 0.12); }
+
+/* ── Animación shake (error) ── */
+@keyframes te-cap-shake {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    20% {
+        transform: translateX(-6px);
+    }
+
+    40% {
+        transform: translateX(6px);
+    }
+
+    60% {
+        transform: translateX(-4px);
+    }
+
+    80% {
+        transform: translateX(4px);
+    }
+}
+
+.te-captcha-box.te-cap-shake {
+    animation: te-cap-shake 0.5s ease;
+    border-color: #ef4444;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
+}
+
+/* ── Dark mode ── */
+body.dark-mode .te-captcha-box {
+    background: #1e293b;
+    border-color: #334155;
+}
+
+body.dark-mode .te-cap-instruction {
+    background: #0f172a;
+    border-color: #334155;
+    color: #e2e8f0;
+}
+
+body.dark-mode .te-cap-grid {
+    background: #0f172a;
+}
+
+body.dark-mode .te-cap-cell {
+    background: #1e293b;
+}
+
+body.dark-mode .te-cap-cell:hover {
+    border-color: rgba(168, 85, 247, 0.3);
+}
+
+body.dark-mode .te-cap-cell.selected {
+    border-color: var(--purple-light);
+}
+
+body.dark-mode .te-cap-footer {
+    background: #1e293b;
+    border-color: #334155;
+}
+
+body.dark-mode .te-cap-refresh {
+    border-color: #334155;
+    color: #94a3b8;
+}
+
+body.dark-mode .te-cap-refresh:hover {
+    border-color: var(--purple-light);
+    color: var(--purple-light);
+}
+
+body.dark-mode .te-cap-progress {
+    background: #0f172a;
+}
+
+body.dark-mode .te-captcha-box.te-cap-success {
+    border-color: #22c55e;
+}
+
+body.dark-mode .te-captcha-box.te-cap-shake {
+    border-color: #ef4444;
+}
+
+/* ── Responsive móvil ── */
+@media (max-width: 480px) {
+    .te-cap-verify {
+        padding: 7px 16px;
+        font-size: 0.78rem;
+    }
+
+    .te-cap-grid {
+        padding: 8px;
+        gap: 2px;
+    }
+}

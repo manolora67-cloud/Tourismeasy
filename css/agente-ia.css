@@ -1,0 +1,725 @@
+/* ============================================
+   AGENTE IA TOURISMEASY — agente-ia.css v2
+   Estilos del chatbot flotante "Sara".
+   Se usa junto a agente-ia.js.
+   ============================================ */
+
+
+/* Fuente especial del chat: Plus Jakarta Sans */
+
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap");
+
+/* ── Variables de color del chat ──
+   Separadas del index.css para no interferir con el resto del sitio */
+
+:root {
+    --te-primary: #6d28d9;
+    /* Morado principal del chat */
+    --te-primary-light: #8b5cf6;
+    /* Morado claro (hovers, acentos) */
+    --te-primary-dark: #4c1d95;
+    /* Morado oscuro (fondo del header) */
+    --te-accent: #f59e0b;
+    /* Ámbar (no usado actualmente, reservado) */
+    --te-surface: #ffffff;
+    /* Fondo del panel */
+    --te-bg: #f5f3ff;
+    /* Fondo del área de mensajes (lila muy claro) */
+    --te-text: #1e1b4b;
+    /* Color de texto principal */
+    --te-text-muted: #6b7280;
+    /* Texto secundario */
+    --te-border: #ede9fe;
+    /* Bordes y separadores */
+    --te-shadow: rgba(109, 40, 217, 0.18);
+    /* Sombra morada */
+}
+
+
+/* ══════════════════════════════════════════
+   BOTÓN FLOTANTE (FAB)
+   El círculo morado fijo en la esquina inferior derecha
+══════════════════════════════════════════ */
+
+.te-chat-fab {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, var(--te-primary), var(--te-primary-light));
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 8px 28px var(--te-shadow), 0 2px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9998;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), /* Rebote elástico */
+    box-shadow 0.25s ease;
+}
+
+.te-chat-fab:hover {
+    transform: scale(1.1);
+    box-shadow: 0 12px 36px var(--te-shadow);
+}
+
+.te-chat-fab svg {
+    width: 26px;
+    height: 26px;
+    fill: #fff;
+    transition: opacity 0.2s, transform 0.2s;
+}
+
+
+/* El ícono de cierre (X) está oculto por defecto */
+
+.te-chat-fab .te-fab-close {
+    display: none;
+}
+
+
+/* Cuando el chat está abierto: muestra X y oculta el ícono de chat */
+
+.te-chat-fab.open .te-fab-open {
+    display: none;
+}
+
+.te-chat-fab.open .te-fab-close {
+    display: block;
+}
+
+
+/* ── Anillo de pulso animado alrededor del FAB ──
+   Indica al usuario que hay algo nuevo / llama la atención */
+
+.te-chat-fab::after {
+    content: "";
+    position: absolute;
+    inset: -5px;
+    border-radius: 50%;
+    border: 2px solid rgba(139, 92, 246, 0.45);
+    animation: tePulse 2.2s infinite;
+}
+
+
+/* El pulso se oculta cuando el chat está abierto */
+
+.te-chat-fab.open::after {
+    display: none;
+}
+
+
+/* Animación: el anillo se expande y desvanece */
+
+@keyframes tePulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    70% {
+        transform: scale(1.4);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1.4);
+        opacity: 0;
+    }
+}
+
+
+/* ══════════════════════════════════════════
+   BURBUJA DE ATENCIÓN
+   El tooltip "¿Planeas un viaje por Santander? 🌿"
+   que aparece automáticamente sobre el FAB
+══════════════════════════════════════════ */
+
+.te-chat-bubble {
+    position: fixed;
+    bottom: 98px;
+    /* Justo encima del FAB */
+    right: 28px;
+    background: #fff;
+    color: var(--te-primary-dark);
+    font-family: "Plus Jakarta Sans", sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 10px 16px;
+    border-radius: 18px 18px 4px 18px;
+    /* Borde inferior derecho afilado como puntero */
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+    z-index: 9997;
+    white-space: nowrap;
+    animation: teBubbleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    pointer-events: none;
+    /* No interfiere con clics */
+    border-left: 3px solid var(--te-primary-light);
+    /* Acento morado izquierdo */
+}
+
+
+/* La clase .hidden oculta la burbuja completamente */
+
+.te-chat-bubble.hidden {
+    display: none;
+}
+
+
+/* Animación de entrada de la burbuja */
+
+@keyframes teBubbleIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+
+/* ══════════════════════════════════════════
+   PANEL DEL CHAT
+   La ventana principal del chat que se abre al hacer clic en el FAB
+══════════════════════════════════════════ */
+
+.te-chat-panel {
+    position: fixed;
+    bottom: 100px;
+    /* Justo encima del FAB */
+    right: 28px;
+    width: 375px;
+    max-height: 560px;
+    background: var(--te-surface);
+    border-radius: 22px;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.16), 0 4px 16px rgba(0, 0, 0, 0.08);
+    display: flex;
+    flex-direction: column;
+    z-index: 9999;
+    overflow: hidden;
+    /* Empieza pequeño y desplazado abajo, luego escala a su posición */
+    transform: scale(0.88) translateY(24px);
+    transform-origin: bottom right;
+    opacity: 0;
+    pointer-events: none;
+    /* No interactivo cuando está cerrado */
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s ease;
+}
+
+
+/* Cuando el panel está abierto */
+
+.te-chat-panel.open {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+    pointer-events: all;
+}
+
+
+/* ── Encabezado del chat: gradiente + avatar + nombre + indicador ── */
+
+.te-chat-header {
+    background: linear-gradient( 135deg, var(--te-primary-dark) 0%, var(--te-primary) 60%, var(--te-primary-light) 100%);
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    flex-shrink: 0;
+    /* No se encoge aunque el panel sea pequeño */
+    position: relative;
+    overflow: hidden;
+}
+
+
+/* Círculo decorativo semitransparente en el header */
+
+.te-chat-header::before {
+    content: "";
+    position: absolute;
+    top: -20px;
+    right: -20px;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.06);
+    pointer-events: none;
+}
+
+
+/* Avatar circular con foto de Sara */
+
+.te-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2.5px solid rgba(255, 255, 255, 0.5);
+    flex-shrink: 0;
+    background: rgba(255, 255, 255, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+
+/* La foto de Sara llena el círculo centrada en la parte superior */
+
+.te-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+    display: block;
+}
+
+.te-header-info {
+    flex: 1;
+}
+
+.te-header-info strong {
+    display: block;
+    color: #fff;
+    font-family: "Plus Jakarta Sans", sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+}
+
+.te-header-info span {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.72);
+    font-family: "Plus Jakarta Sans", sans-serif;
+    font-weight: 400;
+}
+
+
+/* ── Indicador de "En línea" (punto verde pulsante) ── */
+
+.te-online-indicator {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-shrink: 0;
+}
+
+.te-online-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #34d399;
+    /* Verde */
+    box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.35);
+    animation: tePulseGreen 2s infinite;
+}
+
+
+/* El punto verde "respira" con una animación de sombra */
+
+@keyframes tePulseGreen {
+    0%,
+    100% {
+        box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.35);
+    }
+    50% {
+        box-shadow: 0 0 0 4px rgba(52, 211, 153, 0.15);
+    }
+}
+
+.te-online-label {
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.7);
+    font-family: "Plus Jakarta Sans", sans-serif;
+    font-weight: 500;
+}
+
+
+/* ── Área de mensajes: scroll vertical suave ── */
+
+.te-chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: var(--te-bg);
+    scroll-behavior: smooth;
+}
+
+
+/* Scrollbar delgada y morada */
+
+.te-chat-messages::-webkit-scrollbar {
+    width: 3px;
+}
+
+.te-chat-messages::-webkit-scrollbar-thumb {
+    background: #c4b5fd;
+    border-radius: 3px;
+}
+
+
+/* ── Burbujas de mensajes ── */
+
+.te-msg {
+    max-width: 80%;
+    padding: 10px 13px;
+    border-radius: 16px;
+    font-family: "Plus Jakarta Sans", sans-serif;
+    font-size: 13.5px;
+    line-height: 1.55;
+    animation: teMsgIn 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+    /* Rebote al aparecer */
+}
+
+@keyframes teMsgIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px) scale(0.96);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+
+/* Mensajes del bot (Sara): blancos, alineados a la izquierda */
+
+.te-msg.bot {
+    background: #fff;
+    color: var(--te-text);
+    border-radius: 4px 16px 16px 16px;
+    /* Esquina superior izquierda afilada */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+    align-self: flex-start;
+}
+
+
+/* Mensajes del usuario: gradiente morado, alineados a la derecha */
+
+.te-msg.user {
+    background: linear-gradient(135deg, var(--te-primary), var(--te-primary-light));
+    color: #fff;
+    border-radius: 16px 16px 4px 16px;
+    /* Esquina inferior derecha afilada */
+    align-self: flex-end;
+    box-shadow: 0 4px 12px var(--te-shadow);
+}
+
+
+/* ── Chips de sugerencias rápidas ──
+   Se ocultan tras el primer mensaje del usuario */
+
+.te-chips {
+    display: flex;
+    flex-wrap: wrap;
+    /* Se adaptan al ancho disponible */
+    gap: 6px;
+    padding: 10px 14px 6px;
+    background: var(--te-bg);
+    flex-shrink: 0;
+}
+
+
+/* Cada chip: borde morado semitransparente */
+
+.te-chip {
+    font-family: "Plus Jakarta Sans", sans-serif;
+    font-size: 11.5px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 20px;
+    border: 1.5px solid rgba(109, 40, 217, 0.3);
+    color: var(--te-primary);
+    background: rgba(109, 40, 217, 0.06);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    white-space: nowrap;
+    letter-spacing: -0.1px;
+}
+
+
+/* Al hacer hover: se rellena de morado sólido */
+
+.te-chip:hover {
+    background: var(--te-primary);
+    color: #fff;
+    border-color: var(--te-primary);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px var(--te-shadow);
+}
+
+.te-chip:active {
+    transform: translateY(0);
+}
+
+
+/* ── Indicador de escritura (3 puntos animados) ──
+   Se muestra mientras Sara está "pensando" la respuesta */
+
+.te-typing {
+    display: flex;
+    gap: 4px;
+    padding: 12px 14px;
+    background: #fff;
+    border-radius: 4px 16px 16px 16px;
+    align-self: flex-start;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+    animation: teMsgIn 0.25s ease;
+    width: fit-content;
+}
+
+
+/* Cada punto se anima con un retraso diferente para crear el efecto de ola */
+
+.te-typing span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--te-primary-light);
+    animation: teTyping 1.3s infinite;
+}
+
+.te-typing span:nth-child(2) {
+    animation-delay: 0.18s;
+}
+
+.te-typing span:nth-child(3) {
+    animation-delay: 0.36s;
+}
+
+
+/* El punto sube, se opaca y vuelve a bajar */
+
+@keyframes teTyping {
+    0%,
+    60%,
+    100% {
+        transform: translateY(0);
+        opacity: 0.4;
+    }
+    30% {
+        transform: translateY(-5px);
+        opacity: 1;
+    }
+}
+
+
+/* ── Área de entrada de texto ── */
+
+.te-chat-input-area {
+    padding: 10px 12px;
+    border-top: 1px solid var(--te-border);
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+    background: var(--te-surface);
+    flex-shrink: 0;
+}
+
+
+/* Textarea de escritura: crece automáticamente con JS */
+
+.te-chat-input {
+    flex: 1;
+    border: 1.5px solid var(--te-border);
+    border-radius: 20px;
+    padding: 9px 14px;
+    font-family: "Plus Jakarta Sans", sans-serif;
+    font-size: 13px;
+    outline: none;
+    color: var(--te-text);
+    background: var(--te-bg);
+    resize: none;
+    /* El usuario no puede redimensionarlo; JS lo hace automáticamente */
+    transition: border-color 0.2s, box-shadow 0.2s;
+    line-height: 1.4;
+    /* FIX: el placeholder no dispara el evento "input" que agranda la caja,
+     así que si es más largo que el ancho disponible, forzamos que no se
+     envuelva a una 2da línea (que quedaría cortada/superpuesta con el
+     footer). En vez de eso, se recorta con "…" dentro de la misma línea. */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+
+/* Una vez el usuario empieza a escribir, si el texto sí necesita
+   envolver a varias líneas (JS ya agranda la caja), permitimos el wrap normal */
+
+.te-chat-input:focus,
+.te-chat-input:not(:placeholder-shown) {
+    white-space: normal;
+    overflow-y: auto;
+    text-overflow: clip;
+}
+
+.te-chat-input:focus {
+    border-color: var(--te-primary-light);
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.12);
+}
+
+
+/* Placeholder en lila claro */
+
+.te-chat-input::placeholder {
+    color: #c4b5fd;
+}
+
+
+/* Botón de enviar: círculo morado con ícono de avión de papel */
+
+.te-chat-send {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: none;
+    background: linear-gradient(135deg, var(--te-primary), var(--te-primary-light));
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s;
+    margin-bottom: 1px;
+}
+
+.te-chat-send:hover {
+    transform: scale(1.12);
+    box-shadow: 0 4px 14px var(--te-shadow);
+}
+
+.te-chat-send svg {
+    width: 17px;
+    height: 17px;
+    fill: #fff;
+}
+
+
+/* ── Footer del chat ── */
+
+.te-chat-footer {
+    padding: 5px 16px 9px;
+    text-align: center;
+    font-size: 10.5px;
+    color: #9ca3af;
+    font-family: "Plus Jakarta Sans", sans-serif;
+    background: var(--te-surface);
+    flex-shrink: 0;
+    letter-spacing: 0.1px;
+}
+
+
+/* "IA · TourismEasy" resaltado en morado claro */
+
+.te-chat-footer span {
+    color: var(--te-primary-light);
+    font-weight: 700;
+}
+
+
+/* ══════════════════════════════════════════
+   DARK MODE
+   Se sobreescriben las variables CSS del chat
+══════════════════════════════════════════ */
+
+body.dark-mode {
+    --te-surface: #1a1730;
+    /* Fondo del panel oscuro */
+    --te-bg: #13102a;
+    /* Fondo del área de mensajes oscuro */
+    --te-text: #ede9fe;
+    /* Texto claro */
+    --te-border: #2d2562;
+    /* Bordes oscuros */
+    --te-shadow: rgba(109, 40, 217, 0.3);
+}
+
+body.dark-mode .te-msg.bot {
+    background: #251f4a;
+    color: #e9d5ff;
+    box-shadow: none;
+}
+
+body.dark-mode .te-chip {
+    background: rgba(139, 92, 246, 0.1);
+    border-color: rgba(139, 92, 246, 0.3);
+    color: #c4b5fd;
+}
+
+body.dark-mode .te-chip:hover {
+    background: var(--te-primary);
+    color: #fff;
+}
+
+body.dark-mode .te-chat-bubble {
+    background: #251f4a;
+    color: #e9d5ff;
+    border-color: var(--te-primary-light);
+}
+
+
+/* ══════════════════════════════════════════
+   BOTÓN CERRAR MÓVIL
+   Solo visible en pantallas pequeñas, dentro del header
+══════════════════════════════════════════ */
+
+.te-close-mobile {
+    display: none;
+    /* Oculto en desktop */
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255, 255, 255, 0.15);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.2s;
+}
+
+.te-close-mobile:hover {
+    background: rgba(255, 255, 255, 0.28);
+}
+
+.te-close-mobile svg {
+    width: 18px;
+    height: 18px;
+    fill: #fff;
+}
+
+
+/* ══════════════════════════════════════════
+   RESPONSIVE MÓVIL
+   En móvil el panel ocupa toda la pantalla desde abajo
+══════════════════════════════════════════ */
+
+@media (max-width: 480px) {
+    .te-chat-panel {
+        right: 0;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        max-height: 72vh;
+        border-radius: 22px 22px 0 0;
+        /* Bordes redondeados solo arriba */
+    }
+    .te-chat-fab {
+        bottom: 20px;
+        right: 16px;
+    }
+    .te-chat-bubble {
+        right: 16px;
+        bottom: 90px;
+    }
+    /* Mostrar el botón X dentro del header en móvil */
+    .te-close-mobile {
+        display: flex;
+    }
+}

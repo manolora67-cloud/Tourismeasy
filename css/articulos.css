@@ -1,0 +1,290 @@
+/* ===========================
+   ARTÍCULOS - MODAL
+   Estilos del modal de artículos/blog de TourismEasy.
+   Se abre al hacer clic en "Leer más" en una tarjeta de artículo.
+=========================== */
+
+/* ── Fondo oscuro con blur que cubre toda la pantalla ──
+   pointer-events:none lo hace "invisible" hasta que se abre */
+.art-overlay {
+  position: fixed;
+  inset: 0; /* top:0, right:0, bottom:0, left:0 */
+  background: rgba(10, 15, 30, 0.85);
+  backdrop-filter: blur(8px); /* Desenfoca el contenido de fondo */
+  z-index: 10000;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 24px 16px;
+  opacity: 0;             /* Invisible por defecto */
+  pointer-events: none;   /* No interactivo por defecto */
+  transition: opacity 0.35s ease;
+  overflow-y: auto; /* Permite scroll si el artículo es largo */
+}
+
+/* Al agregar la clase .open: el overlay se hace visible e interactivo */
+.art-overlay.open {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* ── Caja del modal ── */
+.art-modal {
+  background: var(--white);
+  border-radius: 24px;
+  width: 100%;
+  max-width: 760px;
+  position: relative;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.5);
+  /* Empieza ligeramente abajo y pequeño, luego sube a su posición normal */
+  transform: translateY(40px) scale(0.96);
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); /* Rebote elástico */
+  overflow: hidden;
+  margin: auto;
+}
+
+/* Cuando el overlay está abierto, el modal sube y escala a su tamaño real */
+.art-overlay.open .art-modal {
+  transform: translateY(0) scale(1);
+}
+
+/* ── Botón × para cerrar el modal ── */
+.art-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.45); /* Oscuro semitransparente sobre la imagen */
+  border: 2px solid rgba(255,255,255,0.3);
+  color: #fff;
+  font-size: 1.3rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: background 0.2s, transform 0.2s;
+  line-height: 1;
+}
+
+/* Al hacer hover: se vuelve rojo y rota 90° */
+.art-close:hover {
+  background: rgba(239,68,68,0.8);
+  border-color: transparent;
+  transform: rotate(90deg) scale(1.1);
+}
+
+/* ── Hero del artículo: imagen grande de cabecera ── */
+.art-hero {
+  height: 300px;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+
+/* Gradiente sobre la imagen: transparente arriba, oscuro abajo
+   para que el título sea legible */
+.art-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top,
+    rgba(10,15,30,0.92) 0%,   /* Muy oscuro en el fondo */
+    rgba(10,15,30,0.3) 60%,   /* Semi en el medio */
+    transparent 100%);        /* Transparente arriba */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end; /* Título pegado al fondo */
+  padding: 28px 32px;
+}
+
+/* Etiqueta de categoría (ej: "Turismo accesible", "Gastronomía") */
+.art-badge {
+  display: inline-block;
+  background: var(--purple);
+  color: #fff;
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 0.72rem;
+  padding: 4px 12px;
+  border-radius: 50px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+  width: fit-content;
+}
+
+/* Título grande del artículo sobre la imagen */
+.art-titulo {
+  font-family: var(--font-head);
+  font-size: clamp(1.6rem, 4vw, 2.2rem);
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 6px;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+}
+
+/* Subtítulo debajo del título */
+.art-subtitulo {
+  font-size: 1rem;
+  color: rgba(255,255,255,0.82);
+  text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+}
+
+/* ── Cuerpo del artículo ── */
+.art-body {
+  padding: 28px 32px 36px;
+}
+
+/* ── Datos rápidos: grid de 4 columnas con estadísticas del artículo ──
+   (ej: duración, distancia, dificultad, temporada) */
+.art-datos-rapidos {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+  padding: 16px;
+  background: var(--gray-100);
+  border-radius: 14px;
+}
+
+/* Cada dato: etiqueta + valor centrados */
+.art-dato {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  text-align: center;
+}
+
+/* Etiqueta del dato en gris claro (ej: "DURACIÓN") */
+.art-dato-label {
+  font-family: var(--font-head);
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--gray-400);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+/* Valor del dato en morado y negrita (ej: "3 días") */
+.art-dato-val {
+  font-family: var(--font-head);
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--purple);
+}
+
+/* ── Párrafo introductorio del artículo ── */
+.art-intro {
+  font-size: 1rem;
+  color: var(--gray-600);
+  line-height: 1.8;
+  margin-bottom: 28px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--gray-200);
+}
+
+/* ── Secciones de contenido del artículo ── */
+.art-seccion {
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--gray-200);
+}
+
+/* La última sección no tiene borde inferior */
+.art-seccion:last-of-type {
+  border-bottom: none;
+}
+
+/* Título de sección con ícono opcional */
+.art-seccion-titulo {
+  font-family: var(--font-head);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--gray-800);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.art-seccion p {
+  font-size: 0.92rem;
+  color: var(--gray-600);
+  line-height: 1.75;
+}
+
+/* ── CTA (Call To Action): caja al final del artículo invitando a reservar ── */
+.art-cta {
+  margin-top: 28px;
+  background: linear-gradient(135deg, rgba(124,58,237,0.08), rgba(168,85,247,0.05));
+  border: 1.5px solid rgba(124,58,237,0.2);
+  border-radius: 16px;
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.art-cta p {
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--gray-800);
+  margin: 0;
+}
+
+/* Botón "Reservar ahora" al final del artículo */
+.art-btn-reservar {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--purple);
+  color: #fff;
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 12px 24px;
+  border-radius: 50px;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.15s;
+  box-shadow: 0 4px 16px rgba(124,58,237,0.3);
+}
+
+.art-btn-reservar:hover {
+  background: var(--purple-dark);
+  transform: translateY(-2px);
+}
+
+/* ── Dark mode ── */
+body.dark-mode .art-modal        { background: #1e293b; }
+body.dark-mode .art-datos-rapidos { background: #0f172a; }
+body.dark-mode .art-dato-label   { color: #475569; }
+body.dark-mode .art-intro        { color: #94a3b8; border-color: #334155; }
+body.dark-mode .art-seccion      { border-color: #334155; }
+body.dark-mode .art-seccion-titulo { color: #f1f5f9; }
+body.dark-mode .art-seccion p    { color: #94a3b8; }
+body.dark-mode .art-cta {
+  background: rgba(168,85,247,0.08);
+  border-color: rgba(168,85,247,0.25);
+}
+body.dark-mode .art-cta p        { color: #f1f5f9; }
+
+/* ── Responsive móvil ──
+   En móvil el modal aparece desde abajo como un sheet */
+@media (max-width: 600px) {
+  .art-overlay { padding: 0; align-items: flex-end; }
+  /* Bordes redondeados solo arriba (como un bottom sheet) */
+  .art-modal   { border-radius: 24px 24px 0 0; max-height: 95vh; overflow-y: auto; margin: 0; }
+  .art-hero    { height: 220px; }
+  .art-hero-overlay { padding: 20px; }
+  .art-body    { padding: 20px 20px 32px; }
+  /* Los datos rápidos pasan a 2 columnas */
+  .art-datos-rapidos { grid-template-columns: repeat(2, 1fr); }
+  /* El CTA se apila verticalmente */
+  .art-cta     { flex-direction: column; text-align: center; }
+  .art-btn-reservar { width: 100%; justify-content: center; }
+}

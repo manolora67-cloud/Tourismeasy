@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hospedaje - TourismEasy</title>
+    <link rel="stylesheet" href="../css/index.css">
+    <link rel="stylesheet" href="../css/login.css">
+    <link rel="stylesheet" href="../css/hospedaje.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="../css/carrito.css">
+    <link rel="stylesheet" href="../css/captcha.css">
+    <link rel="stylesheet" href="../css/agente-ia.css" />
+    <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
+</head>
+
+<body>
+    <!-- NAVBAR: se rellena solo con componentes/navbar.js -->
+    <div id="site-navbar" data-context="subpage" data-active="hospedaje"></div>
+
+    <main>
+        <section class="module-hero">
+            <h1 class="module-title">Reserva de Hospedaje</h1>
+            <p class="module-subtitle">Hoteles y residencias con accesibilidad garantizada.</p>
+        </section>
+
+        <div class="search-container">
+            <div class="search-group">
+                <label>Destino</label>
+                <input type="text" id="input-destino" placeholder="Ej: Barichara, Girón, Socorro…" autocomplete="off">
+            </div>
+            <div class="search-group">
+                <label>Llegada</label>
+                <input type="date" id="input-llegada">
+            </div>
+            <div class="search-group">
+                <label>Salida</label>
+                <input type="date" id="input-salida">
+            </div>
+            <div class="search-group">
+                <label>Accesibilidad</label>
+                <select id="input-accesibilidad">
+          <option value="">Todas</option>
+          <option value="rampa">Rampa de acceso</option>
+          <option value="habitacion">Habitación adaptada</option>
+          <option value="ascensor">Ascensor</option>
+        </select>
+            </div>
+            <div class="search-group">
+                <label>Adultos</label>
+                <input type="number" min="1" max="10" value="1">
+            </div>
+            <div class="search-group">
+                <label>Niños</label>
+                <input type="number" min="0" max="10" value="0">
+            </div>
+            <button class="btn-buscar" id="btn-buscar-hotel">Buscar Hotel</button>
+        </div>
+
+        <div class="results-grid" id="results-grid">
+        </div>
+
+        <!-- Mensaje cuando no hay resultados -->
+        <div id="no-results" style="display:none; text-align:center; padding:3rem 1rem;">
+            <i class="fa-solid fa-magnifying-glass" style="font-size:3rem; opacity:0.3; margin-bottom:1rem; display:block;"></i>
+            <p style="font-size:1.1rem; opacity:0.6;">No se encontraron hospedajes para "<span id="no-results-query"></span>" en Santander.<br>Intenta con otro municipio.</p>
+        </div>
+    </main>
+
+    <!-- ================================================
+     MODAL DETALLES DE HOSPEDAJE (propio de esta página)
+     ================================================ -->
+    <div id="hosp-detalle-overlay" class="vd-overlay" aria-hidden="true" role="dialog" aria-modal="true">
+        <div class="vd-box">
+            <button class="vd-cerrar" id="hosp-cerrar" aria-label="Cerrar">&times;</button>
+            <img class="vd-img" id="hosp-img" src="" alt="">
+            <div class="vd-body">
+                <h2 class="vd-titulo" id="hosp-titulo"></h2>
+                <div class="vd-info-grid">
+                    <div class="vd-info-item">
+                        <i class="fa-solid fa-hotel"></i>
+                        <div>
+                            <span class="vd-label">Tipo</span>
+                            <span class="vd-val" id="hosp-tipo"></span>
+                        </div>
+                    </div>
+                    <div class="vd-info-item">
+                        <i class="fa-solid fa-location-dot"></i>
+                        <div>
+                            <span class="vd-label">Ubicación</span>
+                            <span class="vd-val" id="hosp-ubicacion"></span>
+                        </div>
+                    </div>
+                    <div class="vd-info-item">
+                        <i class="fa-solid fa-bed"></i>
+                        <div>
+                            <span class="vd-label">Capacidad</span>
+                            <span class="vd-val" id="hosp-capacidad"></span>
+                        </div>
+                    </div>
+                    <div class="vd-info-item">
+                        <i class="fa-solid fa-concierge-bell"></i>
+                        <div>
+                            <span class="vd-label">Servicios</span>
+                            <span class="vd-val" id="hosp-servicios"></span>
+                        </div>
+                    </div>
+                    <div class="vd-info-item vd-info-full">
+                        <i class="fa-solid fa-wheelchair"></i>
+                        <div>
+                            <span class="vd-label">Accesibilidad</span>
+                            <span class="vd-val" id="hosp-accesibilidad"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="vd-footer">
+                    <span class="vd-precio" id="hosp-precio"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER: se rellena solo con componentes/footer.js -->
+    <div id="site-footer"></div>
+
+    <!-- ==== COMPONENTES GLOBALES (mismo orden que index.html) ==== -->
+    <script src="../componentes/navbar.js"></script>
+    <script src="../componentes/btn-acceder.js"></script>
+    <script src="../componentes/dark-mode-toggle.js"></script>
+    <script src="../componentes/footer.js"></script>
+
+    <!-- ==== SCRIPTS PROPIOS DE ESTA PÁGINA ==== -->
+
+    <script src="../componentes/carrito.js"></script>
+    <script src="../js/captcha.js"></script>
+    <script src="../js/login.js"></script>
+    <script src="../componentes/agente-ia.js"></script>
+    <script src="../js/hospedaje.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <script src="../js/santanderianidad.js"></script>
+</body>
+
+</html>

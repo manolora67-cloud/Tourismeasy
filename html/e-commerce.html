@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TourismLocal - Santander</title>
+    <link rel="stylesheet" href="../css/e-comemerce.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="../css/agente-ia.css" />
+    <link rel="stylesheet" href="../css/carrito.css" />
+    <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
+</head>
+
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="nav-container">
+                <a href="../index.html" class="nav-logo">
+                    <img src="../img/TURISMEASY.png" alt="TourismEasy Logo" class="logo-img" />
+                    <span class="logo-text">TOURISMEASY</span>
+                </a>
+                <ul class="nav-links">
+                    <li><a href="transporte.html">Transporte</a></li>
+                    <li><a href="hospedaje.html">Hospedaje</a></li>
+                    <li><a href="planes_turisticos.html">Planes Turísticos</a></li>
+                    <li><a href="personal_auxiliar.html">Personal Auxiliar</a></li>
+                    <li><a href="e-commerce.html">E-Commerce</a></li>
+                    <!-- Solo visible si hay sesión de artesano activa -->
+                    <li id="navPanelAdmin" style="display:none">
+                        <a href="../e-commerce/admin.php">Panel Admin</a>
+                    </li>
+                </ul>
+                <div class="nav-slot">
+                    <!-- Botón Acceder (oculto si ya hay sesión, ver e-commerce.js → Sesión artesano) -->
+                    <a href="login_ecommerce.html" class="btn-acceder" id="btnAcceder">Acceder</a>
+                    <div id="dark-mode-toggle"></div>
+                    <button class="hamburger" id="hamburger">&#9776;</button>
+                </div>
+            </div>
+            <div class="nav-mobile" id="navMobile">
+                <a href="transporte.html">Transporte</a>
+                <a href="hospedaje.html">Hospedaje</a>
+                <a href="planes_turisticos.html">Planes Turísticos</a>
+                <a href="personal_auxiliar.html">Personal Auxiliar</a>
+                <a href="e-commerce.html">E-Commerce</a>
+                <a href="login_ecommerce.html" class="btn-acceder" id="btnAccederMobile">Acceder</a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <h2>Descubre Santander</h2>
+            <p>
+                Explora la riqueza cultural y los productos de nuestros artesanos locales.
+            </p>
+        </section>
+
+        <div class="search-bar">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="searchInput" placeholder="Buscar artesanos, productos o categorías…" />
+            <button id="searchClear" class="search-clear" style="display: none">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+        </div>
+
+        <div class="filter-tags">
+            <button class="filter-tag active" data-cat="all">Todos</button>
+            <button class="filter-tag" data-cat="talleres">Talleres</button>
+            <button class="filter-tag" data-cat="bisuteria">Bisutería</button>
+            <button class="filter-tag" data-cat="alfareria">Alfarería</button>
+        </div>
+
+        <div class="product-grid" id="product-list"></div>
+        <p class="no-results" id="noResults" style="display: none">
+            No se encontraron resultados para tu búsqueda.
+        </p>
+    </main>
+
+    <footer class="main-footer">
+        <div class="footer-container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h4>Turismo<span>Local</span></h4>
+                    <p>
+                        Descubre la riqueza artesanal de Santander y conecta con sus creadores.
+                    </p>
+                </div>
+                <div class="footer-col">
+                    <h4>Explorar</h4>
+                    <ul>
+                        <li><a href="#talleres">Talleres</a></li>
+                        <li><a href="#bisuteria">Bisutería</a></li>
+                        <li><a href="#alfareria">Alfarería</a></li>
+                        <li><a href="#" data-modal="destinos">Destinos artesanales</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Nosotros</h4>
+                    <ul>
+                        <li><a href="#" data-modal="sobre-nosotros">Sobre Nosotros</a></li>
+                        <li><a href="#" data-modal="artesanos">Nuestros Artesanos</a></li>
+                        <li><a href="#" data-modal="registro">Registra tu Taller</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Información</h4>
+                    <ul>
+                        <li><a href="#" data-modal="contacto">Contacto</a></li>
+                        <li><a href="#" data-modal="faq">Preguntas Frecuentes</a></li>
+                        <li>
+                            <a href="#" data-modal="privacidad">Política de Privacidad</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 TourismLocal Santander - Prototipo ADSO</p>
+        </div>
+    </footer>
+
+    <!-- MODAL DETALLE PRODUCTO -->
+    <div class="pm-overlay" id="productModalOverlay">
+        <div class="pm-box">
+            <button class="pm-close" id="pmClose">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+            <img class="pm-img" src="" alt="" />
+            <div class="pm-body">
+                <span class="pm-cat category-tag"></span>
+                <h2 class="pm-name"></h2>
+                <p class="pm-provider-row">
+                    <i class="fa-solid fa-store"></i> <span class="pm-provider"></span>
+                </p>
+                <p class="pm-ubicacion-row">
+                    <i class="fa-solid fa-location-dot"></i>
+                    <span class="pm-ubicacion"></span>
+                </p>
+                <p class="pm-price-row">
+                    <i class="fa-solid fa-tag"></i> <span class="pm-price"></span>
+                </p>
+                <p class="pm-desc"></p>
+                <div class="pm-contact-box">
+                    <p class="pm-contact-title">
+                        <i class="fa-solid fa-address-book"></i> Contactar al artesano
+                    </p>
+                    <p>
+                        <i class="fa-solid fa-phone"></i>
+                        <span class="pm-contacto"></span>
+                    </p>
+                    <a class="pm-whatsapp" href="#" target="_blank">
+                        <i class="fa-brands fa-whatsapp"></i> Escribir por WhatsApp
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL OVERLAY FOOTER -->
+    <div class="tl-modal-overlay" id="tlModalOverlay">
+        <div class="tl-modal-box">
+            <button class="tl-modal-close" id="tlModalClose">&times;</button>
+            <h2 id="tlModalTitle"></h2>
+            <div id="tlModalContent"></div>
+        </div>
+    </div>
+
+    <script src="../componentes/dark-mode-toggle.js"></script>
+    <script src="../componentes/carrito.js"></script>
+    <script src="../js/e-commerce.js"></script>
+    <script src="../componentes/agente-ia.js"></script>
+    <script src="../js/santanderianidad.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Resultado del Pago - TourismEasy</title>
+    <link rel="stylesheet" href="../css/index.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Open Sans', sans-serif;
+            background: #f8f4ff;
+            padding: 24px;
+        }
+        
+        body.dark-mode {
+            background: #0f0a1e;
+        }
+        
+        .pr-card {
+            background: #fff;
+            border-radius: 24px;
+            max-width: 480px;
+            width: 100%;
+            overflow: hidden;
+            box-shadow: 0 24px 60px rgba(124, 58, 237, .13);
+            animation: prSlide .3s ease;
+        }
+        
+        @keyframes prSlide {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        body.dark-mode .pr-card {
+            background: #1e1b2e;
+        }
+        /* ── Header ── */
+        
+        .pr-header {
+            padding: 36px 32px 28px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+        }
+        
+        .pr-header--ok {
+            background: linear-gradient(135deg, #7c3aed, #a855f7);
+        }
+        
+        .pr-header--fail {
+            background: linear-gradient(135deg, #dc2626, #f87171);
+        }
+        
+        .pr-header--wait {
+            background: linear-gradient(135deg, #d97706, #fbbf24);
+        }
+        
+        .pr-icon {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, .2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: #fff;
+        }
+        
+        .pr-titulo {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: #fff;
+            text-align: center;
+        }
+        
+        .pr-subtitulo {
+            font-size: .85rem;
+            color: rgba(255, 255, 255, .82);
+            text-align: center;
+        }
+        /* ── Body ── */
+        
+        .pr-body {
+            padding: 24px 28px;
+        }
+        
+        .pr-tabla {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        
+        .pr-tabla td {
+            padding: 10px 0;
+            font-size: .85rem;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        
+        body.dark-mode .pr-tabla td {
+            border-color: #2d2b3d;
+        }
+        
+        .pr-tabla td:first-child {
+            color: #64748b;
+            font-weight: 600;
+            width: 44%;
+        }
+        
+        .pr-tabla td:last-child {
+            color: #1e293b;
+            font-weight: 700;
+            text-align: right;
+        }
+        
+        body.dark-mode .pr-tabla td:first-child {
+            color: #94a3b8;
+        }
+        
+        body.dark-mode .pr-tabla td:last-child {
+            color: #e2e8f0;
+        }
+        
+        .pr-badge {
+            display: inline-block;
+            padding: 3px 14px;
+            border-radius: 50px;
+            font-size: .75rem;
+            font-weight: 700;
+        }
+        
+        .pr-badge--ok {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+        
+        .pr-badge--fail {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        
+        .pr-badge--wait {
+            background: #fef3c7;
+            color: #d97706;
+        }
+        
+        .pr-total {
+            background: #f8f4ff;
+            border-radius: 12px;
+            padding: 14px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 22px;
+        }
+        
+        body.dark-mode .pr-total {
+            background: rgba(124, 58, 237, .12);
+        }
+        
+        .pr-total span {
+            font-size: .75rem;
+            font-weight: 700;
+            color: #64748b;
+            letter-spacing: .5px;
+        }
+        
+        .pr-total strong {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #7c3aed;
+        }
+        /* ── Botones ── */
+        
+        .pr-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .pr-btn {
+            flex: 1;
+            padding: 12px 0;
+            border-radius: 50px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: .85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: background .2s, transform .15s, border-color .2s;
+            text-decoration: none;
+        }
+        
+        .pr-btn:hover {
+            transform: translateY(-1px);
+        }
+        
+        .pr-btn--primary {
+            background: #7c3aed;
+            color: #fff;
+            border: none;
+        }
+        
+        .pr-btn--primary:hover {
+            background: #6d28d9;
+        }
+        
+        .pr-btn--secondary {
+            background: none;
+            border: 1.5px solid #e2e8f0;
+            color: #475569;
+        }
+        
+        .pr-btn--secondary:hover {
+            border-color: #7c3aed;
+            color: #7c3aed;
+        }
+        
+        body.dark-mode .pr-btn--secondary {
+            border-color: #334155;
+            color: #94a3b8;
+        }
+        /* ── Loading ── */
+        
+        .pr-loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 32px;
+            gap: 16px;
+        }
+        
+        .pr-spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid #ede9fe;
+            border-top-color: #7c3aed;
+            border-radius: 50%;
+            animation: spin .8s linear infinite;
+        }
+        
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        .pr-loading p {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            color: #7c3aed;
+            font-size: .9rem;
+        }
+        /* ── Footer ── */
+        
+        .pr-footer {
+            text-align: center;
+            font-size: .72rem;
+            color: #94a3b8;
+            padding: 12px 28px 20px;
+            border-top: 1px solid #f1f5f9;
+        }
+        
+        body.dark-mode .pr-footer {
+            border-color: #2d2b3d;
+        }
+        
+        .pr-footer strong {
+            color: #7c3aed;
+        }
+    </style>
+    <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
+</head>
+
+<body>
+
+    <div class="pr-card" id="prCard">
+        <!-- Estado de carga mientras verificamos con ePayco -->
+        <div class="pr-loading" id="prLoading">
+            <div class="pr-spinner"></div>
+            <p>Verificando tu pago...</p>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // ── Aplicar dark mode guardado ──
+            if (localStorage.getItem('theme') === 'dark') {
+                document.body.classList.add('dark-mode');
+            }
+
+            // ── Leer parámetros que ePayco pone en la URL ──
+            var params = new URLSearchParams(window.location.search);
+            var refPayco = params.get('ref_payco') || params.get('x_ref_payco') || params.get('referenceCode');
+
+            if (!refPayco) {
+                mostrarError('No se encontró información del pago. Revisa tu historial de reservas.');
+                return;
+            }
+
+            // ── Recuperar contexto guardado antes de salir del carrito ──
+            var ctx = null;
+            try {
+                ctx = JSON.parse(sessionStorage.getItem('te_epayco_ctx') || 'null');
+            } catch (e) {}
+
+            var sess = null;
+            try {
+                sess = JSON.parse(sessionStorage.getItem('te_session') || 'null');
+            } catch (e) {}
+
+            // URL de origen para el botón "Volver"
+            var origenUrl = (ctx && ctx.origen_url) ? ctx.origen_url : '../html/index.html';
+            if (!ctx || !sess) {
+                // Sin contexto: solo mostrar resultado sin guardar en BD
+                mostrarSoloResultado(refPayco);
+                return;
+            }
+
+            // ── Llamar al backend con todos los datos necesarios ──
+            fetch('../api/pago_resultado.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        ref_payco: refPayco,
+                        referencia: ctx.referencia,
+                        id_usuario: sess.id,
+                        items: ctx.items || [],
+                        datos_reserva: ctx.datos_reserva || null,
+                    })
+                })
+                .then(function(r) {
+                    return r.json();
+                })
+                .then(function(data) {
+                    // Limpiar contexto — ya fue procesado
+                    sessionStorage.removeItem('te_epayco_ctx');
+
+                    // Si el pago fue aprobado, limpiar el carrito
+                    if (data.estado === 'Aceptada') {
+                        localStorage.setItem('te_carrito', '[]');
+                    }
+                    if (!data.ok) {
+                        mostrarError(data.error || 'Error al verificar el pago.');
+                        return;
+                    }
+                    mostrarResultado(data);
+                })
+                .catch(function() {
+                    mostrarError('No se pudo conectar con el servidor. Revisa tu historial de reservas.');
+                });
+
+            // ── Fallback: solo consultar estado sin guardar ──
+            function mostrarSoloResultado(refPayco) {
+                fetch('../api/pago_resultado.php?ref_payco=' + encodeURIComponent(refPayco))
+                    .then(function(r) {
+                        return r.json();
+                    })
+                    .then(function(data) {
+                        if (!data.ok) {
+                            mostrarError(data.error || 'Error al verificar el pago.');
+                            return;
+                        }
+                        mostrarResultado(data);
+                    })
+                    .catch(function() {
+                        mostrarError('No se pudo conectar con el servidor.');
+                    });
+            }
+
+            // ── Formatea pesos colombianos ──
+            function fmt(pesos) {
+                return '$' + Math.round(pesos).toLocaleString('es-CO');
+            }
+
+            // ── Formatea fecha ISO a legible ──
+            function fmtFecha(iso) {
+                if (!iso) return '—';
+                var d = new Date(iso);
+                var meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+                return d.getDate() + ' ' + meses[d.getMonth()] + ' ' + d.getFullYear() +
+                    ' ' + d.getHours().toString().padStart(2, '0') +
+                    ':' + d.getMinutes().toString().padStart(2, '0');
+            }
+
+            // ── Etiqueta legible del método de pago ──
+            function fmtMetodo(m) {
+                var map = {
+                    'CARD': 'Tarjeta crédito/débito',
+                    'PSE': 'PSE',
+                    'NEQUI': 'Nequi',
+                    'BANCOLOMBIA_TRANSFER': 'Bancolombia Transfer',
+                    'EFECTY': 'Efecty',
+                    'DAVIPLATA': 'Daviplata',
+                };
+                return map[(m || '').toUpperCase()] || m || '—';
+            }
+
+            // ── Renderiza la tarjeta de resultado ──
+            function mostrarResultado(d) {
+                var aprobado = d.estado === 'Aceptada';
+                var pendiente = d.estado === 'Pendiente';
+
+                var headerClass = aprobado ? 'pr-header--ok' : (pendiente ? 'pr-header--wait' : 'pr-header--fail');
+                var icon = aprobado ? 'fa-circle-check' : (pendiente ? 'fa-clock' : 'fa-circle-xmark');
+                var titulo = aprobado ? '¡Pago aprobado!' : (pendiente ? 'Pago en proceso' : 'Pago no aprobado');
+                var subtitulo = aprobado ?
+                    'Tu reserva ha sido confirmada exitosamente.' :
+                    (pendiente ?
+                        'Tu pago está siendo procesado. Te notificaremos pronto.' :
+                        'No pudimos procesar tu pago. Puedes intentarlo de nuevo.');
+
+                var badgeClass = aprobado ? 'pr-badge--ok' : (pendiente ? 'pr-badge--wait' : 'pr-badge--fail');
+
+                document.getElementById('prCard').innerHTML =
+                    '<div class="pr-header ' + headerClass + '">' +
+                    '<div class="pr-icon"><i class="fa-solid ' + icon + '"></i></div>' +
+                    '<div class="pr-titulo">' + titulo + '</div>' +
+                    '<div class="pr-subtitulo">' + subtitulo + '</div>' +
+                    '</div>' +
+                    '<div class="pr-body">' +
+                    '<table class="pr-tabla">' +
+                    '<tr><td>Referencia</td><td>' + (d.referencia || '—') + '</td></tr>' +
+                    '<tr><td>Estado</td><td><span class="pr-badge ' + badgeClass + '">' + (d.estado || '—') + '</span></td></tr>' +
+                    '<tr><td>Método de pago</td><td>' + fmtMetodo(d.metodo) + '</td></tr>' +
+                    '<tr><td>Fecha</td><td>' + fmtFecha(d.fecha) + '</td></tr>' +
+                    '</table>' +
+                    '<div class="pr-total">' +
+                    '<span>VALOR PAGADO</span>' +
+                    '<strong>' + fmt(d.monto_pesos || 0) + '</strong>' +
+                    '</div>' +
+                    '<div class="pr-actions">' +
+                    '<a href="reservas_viajero.html" class="pr-btn pr-btn--primary">' +
+                    '<i class="fa-solid fa-calendar-check"></i> Mis Reservas' +
+                    '</a>' +
+                    '<a href="' + origenUrl + '" class="pr-btn pr-btn--secondary">' +
+                    '<i class="fa-solid fa-arrow-left"></i> Volver' +
+                    '</a>' +
+                    '</div>' +
+                    '</div>' +
+                    '<div class="pr-footer">Gracias por confiar en <strong>TourismEasy</strong>. ' +
+                    'soporte@tourismeasy.co &nbsp;·&nbsp; Bucaramanga, Santander</div>';
+
+                if (aprobado && typeof confetti === 'function') {
+                    confetti({
+                        particleCount: 120,
+                        spread: 80,
+                        origin: {
+                            y: 0.5
+                        },
+                        colors: ['#7c3aed', '#a855f7', '#c4b5fd', '#ffffff']
+                    });
+                }
+            }
+
+            // ── Muestra un error genérico ──
+            function mostrarError(msg) {
+                document.getElementById('prCard').innerHTML =
+                    '<div class="pr-header pr-header--fail">' +
+                    '<div class="pr-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>' +
+                    '<div class="pr-titulo">Algo salió mal</div>' +
+                    '<div class="pr-subtitulo">' + msg + '</div>' +
+                    '</div>' +
+                    '<div class="pr-body">' +
+                    '<div class="pr-actions">' +
+                    '<a href="reservas_viajero.html" class="pr-btn pr-btn--primary">' +
+                    '<i class="fa-solid fa-calendar-check"></i> Mis Reservas' +
+                    '</a>' +
+                    '<a href="' + origenUrl + '" class="pr-btn pr-btn--secondary">' +
+                    '<i class="fa-solid fa-arrow-left"></i> Volver' +
+                    '</a>' +
+                    '</div>' +
+                    '</div>' +
+                    '<div class="pr-footer">¿Necesitas ayuda? <strong>soporte@tourismeasy.co</strong></div>';
+            }
+        })();
+    </script>
+
+</body>
+
+</html>

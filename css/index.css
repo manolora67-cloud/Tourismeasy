@@ -1,0 +1,2072 @@
+/* ===========================
+   VARIABLES & RESET GLOBAL
+   Este CSS es el principal del sitio (index.html).
+   Todos los demás CSS lo importan o heredan estas variables.
+=========================== */
+:root {
+  --purple: #7c3aed;
+  /* Morado principal de la marca */
+  --purple-light: #a855f7;
+  /* Morado más claro (hovers, acentos) */
+  --purple-dark: #5b21b6;
+  /* Morado oscuro (botones presionados) */
+  --dark-nav: #0f172a;
+  /* Fondo navbar en dark mode */
+  --dark-footer: #1e293b;
+  /* Fondo del footer */
+  --dark-footer-bottom: #0f172a;
+  /* Franja inferior del footer */
+  --white: #ffffff;
+  --gray-100: #f8fafc;
+  /* Fondo de página */
+  --gray-200: #e2e8f0;
+  /* Bordes */
+  --gray-400: #94a3b8;
+  /* Texto deshabilitado */
+  --gray-600: #475569;
+  /* Texto secundario */
+  --gray-800: #1e293b;
+  /* Texto principal */
+  --font-head: "Montserrat", sans-serif;
+  /* Fuente de títulos */
+  --font-body: "Open Sans", sans-serif;
+  /* Fuente de párrafos */
+  --radius: 14px;
+  /* Radio estándar de tarjetas */
+  --shadow: 0 4px 24px rgba(124, 58, 237, 0.1);
+  --shadow-card: 0 2px 16px rgba(0, 0, 0, 0.08);
+}
+
+/* Reset universal: elimina márgenes y padding por defecto */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Scroll suave al navegar por anclas (#sección) */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--white);
+  color: var(--gray-800);
+  overflow-x: hidden;
+  /* Evita scroll horizontal */
+}
+
+/* Todos los enlaces heredan el color del texto por defecto */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+ul {
+  list-style: none;
+}
+
+/* ===========================
+   NAVBAR — Barra de navegación fija en la parte superior
+=========================== */
+.navbar {
+  position: sticky;
+  /* Se queda pegada al tope al hacer scroll */
+  top: 0;
+  z-index: 100;
+  background: var(--white);
+  border-bottom: 1px solid var(--gray-200);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Contenedor interno con ancho máximo */
+.nav-container {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 0 20px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+  overflow: visible;
+  position: relative;
+}
+
+/* Agrupa todos los elementos del lado derecho (botones, widgets) */
+.nav-slot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  /* Se empuja hacia la derecha */
+  flex-shrink: 0;
+}
+
+/* Logo: ícono circular + texto */
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-head);
+  font-weight: 800;
+  font-size: 1.15rem;
+  color: var(--purple);
+  letter-spacing: 1px;
+  flex-shrink: 0;
+}
+
+.logo-img {
+  height: 52px;
+  width: 52px;
+  object-fit: cover;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.logo-text {
+  font-family: var(--font-head);
+  font-weight: 800;
+  font-size: 1rem;
+  color: var(--purple);
+  letter-spacing: 0.5px;
+}
+
+/* Links de navegación centrados */
+.nav-links {
+  display: flex;
+  gap: 8px;
+  flex: 1;
+  justify-content: center;
+  min-width: 0;
+}
+
+.nav-links a {
+  font-family: var(--font-head);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--gray-600);
+  transition: color 0.2s;
+  white-space: nowrap;
+}
+
+.nav-links a:hover {
+  color: var(--purple);
+}
+
+/* Botón "Acceder" / "Iniciar Sesión" */
+.btn-acceder {
+  background: var(--purple);
+  color: var(--white);
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 0.82rem;
+  padding: 9px 18px;
+  border-radius: 50px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+  flex-shrink: 0;
+}
+
+.btn-acceder:hover {
+  background: var(--purple-dark);
+  transform: translateY(-1px);
+}
+
+/* ── Menú hamburguesa para móvil ── */
+.hamburger {
+  display: none;
+  /* Solo visible en pantallas pequeñas */
+  background: none;
+  border: none;
+  font-size: 1.6rem;
+  cursor: pointer;
+  color: var(--gray-800);
+  margin-left: auto;
+}
+
+/* Menú desplegable móvil (oculto por defecto) */
+.nav-mobile {
+  display: none;
+  flex-direction: column;
+  padding: 16px 24px 20px;
+  gap: 12px;
+  background: var(--white);
+  border-top: 1px solid var(--gray-200);
+}
+
+.nav-mobile a {
+  font-family: var(--font-head);
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--gray-600);
+  padding: 6px 0;
+}
+
+/* La clase .open hace visible el menú móvil */
+.nav-mobile.open {
+  display: flex;
+}
+
+/* ===========================
+   HERO — Sección principal con video de fondo
+   Diseño de tarjeta con bordes redondeados y margen
+=========================== */
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  padding: 80px 24px;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  border-radius: 0;
+}
+
+/* Video de fondo que cubre todo el hero */
+.hero-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+  /* Efecto de zoom suave en loop para dar movimiento */
+  animation: zoomVideo 20s infinite alternate ease-in-out;
+}
+
+/* Capa oscura semitransparente sobre el video para mejorar legibilidad */
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.3));
+  z-index: 1;
+}
+
+/* Contenido del hero: título, subtítulo, botón (sobre la capa oscura) */
+.hero-content {
+  max-width: 700px;
+  margin: 0 auto;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+  /* Por encima del video y la capa oscura */
+}
+
+/* Título grande con sombra para legibilidad sobre el video */
+.hero-title {
+  font-family: var(--font-head);
+  font-size: clamp(2.4rem, 6vw, 4.2rem);
+  /* Fluido entre 2.4rem y 4.2rem */
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.15;
+  margin-bottom: 24px;
+  letter-spacing: -1px;
+  text-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.75),
+    0 4px 28px rgba(0, 0, 0, 0.55);
+}
+
+.hero-subtitle {
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.75);
+  margin-bottom: 40px;
+  line-height: 1.7;
+}
+
+/* Botón CTA principal (blanco con texto morado oscuro) */
+.btn-primary {
+  display: inline-block;
+  background: var(--white);
+  color: var(--purple-dark);
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 14px 36px;
+  border-radius: 50px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+}
+
+/* Botón de silenciar/activar el sonido del video */
+.btn-sound {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  z-index: 3;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  backdrop-filter: blur(6px);
+  /* Efecto cristal */
+  transition: all 0.3s ease;
+}
+
+.btn-sound:hover {
+  background: rgba(0, 0, 0, 0.8);
+  transform: scale(1.05);
+}
+
+.hero-shapes {
+  position: relative;
+  z-index: 2;
+}
+
+/* ── Sección del reproductor de audio vallenato ── */
+.audio-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  width: 100%;
+  background-color: transparent;
+  text-align: center;
+}
+
+.audio-section h2 {
+  font-family: var(--font-head);
+  font-size: clamp(1.1rem, 3vw, 1.5rem);
+  color: var(--gray-800);
+  margin-bottom: 8px;
+}
+
+.audio-section audio {
+  width: 100%;
+  max-width: 500px;
+  margin-top: 16px;
+}
+
+/* Animación del zoom del video del hero */
+@keyframes zoomVideo {
+  from {
+    transform: scale(1);
+  }
+
+  to {
+    transform: scale(1.1);
+  }
+}
+
+/* ===========================
+   SECCIONES GENERALES
+=========================== */
+.section-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.section-title {
+  font-family: var(--font-head);
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+  font-weight: 800;
+  color: var(--gray-800);
+  margin-bottom: 10px;
+}
+
+.section-title.center {
+  text-align: center;
+}
+
+.section-desc {
+  font-size: 1rem;
+  color: var(--gray-600);
+  line-height: 1.7;
+  max-width: 560px;
+}
+
+.section-desc.center {
+  text-align: center;
+  margin: 0 auto 48px;
+}
+
+/* Enlace tipo "Ver todos" al final de una sección */
+.btn-link {
+  color: var(--purple);
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  transition: color 0.2s;
+  flex-shrink: 0;
+}
+
+.btn-link:hover {
+  color: var(--purple-dark);
+}
+
+/* ===========================
+   DESTINOS — Sección de tarjetas de destinos turísticos
+=========================== */
+.destinos {
+  padding: 110px 0;
+  background: var(--gray-100);
+}
+
+/* Fila de encabezado: título a la izquierda, enlace a la derecha */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 48px;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+/* Grid de tarjetas: columnas auto-ajustables de mínimo 260px */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 24px;
+}
+
+/* Tarjeta de destino */
+.card {
+  background: var(--white);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+  transition: transform 0.25s, box-shadow 0.25s;
+}
+
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 40px rgba(124, 58, 237, 0.18);
+}
+
+/* Imagen de la tarjeta con zoom al hacer hover */
+.card-img {
+  height: 220px;
+  position: relative;
+  overflow: hidden;
+  background: var(--gray-200);
+}
+
+.card-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s ease;
+}
+
+.card:hover .card-img img {
+  transform: scale(1.05);
+}
+
+/* Badge de categoría encima de la imagen */
+.card-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--purple-dark);
+  font-family: var(--font-head);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 50px;
+  letter-spacing: 0.5px;
+}
+
+.card-body {
+  padding: 24px 20px 26px;
+}
+
+.card-body h3 {
+  font-family: var(--font-head);
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--gray-800);
+}
+
+.card-body p {
+  font-size: 0.88rem;
+  color: var(--gray-600);
+  line-height: 1.6;
+  margin-bottom: 14px;
+}
+
+.card-link {
+  color: var(--purple);
+  font-family: var(--font-head);
+  font-size: 0.85rem;
+  font-weight: 700;
+  transition: color 0.2s;
+}
+
+.card-link:hover {
+  color: var(--purple-dark);
+}
+
+/* ===========================
+   TESTIMONIOS — Slider de reseñas de viajeros
+=========================== */
+.testimonios {
+  padding: 110px 0;
+  background: var(--white);
+  overflow-x: clip;
+}
+
+/* El wrapper oculta las tarjetas que salen del área visible */
+.slider-wrapper {
+  overflow-x: clip;
+  margin: 0 -8px;
+}
+
+/* Las tarjetas se alinean en fila; JS mueve este track con transform */
+.slider-track {
+  display: flex;
+  gap: 24px;
+  transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  padding: 8px 8px 16px;
+}
+
+/* Cada tarjeta ocupa 1/3 del ancho en desktop */
+.testimonial-card {
+  flex: 0 0 calc(33.333% - 16px);
+  background: var(--gray-100);
+  border-radius: var(--radius);
+  padding: 36px 28px;
+  min-height: 260px;
+  box-shadow: var(--shadow-card);
+  border-left: 4px solid var(--purple);
+  /* Acento morado izquierdo */
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Texto de la reseña en itálica con comillas automáticas */
+.testimonial-text {
+  font-size: 1rem;
+  color: var(--gray-600);
+  line-height: 1.8;
+  font-style: italic;
+  flex: 1;
+}
+
+.testimonial-text::before {
+  content: '"';
+}
+
+.testimonial-text::after {
+  content: '"';
+}
+
+/* Autor: avatar circular con iniciales + nombre + ciudad */
+.testimonial-author {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.author-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--purple), var(--purple-light));
+  color: white;
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.testimonial-author strong {
+  display: block;
+  font-family: var(--font-head);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--gray-800);
+}
+
+.testimonial-author span {
+  font-size: 0.8rem;
+  color: var(--gray-400);
+}
+
+/* Puntos de navegación del slider */
+.slider-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 32px;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: none;
+  background: var(--gray-200);
+  cursor: pointer;
+  transition: background 0.3s, transform 0.3s;
+  padding: 0;
+}
+
+.dot.active {
+  background: var(--purple);
+  transform: scale(1.3);
+}
+
+/* ── Sección de video de artículos ── */
+.art-hero {
+  position: relative;
+  width: 100%;
+  height: 500px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Video de fondo para la sección de artículos */
+.art-video-bg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  min-width: 100%;
+  min-height: 100%;
+  width: auto;
+  height: auto;
+  transform: translate(-50%, -50%);
+  /* Centra el video */
+  z-index: -1;
+  object-fit: cover;
+}
+
+/* Capa oscura + contenido centrado sobre el video */
+.art-hero-overlay {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.4);
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+/* ── Overlays de artículos/destinos ──
+   CRÍTICO: deben estar ocultos e inertes por defecto.
+   Si articulos.css no carga, estos 8 divs position:fixed tapan toda la página
+   y bloquean todos los clics, incluyendo el modal de login. */
+.art-overlay {
+  display: flex;
+  position: fixed;
+  inset: 0;
+  z-index: 99998;
+  background: rgba(15, 23, 42, 0.75);
+  align-items: flex-start;
+  justify-content: center;
+  padding: 20px;
+  overflow-y: auto;
+  /* Oculto e inerte por defecto */
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0s linear 0.3s;
+}
+
+.art-overlay.open {
+  opacity: 1;
+  pointer-events: all;
+  visibility: visible;
+  transition: opacity 0.3s ease, visibility 0s linear 0s;
+}
+
+/* El overlay no bloquea clics para que el video sea interactivo */
+.clickable-overlay {
+  pointer-events: none;
+}
+
+/* Pero el texto sí recibe clics (para seleccionarlo) */
+.art-hero-overlay h2,
+.art-hero-overlay p,
+.art-hero-overlay .art-badge {
+  pointer-events: auto;
+}
+
+/* El video también recibe eventos */
+.art-video-bg {
+  pointer-events: auto;
+  z-index: 1;
+}
+
+/* Botón de sonido dentro del video del artículo */
+.art-btn-sound {
+  position: absolute;
+  top: 16px;
+  right: 60px;
+  z-index: 3;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.55);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  backdrop-filter: blur(6px);
+  transition: all 0.3s ease;
+}
+
+.art-btn-sound:hover {
+  background: rgba(0, 0, 0, 0.8);
+  transform: scale(1.1);
+}
+
+/* ===========================
+   FOOTER — Pie de página oscuro con 4 columnas
+=========================== */
+.footer {
+  background: var(--dark-footer);
+  color: var(--gray-400);
+}
+
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 64px 24px 0;
+}
+
+/* Grid de 4 columnas en desktop */
+.footer-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 40px;
+  padding-bottom: 48px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.footer-col h4 {
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #ffffff;
+  margin-bottom: 20px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  border-left: 3px solid var(--purple-light);
+  /* Acento morado */
+  padding-left: 10px;
+}
+
+.footer-col ul {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.footer-col ul a {
+  font-size: 0.9rem;
+  color: var(--gray-400);
+  transition: color 0.2s;
+}
+
+.footer-col ul a:hover {
+  color: var(--white);
+}
+
+/* Íconos de redes sociales */
+.social-icons {
+  display: flex;
+  gap: 12px;
+}
+
+.social-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--white);
+  font-size: 0.9rem;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.social-icon:hover {
+  background: var(--purple);
+  transform: translateY(-2px);
+}
+
+.footer-bottom {
+  text-align: center;
+  padding: 24px 0;
+  font-size: 0.85rem;
+  color: var(--gray-400);
+}
+
+/* ===========================
+   BOTONES DE LOGIN SOCIAL (Google, Facebook)
+=========================== */
+.social-login {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+/* Botón genérico de login social */
+.social-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1.5px solid #e5e7eb;
+  background: white;
+  font-family: "Montserrat", sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #374151;
+  position: relative;
+}
+
+.social-btn img {
+  width: 20px;
+  height: 20px;
+}
+
+.google-btn:hover {
+  background-color: #f9fafb;
+  border-color: #d1d5db;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Botón de Facebook con acento azul */
+.facebook-btn {
+  border-color: #1877f2;
+  color: #1877f2;
+}
+
+.facebook-btn:hover {
+  background-color: #f0f7ff;
+  box-shadow: 0 4px 12px rgba(24, 119, 242, 0.1);
+}
+
+.social-btn:active {
+  transform: scale(0.98);
+}
+
+/* Estado de carga del botón social (spinner) */
+.social-btn.loading {
+  color: transparent;
+  pointer-events: none;
+}
+
+.social-btn.loading::after {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border: 3px solid #d1d5db;
+  border-radius: 50%;
+  border-top-color: currentColor;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Botones de auth alternativa en login.js */
+.social-auth {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.btn-social {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1.5px solid #e2e8f0;
+  background: #ffffff;
+  font-family: "Montserrat", sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #1e293b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.btn-social img {
+  width: 20px;
+  height: 20px;
+}
+
+.btn-social:hover {
+  background-color: #f8fafc;
+  border-color: #cbd5e1;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.btn-social.loading {
+  color: transparent !important;
+  pointer-events: none;
+  position: relative;
+}
+
+.btn-social.loading::after {
+  content: "";
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border: 3px solid #e2e8f0;
+  border-top-color: #7c3aed;
+  border-radius: 50%;
+  animation: girar 0.8s linear infinite;
+}
+
+/* ===========================
+   MODAL SOBRE NOSOTROS (genérico)
+   Inyectado por usuario_viajero.js en todas las páginas
+=========================== */
+.custom-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.custom-modal-box {
+  background: #fff;
+  padding: 40px;
+  border-radius: 15px;
+  max-width: 500px;
+  width: 90%;
+  position: relative;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  border-top: 8px solid #7c3aed;
+  font-family: "Open Sans", sans-serif;
+}
+
+.custom-modal-box h2 {
+  font-family: "Montserrat", sans-serif;
+  color: #7c3aed;
+  margin-bottom: 20px;
+}
+
+.modal-body-content p {
+  margin-bottom: 15px;
+  line-height: 1.6;
+  color: #333;
+}
+
+.close-btn {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  font-size: 28px;
+  cursor: pointer;
+  color: #999;
+}
+
+.close-btn:hover {
+  color: #000;
+}
+
+.custom-overlay.open {
+  display: flex;
+}
+
+/* La clase .open lo hace visible */
+
+@keyframes girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ===========================
+   MODALES GENÉRICOS DEL SITIO
+   (para políticas, términos, detalles de destinos, etc.)
+=========================== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  opacity: 0;
+  /* Invisible por defecto */
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+
+.modal-overlay.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* La caja del modal sube cuando se activa */
+.modal-box {
+  background: var(--white);
+  border-radius: 20px;
+  max-width: 640px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: 40px;
+  position: relative;
+  transform: translateY(20px);
+  /* Empieza desplazado abajo */
+  transition: transform 0.3s;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.25);
+}
+
+.modal-overlay.active .modal-box {
+  transform: translateY(0);
+}
+
+.modal-close {
+  position: absolute;
+  top: 16px;
+  right: 20px;
+  background: none;
+  border: none;
+  font-size: 1.8rem;
+  cursor: pointer;
+  color: var(--gray-400);
+  line-height: 1;
+  transition: color 0.2s;
+}
+
+.modal-close:hover {
+  color: var(--gray-800);
+}
+
+#modalTitle {
+  font-family: var(--font-head);
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--purple-dark);
+  margin-bottom: 20px;
+  padding-right: 32px;
+}
+
+#modalContent p,
+#modalContent li {
+  font-size: 0.95rem;
+  color: var(--gray-600);
+  line-height: 1.75;
+  margin-bottom: 12px;
+}
+
+#modalContent h3 {
+  font-family: var(--font-head);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--gray-800);
+  margin: 20px 0 8px;
+}
+
+#modalContent ul {
+  padding-left: 20px;
+  list-style: disc;
+}
+
+/* Sección de acordeón en el modal */
+#modalContent details {
+  border: 1px solid var(--gray-200);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+#modalContent summary {
+  font-family: var(--font-head);
+  font-weight: 600;
+  color: var(--gray-800);
+  list-style: none;
+}
+
+#modalContent details p {
+  margin-top: 10px;
+}
+
+#modalContent a {
+  color: var(--purple);
+  font-weight: 600;
+}
+
+/* ===========================
+   BOTÓN MODO OSCURO (luna/sol)
+   Se muestra en la navbar de todas las páginas
+=========================== */
+.btn-dark-mode {
+  background: none;
+  border: 2px solid var(--gray-200);
+  color: var(--gray-600);
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+  transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.2s;
+}
+
+/* Al hacer hover: gira levemente y se pone morado */
+.btn-dark-mode:hover {
+  background: var(--purple);
+  border-color: var(--purple);
+  color: var(--white);
+  transform: rotate(20deg);
+}
+
+/* ===========================
+   MODO OSCURO
+   Redefine las variables CSS para cambiar todo el tema
+=========================== */
+body.dark-mode {
+  --white: #0f172a;
+  --gray-100: #1e293b;
+  --gray-200: #334155;
+  --gray-400: #94a3b8;
+  --gray-600: #cbd5e1;
+  --gray-800: #f1f5f9;
+  --shadow-card: 0 2px 16px rgba(0, 0, 0, 0.35);
+  background: #0f172a;
+  color: #f1f5f9;
+}
+
+body.dark-mode .navbar {
+  background: #1e293b;
+  border-bottom-color: #334155;
+}
+
+body.dark-mode .nav-mobile {
+  background: #1e293b;
+  border-top-color: #334155;
+}
+
+body.dark-mode .btn-dark-mode {
+  border-color: #334155;
+  color: #cbd5e1;
+}
+
+body.dark-mode .btn-dark-mode:hover {
+  background: var(--purple);
+  border-color: var(--purple);
+  color: #ffffff;
+}
+
+body.dark-mode .card {
+  background: #1e293b;
+}
+
+body.dark-mode .testimonial-card {
+  background: #1e293b;
+}
+
+body.dark-mode .testimonios {
+  background: #0f172a;
+}
+
+body.dark-mode .modal-box {
+  background: #1e293b;
+}
+
+body.dark-mode #modalTitle {
+  color: var(--purple-light);
+}
+
+body.dark-mode #modalContent p,
+body.dark-mode #modalContent li {
+  color: #cbd5e1;
+}
+
+body.dark-mode #modalContent h3 {
+  color: #f1f5f9;
+}
+
+body.dark-mode #modalContent details {
+  border-color: #334155;
+}
+
+body.dark-mode #modalContent summary {
+  color: #f1f5f9;
+}
+
+body.dark-mode .dot {
+  background: #334155;
+}
+
+body.dark-mode .dot.active {
+  background: var(--purple);
+}
+
+body.dark-mode .audio-section h2 {
+  color: #f1f5f9;
+}
+
+body.dark-mode .custom-modal-box {
+  background: #1e293b;
+}
+
+body.dark-mode .modal-body-content p {
+  color: #cbd5e1;
+}
+
+/* ===========================
+   BOTÓN "VOLVER" (en módulos)
+=========================== */
+.btn-volver {
+  background: none;
+  border: 2px solid var(--gray-200);
+  color: var(--gray-600);
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 9px 20px;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+  flex-shrink: 0;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.btn-volver:hover {
+  border-color: var(--purple);
+  color: var(--purple);
+}
+
+body.dark-mode .btn-volver {
+  border-color: #334155;
+  color: #94a3b8;
+}
+
+body.dark-mode .btn-volver:hover {
+  border-color: var(--purple-light);
+  color: var(--purple-light);
+}
+
+/* ============================================================
+   RESPONSIVE — TABLET (hasta 1100px)
+   ============================================================ */
+@media (max-width: 1100px) {
+
+  /* Navbar: ocultar links de escritorio, mostrar hamburguesa */
+  .nav-links {
+    display: none !important;
+  }
+
+  .hamburger {
+    display: block;
+  }
+
+  /* Ocultar info de sesión en tablet para ahorrar espacio */
+  .session-info,
+  .session-chevron {
+    display: none !important;
+  }
+
+  .hero {
+    width: 100%;
+    margin: 0;
+    border-radius: 0;
+    min-height: 72vh;
+    padding: 60px 32px;
+  }
+
+  .hero-subtitle {
+    font-size: 1rem;
+    margin-bottom: 32px;
+  }
+
+  /* Cards: 2 columnas */
+  .cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+  /* Testimonios: 2 tarjetas visibles */
+  .testimonial-card {
+    flex: 0 0 calc(50% - 12px);
+  }
+
+  /* Footer: 2 columnas */
+  .footer-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px;
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 32px;
+  }
+
+  .destinos,
+  .testimonios {
+    padding: 80px 0;
+  }
+
+  .modal-box {
+    padding: 32px;
+    max-height: 85vh;
+  }
+
+  .audio-section {
+    padding: 32px 20px;
+  }
+
+  .audio-section audio {
+    max-width: 420px;
+  }
+}
+
+/* ============================================================
+   RESPONSIVE — MÓVIL GRANDE (hasta 767px)
+   ============================================================ */
+@media (max-width: 767px) {
+
+  .logo-img {
+    height: 44px;
+    width: 44px;
+  }
+
+  .logo-text {
+    font-size: 0.95rem;
+  }
+
+  .btn-acceder {
+    font-size: 0.78rem;
+    padding: 8px 14px;
+  }
+
+  .btn-dark-mode {
+    width: 32px;
+    height: 32px;
+    font-size: 0.85rem;
+  }
+
+  .nav-container {
+    gap: 10px;
+    padding: 0 14px;
+    height: 66px;
+  }
+
+  .hero {
+    width: 100%;
+    margin: 0;
+    border-radius: 0;
+    min-height: 68vh;
+    padding: 48px 20px;
+  }
+
+  .hero-subtitle {
+    font-size: 0.95rem;
+    margin-bottom: 28px;
+  }
+
+  .btn-primary {
+    font-size: 0.92rem;
+    padding: 12px 28px;
+  }
+
+  .btn-sound {
+    bottom: 14px;
+    right: 14px;
+    font-size: 0.8rem;
+    padding: 8px 14px;
+  }
+
+  .audio-section {
+    padding: 28px 16px;
+  }
+
+  .audio-section h2 {
+    font-size: 1.1rem;
+  }
+
+  .audio-section audio {
+    max-width: 100%;
+  }
+
+  .destinos {
+    padding: 64px 0;
+  }
+
+  /* 2 columnas en móvil grande */
+  .cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .card-img {
+    height: 170px;
+  }
+
+  /* Testimonios: 1 tarjeta */
+  .testimonial-card {
+    flex: 0 0 100%;
+  }
+
+  .testimonios {
+    padding: 64px 0;
+  }
+
+  /* Footer: 2 columnas */
+  .footer-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 28px;
+  }
+
+  .footer-container {
+    padding: 40px 20px 0;
+  }
+
+  .modal-overlay {
+    padding: 16px;
+  }
+
+  .modal-box {
+    padding: 24px 20px;
+    border-radius: 16px;
+    max-height: 88vh;
+  }
+
+  #modalTitle {
+    font-size: 1.2rem;
+  }
+
+  .custom-modal-box {
+    padding: 28px 20px;
+  }
+
+  .section-desc.center {
+    margin-bottom: 32px;
+  }
+}
+
+/* ============================================================
+   RESPONSIVE — MÓVIL PEQUEÑO (hasta 479px)
+   ============================================================ */
+@media (max-width: 479px) {
+
+  /* En móvil pequeño el texto del logo desaparece */
+  .logo-text {
+    display: none;
+  }
+
+  .logo-img {
+    height: 38px;
+    width: 38px;
+  }
+
+  .btn-acceder {
+    font-size: 0.75rem;
+    padding: 7px 12px;
+  }
+
+  .nav-container {
+    gap: 8px;
+    padding: 0 12px;
+    height: 60px;
+  }
+
+  /* Hero ocupa todo el ancho, sin bordes redondeados */
+  .hero {
+    width: 100%;
+    margin: 0;
+    border-radius: 0;
+    min-height: 60vh;
+    padding: 40px 16px 60px;
+  }
+
+  .hero-title {
+    font-size: clamp(1.8rem, 8vw, 2.4rem);
+    margin-bottom: 16px;
+  }
+
+  .hero-subtitle {
+    font-size: 0.88rem;
+    margin-bottom: 24px;
+  }
+
+  .btn-primary {
+    font-size: 0.88rem;
+    padding: 11px 24px;
+  }
+
+  .btn-sound {
+    bottom: 10px;
+    right: 10px;
+    font-size: 0.75rem;
+    padding: 7px 12px;
+  }
+
+  .audio-section {
+    padding: 24px 12px;
+  }
+
+  .audio-section h2 {
+    font-size: 1rem;
+  }
+
+  /* 1 columna en móvil pequeño */
+  .cards-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .card-img {
+    height: 200px;
+  }
+
+  .destinos,
+  .testimonios {
+    padding: 52px 0;
+  }
+
+  .section-container {
+    padding: 0 16px;
+  }
+
+  /* Footer: 1 columna */
+  .footer-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .footer-container {
+    padding: 32px 16px 0;
+  }
+
+  .footer-bottom {
+    font-size: 0.78rem;
+    padding: 20px 16px;
+  }
+
+  /* Modal aparece desde abajo como un sheet */
+  .modal-overlay {
+    padding: 12px;
+    align-items: flex-end;
+  }
+
+  .modal-box {
+    padding: 20px 16px;
+    border-radius: 20px 20px 0 0;
+    max-height: 92vh;
+  }
+
+  #modalTitle {
+    font-size: 1.1rem;
+  }
+
+  .custom-modal-box {
+    padding: 24px 16px;
+    width: 100%;
+    border-radius: 20px 20px 0 0;
+  }
+
+  .section-header {
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .nav-mobile {
+    padding: 12px 16px 16px;
+  }
+
+  .nav-mobile a {
+    font-size: 0.95rem;
+  }
+
+  /* Puntos del slider más grandes para tocar con el dedo */
+  .dot {
+    width: 12px;
+    height: 12px;
+  }
+}
+
+/* ===========================
+   MODAL "SOBRE NOSOTROS" (sn = sobre nosotros)
+   Versión alternativa usada en algunas páginas
+=========================== */
+.sn-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  background: rgba(0, 0, 0, 0.7);
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.sn-box {
+  background: #fff;
+  border-radius: 15px;
+  max-width: 500px;
+  width: 90%;
+  position: relative;
+  padding: 40px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  border-top: 8px solid #7c3aed;
+  font-family: "Open Sans", sans-serif;
+}
+
+.sn-titulo {
+  font-family: "Montserrat", sans-serif;
+  color: #7c3aed;
+  margin-bottom: 20px;
+}
+
+.sn-parrafo {
+  margin-bottom: 15px;
+  line-height: 1.6;
+  color: #333;
+}
+
+.sn-cerrar {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  background: none;
+  border: none;
+  font-size: 28px;
+  line-height: 1;
+  color: #999;
+  cursor: pointer;
+  z-index: 1;
+  padding: 4px 8px;
+}
+
+.sn-cerrar:hover {
+  color: #000;
+}
+
+body.dark-mode .sn-box {
+  background: #1e293b;
+}
+
+body.dark-mode .sn-parrafo {
+  color: #cbd5e1;
+}
+
+body.dark-mode .sn-cerrar {
+  color: #94a3b8;
+}
+
+body.dark-mode .sn-cerrar:hover {
+  color: #f1f5f9;
+}
+
+/* ===========================
+   SECCIÓN DE RESEÑAS — Formulario para publicar reseñas
+=========================== */
+.resena-wrapper {
+  margin-top: 40px;
+  max-width: 620px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Aviso de "inicia sesión para dejar reseña" con borde punteado */
+.resena-login-prompt {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  background: rgba(124, 58, 237, 0.06);
+  border: 1.5px dashed rgba(124, 58, 237, 0.3);
+  border-radius: 16px;
+  padding: 20px 24px;
+  justify-content: center;
+  text-align: center;
+}
+
+.resena-login-prompt i {
+  font-size: 1.6rem;
+  color: var(--purple);
+}
+
+.resena-login-prompt p {
+  flex: 1;
+  min-width: 180px;
+  color: var(--gray-600);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+/* Caja del formulario de reseña */
+.resena-form-box {
+  background: var(--white);
+  border-radius: 18px;
+  padding: 28px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.07);
+  border: 1px solid var(--gray-100);
+  display: flex;
+  flex-direction: column;
+  overflow: visible;
+}
+
+.resena-form-title {
+  font-family: var(--font-head);
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--gray-800);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.resena-form-title i {
+  color: var(--purple);
+}
+
+/* ── Estrellas de rating interactivas ── */
+.resena-stars-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.resena-star {
+  font-size: 2rem;
+  color: var(--gray-200);
+  /* Gris por defecto */
+  cursor: pointer;
+  transition: color 0.15s, transform 0.1s;
+  user-select: none;
+}
+
+/* Hover y selección: doradas */
+.resena-star:hover,
+.resena-star.hovered {
+  color: #f59e0b;
+  transform: scale(1.15);
+}
+
+.resena-star.selected {
+  color: #f59e0b;
+}
+
+/* Textarea de la reseña */
+.resena-textarea {
+  width: 100%;
+  min-height: 90px;
+  max-height: 160px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  resize: none;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+  color: var(--gray-800);
+}
+
+.resena-textarea:focus {
+  border-color: var(--purple);
+}
+
+.resena-textarea::placeholder {
+  color: #94a3b8;
+}
+
+/* Pie del formulario: contador de caracteres + botón publicar */
+.resena-form-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  margin-top: 14px;
+  gap: 12px;
+}
+
+.resena-char-count {
+  font-size: 0.78rem;
+  color: #94a3b8;
+}
+
+.resena-submit-btn {
+  flex-shrink: 0;
+}
+
+/* Mensaje de agradecimiento tras publicar */
+.resena-gracias {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 28px 20px;
+  text-align: center;
+  background: rgba(34, 197, 94, 0.07);
+  border: 1.5px solid rgba(34, 197, 94, 0.25);
+  border-radius: 16px;
+}
+
+.resena-gracias i {
+  font-size: 2.2rem;
+  color: #16a34a;
+}
+
+.resena-gracias p {
+  font-size: 1rem;
+  color: var(--gray-800);
+  font-weight: 600;
+}
+
+.resena-gracias small {
+  color: var(--gray-600);
+  font-size: 0.82rem;
+}
+
+/* Estrellas en la tarjeta de reseña publicada */
+.resena-stars-display {
+  font-size: 1rem;
+  margin-bottom: 8px;
+}
+
+/* Animación de sacudida para pedir que se seleccionen estrellas */
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(-4px);
+  }
+
+  75% {
+    transform: translateX(4px);
+  }
+}
+
+/* Dark mode del formulario de reseñas */
+body.dark-mode .resena-form-box {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+body.dark-mode .resena-form-title {
+  color: #f1f5f9;
+}
+
+body.dark-mode .resena-textarea {
+  background: #0f172a;
+  border-color: #334155;
+  color: #f1f5f9;
+}
+
+body.dark-mode .resena-textarea::placeholder {
+  color: #475569;
+}
+
+body.dark-mode .resena-login-prompt {
+  background: rgba(124, 58, 237, 0.1);
+  border-color: rgba(124, 58, 237, 0.35);
+}
+
+body.dark-mode .resena-login-prompt p {
+  color: #94a3b8;
+}
+
+body.dark-mode .resena-gracias {
+  background: rgba(34, 197, 94, 0.08);
+}
+
+body.dark-mode .resena-gracias p {
+  color: #f1f5f9;
+}
+
+/* Responsive del formulario de reseñas */
+@media (max-width: 479px) {
+  .resena-form-box {
+    padding: 20px 16px 18px;
+  }
+
+  .resena-textarea {
+    min-height: 80px;
+    max-height: 120px;
+    resize: none;
+  }
+
+  .resena-form-footer {
+    flex-direction: column;
+    align-items: flex-end;
+  }
+
+  .resena-submit-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .resena-star {
+    font-size: 1.7rem;
+  }
+}
+
+/* ===========================
+   BOTONES EDITAR / BORRAR RESEÑA
+   Solo visibles para el autor de la reseña
+=========================== */
+.resena-acciones {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--gray-200);
+  justify-content: flex-end;
+}
+
+/* Estilos comunes de los botones de acción */
+.resena-btn-editar,
+.resena-btn-borrar {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-head);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  padding: 6px 14px;
+  border-radius: 50px;
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  transition: background 0.18s, border-color 0.18s, transform 0.12s, box-shadow 0.18s;
+}
+
+/* Botón editar: morado */
+.resena-btn-editar {
+  background: rgba(124, 58, 237, 0.08);
+  color: var(--purple);
+  border-color: rgba(124, 58, 237, 0.2);
+}
+
+.resena-btn-editar:hover {
+  background: rgba(124, 58, 237, 0.15);
+  border-color: rgba(124, 58, 237, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(124, 58, 237, 0.15);
+}
+
+/* Botón borrar: rojo */
+.resena-btn-borrar {
+  background: rgba(220, 38, 38, 0.07);
+  color: #dc2626;
+  border-color: rgba(220, 38, 38, 0.18);
+}
+
+.resena-btn-borrar:hover {
+  background: rgba(220, 38, 38, 0.14);
+  border-color: rgba(220, 38, 38, 0.35);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(220, 38, 38, 0.12);
+}
+
+/* Botones de login y submit de reseña */
+.btn-resena-login,
+.btn-resena-submit {
+  background: var(--purple);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.55rem 1.4rem;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.btn-resena-login:hover,
+.btn-resena-submit:hover {
+  background: var(--purple-dark);
+  transform: translateY(-1px);
+}
+
+/* Dark mode — botones de reseña */
+body.dark-mode .resena-acciones {
+  border-top-color: #334155;
+}
+
+body.dark-mode .resena-btn-editar {
+  background: rgba(124, 58, 237, 0.15);
+  border-color: rgba(124, 58, 237, 0.3);
+  color: #a78bfa;
+}
+
+body.dark-mode .resena-btn-editar:hover {
+  background: rgba(124, 58, 237, 0.25);
+}
+
+body.dark-mode .resena-btn-borrar {
+  background: rgba(220, 38, 38, 0.12);
+  border-color: rgba(220, 38, 38, 0.25);
+  color: #f87171;
+}
+
+body.dark-mode .resena-btn-borrar:hover {
+  background: rgba(220, 38, 38, 0.22);
+}

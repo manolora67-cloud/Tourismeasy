@@ -1,0 +1,653 @@
+/* ===========================
+   ADMIN.CSS
+   Estilos exclusivos del panel administrativo (admin.html):
+   header, tarjetas de estadísticas, tabs, tabla de productos,
+   formulario de alta/edición y gráficos de la pestaña "Estadísticas".
+
+   Depende de las variables (--primary, --gray-*, --font-head, etc.)
+   y de los estilos base (navbar, footer, modo oscuro) definidos en
+   e-comemerce.css, que debe cargarse ANTES que este archivo.
+=========================== */
+
+
+/* ===========================
+   PANEL DE ADMINISTRACIÓN — Dashboard de productos artesanales
+=========================== */
+
+.panel-main {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 32px 20px 60px;
+}
+
+
+/* Etiqueta "Panel de Productos" en la navbar */
+
+.panel-navbar-label {
+    font-family: var(--font-head);
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    flex: 1;
+    white-space: nowrap;
+}
+
+
+/* ── HEADER con gradiente ── */
+
+.panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 20px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    border-radius: var(--radius);
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    color: white;
+}
+
+.panel-header-info {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.panel-empresa-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.22);
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    color: white;
+    flex-shrink: 0;
+}
+
+.panel-empresa-nombre {
+    font-family: var(--font-head);
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: white;
+    margin: 0 0 4px;
+}
+
+.panel-empresa-sub {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0;
+}
+
+.panel-header-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.panel-badge {
+    background: rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 6px 14px;
+    border-radius: 50px;
+    font-family: var(--font-head);
+    font-size: 0.78rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+
+/* ── STATS ── */
+
+.panel-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 16px;
+    margin-bottom: 28px;
+}
+
+.stat-card {
+    background: var(--white);
+    border-radius: 14px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: var(--shadow-card);
+    border: 1px solid var(--gray-200);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 28px rgba(124, 58, 237, 0.14);
+}
+
+.stat-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    color: white;
+}
+
+.stat-icon-purple {
+    background: linear-gradient(135deg, #7c3aed, #a855f7);
+}
+
+.stat-icon-green {
+    background: linear-gradient(135deg, #22c55e, #4ade80);
+}
+
+.stat-icon-blue {
+    background: linear-gradient(135deg, #0ea5e9, #38bdf8);
+}
+
+.stat-icon-orange {
+    background: linear-gradient(135deg, #f97316, #fb923c);
+}
+
+.stat-icon-red {
+    background: linear-gradient(135deg, #ef4444, #f87171);
+}
+
+.stat-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+}
+
+.stat-num {
+    font-family: var(--font-head);
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: var(--gray-800);
+    line-height: 1.15;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.stat-label {
+    font-size: 0.76rem;
+    color: var(--gray-600);
+    font-weight: 500;
+}
+
+
+/* ── TABS ── */
+
+.panel-tabs {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+    background: var(--gray-200);
+    padding: 6px;
+    border-radius: 14px;
+}
+
+.panel-tab {
+    flex: 1;
+    min-width: 140px;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 10px;
+    background: none;
+    font-family: var(--font-head);
+    font-weight: 700;
+    font-size: 0.82rem;
+    color: var(--gray-600);
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    white-space: nowrap;
+}
+
+.panel-tab:hover {
+    color: var(--primary);
+}
+
+.panel-tab.active {
+    background: var(--white);
+    color: var(--primary);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.panel-content {
+    display: none;
+}
+
+.panel-content.active {
+    display: block;
+}
+
+.panel-content-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.panel-content-header h2 {
+    font-family: var(--font-head);
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--gray-800);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+}
+
+.panel-content-header h2 i {
+    color: var(--primary);
+}
+
+.panel-filter {
+    display: flex;
+    gap: 10px;
+}
+
+.panel-select {
+    padding: 8px 14px;
+    border: 1.5px solid var(--gray-200);
+    border-radius: 10px;
+    font-family: var(--font-head);
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--gray-800);
+    background: var(--white);
+    outline: none;
+    cursor: pointer;
+}
+
+
+/* ── GRID: formulario + tabla dentro del tab Productos ── */
+
+.admin-grid {
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    gap: 24px;
+    align-items: start;
+}
+
+@media (max-width: 900px) {
+    .admin-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.form-container {
+    background: var(--white);
+    padding: 1.75rem;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-card);
+    border: 1px solid var(--gray-200);
+    position: sticky;
+    top: 88px;
+}
+
+.form-container h2 {
+    font-family: var(--font-head);
+    font-size: 1.05rem;
+    color: var(--gray-800);
+    margin: 0 0 1.2rem;
+}
+
+.table-container {
+    background: transparent;
+}
+
+
+/* ── TABLA estilo dashboard ── */
+
+.panel-table-wrap {
+    background: var(--white);
+    border-radius: 14px;
+    border: 1px solid var(--gray-200);
+    overflow-x: auto;
+    box-shadow: var(--shadow-card);
+    -webkit-overflow-scrolling: touch;
+}
+
+.panel-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+}
+
+.panel-table thead {
+    background: var(--gray-100);
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.panel-table th {
+    padding: 12px 16px;
+    text-align: left;
+    font-family: var(--font-head);
+    font-weight: 700;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--gray-600);
+    white-space: nowrap;
+}
+
+.panel-table td {
+    padding: 12px 16px;
+    color: var(--gray-800);
+    border-bottom: 1px solid var(--gray-200);
+    vertical-align: middle;
+}
+
+.panel-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.panel-table tbody tr:hover {
+    background: var(--gray-100);
+}
+
+
+/* Miniatura de imagen en la tabla */
+
+.img-preview {
+    width: 46px;
+    height: 46px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.cat-chip {
+    padding: 3px 10px;
+    border-radius: 50px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    white-space: nowrap;
+    background: rgba(124, 58, 237, 0.1);
+    color: var(--primary);
+}
+
+
+/* Botones editar/eliminar */
+
+.table-actions {
+    display: flex;
+    gap: 6px;
+}
+
+.btn-edit,
+.btn-delete {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    border: 1px solid var(--gray-200);
+    background: var(--white);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.78rem;
+    padding: 0;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.btn-edit:hover {
+    background: rgba(124, 58, 237, 0.08);
+    color: var(--primary);
+    border-color: var(--primary);
+}
+
+.btn-delete:hover {
+    background: rgba(239, 68, 68, 0.08);
+    color: #dc2626;
+    border-color: #dc2626;
+}
+
+
+/* Cada campo del formulario */
+
+.form-group {
+    margin-bottom: 1.1rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+    font-size: 0.85rem;
+    color: var(--gray-800);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    padding: 10px 12px;
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
+    font-size: 0.92rem;
+    font-family: var(--font-body);
+    transition: border-color 0.2s;
+    background: var(--white);
+    color: var(--gray-800);
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+}
+
+.btn-submit {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 13px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 700;
+    width: 100%;
+    font-size: 0.95rem;
+    font-family: var(--font-head);
+    transition: background 0.2s;
+}
+
+.btn-submit:hover {
+    background: var(--primary-dark);
+}
+
+
+/* ── ESTADÍSTICAS ── */
+
+.stats-grid-2col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+@media (max-width: 800px) {
+    .stats-grid-2col {
+        grid-template-columns: 1fr;
+    }
+}
+
+.chart-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    border: 1px solid var(--gray-200);
+    box-shadow: var(--shadow-card);
+    padding: 22px 24px;
+}
+
+.chart-card h3 {
+    font-family: var(--font-head);
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: var(--gray-800);
+    margin: 0 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.bar-chart {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.bar-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.bar-row__label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--gray-600);
+    min-width: 100px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.bar-row__track {
+    flex: 1;
+    height: 10px;
+    background: var(--gray-200);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.bar-row__fill {
+    height: 100%;
+    border-radius: 6px;
+    background: linear-gradient(90deg, var(--primary), var(--primary-light));
+    transition: width 0.5s ease;
+}
+
+.bar-row__val {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--gray-800);
+    min-width: 34px;
+    text-align: right;
+}
+
+.chart-empty {
+    text-align: center;
+    padding: 32px 16px;
+    color: var(--gray-400);
+}
+
+.chart-empty i {
+    font-size: 2rem;
+    opacity: 0.35;
+    margin-bottom: 10px;
+    display: block;
+}
+
+.chart-empty p {
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.rank-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: rgba(124, 58, 237, 0.1);
+    color: var(--primary);
+    font-family: var(--font-head);
+    font-weight: 800;
+    font-size: 0.75rem;
+    margin-right: 8px;
+}
+
+
+/* ===========================
+   MODO OSCURO — Panel administrativo
+=========================== */
+
+body.dark-mode .form-container,
+body.dark-mode .table-container {
+    background: #1e293b;
+    border-color: #334155;
+}
+
+body.dark-mode .stat-card,
+body.dark-mode .panel-table-wrap,
+body.dark-mode .chart-card {
+    background: #1e293b;
+    border-color: #334155;
+}
+
+body.dark-mode .panel-tabs {
+    background: #1e293b;
+}
+
+body.dark-mode .panel-tab.active {
+    background: #0f172a;
+}
+
+body.dark-mode .panel-table thead {
+    background: #0f172a;
+}
+
+body.dark-mode .panel-table td {
+    border-bottom-color: #334155;
+    color: #cbd5e1;
+}
+
+body.dark-mode .bar-row__track {
+    background: #334155;
+}
+
+body.dark-mode .btn-edit,
+body.dark-mode .btn-delete {
+    background: #0f172a;
+    border-color: #334155;
+}
+
+body.dark-mode .panel-select {
+    background: #0f172a;
+    border-color: #334155;
+    color: #f1f5f9;
+}
+
+body.dark-mode .form-group input,
+body.dark-mode .form-group select,
+body.dark-mode .form-group textarea {
+    background: #0f172a;
+    border-color: #334155;
+    color: #f1f5f9;
+}

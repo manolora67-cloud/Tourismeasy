@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mi Perfil - TourismEasy</title>
+    <link rel="stylesheet" href="../css/index.css" />
+    <link rel="stylesheet" href="../css/login.css" />
+    <link rel="stylesheet" href="../css/paginas_usuario.css" />
+    <link rel="stylesheet" href="../css/carrito.css" />
+    <link rel="stylesheet" href="../css/agente-ia.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
+</head>
+
+<body>
+    <div id="site-navbar" data-context="subpage"></div>
+
+    <main class="pu-main">
+        <div class="perfil-layout">
+            <aside class="perfil-sidebar">
+                <div class="pu-sidebar-avatar" id="sidebarAvatar">—</div>
+                <div class="pu-sidebar-nombre" id="sidebarNombre">
+                    Cargando...
+                </div>
+                <div class="pu-sidebar-tipo">
+                    <i class="fa-solid fa-person-walking-luggage"></i> Viajero
+                </div>
+
+                <nav class="pu-sidebar-nav">
+                    <a href="perfil_viajero.html" class="pu-nav-item active"><i class="fa-solid fa-user"></i> Mi Perfil</a>
+                    <a href="reservas_viajero.html" class="pu-nav-item"><i class="fa-solid fa-calendar-check"></i> Mis
+            Reservas</a>
+                    <a href="config_viajero.html" class="pu-nav-item"><i class="fa-solid fa-gear"></i> Configuración</a>
+                </nav>
+
+                <div class="pu-sidebar-promo">
+                    <p class="pu-sidebar-promo__title">
+                        <i class="fa-solid fa-heart"></i> Gracias por elegirnos
+                    </p>
+                    <p class="pu-sidebar-promo__text">
+                        En <strong>TourismEasy</strong> trabajamos para que cada destino en Santander sea una experiencia sin barreras. ¡Tu confianza nos ayuda a crecer!
+                    </p>
+                    <div class="pu-sidebar-promo__nivel">
+                        <span class="pu-sidebar-promo__nivel-label">Nivel de Viajero</span>
+                        <div class="pu-nivel-bar">
+                            <div class="pu-nivel-bar__fill"></div>
+                        </div>
+                        <span class="pu-sidebar-promo__nivel-nombre">Explorador Silver</span>
+                    </div>
+                </div>
+
+                <div class="pu-nav-logout-wrapper">
+                    <a href="#" class="pu-nav-item pu-nav-danger" id="sidebarLogout">
+                        <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión
+                    </a>
+                </div>
+            </aside>
+
+            <div class="pu-content">
+                <div class="pu-page-header">
+                    <h1><i class="fa-solid fa-user"></i> Mi Perfil</h1>
+                    <button class="pu-btn-edit" id="btnEditPerfil">
+            <i class="fa-solid fa-pen"></i> Editar perfil
+          </button>
+                </div>
+
+                <!-- Datos rápidos -->
+                <div class="pu-card">
+                    <div class="pu-perfil-datos-grid">
+                        <div class="pu-field pu-field--col">
+                            <span class="pu-field-label">Cédula</span>
+                            <span class="pu-field-val" id="perfilCedula">—</span>
+                        </div>
+                        <div class="pu-field pu-field--col">
+                            <span class="pu-field-label">Miembro desde</span>
+                            <span class="pu-field-val" id="perfilMiembro">—</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats + Accesibilidad -->
+                <div class="pu-grid-2">
+                    <div class="pu-card">
+                        <h3 class="pu-card-title">
+                            <i class="fa-solid fa-chart-simple"></i> Resumen de actividad
+                        </h3>
+                        <div class="pu-stats-row pu-stats-row--2col">
+                            <div class="pu-stat">
+                                <span class="pu-stat-num" id="stat-reservas">0</span><span class="pu-stat-label">Reservas totales</span>
+                            </div>
+                            <div class="pu-stat">
+                                <span class="pu-stat-num" id="stat-viajes">0</span><span class="pu-stat-label">Viajes realizados</span>
+                            </div>
+                            <div class="pu-stat">
+                                <span class="pu-stat-num" id="stat-resenas">0</span><span class="pu-stat-label">Reseñas escritas</span>
+                            </div>
+                            <div class="pu-stat">
+                                <span class="pu-stat-num" id="stat-destinos">0</span><span class="pu-stat-label">Destinos
+                  visitados</span>
+                            </div>
+                        </div>
+                        <div class="pu-card-callout">
+                            <p class="pu-card-callout__title">
+                                <i class="fa-solid fa-star"></i>¡Sigue explorando!
+                            </p>
+                            <p class="pu-card-callout__text" id="callout-texto">
+                                Aún no tienes reservas. ¡Explora Santander y haz tu primera reserva!
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="pu-card">
+                        <h3 class="pu-card-title">
+                            <i class="fa-solid fa-wheelchair"></i> Necesidades de accesibilidad
+                        </h3>
+                        <div class="pu-field-list">
+                            <div class="pu-field">
+                                <span class="pu-field-label">Tipo</span>
+                                <span class="pu-field-val" id="acc-tipo">Ninguna registrada</span>
+                            </div>
+                            <div class="pu-field">
+                                <span class="pu-field-label">Movilidad</span>
+                                <span class="pu-field-val pu-field-val--muted" id="acc-movilidad">No especificada</span>
+                            </div>
+                            <div class="pu-field">
+                                <span class="pu-field-label">Visual / Auditiva</span>
+                                <span class="pu-field-val pu-field-val--muted" id="acc-visual">No especificada</span>
+                            </div>
+                        </div>
+
+                        <p class="pu-card-hint">
+                            Registrar tus necesidades permite que hoteles, tours y servicios de transporte en Santander se preparen con anticipación para ofrecerte la mejor experiencia.
+                        </p>
+
+                        <ul class="pu-check-list">
+                            <li class="pu-check-item">
+                                <i class="fa-solid fa-circle-check pu-check-icon"></i> Rampas y ascensores disponibles
+                            </li>
+                            <li class="pu-check-item">
+                                <i class="fa-solid fa-circle-check pu-check-icon"></i> Guías con lengua de señas
+                            </li>
+                            <li class="pu-check-item">
+                                <i class="fa-solid fa-circle-check pu-check-icon"></i> Transporte adaptado disponible
+                            </li>
+                        </ul>
+
+                        <button class="pu-btn-secondary pu-btn--mt">
+              <i class="fa-solid fa-plus"></i> Agregar necesidad
+            </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="site-footer"></div>
+
+    <!-- Componentes compartidos, mismo orden que transporte.html -->
+    <script src="../componentes/navbar.js"></script>
+    <script src="../componentes/btn-acceder.js"></script>
+    <script src="../componentes/dark-mode-toggle.js"></script>
+    <script src="../componentes/footer.js"></script>
+
+    <script src="../componentes/carrito.js"></script>
+    <script src="../js/login.js"></script>
+    <script src="../componentes/agente-ia.js"></script>
+    <script src="../js/usuario_viajero.js"></script>
+
+    <!-- MODAL EDITAR PERFIL -->
+    <div id="modalEditar" class="pu-modal">
+        <div class="pu-modal-box">
+            <button id="btnCerrarModal" class="pu-modal-close">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+            <h2 class="pu-modal-titulo">
+                <i class="fa-solid fa-pen"></i> Editar perfil
+            </h2>
+            <p class="pu-modal-desc">
+                Los cambios se guardarán y se verán reflejados de inmediato.
+            </p>
+
+            <div class="pu-modal-fields">
+                <div class="pu-modal-field">
+                    <label class="pu-modal-label" for="editNombre">Nombre completo</label>
+                    <input id="editNombre" type="text" class="pu-modal-input" placeholder="Tu nombre completo" />
+                </div>
+                <div class="pu-modal-field">
+                    <label class="pu-modal-label" for="editEmail">Correo electrónico</label>
+                    <input id="editEmail" type="email" class="pu-modal-input" placeholder="correo@ejemplo.com" />
+                </div>
+                <div class="pu-modal-field">
+                    <label class="pu-modal-label" for="editTel">Teléfono</label>
+                    <input id="editTel" type="tel" class="pu-modal-input" placeholder="+57 300 000 0000" />
+                </div>
+
+            </div>
+
+            <div class="pu-modal-actions">
+                <button id="btnCancelarModal" class="pu-modal-btn-cancel">
+          Cancelar
+        </button>
+                <button id="btnGuardarPerfil" class="pu-modal-btn-save">
+          <i class="fa-solid fa-check"></i> Guardar cambios
+        </button>
+            </div>
+
+            <div id="toastExito" class="pu-modal-toast" style="display: none">
+                <i class="fa-solid fa-circle-check"></i> ¡Perfil actualizado correctamente!
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Perfil de viajero - Lógica principal (100% desde la BD, sin localStorage)
+        (function() {
+            var sesion = {};
+            try {
+                sesion = JSON.parse(sessionStorage.getItem("te_session") || "{}");
+            } catch (e) {}
+
+            var API_BASE = window.location.origin + '/Tourismeasy/login/';
+
+            // Última copia de los datos del viajero traídos del servidor (en memoria, no persiste al recargar)
+            var viajeroActual = {};
+
+            var MESES_ES = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+
+            function formatearFechaRegistro(fechaStr) {
+                if (!fechaStr) return null;
+                var f = new Date(fechaStr.replace(" ", "T"));
+                if (isNaN(f.getTime())) return null;
+                return MESES_ES[f.getMonth()] + " " + f.getFullYear();
+            }
+
+            function aplicarDatos(d) {
+                var nombreCompleto = ((d.nombre || "") + " " + (d.apellido || "")).trim() || sesion.nombre || "";
+                if (nombreCompleto) {
+                    var el = document.getElementById("sidebarNombre");
+                    if (el) el.textContent = nombreCompleto;
+                    var initials = nombreCompleto.split(" ").map(function(w) {
+                        return w[0];
+                    }).join("").substring(0, 2).toUpperCase();
+                    var av = document.getElementById("sidebarAvatar");
+                    if (av) av.textContent = initials;
+                }
+                var perfilCedulaEl = document.getElementById("perfilCedula");
+                var perfilMiembroEl = document.getElementById("perfilMiembro");
+                if (perfilCedulaEl) perfilCedulaEl.textContent = d.cedula || sesion.id || "—";
+                if (perfilMiembroEl) perfilMiembroEl.textContent = formatearFechaRegistro(d.fecha_registro) || "—";
+
+                var accTipoEl = document.getElementById("acc-tipo");
+                if (accTipoEl) {
+                    accTipoEl.textContent = (d.accesibilidad && d.accesibilidad !== "NINGUNA") ? d.accesibilidad : "Ninguna registrada";
+                }
+            }
+
+            function cargarPerfil() {
+                if (!sesion.id) return;
+                fetch(API_BASE + 'get_perfil_viajero.php?id=' + encodeURIComponent(sesion.id))
+                    .then(function(r) {
+                        return r.json();
+                    })
+                    .then(function(data) {
+                        if (data.ok && data.viajero) {
+                            viajeroActual = data.viajero;
+                            aplicarDatos(viajeroActual);
+                        }
+                    })
+                    .catch(function(err) {
+                        console.error("No se pudo cargar el perfil del viajero:", err);
+                    });
+            }
+
+            cargarPerfil();
+
+            var modal = document.getElementById("modalEditar");
+            var btnAbrir = document.getElementById("btnEditPerfil");
+            var btnCerrar = document.getElementById("btnCerrarModal");
+            var btnCancelar = document.getElementById("btnCancelarModal");
+            var btnGuardar = document.getElementById("btnGuardarPerfil");
+            var toast = document.getElementById("toastExito");
+
+            function abrirModal() {
+                var nombreCompleto = ((viajeroActual.nombre || "") + " " + (viajeroActual.apellido || "")).trim() || sesion.nombre || "";
+                document.getElementById("editNombre").value = nombreCompleto;
+                document.getElementById("editEmail").value = viajeroActual.email_login || sesion.email || "";
+                document.getElementById("editTel").value = viajeroActual.celular || "";
+                modal.style.display = "flex";
+                toast.style.display = "none";
+                document.body.style.overflow = "hidden";
+            }
+
+            function cerrarModal() {
+                modal.style.display = "none";
+                document.body.style.overflow = "";
+            }
+
+            btnAbrir.addEventListener("click", abrirModal);
+            btnCerrar.addEventListener("click", cerrarModal);
+            btnCancelar.addEventListener("click", cerrarModal);
+            modal.addEventListener("click", function(e) {
+                if (e.target === modal) cerrarModal();
+            });
+
+            btnGuardar.addEventListener("click", function() {
+                var nombreCompleto = document.getElementById("editNombre").value.trim();
+                var email = document.getElementById("editEmail").value.trim();
+                var tel = document.getElementById("editTel").value.trim();
+
+                if (!nombreCompleto) {
+                    document.getElementById("editNombre").focus();
+                    return;
+                }
+                if (!email) {
+                    document.getElementById("editEmail").focus();
+                    return;
+                }
+
+                var partes = nombreCompleto.split(/\s+/);
+                var nombre = partes.shift() || nombreCompleto;
+                var apellido = partes.join(" ") || nombre;
+
+                btnGuardar.disabled = true;
+
+                fetch(API_BASE + 'actualizar_perfil_viajero.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            id: sesion.id,
+                            nombre: nombre,
+                            apellido: apellido,
+                            email: email,
+                            tel: tel,
+                        }),
+                    })
+                    .then(function(r) {
+                        return r.json();
+                    })
+                    .then(function(data) {
+                        btnGuardar.disabled = false;
+                        if (!data.ok) {
+                            alert(data.error || "No se pudo actualizar el perfil.");
+                            return;
+                        }
+
+                        // Reflejar cambios en pantalla y en la sesión activa
+                        viajeroActual.nombre = nombre;
+                        viajeroActual.apellido = apellido;
+                        viajeroActual.celular = tel;
+                        viajeroActual.email_login = email;
+                        aplicarDatos(viajeroActual);
+
+                        sesion.nombre = nombreCompleto;
+                        sesion.email = email;
+                        sessionStorage.setItem("te_session", JSON.stringify(sesion));
+
+                        toast.style.display = "block";
+                        setTimeout(function() {
+                            cerrarModal();
+                        }, 1400);
+                    })
+                    .catch(function(err) {
+                        btnGuardar.disabled = false;
+                        console.error("Error al actualizar el perfil:", err);
+                        alert("No se pudo actualizar el perfil. Intenta de nuevo.");
+                    });
+            });
+
+            document.querySelectorAll(".pu-modal-input").forEach(function(inp) {
+                inp.addEventListener("focus", function() {
+                    this.style.borderColor = "var(--purple)";
+                });
+                inp.addEventListener("blur", function() {
+                    this.style.borderColor = "var(--gray-200)";
+                });
+            });
+        })();
+    </script>
+    <script>
+        // Sincronizar perfil con reservas reales (BD) — sin localStorage
+        (function() {
+            var sesionPF = {};
+            try {
+                sesionPF = JSON.parse(sessionStorage.getItem("te_session") || "{}");
+            } catch (e) {}
+
+            function set(id, val) {
+                var e = document.getElementById(id);
+                if (e) e.textContent = val;
+            }
+
+            function actualizarPerfil() {
+                if (!sesionPF.id) return;
+
+                fetch(window.location.origin + '/Tourismeasy/reservas/get_reservas.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            id_usuario: sesionPF.id
+                        }),
+                    })
+                    .then(function(r) {
+                        return r.json();
+                    })
+                    .then(function(data) {
+                        var reservas = (data.ok && data.reservas) ? data.reservas : [];
+
+                        // Stats
+                        var total = reservas.length;
+
+                        // Viajes = reservas con pago aprobado o ya completadas
+                        var viajes = reservas.filter(function(r) {
+                            var pago = (r.estado_pago || "").toLowerCase();
+                            var epayco = (r.estado_epayco || "").toLowerCase();
+                            var estado = (r.estado || "").toUpperCase();
+                            return pago === "aceptada" || epayco === "aceptada" || estado === "COMPLETADA";
+                        }).length;
+
+                        // Destinos únicos: del nombre del servicio (formato "Origen → Destino" para transporte)
+                        var destinos = new Set(
+                            reservas.map(function(r) {
+                                var nombre = r.nom_servicio || "";
+                                var partes = nombre.split(/\s*[→\-]\s*/);
+                                return partes.length > 1 ? partes[partes.length - 1].trim() : nombre.trim();
+                            }).filter(Boolean)
+                        ).size;
+
+                        set("stat-reservas", total);
+                        set("stat-viajes", viajes);
+                        set("stat-destinos", destinos);
+
+                        // Callout dinámico
+                        var callout = document.getElementById("callout-texto");
+                        if (callout) {
+                            if (total === 0) {
+                                callout.textContent =
+                                    "Aún no tienes reservas. ¡Explora Santander y haz tu primera reserva!";
+                            } else if (total < 3) {
+                                callout.textContent =
+                                    "Llevas " + total + " reserva" + (total > 1 ? "s" : "") +
+                                    " en Santander. ¡Sigue explorando!";
+                            } else {
+                                callout.textContent =
+                                    "Llevas " + total + " reservas en Santander. ¡Deja una reseña y ayuda a otros viajeros!";
+                            }
+                        }
+                    })
+                    .catch(function(err) {
+                        console.error("No se pudieron cargar las reservas del viajero:", err);
+                    });
+            }
+
+            function actualizarResenas() {
+                if (!sesionPF.id) return;
+
+                fetch(window.location.origin + '/Tourismeasy/resenas/get_resenas.php?id_persona=' + encodeURIComponent(sesionPF.id))
+                    .then(function(r) {
+                        return r.json();
+                    })
+                    .then(function(data) {
+                        var todas = (data.ok && data.data) ? data.data : [];
+                        var propias = todas.filter(function(r) {
+                            return String(r.id_persona) === String(sesionPF.id);
+                        }).length;
+                        set("stat-resenas", propias);
+                    })
+                    .catch(function(err) {
+                        console.error("No se pudieron cargar las reseñas del viajero:", err);
+                    });
+            }
+
+            actualizarPerfil();
+            actualizarResenas();
+
+            // Permite que otras vistas (p. ej. tras crear una reserva o reseña) refresquen este resumen
+            window.TEPerfil = {
+                actualizar: actualizarPerfil,
+                actualizarResenas: actualizarResenas
+            };
+        })();
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <script src="../js/santanderianidad.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,717 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Perfil Empresa - TourismEasy</title>
+    <link rel="stylesheet" href="../css/index.css" />
+    <link rel="stylesheet" href="../css/login.css" />
+    <link rel="stylesheet" href="../css/panel_empresa.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="javascript:location.reload()" class="nav-logo">
+                <img src="../img/TURISMEASY.png" alt="Logo" class="logo-img" />
+                <span class="logo-text">TOURISMEASY</span>
+            </a>
+            <span class="panel-navbar-label"><i class="fa-solid fa-bus"></i> Panel Empresa</span>
+            <div class="nav-slot">
+                <div id="sessionWidgetSlot"></div>
+                <button class="btn-dark-mode" id="darkModeToggle">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="pu-main">
+        <div class="pu-container">
+            <!-- ── SIDEBAR ── -->
+            <aside class="pu-sidebar">
+                <div class="pu-sidebar-avatar" id="sidebarAvatar">AV</div>
+                <div class="pu-sidebar-nombre" id="sidebarNombre">Cargando...</div>
+                <div class="pu-sidebar-tipo">
+                    <i class="fa-solid fa-bus"></i> Empresa aliada
+                </div>
+
+                <nav class="pu-sidebar-nav">
+                    <a href="panel_transporte.html" class="pu-nav-item" id="sidebarMiPanel"><i class="fa-solid fa-chart-line"></i> Mi Panel</a>
+                    <a href="perfil_empresa.html" class="pu-nav-item active"><i class="fa-solid fa-user"></i> Mi Perfil</a>
+                    <a href="config_empresa.html" class="pu-nav-item"><i class="fa-solid fa-gear"></i> Configuración</a>
+                </nav>
+
+                <!-- Estado verificación -->
+                <div class="pe-sidebar-bloque pe-sidebar-bloque--verde">
+                    <p class="pe-sidebar-bloque__titulo pe-sidebar-bloque__titulo--verde">
+                        <i class="fa-solid fa-circle-check"></i> Estado de la empresa
+                    </p>
+                    <ul class="pe-sidebar-checks">
+                        <li class="pe-sidebar-check">
+                            <i class="fa-solid fa-circle-check" style="color: #22c55e"></i> Empresa verificada
+                        </li>
+                        <li class="pe-sidebar-check">
+                            <i class="fa-solid fa-circle-check" style="color: #22c55e"></i> NIT validado
+                        </li>
+                        <li class="pe-sidebar-check">
+                            <i class="fa-solid fa-circle-check" style="color: #22c55e"></i> Servicios activos
+                        </li>
+                        <li class="pe-sidebar-check">
+                            <i class="fa-solid fa-circle-check" style="color: #22c55e"></i> Accesibilidad certificada
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Actividad reciente -->
+                <div class="pe-sidebar-bloque pe-sidebar-bloque--purple">
+                    <p class="pe-sidebar-bloque__titulo pe-sidebar-bloque__titulo--purple">
+                        <i class="fa-solid fa-clock-rotate-left"></i> Actividad reciente
+                    </p>
+                    <div class="pe-actividad">
+                        <div class="pe-actividad-item">
+                            <div class="pe-actividad-icon pe-actividad-icon--verde">
+                                <i class="fa-solid fa-calendar-check"></i>
+                            </div>
+                            <div>
+                                <p class="pe-actividad-titulo">Reserva confirmada</p>
+                                <p class="pe-actividad-hora">Hace 2 horas</p>
+                            </div>
+                        </div>
+                        <div class="pe-actividad-item">
+                            <div class="pe-actividad-icon pe-actividad-icon--purple">
+                                <i class="fa-solid fa-bus"></i>
+                            </div>
+                            <div>
+                                <p class="pe-actividad-titulo">Transporte publicado</p>
+                                <p class="pe-actividad-hora">Hace 1 día</p>
+                            </div>
+                        </div>
+                        <div class="pe-actividad-item">
+                            <div class="pe-actividad-icon pe-actividad-icon--purple">
+                                <i class="fa-solid fa-pen"></i>
+                            </div>
+                            <div>
+                                <p class="pe-actividad-titulo">Perfil actualizado</p>
+                                <p class="pe-actividad-hora">Hace 3 días</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pu-nav-logout-wrapper">
+                    <a href="#" class="pu-nav-item pu-nav-danger" id="sidebarLogout">
+                        <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión
+                    </a>
+                </div>
+            </aside>
+
+            <!-- ── CONTENIDO ── -->
+            <div class="pu-content">
+                <div class="pu-page-header">
+                    <h1><i class="fa-solid fa-user"></i> Perfil de Empresa</h1>
+                    <button class="pu-btn-edit" id="btnEditPerfil">
+            <i class="fa-solid fa-pen"></i> Editar perfil
+          </button>
+                </div>
+
+                <!-- Datos rápidos -->
+                <div class="pu-card">
+                    <div class="pu-perfil-datos-grid">
+                        <div class="pu-field pu-field--col">
+                            <span class="pu-field-label">Empresa</span>
+                            <span class="pu-field-val">Cargando...</span>
+                        </div>
+                        <div class="pu-field pu-field--col">
+                            <span class="pu-field-label">NIT</span>
+                            <span class="pu-field-val">—</span>
+                        </div>
+                        <div class="pu-field pu-field--col">
+                            <span class="pu-field-label">Ciudad</span>
+                            <span class="pu-field-val" id="perfilCiudad">Lebrija, Santander</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pu-grid-2">
+                    <!-- Datos empresa -->
+                    <div class="pu-card">
+                        <h3 class="pu-card-title">
+                            <i class="fa-solid fa-info-circle"></i> Datos de la empresa
+                        </h3>
+                        <div class="pu-field-list">
+                            <div class="pu-field">
+                                <span class="pu-field-label">Razón social</span><span class="pu-field-val">Cargando...</span>
+                            </div>
+                            <div class="pu-field">
+                                <span class="pu-field-label">NIT</span><span class="pu-field-val">—</span>
+                            </div>
+                            <div class="pu-field">
+                                <span class="pu-field-label">Correo</span><span class="pu-field-val">Cargando...</span>
+                            </div>
+                            <div class="pu-field">
+                                <span class="pu-field-label">Ciudad</span><span class="pu-field-val" id="infoCiudad">Lebrija,
+                  Santander</span>
+                            </div>
+                            <div class="pu-field">
+                                <span class="pu-field-label">Sector</span><span class="pu-field-val">Aerolínea</span>
+                            </div>
+                            <div class="pu-field">
+                                <span class="pu-field-label">Aliada desde</span><span class="pu-field-val">Abril 2026</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Servicios accesibilidad -->
+                    <div class="pu-card">
+                        <h3 class="pu-card-title">
+                            <i class="fa-solid fa-wheelchair"></i> Servicios de accesibilidad
+                        </h3>
+                        <div class="pu-services-list">
+                            <div class="pu-service-item">
+                                <i class="fa-solid fa-bus"></i> Transporte nacional accesible
+                            </div>
+                            <div class="pu-service-item">
+                                <i class="fa-solid fa-wheelchair"></i> Asistencia en silla de ruedas
+                            </div>
+                            <div class="pu-service-item">
+                                <i class="fa-solid fa-ear-deaf"></i> Servicio para personas sordas
+                            </div>
+                            <div class="pu-service-item">
+                                <i class="fa-solid fa-eye-slash"></i> Asistencia visual en transporte
+                            </div>
+                            <div class="pu-service-item">
+                                <i class="fa-solid fa-dog"></i> Admisión de perros guía
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Estadísticas -->
+                <div class="pu-card">
+                    <h3 class="pu-card-title">
+                        <i class="fa-solid fa-chart-simple"></i> Estadísticas de la empresa
+                    </h3>
+                    <div class="pu-stats-row">
+                        <div class="pu-stat">
+                            <span class="pu-stat-num">12</span><span class="pu-stat-label">Transporte publicado</span>
+                        </div>
+                        <div class="pu-stat">
+                            <span class="pu-stat-num">47</span><span class="pu-stat-label">Reservas totales</span>
+                        </div>
+                        <div class="pu-stat">
+                            <span class="pu-stat-num">38</span><span class="pu-stat-label">Viajeros atendidos</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h4>Plataforma</h4>
+                    <ul>
+                        <li>
+                            <a href="#" data-modal="sobre-nosotros">Sobre Nosotros</a>
+                        </li>
+                        <li><a href="#" data-modal="como-funciona">Cómo Funciona</a></li>
+                        <li><a href="#" data-modal="aliados">Únete como Aliado</a></li>
+                        <li><a href="#" data-modal="prensa">Prensa</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Soporte</h4>
+                    <ul>
+                        <li><a href="#" data-modal="contacto">Contacto</a></li>
+                        <li><a href="#" data-modal="faq">Preguntas Frecuentes</a></li>
+                        <li><a href="#" data-modal="ayuda">Centro de Ayuda</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Legal</h4>
+                    <ul>
+                        <li>
+                            <a href="#" data-modal="privacidad">Política de Privacidad</a>
+                        </li>
+                        <li>
+                            <a href="#" data-modal="terminos">Términos de Servicio</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Síguenos</h4>
+                    <div class="social-icons">
+                        <a href="https://www.facebook.com/share/1RiJvhh1Gp/" class="social-icon"><i
+                class="fab fa-facebook-f"></i></a>
+                        <a href="https://www.instagram.com/d4iv_id?igsh=cGhhOWZmOTN6Y2Rn" class="social-icon"><i
+                class="fab fa-instagram"></i></a>
+                        <a href="https://www.tiktok.com/@d4ividd?_r=1&_t=ZS-95d2BgEYsez" class="social-icon"><i
+                class="fab fa-tiktok"></i></a>
+                        <a href="https://wa.me/573174613395" class="social-icon"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 TOURISMEASY. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- MODALES FOOTER -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-box" id="modalBox">
+            <button class="modal-close" id="modalClose">&times;</button>
+            <h2 id="modalTitle"></h2>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script>
+        const modalData = {
+            "sobre-nosotros": {
+                title: "Sobre Nosotros",
+                content: `<p>Tourismeasy es una plataforma digital nacida en Bucaramanga, Santander, con el propósito de conectar a las empresas del sector turístico con viajeros que requieren experiencias accesibles e inclusivas.</p>
+        <p>No somos una agencia de viajes. Somos el puente tecnológico entre los operadores, agencias, hoteles y transportadoras de Santander que ofrecen servicios inclusivos, y las personas que los necesitan.</p>
+        <p>Creemos que el turismo accesible no es un nicho, es el futuro del sector. Y Santander, con toda su riqueza natural y cultural, tiene todo para liderar ese cambio.</p>`,
+            },
+            "como-funciona": {
+                title: "Cómo Funciona",
+                content: `<p>Tourismeasy funciona como una plataforma de conexión entre empresas turísticas de Santander y viajeros con necesidades de accesibilidad.</p>
+        <h3>Para las empresas aliadas</h3>
+        <ul>
+          <li>Registras tu empresa y tus servicios accesibles</li>
+          <li>Apareces en nuestra plataforma ante miles de viajeros</li>
+          <li>Recibes solicitudes de reserva directamente</li>
+          <li>Gestionas tu perfil y disponibilidad desde tu panel</li>
+        </ul>
+        <h3>Para los viajeros</h3>
+        <ul>
+          <li>Buscan destinos y servicios accesibles en Santander</li>
+          <li>Filtran por tipo de accesibilidad que necesitan</li>
+          <li>Se conectan con empresas verificadas</li>
+          <li>Reservan con confianza y seguridad</li>
+        </ul>`,
+            },
+            aliados: {
+                title: "Únete como Aliado",
+                content: `<p>¿Tienes una empresa turística en Santander con servicios accesibles o quieres adaptarlos? ¡TourismEasy es tu plataforma!</p>
+        <h3>¿Quiénes pueden unirse?</h3>
+        <ul>
+          <li>🏨 Hoteles y hospedajes con infraestructura accesible</li>
+          <li>✈️ Agencias de viaje con planes inclusivos</li>
+          <li>🎒 Operadores turísticos con guías especializados</li>
+        </ul>
+        <h3>Beneficios de ser aliado</h3>
+        <ul>
+          <li>👀 Visibilidad ante un mercado en crecimiento</li>
+          <li>✅ Verificación y sello de accesibilidad TourismEasy</li>
+          <li>📊 Panel de gestión de reservas y clientes</li>
+          <li>👍 Apoyo en la certificación de accesibilidad</li>
+        </ul>
+        <p>Escríbenos a <strong>aliados@tourismeasy.com</strong> o llámanos al <strong>+57 317 461 3395</strong></p>`,
+            },
+            prensa: {
+                title: "Prensa",
+                content: `<p>Tourismeasy está posicionándose como el referente del turismo inclusivo en Santander, conectando el sector empresarial con un mercado desatendido y en crecimiento.</p>
+        <h3>Contacto de prensa</h3>
+        <p>Para entrevistas, notas de prensa o información sobre nuestra plataforma:</p>
+        <p><strong>prensa@tourismeasy.com</strong><br>+57 317 461 3395</p>`,
+            },
+            contacto: {
+                title: "Contacto",
+                content: `<p>Estamos aquí para ayudarte. Puedes contactarnos por cualquiera de estos medios:</p>
+        <ul>
+          <li>📧 <strong>Email:</strong> hola@tourismeasy.com</li>
+          <li>📞 <strong>Teléfono:</strong> +57 317 461 3395</li>
+          <li>💬 <strong>WhatsApp:</strong> +57 317 461 3395</li>
+          <li>📍 <strong>Ubicación:</strong> Bucaramanga, Santander, Colombia</li>
+        </ul>
+        <p>Horario de atención: Lunes a Viernes 8:00am – 8:00pm</p>`,
+            },
+            faq: {
+                title: "Preguntas Frecuentes",
+                content: `<details><summary>¿Tourismeasy es una agencia de viajes?</summary><p>No. Somos una plataforma que conecta empresas turísticas de Santander con viajeros que necesitan servicios accesibles. No vendemos paquetes directamente.</p></details>
+        <details><summary>¿Solo trabajamos en Santander?</summary><p>Sí, por ahora nos enfocamos en Santander. Queremos ser el mejor directorio de turismo inclusivo del departamento antes de expandirnos.</p></details>
+        <details><summary>¿Qué tipo de empresas pueden unirse?</summary><p>Agencias de viaje, hoteles, operadores turísticos y transportadoras que ofrezcan o quieran ofrecer servicios accesibles en Santander.</p></details>
+        <details><summary>¿Cómo sé que un servicio es realmente accesible?</summary><p>Todas las empresas aliadas pasan por un proceso de verificación y reciben nuestro sello de accesibilidad según el tipo de servicio que ofrecen.</p></details>`,
+            },
+            ayuda: {
+                title: "Centro de Ayuda",
+                content: `<p>Encuentra recursos para sacar el máximo provecho de Tourismeasy:</p>
+        <ul>
+          <li>📖 <a href="#">Guía para empresas aliadas</a></li>
+          <li>🎥 <a href="#">Videos: cómo registrar tu empresa</a></li>
+          <li>📋 <a href="#">Cómo obtener el sello de accesibilidad</a></li>
+          <li>💳 <a href="#">Modelos de suscripción para empresas</a></li>
+        </ul>
+        <p>¿No encuentras lo que buscas? <a href="#" data-modal="contacto">Contáctanos.</a></p>`,
+            },
+            privacidad: {
+                title: "Política de Privacidad",
+                content: `<p><strong>Última actualización:</strong> Enero 2026</p>
+        <h3>1. Información que recopilamos</h3>
+        <p>Recopilamos datos que nos proporcionas directamente, como nombre, correo electrónico, información de tu empresa y datos de uso de la plataforma.</p>
+        <h3>2. Uso de la información</h3>
+        <p>Usamos tu información para conectarte con empresas aliadas, mejorar nuestra plataforma y enviarte comunicaciones relevantes sobre turismo inclusivo en Santander.</p>
+        <h3>3. Compartir información</h3>
+        <p>No vendemos tu información personal a terceros. Solo compartimos datos con empresas aliadas cuando realizas una solicitud de servicio.</p>
+        <h3>4. Tus derechos</h3>
+        <p>Tienes derecho a acceder, corregir o eliminar tus datos personales contactándonos a privacidad@tourismeasy.com</p>`,
+            },
+            terminos: {
+                title: "Términos de Servicio",
+                content: `<h3>1. Aceptación de términos</h3>
+        <p>Al usar Tourismeasy, aceptas estos términos. Si no estás de acuerdo, por favor no uses nuestra plataforma.</p>
+        <h3>2. Naturaleza de la plataforma</h3>
+        <p>Tourismeasy es una plataforma de conexión. No somos responsables por los servicios prestados directamente por las empresas aliadas.</p>
+        <h3>3. Empresas aliadas</h3>
+        <p>Las empresas deben cumplir con los estándares de accesibilidad verificados por Tourismeasy para mantenerse activas en la plataforma.</p>
+        <h3>4. Responsabilidad</h3>
+        <p>Actuamos como intermediario tecnológico. Las condiciones específicas de cada servicio son responsabilidad de cada empresa aliada.</p>`,
+            },
+        };
+
+        const modalOverlay = document.getElementById("modalOverlay");
+        const modalTitle = document.getElementById("modalTitle");
+        const modalContent = document.getElementById("modalContent");
+        const modalClose = document.getElementById("modalClose");
+
+        document.querySelectorAll("[data-modal]").forEach((link) => {
+            link.addEventListener("click", (e) => {
+                e.preventDefault();
+                const key = link.getAttribute("data-modal");
+                const data = modalData[key];
+                if (data) {
+                    modalTitle.textContent = data.title;
+                    modalContent.innerHTML = data.content;
+                    modalOverlay.classList.add("active");
+                    modalContent.querySelectorAll("[data-modal]").forEach((inner) => {
+                        inner.addEventListener("click", (e2) => {
+                            e2.preventDefault();
+                            const k2 = inner.getAttribute("data-modal");
+                            const d2 = modalData[k2];
+                            if (d2) {
+                                modalTitle.textContent = d2.title;
+                                modalContent.innerHTML = d2.content;
+                            }
+                        });
+                    });
+                }
+            });
+        });
+
+        modalClose.addEventListener("click", () =>
+            modalOverlay.classList.remove("active"),
+        );
+        modalOverlay.addEventListener("click", (e) => {
+            if (e.target === modalOverlay) modalOverlay.classList.remove("active");
+        });
+    </script>
+
+    <script>
+        (function() {
+            // ── 1. VERIFICAR SESIÓN ───────────────────────────────────────────────
+            var sess = sessionStorage.getItem("te_session");
+            if (!sess) {
+                window.location.href = "../index.html";
+                return;
+            }
+            var u = JSON.parse(sess);
+            if (u.tipo !== "empresa") {
+                window.location.href = "../index.html";
+                return;
+            }
+
+            // ── 2. AVATAR Y NOMBRE EN SIDEBAR ────────────────────────────────────
+            var av = document.getElementById("sidebarAvatar");
+            var nm = document.getElementById("sidebarNombre");
+            // Avatar: iniciales del nombre empresa
+            var _nomEmpP = u.nombre || u.avatar || "AV";
+            var _inisEmpP = _nomEmpP.trim().split(/\s+/).map(function(w) {
+                return w[0] || "";
+            }).join("").toUpperCase().slice(0, 2) || "AV";
+            if (av) av.textContent = _inisEmpP;
+            if (nm) nm.textContent = u.nombre || "Empresa";
+
+            // ── 3. MAPAS POR TIPO DE SERVICIO ────────────────────────────────────
+            var NORM_SERVICIO = {
+                "viajes": "transporte",
+                "transporte": "transporte",
+                "hospedaje": "hospedaje",
+                "planes": "planes",
+                "planes turísticos": "planes",
+                "todos los servicios": "todo",
+                "todo": "todo"
+            };
+            var SECTOR_LABEL = {
+                "transporte": "Transporte",
+                "auxiliar": "Personal Auxiliar",
+                "hospedaje": "Hospedaje / Alojamiento",
+                "planes": "Operador turístico",
+                "todo": "Servicios turísticos integrales"
+            };
+            var SECTOR_ICONO = {
+                "transporte": "fa-bus",
+                "auxiliar": "fa-person-cane",
+                "hospedaje": "fa-hotel",
+                "planes": "fa-map-location-dot",
+                "todo": "fa-star"
+            };
+            // Label de la primera estadística según tipo
+            var STAT_LABEL = {
+                "transporte": "Transporte publicado",
+                "auxiliar": "Auxiliares registrados",
+                "hospedaje": "Hospedajes publicados",
+                "planes": "Planes publicados",
+                "todo": "Servicios publicados"
+            };
+            // Ícono del sidebar tipo empresa
+            var SIDEBAR_ICONO = {
+                "transporte": "fa-bus",
+                "hospedaje": "fa-hotel",
+                "planes": "fa-map-location-dot",
+                "todo": "fa-star"
+            };
+
+            // ── 4. CARGAR DATOS DESDE LA BD ──────────────────────────────────────
+            var sol = null;
+
+            fetch(window.location.origin + '/Tourismeasy/soli_empresas/get_perfil_empresa.php?id=' + encodeURIComponent(u.id))
+                .then(function(r) {
+                    return r.json();
+                })
+                .then(function(data) {
+                    if (data.ok && data.empresa) {
+                        sol = {
+                            nit: data.empresa.nit,
+                            nombre: data.empresa.nombre,
+                            ciudad: data.empresa.ciudad,
+                            servicio: data.empresa.servicio,
+                            email: data.empresa.email_login,
+                        };
+                    }
+                    rellenarPerfil(sol);
+                })
+                .catch(function() {
+                    rellenarPerfil(null);
+                });
+
+            function rellenarPerfil(sol) {
+                // ── 5. NORMALIZAR SERVICIO ───────────────────────────────────────
+                var servicioRaw = (sol && sol.servicio) || u.tipoServicio || "transporte";
+                var servicio = NORM_SERVICIO[(servicioRaw || "").toLowerCase()] || "transporte";
+
+                // ── 6. ACTUALIZAR SIDEBAR TIPO ───────────────────────────────────
+                var sidebarTipo = document.querySelector(".pu-sidebar-tipo");
+                if (sidebarTipo) {
+                    sidebarTipo.innerHTML = '<i class="fa-solid ' + (SIDEBAR_ICONO[servicio] || "fa-star") + '"></i> Empresa aliada';
+                }
+
+                // ── 7. RELLENAR DATOS DEL PERFIL ─────────────────────────────────
+                var today = new Date();
+                var meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+                var aliadaDesde = meses[today.getMonth()] + " " + today.getFullYear();
+
+                var ciudad = (sol && (sol.ciudad || sol.sede)) || "";
+                var nit = (sol && sol.nit) || "";
+                var nombre = u.nombre || (sol && sol.nombre) || "";
+                var sector = SECTOR_LABEL[servicio] || servicioRaw;
+
+                document.querySelectorAll(".pu-field-val").forEach(function(el) {
+                    var label = el.previousElementSibling ? el.previousElementSibling.textContent.trim().toLowerCase() : "";
+                    if (label === "empresa" || label === "razón social") el.textContent = nombre;
+                    if (label === "nit") el.textContent = nit;
+                    if (label === "correo") el.textContent = u.email || "";
+                    if (label === "sector") el.textContent = sector;
+                    if (label === "aliada desde") el.textContent = aliadaDesde;
+                });
+
+                var pc = document.getElementById("perfilCiudad");
+                var ic = document.getElementById("infoCiudad");
+                if (pc) pc.textContent = ciudad;
+                if (ic) ic.textContent = ciudad;
+
+                var servicesList = document.querySelector(".pu-services-list");
+                if (servicesList) {
+                    try {
+                        var _accKey = "te_accesibilidad__" + (u.email || "default");
+                        var _accItems = JSON.parse(localStorage.getItem(_accKey) || "[]");
+                        if (_accItems.length) {
+                            servicesList.innerHTML = _accItems.map(function(a) {
+                                return '<div style="display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid #e2e8f0;">' +
+                                    '<i class="fa-solid ' + (a.icono || "fa-wheelchair") + '" style="color:#7c3aed;margin-top:2px;font-size:1.1rem;min-width:20px;"></i>' +
+                                    '<div><strong style="font-size:.95rem;">' + a.nombre + '</strong>' +
+                                    (a.desc ? '<p style="color:#64748b;font-size:.85rem;margin:2px 0 0;">' + a.desc + '</p>' : '') +
+                                    '</div></div>';
+                            }).join('');
+                        } else {
+                            servicesList.innerHTML = '<p style="color:#64748b;font-style:italic;font-size:.9rem;">Aún no has registrado servicios de accesibilidad.</p>';
+                        }
+                    } catch (e) {
+                        servicesList.innerHTML = '<p style="color:#64748b;font-style:italic;font-size:.9rem;">Aún no has registrado servicios de accesibilidad.</p>';
+                    }
+                }
+
+                // ── 8. ESTADÍSTICAS REALES DESDE LA BD ──────────────────────────────
+                fetch(window.location.origin + '/Tourismeasy/login/get_estadisticas_empresa.php?id=' + encodeURIComponent(u.id))
+                    .then(function(r) {
+                        return r.json();
+                    })
+                    .then(function(data) {
+                        if (!data.ok || !data.estadisticas) return;
+                        var st = data.estadisticas;
+                        document.querySelectorAll(".pu-stat").forEach(function(stat) {
+                            var numEl = stat.querySelector(".pu-stat-num");
+                            var labelEl = stat.querySelector(".pu-stat-label");
+                            if (!numEl || !labelEl) return;
+                            var labelTxt = labelEl.textContent.trim().toLowerCase();
+                            if (labelTxt.includes("transporte") || labelTxt.includes("hosped") || labelTxt.includes("plan") || labelTxt.includes("auxiliar") || labelTxt.includes("servicio")) {
+                                labelEl.textContent = st.servicios_label || "Servicios publicados";
+                                numEl.textContent = st.servicios_publicados;
+                            } else if (labelTxt.includes("reserva")) {
+                                numEl.textContent = st.reservas_totales;
+                            } else if (labelTxt.includes("viajero")) {
+                                numEl.textContent = st.viajeros_atendidos;
+                            }
+                        });
+                    })
+                    .catch(function(err) {
+                        console.error("No se pudieron cargar las estadísticas de la empresa:", err);
+                    });
+
+                // ── 9. NAVBAR: ícono y label según tipo ─────────────────────────────
+                var navbarLabel = document.querySelector(".panel-navbar-label");
+                if (navbarLabel) {
+                    navbarLabel.innerHTML = '<i class="fa-solid ' + (SECTOR_ICONO[servicio] || "fa-star") + '"></i> Panel Empresa';
+                }
+
+
+                // ── 10. ACTIVIDAD RECIENTE ───────────────────────────────────────
+                var ACTIVIDAD_LABEL = {
+                    "transporte": "Transporte publicado",
+                    "auxiliar": "Auxiliar registrado",
+                    "hospedaje": "Hospedaje publicado",
+                    "planes": "Plan publicado",
+                    "todo": "Servicio publicado"
+                };
+                var actItems = document.querySelectorAll(".pe-actividad-item");
+                if (actItems.length >= 2) {
+                    var actIcon = actItems[1].querySelector(".pe-actividad-icon i");
+                    var actTxt = actItems[1].querySelector(".pe-actividad-titulo");
+                    if (actIcon) actIcon.className = "fa-solid " + (SECTOR_ICONO[servicio] || "fa-bus");
+                    if (actTxt) actTxt.textContent = ACTIVIDAD_LABEL[servicio] || "Servicio publicado";
+                }
+
+                // ── 11. TÍTULO DE PÁGINA ─────────────────────────────────────────
+                document.title = "Perfil - " + (u.nombre || "Empresa") + " - TourismEasy";
+            } // fin rellenarPerfil
+        })();
+
+        // SESSION WIDGET
+        (function() {
+            var user = JSON.parse(sessionStorage.getItem("te_session") || "null");
+            var slot = document.getElementById("sessionWidgetSlot");
+            if (!user || !slot) return;
+            var w = document.createElement("div");
+            w.id = "sessionWidget";
+            w.className = "session-widget";
+            var ini = ((user.nombre || user.avatar || "AV").trim().split(/\s+/).map(function(x) {
+                return x[0] || "";
+            }).join("").toUpperCase().slice(0, 2) || "AV");
+            var _srv = (user.tipoServicio || user.servicio || "TRANSPORTE").toUpperCase();
+            var _panelLinks = {
+                TRANSPORTE: "panel_transporte.html",
+                HOSPEDAJE: "panel_hospedaje.html",
+                PLANES: "panel_planes.html",
+                PERSONAL_AUXILIAR: "panel_auxiliar.html",
+                AUXILIAR: "panel_auxiliar.html"
+            };
+            var _panelIcons = {
+                TRANSPORTE: "fa-bus",
+                HOSPEDAJE: "fa-hotel",
+                PLANES: "fa-map-location-dot",
+                PERSONAL_AUXILIAR: "fa-person-cane",
+                AUXILIAR: "fa-person-cane"
+            };
+            var _panelHref = _panelLinks[_srv] || "panel_transporte.html";
+            var _panelIcon = _panelIcons[_srv] || "fa-bus";
+            w.innerHTML = '<button class="session-trigger" id="sessionTrigger"><div class="session-avatar">' + ini + '</div><div class="session-info"><span class="session-name">' + (user.nombre || "Empresa") + '</span><span class="session-tipo">Empresa</span></div><i class="fa-solid fa-chevron-down session-chevron" id="sessionChevron"></i></button><div class="session-dropdown" id="sessionDropdown"><a class="session-menu-item session-menu-highlight" href="' + _panelHref + '"><i class="fa-solid ' + _panelIcon + '"></i> Panel Empresa</a><a class="session-menu-item" href="perfil_empresa.html"><i class="fa-solid fa-user"></i> Mi Perfil</a><a class="session-menu-item" href="config_empresa.html"><i class="fa-solid fa-gear"></i> Configuracion</a><a class="session-menu-item session-menu-danger" id="btnLogout" href="#"><i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesion</a></div>';
+            slot.appendChild(w);
+            var trig = w.querySelector("#sessionTrigger"),
+                drop = w.querySelector("#sessionDropdown"),
+                chev = w.querySelector("#sessionChevron");
+            trig.addEventListener("click", function(e) {
+                e.stopPropagation();
+                var o = drop.classList.toggle("open");
+                chev.style.transform = o ? "rotate(180deg)" : "rotate(0deg)";
+            });
+            document.addEventListener("click", function() {
+                drop.classList.remove("open");
+                chev.style.transform = "rotate(0deg)";
+            });
+            w.querySelector("#btnLogout").addEventListener("click", function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                sessionStorage.removeItem("te_session");
+                window.location.href = "../index.html";
+            });
+        })();
+
+        var darkModeBtn = document.getElementById("darkModeToggle");
+        var darkModeIcon = darkModeBtn.querySelector("i");
+
+        function applyTheme(dark) {
+            document.body.classList.toggle("dark-mode", dark);
+            darkModeIcon.className = dark ? "fa-solid fa-sun" : "fa-solid fa-moon";
+            localStorage.setItem("theme", dark ? "dark" : "light");
+        }
+        var savedTheme = localStorage.getItem("theme");
+        applyTheme(
+            savedTheme ?
+            savedTheme === "dark" :
+            window.matchMedia("(prefers-color-scheme: dark)").matches,
+        );
+        darkModeBtn.addEventListener("click", function() {
+            applyTheme(!document.body.classList.contains("dark-mode"));
+        });
+
+        document
+            .getElementById("sidebarLogout")
+            .addEventListener("click", function(e) {
+                e.preventDefault();
+                sessionStorage.removeItem("te_session");
+                window.location.href = "../index.html";
+            });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <script src="../js/santanderianidad.js"></script>
+    <script>
+        (function() {
+            try {
+                var u = JSON.parse(sessionStorage.getItem("te_session") || "null");
+                if (!u || u.tipo !== "empresa") return;
+                var m = {
+                    transporte: "panel_transporte.html",
+                    hospedaje: "panel_hospedaje.html",
+                    planes: "panel_planes.html",
+                    auxiliar: "panel_auxiliar.html",
+                    personal_auxiliar: "panel_auxiliar.html"
+                };
+                var dest = m[(u.tipoServicio || "").toLowerCase()] || "panel_transporte.html";
+                document.querySelectorAll("#sidebarMiPanel, #accesoPanel").forEach(function(a) {
+                    a.href = dest;
+                });
+            } catch (e) {}
+        })();
+    </script>
+</body>
+
+</html>

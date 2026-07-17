@@ -1,0 +1,1338 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Panel Administrador - TourismEasy</title>
+    <link rel="stylesheet" href="../css/index.css" />
+    <link rel="stylesheet" href="../css/login.css" />
+    <link rel="stylesheet" href="../css/panel_admin.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="javascript:location.reload()" class="nav-logo" title="Refrescar panel">
+                <img src="../img/TURISMEASY.png" alt="TourismEasy Logo" class="logo-img" />
+                <span class="logo-text">TOURISMEASY</span>
+            </a>
+            <span class="panel-navbar-label"><i class="fa-solid fa-shield-halved"></i> Panel Administrador</span>
+            <button class="btn-dark-mode" id="darkModeToggle" aria-label="Cambiar modo oscuro/claro">
+        <i class="fa-solid fa-moon"></i>
+      </button>
+        </div>
+    </nav>
+
+    <main class="panel-main">
+        <!-- HEADER -->
+        <div class="panel-header">
+            <div class="panel-header-info">
+                <div class="panel-empresa-avatar" id="panelAvatar">AD</div>
+                <div>
+                    <h1 class="panel-empresa-nombre" id="panelNombre">
+                        Administrador TourismEasy
+                    </h1>
+                    <p class="panel-empresa-sub">
+                        Panel de administración general · TourismEasy
+                    </p>
+                </div>
+            </div>
+            <div class="panel-header-badges">
+                <span class="panel-badge"><i class="fa-solid fa-building"></i> <span>Empresas</span></span>
+                <span class="panel-badge"><i class="fa-solid fa-clock-rotate-left"></i> <span>Solicitudes</span></span>
+                <span class="panel-badge"><i class="fa-solid fa-clock-rotate-left"></i> <span>Auditoría</span></span>
+            </div>
+        </div>
+
+        <!-- STATS -->
+        <div class="panel-stats">
+            <div class="stat-card">
+                <div class="stat-icon stat-icon-amber">
+                    <i class="fa-solid fa-hourglass-half"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-num" id="statPendientes">3</span><span class="stat-label">Solicitudes pendientes</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon stat-icon-blue">
+                    <i class="fa-solid fa-building"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-num">21</span><span class="stat-label">Empresas registradas</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon stat-icon-green">
+                    <i class="fa-solid fa-building-circle-check"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-num">18</span><span class="stat-label">Empresas activas</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon stat-icon-red">
+                    <i class="fa-solid fa-building-circle-xmark"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-num">3</span><span class="stat-label">Empresas inactivas</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon stat-icon-orange">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-num">134</span><span class="stat-label">Eventos auditados</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon stat-icon-yellow">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-num">2</span><span class="stat-label">Alertas de auditoría</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- TABS -->
+        <div class="panel-tabs">
+            <button class="panel-tab active" data-tab="empresas">
+        <i class="fa-solid fa-building"></i> <span>Empresas</span>
+      </button>
+            <button class="panel-tab" data-tab="solicitudes">
+        <i class="fa-solid fa-hourglass-half"></i> <span>Solicitudes</span>
+      </button>
+
+            <button class="panel-tab" data-tab="auditoria">
+        <i class="fa-solid fa-clock-rotate-left"></i> <span>Auditoría</span>
+      </button>
+            <button class="panel-tab" data-tab="artesanos">
+                <i class="fa-solid fa-palette"></i> Artesanos
+            </button>
+            <button class="panel-tab" data-tab="resenas">
+                <i class="fa-solid fa-star"></i> <span>Reseñas</span>
+            </button>
+        </div>
+
+        <!-- TAB: EMPRESAS -->
+        <div class="panel-content active" id="tab-empresas">
+            <div class="panel-content-header">
+                <h2><i class="fa-solid fa-building"></i> Gestión de Empresas</h2>
+
+            </div>
+            <div class="panel-table-wrap">
+                <table class="panel-table">
+                    <thead>
+                        <tr>
+                            <th>Empresa</th>
+                            <th>NIT</th>
+                            <th>Contacto</th>
+                            <th>Sede</th>
+                            <th>Servicio</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TAB: SOLICITUDES -->
+        <div class="panel-content" id="tab-solicitudes">
+            <div class="panel-content-header">
+                <h2><i class="fa-solid fa-hourglass-half"></i> Solicitudes de Registro</h2>
+            </div>
+            <div class="panel-table-wrap">
+                <table class="panel-table">
+                    <thead>
+                        <tr>
+                            <th>Empresa</th>
+                            <th>NIT</th>
+                            <th>Contacto</th>
+                            <th>Sede</th>
+                            <th>Servicio</th>
+                            <th>Fecha solicitud</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TAB: AUDITORÍA -->
+        <div class="panel-content" id="tab-auditoria">
+            <div class="panel-content-header">
+                <h2>
+                    <i class="fa-solid fa-clock-rotate-left"></i> Auditoría del Sistema
+                </h2>
+                <div class="panel-filter">
+                    <select class="panel-select">
+            <option>Todos los eventos</option>
+            <option>Empresas</option>
+            
+            <option>Sesiones</option>
+            <option>Alertas</option>
+          </select>
+                </div>
+            </div>
+            <div class="panel-table-wrap">
+                <table class="panel-table">
+                    <thead>
+                        <tr>
+                            <th>Fecha / Hora</th>
+                            <th>Usuario</th>
+                            <th>Acción</th>
+                            <th>Módulo</th>
+                            <th>Detalle</th>
+                            <th>Nivel</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TAB: RESEÑAS -->
+        <div class="panel-content" id="tab-resenas">
+            <div class="panel-content-header">
+                <h2><i class="fa-solid fa-star"></i> Reseñas de la Plataforma</h2>
+            </div>
+
+            <!-- Estado vacío (visible por defecto hasta que JS confirme que hay reseñas) -->
+            <div id="adminSinResenas" style="text-align:center;padding:64px 24px;color:#94a3b8;">
+                <i class="fa-solid fa-star" style="font-size:3rem;margin-bottom:16px;opacity:.25;display:block;"></i>
+                <p style="font-size:1.05rem;font-weight:600;margin-bottom:6px;">Todavía no hay reseñas en la plataforma.</p>
+                <p style="font-size:0.85rem;opacity:.7;">Cuando los viajeros dejen reseñas aparecerán aquí.</p>
+            </div>
+
+            <!-- Resumen de puntuación (oculto hasta que haya reseñas) -->
+            <div class="rating-summary" id="adminRatingSummary" style="display:none;">
+                <div class="rating-summary__score">
+                    <div id="adminRatingNum" class="rating-summary__num">—</div>
+                    <div id="adminRatingStars" class="rating-summary__stars">—</div>
+                    <div id="adminRatingCount" class="rating-summary__count">Sin reseñas aún</div>
+                </div>
+                <div id="adminRatingBars" class="rating-summary__bars"></div>
+            </div>
+
+            <!-- Lista de reseñas -->
+            <div id="sliderTrack" style="display:flex;flex-direction:column;gap:12px;"></div>
+
+            <!-- Elementos ocultos requeridos por resenas.js -->
+            <div id="resenaLoginPrompt" style="display:none;"></div>
+            <div id="resenaFormBox" style="display:none;">
+                <div class="resena-stars-row" id="resenaStars">
+                    <span class="resena-star" data-val="1">&#9733;</span>
+                    <span class="resena-star" data-val="2">&#9733;</span>
+                    <span class="resena-star" data-val="3">&#9733;</span>
+                    <span class="resena-star" data-val="4">&#9733;</span>
+                    <span class="resena-star" data-val="5">&#9733;</span>
+                </div>
+                <textarea id="resenaTexto" maxlength="300"></textarea>
+                <span id="resenaCharCount">0 / 300</span>
+                <button id="resenaSubmit" type="button">Publicar reseña</button>
+            </div>
+            <div id="resenaGracias" style="display:none;">
+                <span id="resenaNombreGracias"></span>
+            </div>
+        </div>
+
+        <!-- TAB: ARTESANOS -->
+        <div class="panel-content" id="tab-artesanos">
+            <div class="panel-content-header">
+                <h2><i class="fa-solid fa-palette"></i> Artesanos TourismLocal</h2>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <button class="panel-filter-btn active" data-estado-artesano="PENDIENTE">Pendientes</button>
+                    <button class="panel-filter-btn" data-estado-artesano="ACTIVO">Aprobados</button>
+                    <button class="panel-filter-btn" data-estado-artesano="INACTIVO">Rechazados</button>
+                    <button class="panel-filter-btn" data-estado-artesano="TODOS">Todos</button>
+                </div>
+            </div>
+            <div class="panel-table-wrap">
+                <table class="panel-table">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Documento</th>
+                            <th>Celular</th>
+                            <th>Correo</th>
+                            <th>Fecha Solicitud</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="artesanos-table-body">
+                        <tr>
+                            <td colspan="7" style="text-align:center;padding:2rem;opacity:.6">
+                                <i class="fa-solid fa-spinner fa-spin"></i> Cargando...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- MODAL FOOTER (info pages) -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-box" id="modalBox">
+            <button class="modal-close" id="modalClose">&times;</button>
+            <h2 id="modalTitle"></h2>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h4>Plataforma</h4>
+                    <ul>
+                        <li>
+                            <a href="#" data-modal="sobre-nosotros">Sobre Nosotros</a>
+                        </li>
+                        <li><a href="#" data-modal="como-funciona">Cómo Funciona</a></li>
+                        <li><a href="#" data-modal="aliados">Únete como Aliado</a></li>
+                        <li><a href="#" data-modal="prensa">Prensa</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Soporte</h4>
+                    <ul>
+                        <li><a href="#" data-modal="contacto">Contacto</a></li>
+                        <li><a href="#" data-modal="faq">Preguntas Frecuentes</a></li>
+                        <li><a href="#" data-modal="ayuda">Centro de Ayuda</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Legal</h4>
+                    <ul>
+                        <li>
+                            <a href="#" data-modal="privacidad">Política de Privacidad</a>
+                        </li>
+                        <li>
+                            <a href="#" data-modal="terminos">Términos de Servicio</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Síguenos</h4>
+                    <div class="social-icons">
+                        <a href="https://www.facebook.com/share/1RiJvhh1Gp/" class="social-icon"><i
+                class="fab fa-facebook-f"></i></a><a href="https://www.instagram.com/d4iv_id?igsh=cGhhOWZmOTN6Y2Rn" class="social-icon"><i class="fab fa-instagram"></i></a><a href="https://www.tiktok.com/@d4ividd?_r=1&_t=ZS-95d2BgEYsez"
+                            class="social-icon"><i
+                class="fab fa-tiktok"></i></a><a href="https://wa.me/573174613395" class="social-icon"><i
+                class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 TOURISMEASY. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- MODALES PANEL ADMIN -->
+    <div id="panelModalOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9000;align-items:center;justify-content:center;">
+        <div id="panelModalBox" style="background:#fff;border-radius:20px;padding:32px;max-width:560px;width:94%;max-height:90vh;overflow-y:auto;position:relative;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
+            <button id="panelModalClose" style="position:absolute;top:16px;right:18px;background:none;border:none;font-size:1.4rem;cursor:pointer;color:#64748b;">&times;</button>
+            <h2 id="panelModalTitle" style="font-family:'Montserrat',sans-serif;font-size:1.2rem;font-weight:800;color:#1e293b;margin:0 0 20px;">
+            </h2>
+            <div id="panelModalBody"></div>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div id="adminToast" style="position:fixed;bottom:28px;right:28px;background:#7c3aed;color:#fff;padding:12px 20px;border-radius:12px;font-family:'Montserrat',sans-serif;font-weight:700;font-size:0.85rem;z-index:9999;display:none;box-shadow:0 8px 24px rgba(124,58,237,0.35);gap:8px;align-items:center;">
+        <i class="fa-solid fa-check-circle"></i> <span id="toastMsg"></span>
+    </div>
+
+    <script>
+        // ── ESTADO GLOBAL ────────────────────────────────────────────────────
+        var adminUser = "admin@tourismeasy.com";
+        // ── VERIFICAR SESION ─────────────────────────────────────────────────
+        (function() {
+            var sess = sessionStorage.getItem("te_session");
+            if (!sess) {
+                // window.location.href = "../index.html"; // comentado para demo
+                return;
+            }
+            var u = JSON.parse(sess);
+            if (u.tipo !== "admin") {
+                // window.location.href = "../index.html";
+                return;
+            }
+            document.getElementById("panelAvatar").textContent = u.avatar || "AD";
+            document.getElementById("panelNombre").textContent = u.nombre || "Administrador";
+            adminUser = u.email || adminUser;
+        })();
+
+        // DARK MODE
+        var darkModeBtn = document.getElementById("darkModeToggle");
+        var darkModeIcon = darkModeBtn.querySelector("i");
+
+        function applyTheme(dark) {
+            document.body.classList.toggle("dark-mode", dark);
+            darkModeIcon.className = dark ? "fa-solid fa-sun" : "fa-solid fa-moon";
+            localStorage.setItem("theme", dark ? "dark" : "light");
+        }
+        var savedTheme = localStorage.getItem("theme");
+        applyTheme(
+            savedTheme ?
+            savedTheme === "dark" :
+            window.matchMedia("(prefers-color-scheme: dark)").matches,
+        );
+        darkModeBtn.addEventListener("click", function() {
+            applyTheme(!document.body.classList.contains("dark-mode"));
+        });
+
+        // SESSION WIDGET
+        (function() {
+            var user = JSON.parse(sessionStorage.getItem("te_session") || "null");
+            if (!user) return;
+            var navContainer = document.querySelector(".nav-container");
+            var insertBefore = document.getElementById("darkModeToggle");
+            var widget = document.createElement("div");
+            widget.id = "sessionWidget";
+            widget.className = "session-widget";
+            widget.innerHTML =
+                '<button class="session-trigger" id="sessionTrigger">' +
+                '<div class="session-avatar">' +
+                user.avatar +
+                "</div>" +
+                '<div class="session-info">' +
+                '<span class="session-name">' +
+                user.nombre +
+                "</span>" +
+                '<span class="session-tipo">Administrador</span>' +
+                "</div>" +
+                '<i class="fa-solid fa-chevron-down session-chevron" id="sessionChevron"></i>' +
+                "</button>" +
+                '<div class="session-dropdown" id="sessionDropdown">' +
+                '<a class="session-menu-item" href="panel_admin.html"><i class="fa-solid fa-shield-halved"></i> Panel Admin</a>' +
+                '<a class="session-menu-item" href="perfil_admin.html"><i class="fa-solid fa-user"></i> Mi Perfil</a>' +
+                '<a class="session-menu-item" href="config_admin.html"><i class="fa-solid fa-gear"></i> Configuración</a>' +
+                '<a class="session-menu-item session-menu-danger" id="btnLogout" href="#"><i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión</a>' +
+                "</div>";
+            if (navContainer && insertBefore)
+                navContainer.insertBefore(widget, insertBefore);
+            var trigger = widget.querySelector("#sessionTrigger");
+            var dropdown = widget.querySelector("#sessionDropdown");
+            var chevron = widget.querySelector("#sessionChevron");
+            trigger.addEventListener("click", function(e) {
+                e.stopPropagation();
+                var isOpen = dropdown.classList.toggle("open");
+                chevron.style.transform = isOpen ? "rotate(180deg)" : "rotate(0deg)";
+            });
+            document.addEventListener("click", function() {
+                dropdown.classList.remove("open");
+                chevron.style.transform = "rotate(0deg)";
+            });
+            widget
+                .querySelector("#btnLogout")
+                .addEventListener("click", function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    sessionStorage.removeItem("te_session");
+                    window.location.href = "../index.html";
+                });
+        })();
+
+
+        var empresasData = [];
+
+        var solicitudesData = [];
+
+        var auditoriaData = [];
+
+        var _svcLabel = {
+            "TRANSPORTE": "Transporte",
+            "HOSPEDAJE": "Hospedaje",
+            "PLANES": "Planes",
+            "PERSONAL_AUXILIAR": "Personal Auxiliar"
+        };
+
+        // ── Cargar solicitudes pendientes reales desde la BD ──
+        function cargarSolicitudesBD() {
+            fetch("../soli_empresas/get_solicitudes.php", {
+                    credentials: "include"
+                })
+                .then(function(r) {
+                    return r.json();
+                })
+                .then(function(data) {
+                    if (!data.ok) return;
+                    solicitudesData = data.data.map(function(s) {
+                        return {
+                            nit: s.nit || "—",
+                            nombre: s.nombre || s.contacto,
+                            contacto: s.contacto || "—",
+                            sede: s.sede || s.id_ciudad || "—",
+                            servicio: s.servicio || "—", // enum crudo (TRANSPORTE, etc.), se traduce al pintar
+                            fecha: s.fecha ? s.fecha.substring(0, 10) : "—",
+                            estado: "pendiente"
+                        };
+                    });
+                    renderSolicitudes();
+                    updateStats();
+                })
+                .catch(function() {
+                    console.warn("No se pudieron cargar solicitudes desde la BD.");
+                });
+        }
+
+        // ── Cargar empresas reales (activas e inactivas) desde la BD ──
+        function cargarEmpresasBD() {
+            fetch("../soli_empresas/get_empresas.php", {
+                    credentials: "include"
+                })
+                .then(function(r) {
+                    return r.json();
+                })
+                .then(function(data) {
+                    if (!data.ok) return;
+                    empresasData = data.data.map(function(e) {
+                        return {
+                            nit: e.nit,
+                            nombre: e.nombre,
+                            contacto: e.contacto,
+                            id_ciudad: e.id_ciudad,
+                            sede: e.sede || e.id_ciudad || "—",
+                            servicio: e.servicio || "—", // enum crudo (TRANSPORTE, etc.), se traduce al pintar
+                            estado: e.estado // 'ACTIVO' | 'INACTIVO'
+                        };
+                    });
+                    renderEmpresas();
+                    updateStats();
+                })
+                .catch(function() {
+                    console.warn("No se pudieron cargar empresas desde la BD.");
+                });
+        }
+
+        // ── Cargar auditoría real desde la BD ──
+        function cargarAuditoriaBD() {
+            fetch("../soli_empresas/get_auditoria.php", {
+                    credentials: "include"
+                })
+                .then(function(r) {
+                    return r.json();
+                })
+                .then(function(data) {
+                    if (!data.ok) return;
+                    auditoriaData = data.data.map(function(a) {
+                        return {
+                            fecha: (a.fecha || "").substring(0, 16).replace("T", " "),
+                            usuario: a.usuario,
+                            accion: a.accion,
+                            modulo: a.modulo,
+                            detalle: a.detalle,
+                            nivel: a.nivel
+                        };
+                    });
+                    renderAuditoria();
+                    updateStats();
+                })
+                .catch(function() {
+                    console.warn("No se pudo cargar la auditoría desde la BD.");
+                });
+        }
+
+        // ── UTILIDADES ───────────────────────────────────────────────────────
+        function showToast(msg, color) {
+            var t = document.getElementById("adminToast");
+            t.style.background = color || "#7c3aed";
+            document.getElementById("toastMsg").textContent = msg;
+            t.style.display = "flex";
+            clearTimeout(t._timer);
+            t._timer = setTimeout(function() {
+                t.style.display = "none";
+            }, 3000);
+        }
+
+        function openPanelModal(title, bodyHTML) {
+            document.getElementById("panelModalTitle").textContent = title;
+            document.getElementById("panelModalBody").innerHTML = bodyHTML;
+            var ov = document.getElementById("panelModalOverlay");
+            ov.style.display = "flex";
+            // Dark mode
+            var box = document.getElementById("panelModalBox");
+            if (document.body.classList.contains("dark-mode")) {
+                box.style.background = "#1e293b";
+                box.style.color = "#f1f5f9";
+            } else {
+                box.style.background = "#fff";
+                box.style.color = "#1e293b";
+            }
+        }
+
+        function closePanelModal() {
+            document.getElementById("panelModalOverlay").style.display = "none";
+        }
+        window.closePanelModal = closePanelModal;
+
+        document.getElementById("panelModalClose").addEventListener("click", closePanelModal);
+        document.getElementById("panelModalOverlay").addEventListener("click", function(e) {
+            if (e.target === this) closePanelModal();
+        });
+
+        // NOTA: ya no existe addAudit() del lado del cliente — cada acción real
+        // (crear/editar/activar empresa, aceptar/rechazar solicitud) registra su
+        // propia entrada de auditoría del lado del servidor (dentro de la función SQL),
+        // así nadie puede falsificar el historial llamando a un endpoint desde el navegador.
+
+        // ── SERVICIOS iconos ─────────────────────────────────────────────────
+        var servicioIconos = {
+            "transporte": "fa-bus",
+            "hospedaje": "fa-hotel",
+            "planes": "fa-map-location-dot",
+            "personal_auxiliar": "fa-person-cane"
+        };
+
+        // ── STATS ────────────────────────────────────────────────────────────
+        function updateStats() {
+            var total = empresasData.length;
+            var activas = empresasData.filter(function(e) {
+                return e.estado === "ACTIVO";
+            }).length;
+            var inactivas = total - activas;
+            var alertas = auditoriaData.filter(function(a) {
+                return a.nivel === "alerta";
+            }).length;
+            var pendientes = solicitudesData.length; // ya viene solo con las PENDIENTE
+            var statNums = document.querySelectorAll(".stat-num");
+            statNums[0].textContent = pendientes;
+            statNums[1].textContent = total;
+            statNums[2].textContent = activas;
+            statNums[3].textContent = inactivas;
+            statNums[4].textContent = auditoriaData.length;
+            statNums[5].textContent = alertas;
+        }
+
+        // ── RENDER EMPRESAS ──────────────────────────────────────────────────
+        function renderEmpresas() {
+            var tbody = document.querySelector("#tab-empresas .panel-table tbody");
+            tbody.innerHTML = "";
+            if (empresasData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:#64748b;font-style:italic;">No hay empresas registradas todavía</td></tr>';
+                return;
+            }
+            empresasData.forEach(function(emp) {
+                var icono = servicioIconos[(emp.servicio || "").toLowerCase()] || "fa-tag";
+                var servicioLabel = _svcLabel[emp.servicio] || emp.servicio;
+                var activa = emp.estado === "ACTIVO";
+                var estadoHtml = activa ?
+                    '<span class="estado-activo">Activa</span>' :
+                    '<span class="estado-inactivo">Inactiva</span>';
+                var toggleIcon = activa ?
+                    '<i class="fa-solid fa-ban"></i>' :
+                    '<i class="fa-solid fa-circle-check"></i>';
+                var toggleTitle = activa ? "Inactivar" : "Activar";
+                var tr = document.createElement("tr");
+                tr.innerHTML =
+                    '<td><span class="badge-adso">' + emp.nombre + '</span></td>' +
+                    '<td>' + emp.nit + '</td>' +
+                    '<td><a href="mailto:' + emp.contacto + '" style="color:var(--purple)">' + emp.contacto + '</a></td>' +
+                    '<td>' + emp.sede + '</td>' +
+                    '<td><span class="badge-acc"><i class="fa-solid ' + icono + '"></i> ' + servicioLabel + '</span></td>' +
+                    '<td>' + estadoHtml + '</td>' +
+                    '<td><div class="table-actions">' +
+                    '<button class="btn-tbl-del" title="' + toggleTitle + '" data-nit="' + emp.nit + '">' + toggleIcon + '</button>' +
+                    '<button class="btn-tbl-trash" title="Eliminar" data-nit="' + emp.nit + '"><i class="fa-solid fa-trash"></i></button>' +
+                    '</div></td>';
+                tbody.appendChild(tr);
+            });
+            // Bind acciones
+            tbody.querySelectorAll(".btn-tbl-del").forEach(function(btn) {
+                btn.addEventListener("click", function() {
+                    toggleEstadoEmpresa(this.dataset.nit);
+                });
+            });
+            tbody.querySelectorAll(".btn-tbl-trash").forEach(function(btn) {
+                btn.addEventListener("click", function() {
+                    eliminarEmpresa(this.dataset.nit);
+                });
+            });
+        }
+
+        // ── RENDER SOLICITUDES ───────────────────────────────────────────────
+        function renderSolicitudes() {
+            var tbody = document.querySelector("#tab-solicitudes .panel-table tbody");
+            tbody.innerHTML = "";
+            var pendientes = solicitudesData; // ya viene solo con las PENDIENTE desde la BD
+            if (pendientes.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:32px;color:#64748b;font-style:italic;">No hay solicitudes pendientes</td></tr>';
+                return;
+            }
+            pendientes.forEach(function(sol) {
+                var icono = servicioIconos[(sol.servicio || "").toLowerCase()] || "fa-tag";
+                var servicioLabel = _svcLabel[sol.servicio] || sol.servicio;
+                var tr = document.createElement("tr");
+                tr.innerHTML =
+                    '<td><span class="badge-adso">' + sol.nombre + '</span></td>' +
+                    '<td>' + sol.nit + '</td>' +
+                    '<td><a href="mailto:' + sol.contacto + '" style="color:var(--purple)">' + sol.contacto + '</a></td>' +
+                    '<td>' + sol.sede + '</td>' +
+                    '<td><span class="badge-acc"><i class="fa-solid ' + icono + '"></i> ' + servicioLabel + '</span></td>' +
+                    '<td><code>' + sol.fecha + '</code></td>' +
+                    '<td><span class="estado-pendiente"><i class="fa-solid fa-hourglass-half"></i> Pendiente</span></td>' +
+                    '<td><div class="table-actions">' +
+                    '<button class="btn-tbl-accept" title="Aceptar" data-nit="' + sol.nit + '"><i class="fa-solid fa-check"></i> Aceptar</button>' +
+                    '<button class="btn-tbl-reject" title="Rechazar" data-nit="' + sol.nit + '"><i class="fa-solid fa-xmark"></i> Rechazar</button>' +
+                    '</div></td>';
+                tbody.appendChild(tr);
+            });
+            tbody.querySelectorAll(".btn-tbl-accept").forEach(function(btn) {
+                btn.addEventListener("click", function() {
+                    aceptarSolicitud(this.dataset.nit);
+                });
+            });
+            tbody.querySelectorAll(".btn-tbl-reject").forEach(function(btn) {
+                btn.addEventListener("click", function() {
+                    rechazarSolicitud(this.dataset.nit);
+                });
+            });
+        }
+
+        function aceptarSolicitud(id) {
+            var sol = solicitudesData.find(function(s) {
+                return s.nit === id;
+            });
+            if (!sol) return;
+            var isDark = document.body.classList.contains("dark-mode");
+            var textColor = isDark ? "#f1f5f9" : "#1e293b";
+            var subColor = isDark ? "#94a3b8" : "#64748b";
+            var borderColor = isDark ? "#334155" : "#e2e8f0";
+            openPanelModal("Aceptar solicitud",
+                '<div style="display:flex;flex-direction:column;gap:20px;text-align:center;padding:8px 0;">' +
+                '<div style="width:64px;height:64px;background:rgba(22,163,74,0.12);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto;"><i class="fa-solid fa-circle-check" style="font-size:2rem;color:#16a34a;"></i></div>' +
+                '<div>' +
+                '<p style="font-family:\'Montserrat\',sans-serif;font-size:1rem;font-weight:700;color:' + textColor + ';margin-bottom:8px;">' + sol.nombre + '</p>' +
+                '<p style="font-family:\'Montserrat\',sans-serif;font-size:.88rem;color:' + subColor + ';">¿Confirmas la aceptación? La empresa quedará registrada como <strong style="color:#16a34a;">Activa</strong>.</p>' +
+                '</div>' +
+                '<div style="display:flex;gap:10px;justify-content:center;">' +
+                '<button id="btnConfirmAceptar" data-nit="' + id + '" style="background:#16a34a;color:#fff;border:none;padding:11px 28px;border-radius:50px;font-family:\'Montserrat\',sans-serif;font-weight:700;font-size:.88rem;cursor:pointer;"><i class="fa-solid fa-check"></i> Aceptar</button>' +
+                '<button onclick="closePanelModal()" style="background:none;border:1.5px solid ' + borderColor + ';padding:11px 20px;border-radius:50px;font-family:\'Montserrat\',sans-serif;font-weight:700;font-size:.88rem;cursor:pointer;color:' + subColor + ';">Cancelar</button>' +
+                '</div></div>');
+            document.getElementById("btnConfirmAceptar").addEventListener("click", function() {
+                var nit2 = this.dataset.nit;
+                var s = solicitudesData.find(function(x) {
+                    return x.nit === nit2;
+                });
+                if (!s) return;
+                var btnConf = this;
+                btnConf.disabled = true;
+                fetch("../soli_empresas/accion_solicitud.php", {
+                        method: "POST",
+                        credentials: "include",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            nit: s.nit,
+                            accion: "APROBAR"
+                        })
+                    })
+                    .then(function(r) {
+                        return r.json();
+                    })
+                    .then(function(res) {
+                        btnConf.disabled = false;
+                        if (!res.ok) {
+                            showToast(res.error || "Error al aprobar", "#ef4444");
+                            return;
+                        }
+                        cargarSolicitudesBD();
+                        cargarEmpresasBD();
+                        cargarAuditoriaBD();
+                        closePanelModal();
+                        showToast(s.nombre + " — aceptada ✓", "#16a34a");
+                    })
+                    .catch(function() {
+                        btnConf.disabled = false;
+                        showToast("Error de conexión al aprobar", "#ef4444");
+                    });
+            });
+        }
+
+        function rechazarSolicitud(id) {
+            var sol = solicitudesData.find(function(s) {
+                return s.nit === id;
+            });
+            if (!sol) return;
+            var isDark = document.body.classList.contains("dark-mode");
+            var textColor = isDark ? "#f1f5f9" : "#1e293b";
+            var subColor = isDark ? "#94a3b8" : "#64748b";
+            var borderColor = isDark ? "#334155" : "#e2e8f0";
+            openPanelModal("Rechazar solicitud",
+                '<div style="display:flex;flex-direction:column;gap:20px;text-align:center;padding:8px 0;">' +
+                '<div style="width:64px;height:64px;background:rgba(239,68,68,0.12);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto;"><i class="fa-solid fa-circle-xmark" style="font-size:2rem;color:#dc2626;"></i></div>' +
+                '<div>' +
+                '<p style="font-family:\'Montserrat\',sans-serif;font-size:1rem;font-weight:700;color:' + textColor + ';margin-bottom:8px;">' + sol.nombre + '</p>' +
+                '<p style="font-family:\'Montserrat\',sans-serif;font-size:.88rem;color:' + subColor + ';">¿Confirmas el rechazo? La empresa quedará inactiva.</p>' +
+                '</div>' +
+                '<div style="display:flex;gap:10px;justify-content:center;">' +
+                '<button id="btnConfirmRechazar" data-nit="' + id + '" style="background:#dc2626;color:#fff;border:none;padding:11px 28px;border-radius:50px;font-family:\'Montserrat\',sans-serif;font-weight:700;font-size:.88rem;cursor:pointer;"><i class="fa-solid fa-xmark"></i> Rechazar</button>' +
+                '<button onclick="closePanelModal()" style="background:none;border:1.5px solid ' + borderColor + ';padding:11px 20px;border-radius:50px;font-family:\'Montserrat\',sans-serif;font-weight:700;font-size:.88rem;cursor:pointer;color:' + subColor + ';">Cancelar</button>' +
+                '</div></div>');
+            document.getElementById("btnConfirmRechazar").addEventListener("click", function() {
+                var nit2 = this.dataset.nit;
+                var s = solicitudesData.find(function(x) {
+                    return x.nit === nit2;
+                });
+                if (!s) return;
+                var btnConf2 = this;
+                btnConf2.disabled = true;
+                fetch("../soli_empresas/accion_solicitud.php", {
+                        method: "POST",
+                        credentials: "include",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            nit: s.nit,
+                            accion: "RECHAZAR"
+                        })
+                    })
+                    .then(function(r) {
+                        return r.json();
+                    })
+                    .then(function(res) {
+                        btnConf2.disabled = false;
+                        if (!res.ok) {
+                            showToast(res.error || "Error al rechazar", "#ef4444");
+                            return;
+                        }
+                        cargarSolicitudesBD();
+                        cargarAuditoriaBD();
+                        closePanelModal();
+                        showToast(s.nombre + " — rechazada", "#ef4444");
+                    })
+                    .catch(function() {
+                        btnConf2.disabled = false;
+                        showToast("Error de conexión al rechazar", "#ef4444");
+                    });
+            });
+        }
+
+
+        function toggleEstadoEmpresa(nit) {
+            var emp = empresasData.find(function(e) {
+                return e.nit === nit;
+            });
+            if (!emp) return;
+            fetch("../soli_empresas/actualizar_estado_empresa.php", {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        nit: nit
+                    })
+                })
+                .then(function(r) {
+                    return r.json();
+                })
+                .then(function(res) {
+                    if (!res.ok) {
+                        showToast(res.error || "Error al actualizar el estado", "#ef4444");
+                        return;
+                    }
+                    emp.estado = res.estado; // 'ACTIVO' | 'INACTIVO'
+                    renderEmpresas();
+                    updateStats();
+                    cargarAuditoriaBD();
+                    var activada = res.estado === "ACTIVO";
+                    showToast(emp.nombre + " — " + (activada ? "activada ✓" : "inactivada"), activada ? "#16a34a" : "#ef4444");
+                })
+                .catch(function() {
+                    showToast("Error de conexión al actualizar el estado", "#ef4444");
+                });
+        }
+
+        function eliminarEmpresa(nit) {
+            var emp = empresasData.find(function(e) {
+                return e.nit === nit;
+            });
+            if (!emp) return;
+            var isDark = document.body.classList.contains("dark-mode");
+            var textColor = isDark ? "#f1f5f9" : "#1e293b";
+            var subColor = isDark ? "#94a3b8" : "#64748b";
+            var borderColor = isDark ? "#334155" : "#e2e8f0";
+            openPanelModal("Eliminar empresa",
+                '<div style="display:flex;flex-direction:column;gap:20px;text-align:center;padding:8px 0;">' +
+                '<div style="width:64px;height:64px;background:rgba(239,68,68,0.12);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto;"><i class="fa-solid fa-trash" style="font-size:1.8rem;color:#dc2626;"></i></div>' +
+                '<div>' +
+                '<p style="font-family:\'Montserrat\',sans-serif;font-size:1rem;font-weight:700;color:' + textColor + ';margin-bottom:8px;">' + emp.nombre + '</p>' +
+                '<p style="font-family:\'Montserrat\',sans-serif;font-size:.88rem;color:' + subColor + ';">Esta acción es permanente y no se puede deshacer. Si la empresa todavía tiene servicios publicados, no se podrá eliminar.</p>' +
+                '</div>' +
+                '<div style="display:flex;gap:10px;justify-content:center;">' +
+                '<button id="btnConfirmEliminar" data-nit="' + nit + '" style="background:#dc2626;color:#fff;border:none;padding:11px 28px;border-radius:50px;font-family:\'Montserrat\',sans-serif;font-weight:700;font-size:.88rem;cursor:pointer;"><i class="fa-solid fa-trash"></i> Eliminar</button>' +
+                '<button onclick="closePanelModal()" style="background:none;border:1.5px solid ' + borderColor + ';padding:11px 20px;border-radius:50px;font-family:\'Montserrat\',sans-serif;font-weight:700;font-size:.88rem;cursor:pointer;color:' + subColor + ';">Cancelar</button>' +
+                '</div></div>');
+            document.getElementById("btnConfirmEliminar").addEventListener("click", function() {
+                var btn = this;
+                btn.disabled = true;
+                fetch("../soli_empresas/eliminar_empresa.php", {
+                        method: "POST",
+                        credentials: "include",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            nit: nit
+                        })
+                    })
+                    .then(function(r) {
+                        return r.json();
+                    })
+                    .then(function(res) {
+                        btn.disabled = false;
+                        if (!res.ok) {
+                            showToast(res.error || "No se pudo eliminar", "#ef4444");
+                            return;
+                        }
+                        cargarEmpresasBD();
+                        cargarAuditoriaBD();
+                        closePanelModal();
+                        showToast(emp.nombre + " — eliminada", "#ef4444");
+                    })
+                    .catch(function() {
+                        btn.disabled = false;
+                        showToast("Error de conexión al eliminar", "#ef4444");
+                    });
+            });
+        }
+
+
+        // ── RENDER AUDITORÍA ─────────────────────────────────────────────────
+        function renderAuditoria(filtro) {
+            var tbody = document.querySelector("#tab-auditoria .panel-table tbody");
+            var datos = filtro && filtro !== "Todos los eventos" ?
+                auditoriaData.filter(function(a) {
+                    return a.modulo === filtro || (filtro === "Alertas" && a.nivel === "alerta");
+                }) :
+                auditoriaData;
+            tbody.innerHTML = "";
+            datos.forEach(function(a) {
+                var accionHtml, nivelHtml;
+                if (a.nivel === "alerta") {
+                    accionHtml = '<span class="badge-acc" style="background:rgba(239,68,68,.1);color:#dc2626"><i class="fa-solid fa-triangle-exclamation"></i> ' + a.accion + '</span>';
+                    nivelHtml = '<span class="estado-inactivo">Alerta</span>';
+                } else if (a.nivel === "advertencia") {
+                    accionHtml = '<span class="badge-acc" style="background:rgba(245,158,11,.1);color:#d97706"><i class="fa-solid fa-ban"></i> ' + a.accion + '</span>';
+                    nivelHtml = '<span class="estado-ocupado" style="background:rgba(245,158,11,.12);color:#d97706">Advertencia</span>';
+                } else {
+                    var iconMap = {
+                        "Empresa creada": "fa-building-circle-check",
+                        "Empresa editada": "fa-pen",
+                        "Empresa inactivada": "fa-ban",
+                        "Empresa activada": "fa-circle-check",
+                        "Empresa aceptada": "fa-building-circle-check",
+                        "Empresa rechazada": "fa-ban",
+
+                        "Inicio de sesión": "fa-right-to-bracket"
+                    };
+                    var ic = iconMap[a.accion] || "fa-circle-info";
+                    accionHtml = '<span class="badge-acc"><i class="fa-solid ' + ic + '"></i> ' + a.accion + '</span>';
+                    nivelHtml = '<span class="estado-activo">Info</span>';
+                }
+                var tr = document.createElement("tr");
+                tr.innerHTML =
+                    '<td><code>' + a.fecha + '</code></td>' +
+                    '<td><strong>' + a.usuario + '</strong></td>' +
+                    '<td>' + accionHtml + '</td>' +
+                    '<td>' + a.modulo + '</td>' +
+                    '<td>' + a.detalle + '</td>' +
+                    '<td>' + nivelHtml + '</td>';
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Filtro auditoría
+        document.querySelector("#tab-auditoria .panel-select").addEventListener("change", function() {
+            renderAuditoria(this.value);
+        });
+
+        // Botones agregar
+
+
+        // RENDER INICIAL — todo se carga real desde la BD
+        cargarEmpresasBD();
+        cargarSolicitudesBD();
+        cargarAuditoriaBD();
+        updateStats();
+
+
+        // TABS
+        document.querySelectorAll(".panel-tab").forEach(function(tab) {
+            tab.addEventListener("click", function() {
+                document.querySelectorAll(".panel-tab").forEach(function(t) {
+                    t.classList.remove("active");
+                });
+                document.querySelectorAll(".panel-content").forEach(function(c) {
+                    c.classList.remove("active");
+                });
+                tab.classList.add("active");
+                document
+                    .getElementById("tab-" + tab.dataset.tab)
+                    .classList.add("active");
+            });
+        });
+
+        // MODALES FOOTER
+        var modalData = {
+            "sobre-nosotros": {
+                title: "Sobre Nosotros",
+                content: `<p>Tourismeasy es una plataforma digital nacida en Bucaramanga, Santander, con el propósito de conectar a las empresas del sector turístico con viajeros que requieren experiencias accesibles e inclusivas.</p>
+        <p>No somos una agencia de viajes. Somos el puente tecnológico entre los operadores, agencias, hoteles y transportadoras de Santander que ofrecen servicios inclusivos, y las personas que los necesitan.</p>
+        <p>Creemos que el turismo accesible no es un nicho, es el futuro del sector. Y Santander, con toda su riqueza natural y cultural, tiene todo para liderar ese cambio.</p>`,
+            },
+            "como-funciona": {
+                title: "Cómo Funciona",
+                content: `<p>Tourismeasy funciona como una plataforma de conexión entre empresas turísticas de Santander y viajeros con necesidades de accesibilidad.</p>
+        <h3>Para las empresas aliadas</h3>
+        <ul>
+          <li>Registras tu empresa y tus servicios accesibles</li>
+          <li>Apareces en nuestra plataforma ante miles de viajeros</li>
+          <li>Recibes solicitudes de reserva directamente</li>
+          <li>Gestionas tu perfil y disponibilidad desde tu panel</li>
+        </ul>
+        <h3>Para los viajeros</h3>
+        <ul>
+          <li>Buscan destinos y servicios accesibles en Santander</li>
+          <li>Filtran por tipo de accesibilidad que necesitan</li>
+          <li>Se conectan con empresas verificadas</li>
+          <li>Reservan con confianza y seguridad</li>
+        </ul>`,
+            },
+            aliados: {
+                title: "Únete como Aliado",
+                content: `<p>¿Tienes una empresa turística en Santander con servicios accesibles o quieres adaptarlos? ¡TourismEasy es tu plataforma!</p>
+        <h3>¿Quiénes pueden unirse?</h3>
+        <ul>
+          <li>🏨 Hoteles y hospedajes con infraestructura accesible</li>
+          <li>✈️ Agencias de viaje con planes inclusivos</li>
+          <li>🎒 Operadores turísticos con guías especializados</li>
+        </ul>
+        <h3>Beneficios de ser aliado</h3>
+        <ul>
+          <li>👀 Visibilidad ante un mercado en crecimiento</li>
+          <li>✅ Verificación y sello de accesibilidad TourismEasy</li>
+          <li>📊 Panel de gestión de reservas y clientes</li>
+          <li>👍 Apoyo en la certificación de accesibilidad</li>
+        </ul>
+        <p>Escríbenos a <strong>aliados@tourismeasy.com</strong> o llámanos al <strong>+57 317 461 3395</strong></p>`,
+            },
+            prensa: {
+                title: "Prensa",
+                content: `<p>Tourismeasy está posicionándose como el referente del turismo inclusivo en Santander, conectando el sector empresarial con un mercado desatendido y en crecimiento.</p>
+        <h3>Contacto de prensa</h3>
+        <p>Para entrevistas, notas de prensa o información sobre nuestra plataforma:</p>
+        <p><strong>prensa@tourismeasy.com</strong><br>+57 317 461 3395</p>`,
+            },
+            contacto: {
+                title: "Contacto",
+                content: `<p>Estamos aquí para ayudarte. Puedes contactarnos por cualquiera de estos medios:</p>
+        <ul>
+          <li>📧 <strong>Email:</strong> hola@tourismeasy.com</li>
+          <li>📞 <strong>Teléfono:</strong> +57 317 461 3395</li>
+          <li>💬 <strong>WhatsApp:</strong> +57 317 461 3395</li>
+          <li>📍 <strong>Ubicación:</strong> Bucaramanga, Santander, Colombia</li>
+        </ul>
+        <p>Horario de atención: Lunes a Viernes 8:00am – 8:00pm</p>`,
+            },
+            faq: {
+                title: "Preguntas Frecuentes",
+                content: `<details><summary>¿Tourismeasy es una agencia de viajes?</summary><p>No. Somos una plataforma que conecta empresas turísticas de Santander con viajeros que necesitan servicios accesibles. No vendemos paquetes directamente.</p></details>
+        <details><summary>¿Solo trabajamos en Santander?</summary><p>Sí, por ahora nos enfocamos en Santander. Queremos ser el mejor directorio de turismo inclusivo del departamento antes de expandirnos.</p></details>
+        <details><summary>¿Qué tipo de empresas pueden unirse?</summary><p>Agencias de viaje, hoteles, operadores turísticos y transportadoras que ofrezcan o quieran ofrecer servicios accesibles en Santander.</p></details>
+        <details><summary>¿Cómo sé que un servicio es realmente accesible?</summary><p>Todas las empresas aliadas pasan por un proceso de verificación y reciben nuestro sello de accesibilidad según el tipo de servicio que ofrecen.</p></details>`,
+            },
+            ayuda: {
+                title: "Centro de Ayuda",
+                content: `<p>Encuentra recursos para sacar el máximo provecho de Tourismeasy:</p>
+        <ul>
+          <li>📖 <a href="#">Guía para empresas aliadas</a></li>
+          <li>🎥 <a href="#">Videos: cómo registrar tu empresa</a></li>
+          <li>📋 <a href="#">Cómo obtener el sello de accesibilidad</a></li>
+          <li>💳 <a href="#">Modelos de suscripción para empresas</a></li>
+        </ul>
+        <p>¿No encuentras lo que buscas? <a href="#" data-modal="contacto">Contáctanos.</a></p>`,
+            },
+            privacidad: {
+                title: "Política de Privacidad",
+                content: `<p><strong>Última actualización:</strong> Enero 2026</p>
+        <h3>1. Información que recopilamos</h3>
+        <p>Recopilamos datos que nos proporcionas directamente, como nombre, correo electrónico, información de tu empresa y datos de uso de la plataforma.</p>
+        <h3>2. Uso de la información</h3>
+        <p>Usamos tu información para conectarte con empresas aliadas, mejorar nuestra plataforma y enviarte comunicaciones relevantes sobre turismo inclusivo en Santander.</p>
+        <h3>3. Compartir información</h3>
+        <p>No vendemos tu información personal a terceros. Solo compartimos datos con empresas aliadas cuando realizas una solicitud de servicio.</p>
+        <h3>4. Tus derechos</h3>
+        <p>Tienes derecho a acceder, corregir o eliminar tus datos personales contactándonos a privacidad@tourismeasy.com</p>`,
+            },
+            terminos: {
+                title: "Términos de Servicio",
+                content: `<h3>1. Aceptación de términos</h3>
+        <p>Al usar Tourismeasy, aceptas estos términos. Si no estás de acuerdo, por favor no uses nuestra plataforma.</p>
+        <h3>2. Naturaleza de la plataforma</h3>
+        <p>Tourismeasy es una plataforma de conexión. No somos responsables por los servicios prestados directamente por las empresas aliadas.</p>
+        <h3>3. Empresas aliadas</h3>
+        <p>Las empresas deben cumplir con los estándares de accesibilidad verificados por Tourismeasy para mantenerse activas en la plataforma.</p>
+        <h3>4. Responsabilidad</h3>
+        <p>Actuamos como intermediario tecnológico. Las condiciones específicas de cada servicio son responsabilidad de cada empresa aliada.</p>`,
+            },
+        };
+        var modalOverlay = document.getElementById("modalOverlay");
+        var modalTitleEl = document.getElementById("modalTitle");
+        var modalContentEl = document.getElementById("modalContent");
+        var modalCloseEl = document.getElementById("modalClose");
+        document.querySelectorAll("[data-modal]").forEach(function(link) {
+            link.addEventListener("click", function(e) {
+                e.preventDefault();
+                var data = modalData[link.getAttribute("data-modal")];
+                if (data) {
+                    modalTitleEl.textContent = data.title;
+                    modalContentEl.innerHTML = data.content;
+                    modalOverlay.classList.add("active");
+                }
+            });
+        });
+        modalCloseEl.addEventListener("click", function() {
+            modalOverlay.classList.remove("active");
+        });
+        modalOverlay.addEventListener("click", function(e) {
+            if (e.target === modalOverlay) modalOverlay.classList.remove("active");
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <script src="../js/santanderianidad.js"></script>
+
+    <!-- Reseñas de la plataforma: carga resenas.js solo cuando el tab está activo -->
+    <script>
+        (function() {
+            var resenasCargadas = false;
+
+            // Construye el resumen de puntuación (promedio + barras por estrella) a partir del localStorage
+            function buildAdminSummary() {
+                var BASE = window.location.origin + '/Tourismeasy/resenas/';
+                fetch(BASE + 'get_resenas.php')
+                    .then(function(r) {
+                        return r.json();
+                    })
+                    .then(function(data) {
+                        var resenas = (data.ok && data.data) ? data.data : [];
+                        var emptyEl = document.getElementById("adminSinResenas");
+                        var summaryEl = document.getElementById("adminRatingSummary");
+                        var numEl = document.getElementById("adminRatingNum");
+                        var starsEl = document.getElementById("adminRatingStars");
+                        var countEl = document.getElementById("adminRatingCount");
+                        var barsEl = document.getElementById("adminRatingBars");
+
+                        if (!resenas.length) {
+                            if (emptyEl) emptyEl.style.display = "block";
+                            if (summaryEl) summaryEl.style.display = "none";
+                            return;
+                        }
+                        if (emptyEl) emptyEl.style.display = "none";
+                        if (summaryEl) summaryEl.style.display = "flex";
+
+                        var total = resenas.reduce(function(s, r) {
+                            return s + (r.rating || r.calificacion || 0);
+                        }, 0);
+                        var avg = (total / resenas.length).toFixed(1);
+                        if (numEl) numEl.textContent = avg;
+                        if (starsEl) starsEl.textContent = "★".repeat(Math.round(+avg)) + "☆".repeat(5 - Math.round(+avg));
+                        if (countEl) countEl.textContent = resenas.length + (resenas.length === 1 ? " reseña" : " reseñas");
+
+                        if (barsEl) {
+                            barsEl.innerHTML = "";
+                            for (var v = 5; v >= 1; v--) {
+                                var cnt = resenas.filter(function(r) {
+                                    return (r.rating || r.calificacion) === v;
+                                }).length;
+                                var pct = Math.round((cnt / resenas.length) * 100);
+                                barsEl.innerHTML +=
+                                    '<div style="display:flex;align-items:center;gap:8px;">' +
+                                    '<span style="font-size:.85rem;color:#f59e0b;white-space:nowrap;">' + "★".repeat(v) + '</span>' +
+                                    '<div style="flex:1;height:8px;background:#e2e8f0;border-radius:4px;overflow:hidden;">' +
+                                    '<div style="width:' + pct + '%;height:100%;background:#f59e0b;border-radius:4px;transition:width .4s;"></div>' +
+                                    '</div>' +
+                                    '<span style="font-size:.8rem;color:#64748b;min-width:32px;">' + pct + '%</span>' +
+                                    '</div>';
+                            }
+                        }
+                    })
+                    .catch(function() {});
+            }
+
+            // Carga resenas.js dinámicamente la primera vez que se abre el tab
+            function cargarResenasTab() {
+                if (resenasCargadas) {
+                    buildAdminSummary();
+                    return;
+                }
+                resenasCargadas = true;
+                var s = document.createElement("script");
+                s.src = "../js/resenas.js";
+                s.onload = function() {
+                    buildAdminSummary();
+                };
+                document.body.appendChild(s);
+            }
+
+            // Escucha el clic en el tab de reseñas
+            document.addEventListener("click", function(e) {
+                var btn = e.target.closest(".panel-tab[data-tab='resenas']");
+                if (btn) setTimeout(cargarResenasTab, 50);
+            });
+
+            // Actualiza el resumen si cambian los datos desde otra pestaña
+            window.addEventListener("storage", function(e) {
+                if (e.key === "te_resenas") buildAdminSummary();
+            });
+        })();
+    </script>
+
+    <!-- ── Artesanos TourismLocal ── -->
+    <script>
+        (function() {
+            var API = window.location.origin + '/Tourismeasy/e-commerce/artesanos_admin.php';
+            var tbody = document.getElementById('artesanos-table-body');
+            var estadoActual = 'PENDIENTE';
+            var cargado = false;
+
+            // Cargar al activar el tab
+            document.querySelectorAll('.panel-tab').forEach(function(tab) {
+                tab.addEventListener('click', function() {
+                    if (tab.dataset.tab === 'artesanos' && !cargado) {
+                        cargarArtesanos(estadoActual);
+                        cargado = true;
+                    }
+                });
+            });
+
+            // Filtros de estado
+            document.querySelectorAll('[data-estado-artesano]').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('[data-estado-artesano]').forEach(function(b) {
+                        b.classList.remove('active');
+                    });
+                    btn.classList.add('active');
+                    estadoActual = btn.dataset.estadoArtesano;
+                    cargarArtesanos(estadoActual);
+                });
+            });
+
+            function cargarArtesanos(estado) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;opacity:.6">' +
+                    '<i class="fa-solid fa-spinner fa-spin"></i> Cargando...</td></tr>';
+
+                fetch(API + '?estado=' + estado)
+                    .then(function(r) {
+                        return r.json();
+                    })
+                    .then(function(data) {
+                        if (!data.ok || !data.artesanos.length) {
+                            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;opacity:.6">' +
+                                'No hay artesanos en este estado.</td></tr>';
+                            return;
+                        }
+                        tbody.innerHTML = '';
+                        data.artesanos.forEach(function(a) {
+                            var fecha = (a.fecha_registro || '').replace('T', ' ').split('.')[0].split(' ')[0];
+                            var esPendiente = a.estado === 'PENDIENTE';
+                            var esActivo = a.estado === 'ACTIVO';
+                            var badgeColor = esPendiente ? '#d97706' : (esActivo ? '#16a34a' : '#dc2626');
+                            var tr = document.createElement('tr');
+                            tr.innerHTML =
+                                '<td>' + (a.nom_persona_ecommerce || '') + ' ' + (a.ape_persona_ecommerce || '') + '</td>' +
+                                '<td>' + (a.id_persona_ecommerce || '') + '</td>' +
+                                '<td>' + (a.num_cel_persona_ecommerce || '') + '</td>' +
+                                '<td>' + (a.email_login || '') + '</td>' +
+                                '<td>' + fecha + '</td>' +
+                                '<td><span style="background:' + badgeColor + '22;color:' + badgeColor + ';' +
+                                'padding:3px 12px;border-radius:50px;font-size:.75rem;font-weight:700;">' +
+                                a.estado + '</span></td>' +
+                                '<td style="display:flex;gap:6px;flex-wrap:wrap;">' +
+                                (esPendiente || !esActivo ?
+                                    '<button class="btn-aprobar" data-id="' + a.id_persona_ecommerce + '" ' +
+                                    'style="background:#16a34a;color:#fff;border:none;padding:5px 12px;' +
+                                    'border-radius:6px;cursor:pointer;font-size:.8rem;font-weight:700;">' +
+                                    '<i class="fa-solid fa-check"></i> Aprobar</button>' : '') +
+                                (esPendiente || esActivo ?
+                                    '<button class="btn-rechazar" data-id="' + a.id_persona_ecommerce + '" ' +
+                                    'style="background:#dc2626;color:#fff;border:none;padding:5px 12px;' +
+                                    'border-radius:6px;cursor:pointer;font-size:.8rem;font-weight:700;">' +
+                                    '<i class="fa-solid fa-xmark"></i> Rechazar</button>' : '') +
+                                '</td>';
+                            tbody.appendChild(tr);
+                        });
+
+                        // Eventos aprobar/rechazar
+                        tbody.querySelectorAll('.btn-aprobar').forEach(function(btn) {
+                            btn.addEventListener('click', function() {
+                                accionArtesano(btn.dataset.id, 'aprobar');
+                            });
+                        });
+                        tbody.querySelectorAll('.btn-rechazar').forEach(function(btn) {
+                            btn.addEventListener('click', function() {
+                                accionArtesano(btn.dataset.id, 'rechazar');
+                            });
+                        });
+                    })
+                    .catch(function() {
+                        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#f87171;padding:2rem;">' +
+                            'Error al cargar artesanos.</td></tr>';
+                    });
+            }
+
+            function accionArtesano(id, accion) {
+                var confirmMsg = accion === 'aprobar' ?
+                    '¿Aprobar este artesano? Podrá iniciar sesión y publicar productos.' :
+                    '¿Rechazar este artesano? No podrá acceder a la plataforma.';
+                if (!confirm(confirmMsg)) return;
+
+                fetch(API, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            id: id,
+                            accion: accion
+                        })
+                    })
+                    .then(function(r) {
+                        return r.json();
+                    })
+                    .then(function(data) {
+                        if (data.ok) {
+                            cargarArtesanos(estadoActual);
+                        } else {
+                            alert('Error: ' + (data.error || 'Intenta de nuevo.'));
+                        }
+                    })
+                    .catch(function() {
+                        alert('No se pudo conectar con el servidor.');
+                    });
+            }
+        })();
+    </script>
+</body>
+
+</html>
+
+</html>

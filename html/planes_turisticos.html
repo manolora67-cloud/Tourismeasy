@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Planes Turísticos - TourismEasy</title>
+    <link rel="stylesheet" href="../css/index.css">
+    <link rel="stylesheet" href="../css/login.css">
+    <link rel="stylesheet" href="../css/planes_turisticos.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="../css/carrito.css">
+    <link rel="stylesheet" href="../css/captcha.css">
+    <link rel="stylesheet" href="../css/agente-ia.css" />
+    <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
+</head>
+
+<body>
+    <!-- NAVBAR: se rellena solo con componentes/navbar.js -->
+    <div id="site-navbar" data-context="subpage" data-active="planes"></div>
+
+    <main>
+        <section class="module-hero">
+            <h1 class="module-title">Planes Turísticos</h1>
+            <p class="module-subtitle">Experiencias diseñadas para todos en Santander.</p>
+        </section>
+
+        <div class="search-container">
+            <div class="search-group">
+                <label>Lugar</label>
+                <select id="filtro-lugar">
+          <option value="">Todos los destinos</option>
+          <option value="Barichara">Barichara</option>
+          <option value="Bucaramanga">Bucaramanga</option>
+          <option value="Cañón del Chicamocha">Cañón del Chicamocha</option>
+          <option value="Girón">Girón</option>
+          <option value="Mesa de los Santos">Mesa de los Santos</option>
+          <option value="Mompox">Mompox</option>
+          <option value="Rionegro">Rionegro</option>
+          <option value="San Gil">San Gil</option>
+          <option value="Socorro">Socorro</option>
+          <option value="Vélez">Vélez</option>
+        </select>
+            </div>
+            <div class="search-group">
+                <label>Adultos</label>
+                <input type="number" id="filtro-adultos" min="1" max="10" value="1">
+            </div>
+            <div class="search-group">
+                <label>Niños</label>
+                <input type="number" id="filtro-ninos" min="0" max="10" value="0">
+            </div>
+            <div class="search-group">
+                <label>Tipo de Plan</label>
+                <select id="filtro-tipo">
+          <option value="">Todos los tipos</option>
+          <option value="Aventura">Aventura</option>
+          <option value="Cultural">Cultural</option>
+          <option value="Gastronómico">Gastronómico</option>
+          <option value="Relajación">Relajación</option>
+          <option value="Familiar">Familiar</option>
+          <option value="Ecoturismo">Ecoturismo</option>
+          <option value="Turismo Accesible">Turismo Accesible</option>
+        </select>
+            </div>
+            <button class="btn-buscar" id="btn-explorar">Explorar Planes</button>
+        </div>
+
+        <div class="results-grid">
+        </div>
+    </main>
+
+    <!-- ================================================
+     MODAL DETALLES DE PLAN TURÍSTICO (propio de esta página)
+     ================================================ -->
+    <div id="plan-detalle-overlay" class="vd-overlay" aria-hidden="true" role="dialog" aria-modal="true">
+        <div class="vd-box">
+            <button class="vd-cerrar" id="plan-cerrar" aria-label="Cerrar">&times;</button>
+            <img class="vd-img" id="plan-img" src="" alt="">
+            <div class="vd-body">
+                <h2 class="vd-titulo" id="plan-titulo"></h2>
+                <div class="vd-info-grid">
+                    <div class="vd-info-item">
+                        <i class="fa-solid fa-tag"></i>
+                        <div>
+                            <span class="vd-label">Categoría</span>
+                            <span class="vd-val" id="plan-categoria"></span>
+                        </div>
+                    </div>
+                    <div class="vd-info-item">
+                        <i class="fa-solid fa-location-dot"></i>
+                        <div>
+                            <span class="vd-label">Ubicación</span>
+                            <span class="vd-val" id="plan-ubicacion"></span>
+                        </div>
+                    </div>
+                    <div class="vd-info-item">
+                        <i class="fa-solid fa-clock"></i>
+                        <div>
+                            <span class="vd-label">Duración</span>
+                            <span class="vd-val" id="plan-duracion"></span>
+                        </div>
+                    </div>
+                    <div class="vd-info-item">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <div>
+                            <span class="vd-label">Incluye</span>
+                            <span class="vd-val" id="plan-incluye"></span>
+                        </div>
+                    </div>
+                    <div class="vd-info-item vd-info-full">
+                        <i class="fa-solid fa-wheelchair"></i>
+                        <div>
+                            <span class="vd-label">Accesibilidad</span>
+                            <span class="vd-val" id="plan-accesibilidad"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="vd-footer">
+                    <span class="vd-precio" id="plan-precio"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER: se rellena solo con componentes/footer.js -->
+    <div id="site-footer"></div>
+
+    <!-- ==== COMPONENTES GLOBALES (mismo orden que index.html) ==== -->
+    <script src="../componentes/navbar.js"></script>
+    <script src="../componentes/btn-acceder.js"></script>
+    <script src="../componentes/dark-mode-toggle.js"></script>
+    <script src="../componentes/footer.js"></script>
+
+    <!-- ==== SCRIPTS PROPIOS DE ESTA PÁGINA ==== -->
+
+    <script src="../componentes/carrito.js"></script>
+    <script src="../js/captcha.js"></script>
+    <script src="../js/login.js"></script>
+    <script src="../componentes/agente-ia.js"></script>
+    <script src="../js/planes_turisticos.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <script src="../js/santanderianidad.js"></script>
+</body>
+
+</html>

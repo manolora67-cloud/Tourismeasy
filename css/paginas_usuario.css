@@ -1,0 +1,926 @@
+/* ===========================
+   PÁGINAS DE USUARIO
+   Estilos compartidos para:
+   - perfil_viajero.html
+   - reservas_viajero.html
+   - config_viajero.html
+   (y sus equivalentes de empresa)
+   v2 — Responsivo completo
+=========================== */
+
+/* Área principal de contenido: ocupa el alto de la pantalla menos la navbar */
+.pu-main {
+  min-height: calc(100vh - 76px);
+  background: var(--gray-100);
+  padding: 32px 24px 60px;
+}
+
+/* Layout de 2 columnas: sidebar fijo a la izquierda, contenido a la derecha */
+.pu-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 260px 1fr; /* Sidebar de 260px + contenido flexible */
+  gap: 28px;
+  align-items: start;
+}
+
+/* ===========================
+   SIDEBAR — Panel lateral izquierdo
+=========================== */
+.pu-sidebar {
+  background: var(--white);
+  border-radius: 18px;
+  padding: 28px 20px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--gray-200);
+  position: sticky; /* Se queda fijo mientras el usuario hace scroll */
+  top: 96px;        /* Debajo de la navbar */
+  text-align: center;
+}
+
+/* Avatar circular con las iniciales del usuario */
+.pu-sidebar-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #7c3aed, #a855f7); /* Morado para viajeros */
+  color: #fff;
+  font-family: var(--font-head);
+  font-weight: 800;
+  font-size: 1.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 14px;
+  letter-spacing: 1px;
+  flex-shrink: 0;
+}
+
+/* Avatar azul para cuentas de empresa */
+.pu-sidebar-avatar-empresa {
+  background: linear-gradient(135deg, #0ea5e9, #6366f1);
+}
+
+.pu-sidebar-nombre {
+  font-family: var(--font-head);
+  font-weight: 800;
+  font-size: 1rem;
+  color: var(--gray-800);
+  margin-bottom: 6px;
+}
+
+/* Tipo de cuenta (Viajero, Empresa) con ícono */
+.pu-sidebar-tipo {
+  font-size: 0.8rem;
+  color: var(--purple);
+  font-weight: 600;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+/* Lista de links de navegación del sidebar */
+.pu-sidebar-nav { display: flex; flex-direction: column; gap: 4px; text-align: left; }
+
+/* Cada link de navegación */
+.pu-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px;
+  border-radius: 10px;
+  font-family: var(--font-head);
+  font-weight: 600;
+  font-size: 0.88rem;
+  color: var(--gray-600);
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.pu-nav-item i { width: 16px; text-align: center; font-size: 0.85rem; flex-shrink: 0; }
+
+.pu-nav-item:hover         { background: var(--gray-100); color: var(--purple); }
+.pu-nav-item.active        { background: rgba(124, 58, 237, 0.08); color: var(--purple); font-weight: 700; }
+.pu-nav-highlight          { color: var(--purple) !important; font-weight: 700 !important; }
+
+/* Enlace de "Cerrar sesión" en rojo */
+.pu-nav-danger             { color: #ef4444 !important; }
+.pu-nav-danger:hover       { background: #fef2f2 !important; color: #dc2626 !important; }
+
+/* ===========================
+   CONTENIDO PRINCIPAL
+=========================== */
+.pu-content { display: flex; flex-direction: column; gap: 20px; }
+
+/* Encabezado de cada página: título + botón "Editar" */
+.pu-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.pu-page-header h1 {
+  font-family: var(--font-head);
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--gray-800);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pu-page-header h1 i { color: var(--purple); }
+
+/* ===========================
+   CARDS — Tarjetas de contenido
+=========================== */
+.pu-card {
+  background: var(--white);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--gray-200);
+}
+
+/* Card de zona peligrosa (ej: "Eliminar cuenta") */
+.pu-card-danger { border-color: rgba(239, 68, 68, 0.25); }
+
+/* Título de la tarjeta con separador inferior */
+.pu-card-title {
+  font-family: var(--font-head);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--gray-800);
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.pu-card-title i      { color: var(--purple); }
+.pu-card-hint         { font-size: 0.83rem; color: var(--gray-400); margin: 10px 0 14px; line-height: 1.5; }
+
+/* ===========================
+   PERFIL HERO — Sección superior del perfil
+=========================== */
+.pu-perfil-hero {
+  display: flex;
+  align-items: flex-start;
+  gap: 28px;
+  flex-wrap: wrap;
+}
+
+/* Avatar grande de la página de perfil */
+.pu-perfil-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #7c3aed, #a855f7);
+  color: #fff;
+  font-family: var(--font-head);
+  font-weight: 800;
+  font-size: 1.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.pu-perfil-avatar-empresa { background: linear-gradient(135deg, #0ea5e9, #6366f1); }
+
+.pu-perfil-info h2 { font-family: var(--font-head); font-size: 1.3rem; font-weight: 800; color: var(--gray-800); margin-bottom: 6px; }
+.pu-perfil-info p  { font-size: 0.88rem; color: var(--gray-600); margin-bottom: 4px; display: flex; align-items: center; gap: 7px; }
+
+/* Badge de tipo de cuenta (ej: "Viajero", "Empresa Aliada") */
+.pu-badge-tipo {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  background: rgba(124, 58, 237, 0.08);
+  color: var(--purple);
+  padding: 5px 14px;
+  border-radius: 50px;
+  font-family: var(--font-head);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.pu-badge-empresa { background: rgba(14, 165, 233, 0.1); color: #0284c7; }
+
+/* ===========================
+   GRID Y CAMPOS DE DATOS
+=========================== */
+/* 2 tarjetas en paralelo */
+.pu-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: stretch; }
+.pu-grid-2 > .pu-card { display: flex; flex-direction: column; }
+
+/* Lista vertical de campos (label + valor) */
+.pu-field-list { display: flex; flex-direction: column; gap: 14px; }
+
+/* Cada campo: label a la izquierda, valor a la derecha */
+.pu-field {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  background: var(--gray-100);
+  border-radius: 10px;
+  gap: 12px;
+}
+
+.pu-field-label { font-size: 0.8rem; color: var(--gray-400); font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; flex-shrink: 0; }
+.pu-field-val   { font-size: 0.9rem; color: var(--gray-800); font-weight: 600; text-align: right; word-break: break-word; }
+
+/* ===========================
+   SERVICIOS — Lista de servicios de empresa
+=========================== */
+.pu-services-list { display: flex; flex-direction: column; gap: 10px; }
+
+.pu-service-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: rgba(124, 58, 237, 0.06);
+  border-radius: 10px;
+  font-family: var(--font-head);
+  font-weight: 600;
+  font-size: 0.88rem;
+  color: var(--purple);
+}
+
+/* ===========================
+   ESTADÍSTICAS — Fila de métricas numéricas
+=========================== */
+.pu-stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; text-align: center; }
+.pu-stats-row--2col { grid-template-columns: repeat(2, 1fr); }
+
+.pu-stat { padding: 16px; background: var(--gray-100); border-radius: 12px; }
+
+/* Número grande en morado */
+.pu-stat-num { display: block; font-family: var(--font-head); font-size: 1.8rem; font-weight: 800; color: var(--purple); }
+.pu-stat-label { font-size: 0.78rem; color: var(--gray-600); font-weight: 600; }
+
+/* ===========================
+   BOTONES
+=========================== */
+/* Botón editar (morado sólido) */
+.pu-btn-edit {
+  display: flex; align-items: center; gap: 7px;
+  background: var(--purple); color: #fff;
+  font-family: var(--font-head); font-weight: 700; font-size: 0.85rem;
+  padding: 10px 20px; border-radius: 50px; border: none; cursor: pointer;
+  transition: background 0.2s, transform 0.15s; white-space: nowrap;
+}
+.pu-btn-edit:hover { background: var(--purple-dark); transform: translateY(-1px); }
+
+/* Botón secundario (outline) */
+.pu-btn-secondary {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: none; border: 1.5px solid var(--gray-200); color: var(--gray-800);
+  font-family: var(--font-head); font-weight: 700; font-size: 0.82rem;
+  padding: 8px 16px; border-radius: 50px; cursor: pointer;
+  transition: border-color 0.2s, color 0.2s; white-space: nowrap;
+}
+.pu-btn-secondary:hover { border-color: var(--purple); color: var(--purple); }
+
+/* Botón primario (morado, variante con más padding) */
+.pu-btn-primary {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--purple); color: #fff;
+  font-family: var(--font-head); font-weight: 700; font-size: 0.9rem;
+  padding: 12px 24px; border-radius: 50px; border: none; cursor: pointer;
+  text-decoration: none; transition: background 0.2s, transform 0.15s;
+  margin-top: 8px; white-space: nowrap;
+}
+.pu-btn-primary:hover { background: var(--purple-dark); transform: translateY(-1px); }
+
+/* Botón de acción destructiva (rojo) */
+.pu-btn-danger {
+  background: #ef4444; color: #fff;
+  font-family: var(--font-head); font-weight: 700; font-size: 0.82rem;
+  padding: 8px 16px; border-radius: 50px; border: none; cursor: pointer;
+  transition: background 0.2s; white-space: nowrap;
+}
+.pu-btn-danger:hover { background: #dc2626; }
+
+/* ===========================
+   FILTROS DE RESERVAS — Chips de estado
+=========================== */
+.pu-filtros { padding: 16px 24px; }
+.pu-filtros-row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.pu-filter-btn {
+  display: flex; align-items: center; gap: 7px;
+  background: var(--gray-100); border: 1.5px solid var(--gray-200);
+  color: var(--gray-600); font-family: var(--font-head); font-weight: 700; font-size: 0.8rem;
+  padding: 8px 16px; border-radius: 50px; cursor: pointer; transition: all 0.2s;
+}
+
+/* Estado activo del filtro */
+.pu-filter-btn:hover,
+.pu-filter-btn.active { border-color: var(--purple); color: var(--purple); background: rgba(124, 58, 237, 0.07); }
+
+/* ===========================
+   EMPTY STATE — Pantalla vacía
+   (ej: "No tienes reservas todavía")
+=========================== */
+.pu-empty-state { text-align: center; padding: 40px 24px; }
+.pu-empty-icon  { font-size: 3rem; color: var(--gray-200); margin-bottom: 16px; }
+.pu-empty-state h3 { font-family: var(--font-head); font-size: 1.1rem; font-weight: 800; color: var(--gray-800); margin-bottom: 8px; }
+.pu-empty-state p  { font-size: 0.9rem; color: var(--gray-600); line-height: 1.6; margin-bottom: 20px; }
+
+/* ===========================
+   STEPS — Pasos de un proceso
+   (ej: "Cómo hacer tu primera reserva")
+=========================== */
+.pu-steps { display: flex; flex-direction: column; gap: 16px; }
+.pu-step  { display: flex; gap: 16px; align-items: flex-start; }
+
+/* Número del paso en círculo morado */
+.pu-step-num {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: linear-gradient(135deg, #7c3aed, #a855f7);
+  color: #fff; font-family: var(--font-head); font-weight: 800; font-size: 0.9rem;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+
+.pu-step strong { font-family: var(--font-head); font-size: 0.95rem; color: var(--gray-800); display: block; margin-bottom: 2px; }
+.pu-step p      { font-size: 0.85rem; color: var(--gray-600); margin: 0; }
+
+/* ===========================
+   CONFIGURACIÓN — Lista de ajustes
+=========================== */
+.pu-config-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--gray-200);
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.pu-config-item:last-child { border-bottom: none; padding-bottom: 0; }
+.pu-config-item strong     { font-family: var(--font-head); font-size: 0.9rem; color: var(--gray-800); display: block; margin-bottom: 2px; }
+.pu-config-item p          { font-size: 0.8rem; color: var(--gray-400); margin: 0; }
+
+/* ── Toggle ON/OFF en configuración ── */
+.pu-toggle-item {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 0; border-bottom: 1px solid var(--gray-200); gap: 16px;
+}
+
+.pu-toggle-item:last-child { border-bottom: none; }
+.pu-toggle-item strong     { font-family: var(--font-head); font-size: 0.9rem; color: var(--gray-800); display: block; margin-bottom: 2px; }
+.pu-toggle-item p          { font-size: 0.8rem; color: var(--gray-400); margin: 0; }
+
+/* Switch toggle CSS puro (sin JS) */
+.pu-toggle { position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0; }
+.pu-toggle input { opacity: 0; width: 0; height: 0; }
+
+/* La pista (fondo del toggle) */
+.pu-toggle-slider { position: absolute; inset: 0; background: var(--gray-200); border-radius: 24px; cursor: pointer; transition: background 0.25s; }
+
+/* La bolita blanca */
+.pu-toggle-slider::before {
+  content: "";
+  position: absolute;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  left: 3px; top: 3px;
+  transition: transform 0.25s;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Activado: pista morada + bolita desplazada */
+.pu-toggle input:checked + .pu-toggle-slider             { background: var(--purple); }
+.pu-toggle input:checked + .pu-toggle-slider::before     { transform: translateX(20px); }
+
+/* ===========================
+   SIDEBAR RESERVAS — Variante sin sticky
+=========================== */
+.pu-container--stretch { align-items: stretch !important; }
+.pu-container--stretch > .pu-sidebar--reservas { align-self: stretch; min-height: 100%; }
+.pu-sidebar--reservas { position: static !important; top: auto !important; display: flex; flex-direction: column; padding-bottom: 30px; }
+
+/* Fix para que el sidebar del perfil también se estire */
+.pu-main .pu-container--stretch > aside {
+  align-self: stretch !important; position: static !important; top: auto !important;
+  display: flex !important; flex-direction: column !important;
+}
+
+/* ===========================
+   SIDEBAR PROMO — Bloque de nivel de viajero
+=========================== */
+.pu-sidebar-promo {
+  margin-top: 40px; padding: 20px;
+  background: rgba(124, 58, 237, 0.05);
+  border-radius: 14px; text-align: left;
+  border: 1px solid rgba(124, 58, 237, 0.1);
+}
+
+.pu-sidebar-promo__title  { font-family: var(--font-head); font-size: 0.85rem; font-weight: 700; color: var(--purple); margin-bottom: 8px; }
+.pu-sidebar-promo__text   { font-size: 0.78rem; color: var(--gray-600); line-height: 1.4; margin-bottom: 12px; }
+.pu-sidebar-promo__nivel  { border-top: 1px solid rgba(0, 0, 0, 0.05); padding-top: 10px; }
+.pu-sidebar-promo__nivel-label { font-size: 0.7rem; color: var(--gray-400); font-weight: 600; text-transform: uppercase; }
+
+/* Barra de progreso del nivel */
+.pu-nivel-bar       { width: 100%; height: 6px; background: var(--gray-200); border-radius: 10px; margin: 5px 0; }
+.pu-nivel-bar__fill { width: 65%; height: 100%; background: var(--purple); border-radius: 10px; }
+
+.pu-sidebar-promo__nivel-nombre { font-size: 0.75rem; color: var(--purple); font-weight: 700; }
+
+/* ===========================
+   TABLA DE RESERVAS
+=========================== */
+.pu-table-wrapper {
+  overflow-x: auto;              /* Scroll horizontal en móvil */
+  -webkit-overflow-scrolling: touch;
+}
+
+.pu-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  min-width: 520px; /* Ancho mínimo para no aplastarse en móvil */
+}
+
+.pu-table__head-row { border-bottom: 2px solid var(--gray-200); text-align: left; }
+
+.pu-table__th {
+  padding: 12px 8px;
+  color: var(--gray-400);
+  font-family: var(--font-head);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+
+.pu-table__th--center { text-align: center; }
+
+.pu-table__row { border-bottom: 1px solid var(--gray-100); transition: background 0.15s; }
+.pu-table__row:hover { background: rgba(124, 58, 237, 0.03); }
+
+.pu-table__td          { padding: 12px 8px; vertical-align: middle; }
+.pu-table__td--fecha   { font-weight: 600; white-space: nowrap; font-size: 0.82rem; color: var(--gray-600); }
+.pu-table__td--total   { font-weight: 700; white-space: nowrap; color: var(--gray-800); }
+.pu-table__td--center  { text-align: center; }
+
+/* Nombre del servicio en morado */
+.pu-table__servicio-nombre { display: block; color: var(--purple); font-family: var(--font-head); font-weight: 700; font-size: 0.85rem; margin-bottom: 2px; }
+.pu-table__td small { display: block; font-size: 0.75rem; color: var(--gray-400); }
+
+/* ── Badges de estado de reserva ── */
+.estado-activo    { display: inline-block; background: rgba(34, 197, 94, 0.12); color: #16a34a; font-family: var(--font-head); font-weight: 700; font-size: 0.72rem; padding: 3px 10px; border-radius: 50px; letter-spacing: 0.3px; white-space: nowrap; }
+.estado-pendiente { display: inline-block; background: rgba(245, 158, 11, 0.12); color: #d97706; font-family: var(--font-head); font-weight: 700; font-size: 0.72rem; padding: 3px 10px; border-radius: 50px; white-space: nowrap; }
+.estado-cancelado { display: inline-block; background: rgba(239, 68, 68, 0.1);   color: #dc2626; font-family: var(--font-head); font-weight: 700; font-size: 0.72rem; padding: 3px 10px; border-radius: 50px; white-space: nowrap; }
+
+/* ===========================
+   CARD PROMO — Tarjeta de oferta/invitación
+=========================== */
+.pu-card--promo {
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(168, 85, 247, 0.1));
+  border: 1.5px dashed var(--purple);
+  padding: 35px;
+}
+
+.pu-promo-inner  { display: flex; justify-content: space-between; align-items: center; gap: 20px; }
+.pu-promo-texto  { flex: 2; }
+.pu-promo-titulo { color: var(--purple); margin-bottom: 10px; font-size: 1.4rem; font-family: var(--font-head); font-weight: 800; }
+.pu-promo-desc   { color: var(--gray-600); font-size: 0.95rem; line-height: 1.5; }
+.pu-promo-precio { flex: 1; text-align: right; }
+.pu-promo-desde  { font-size: 0.8rem; color: var(--gray-400); font-weight: 600; }
+.pu-promo-valor  { margin: 5px 0 15px; font-family: var(--font-head); font-size: 2rem; font-weight: 800; color: var(--purple); }
+
+/* ===========================
+   DATOS DEL PERFIL — Columna derecha del hero
+=========================== */
+.pu-perfil-datos {
+  flex: 1;
+  min-width: 180px;
+  padding-left: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-self: stretch;
+  justify-content: center;
+}
+
+/* ── Clases utilitarias del perfil ── */
+
+/* Grid de 3 columnas para datos rápidos */
+.pu-perfil-datos-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
+/* Campo en columna (label arriba, valor abajo) */
+.pu-field--col      { flex-direction: column; align-items: flex-start; gap: 6px; }
+.pu-field-val--muted { color: var(--gray-400); font-style: italic; }
+
+/* Caja motivacional dentro de una card */
+.pu-card-callout {
+  margin-top: 16px; padding: 12px 14px;
+  background: rgba(124, 58, 237, 0.07);
+  border-radius: 10px;
+  border-left: 3px solid var(--purple);
+}
+
+.pu-card-callout__title { font-size: 0.8rem; color: var(--purple); font-weight: 700; margin-bottom: 3px; }
+.pu-card-callout__text  { font-size: 0.75rem; color: var(--gray-600); line-height: 1.4; margin: 0; }
+
+/* Lista de verificación de accesibilidad */
+.pu-check-list  { list-style: none; padding: 0; margin: 14px 0 0; display: flex; flex-direction: column; gap: 8px; }
+.pu-check-item  { display: flex; align-items: center; gap: 8px; font-size: 0.78rem; color: var(--gray-600); }
+.pu-check-icon  { color: #22c55e; font-size: 0.85rem; flex-shrink: 0; }
+
+/* Botón con margen superior */
+.pu-btn--mt { margin-top: 18px; }
+
+/* Wrapper del botón "Cerrar sesión" al final del sidebar */
+.pu-nav-logout-wrapper { margin-top: auto; padding-top: 16px; }
+
+/* Título de card de zona peligrosa */
+.pu-card-title--danger   { color: #ef4444; }
+.pu-card-title--danger i { color: #ef4444; }
+
+/* ===========================
+   MODAL EDITAR PERFIL
+=========================== */
+.pu-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.pu-modal-box {
+  background: var(--white);
+  border-radius: 20px;
+  padding: 36px 32px;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+  position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.pu-modal-close       { position: absolute; top: 16px; right: 18px; background: none; border: none; font-size: 1.3rem; cursor: pointer; color: var(--gray-400); transition: color 0.2s; }
+.pu-modal-close:hover { color: var(--gray-800); }
+
+.pu-modal-titulo   { font-size: 1.1rem; font-weight: 700; margin-bottom: 6px; color: var(--gray-800); font-family: var(--font-head); display: flex; align-items: center; gap: 8px; }
+.pu-modal-titulo i { color: var(--purple); }
+.pu-modal-desc     { font-size: 0.8rem; color: var(--gray-500); margin-bottom: 24px; }
+
+.pu-modal-fields { display: flex; flex-direction: column; gap: 16px; }
+.pu-modal-field  { display: flex; flex-direction: column; gap: 6px; }
+.pu-modal-label  { font-size: 0.75rem; font-weight: 700; color: var(--gray-600); text-transform: uppercase; letter-spacing: 0.05em; }
+
+.pu-modal-input {
+  width: 100%; padding: 10px 14px;
+  border-radius: 10px; border: 1.5px solid var(--gray-200);
+  font-size: 0.9rem; font-family: inherit; outline: none;
+  box-sizing: border-box; background: var(--white); color: var(--gray-800);
+  transition: border-color 0.2s;
+}
+
+.pu-modal-input:focus { border-color: var(--purple); }
+
+.pu-modal-actions { display: flex; gap: 12px; margin-top: 28px; }
+
+/* Botón cancelar del modal */
+.pu-modal-btn-cancel {
+  flex: 1; padding: 11px; border-radius: 10px;
+  border: 1.5px solid var(--gray-200); background: transparent;
+  font-size: 0.88rem; font-weight: 600; cursor: pointer;
+  color: var(--gray-600); font-family: inherit;
+  transition: border-color 0.2s, color 0.2s;
+}
+.pu-modal-btn-cancel:hover { border-color: var(--gray-400); color: var(--gray-800); }
+
+/* Botón guardar del modal */
+.pu-modal-btn-save {
+  flex: 2; padding: 11px; border-radius: 10px;
+  border: none; background: var(--purple); color: #fff;
+  font-size: 0.88rem; font-weight: 700; cursor: pointer;
+  font-family: inherit; transition: background 0.2s;
+}
+.pu-modal-btn-save:hover { background: var(--purple-dark); }
+
+/* Toast de confirmación dentro del modal */
+.pu-modal-toast {
+  margin-top: 16px; padding: 12px 16px;
+  background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3);
+  border-radius: 10px; color: #16a34a;
+  font-size: 0.82rem; font-weight: 600; text-align: center;
+}
+
+/* Dark mode del modal */
+body.dark-mode .pu-modal-box          { background: #1e293b; }
+body.dark-mode .pu-modal-titulo       { color: #f1f5f9; }
+body.dark-mode .pu-modal-desc         { color: #94a3b8; }
+body.dark-mode .pu-modal-input        { background: #0f172a; border-color: #334155; color: #f1f5f9; }
+body.dark-mode .pu-modal-btn-cancel   { border-color: #334155; color: #94a3b8; }
+body.dark-mode .pu-modal-close        { color: #64748b; }
+body.dark-mode .pu-card-callout       { background: rgba(124, 58, 237, 0.12); }
+body.dark-mode .pu-card-callout__text { color: #94a3b8; }
+body.dark-mode .pu-check-item         { color: #94a3b8; }
+
+/* ===========================
+   CONFIG LAYOUT — Alternativo (sin pu-container)
+=========================== */
+.perfil-layout {
+  max-width: 1200px; margin: 0 auto;
+  display: grid; grid-template-columns: 260px 1fr;
+  gap: 28px; align-items: stretch;
+}
+
+.perfil-sidebar {
+  background: var(--white); border-radius: 18px; padding: 28px 20px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06); border: 1px solid var(--gray-200);
+  display: flex; flex-direction: column; text-align: center;
+}
+
+/* Bloques de información en el sidebar de configuración */
+.pu-sidebar-bloque { margin-top: 14px; padding: 14px; border-radius: 12px; text-align: left; }
+.pu-sidebar-bloque--nivel   { background: rgba(124, 58, 237, 0.07); border: 1px solid rgba(124, 58, 237, 0.15); }
+.pu-sidebar-bloque--soporte { background: rgba(34, 197, 94, 0.06);  border: 1px solid rgba(34, 197, 94, 0.15); }
+
+.pu-sidebar-bloque__titulo          { font-size: 0.78rem; font-weight: 700; margin-bottom: 6px; }
+.pu-sidebar-bloque__titulo--nivel   { color: var(--purple); }
+.pu-sidebar-bloque__titulo--soporte { color: #16a34a; }
+
+.pu-sidebar-bloque__texto  { font-size: 0.74rem; color: var(--gray-500); line-height: 1.45; margin-bottom: 10px; }
+.pu-sidebar-bloque__nombre { font-size: 0.8rem; font-weight: 600; color: var(--gray-700); margin-bottom: 8px; }
+.pu-sidebar-bloque__hint   { font-size: 0.72rem; color: var(--gray-500); margin: 0; }
+
+/* Botón de soporte en el sidebar */
+.pu-sidebar-bloque__btn {
+  display: block; text-align: center; font-size: 0.75rem; font-weight: 600;
+  color: #16a34a; border: 1px solid #16a34a; border-radius: 8px;
+  padding: 6px 0; text-decoration: none;
+  transition: background 0.2s, color 0.2s;
+}
+.pu-sidebar-bloque__btn:hover { background: #16a34a; color: #fff; }
+
+/* Lista de checks de seguridad */
+.pu-sidebar-checks { margin-top: 12px; display: flex; flex-direction: column; gap: 7px; }
+.pu-sidebar-check  { display: flex; align-items: center; gap: 7px; font-size: 0.76rem; color: var(--gray-500); }
+
+/* ===========================
+   DARK MODE GLOBAL
+=========================== */
+body.dark-mode .pu-main { background: #0f172a; }
+
+body.dark-mode .pu-sidebar,
+body.dark-mode .perfil-sidebar,
+body.dark-mode .pu-card { background: #1e293b; border-color: #334155; }
+
+/* Textos que se ponen claros en dark mode */
+body.dark-mode .pu-sidebar-nombre,
+body.dark-mode .pu-page-header h1,
+body.dark-mode .pu-card-title,
+body.dark-mode .pu-perfil-info h2,
+body.dark-mode .pu-field-val,
+body.dark-mode .pu-stat-num,
+body.dark-mode .pu-config-item strong,
+body.dark-mode .pu-toggle-item strong,
+body.dark-mode .pu-step strong           { color: #f1f5f9; }
+
+body.dark-mode .pu-field-label,
+body.dark-mode .pu-stat-label,
+body.dark-mode .pu-config-item p,
+body.dark-mode .pu-toggle-item p         { color: #94a3b8; }
+
+body.dark-mode .pu-field,
+body.dark-mode .pu-card-title            { border-color: #334155; }
+body.dark-mode .pu-field                 { background: #0f172a; }
+body.dark-mode .pu-nav-item              { color: #94a3b8; }
+body.dark-mode .pu-nav-item:hover,
+body.dark-mode .pu-nav-item.active       { background: #0f172a; color: var(--purple-light); }
+body.dark-mode .pu-stat                  { background: #0f172a; }
+body.dark-mode .pu-btn-secondary         { border-color: #334155; color: #f1f5f9; }
+body.dark-mode .pu-btn-secondary:hover   { border-color: var(--purple-light); color: var(--purple-light); }
+body.dark-mode .pu-filter-btn            { background: #0f172a; border-color: #334155; color: #94a3b8; }
+body.dark-mode .pu-toggle-item,
+body.dark-mode .pu-config-item           { border-color: #334155; }
+body.dark-mode .pu-toggle-slider         { background: #334155; }
+body.dark-mode .pu-service-item          { background: rgba(168, 85, 247, 0.1); }
+body.dark-mode .pu-empty-state h3        { color: #f1f5f9; }
+body.dark-mode .pu-empty-state p         { color: #94a3b8; }
+body.dark-mode .pu-empty-icon            { color: #334155; }
+body.dark-mode .pu-sidebar-promo         { background: rgba(124, 58, 237, 0.08); border-color: rgba(124, 58, 237, 0.2); }
+body.dark-mode .pu-sidebar-promo__text   { color: #94a3b8; }
+body.dark-mode .pu-sidebar-promo__nivel  { border-color: #334155; }
+body.dark-mode .pu-nivel-bar             { background: #334155; }
+body.dark-mode .pu-table__head-row       { border-color: #334155; }
+body.dark-mode .pu-table__row            { border-color: #1e293b; }
+body.dark-mode .pu-table__row:hover      { background: rgba(124, 58, 237, 0.05); }
+body.dark-mode .pu-table__td--fecha      { color: #94a3b8; }
+body.dark-mode .pu-table__td--total      { color: #f1f5f9; }
+body.dark-mode .pu-table__th             { color: #64748b; }
+body.dark-mode .pu-table__td small       { color: #64748b; }
+body.dark-mode .pu-table__servicio-nombre { color: #a78bfa; }
+body.dark-mode .pu-promo-desc            { color: #94a3b8; }
+body.dark-mode .pu-promo-desde           { color: #94a3b8; }
+body.dark-mode .pu-promo-valor           { color: #a78bfa; }
+body.dark-mode .pu-perfil-datos          { border-color: #334155; }
+body.dark-mode .pu-sidebar-bloque--nivel  { background: rgba(124, 58, 237, 0.12); border-color: rgba(124, 58, 237, 0.25); }
+body.dark-mode .pu-sidebar-bloque--soporte { background: rgba(34, 197, 94, 0.08); border-color: rgba(34, 197, 94, 0.2); }
+body.dark-mode .pu-sidebar-bloque__nombre { color: #e2e8f0; }
+body.dark-mode .pu-sidebar-bloque__texto,
+body.dark-mode .pu-sidebar-bloque__hint,
+body.dark-mode .pu-sidebar-check          { color: #94a3b8; }
+
+/* ===========================
+   RESPONSIVE — TABLET (≤ 900px)
+=========================== */
+@media (max-width: 900px) {
+
+  /* Layout pasa a 1 columna: sidebar arriba, contenido abajo */
+  .pu-container,
+  .perfil-layout { grid-template-columns: 1fr; }
+
+  /* Sidebar horizontal compacto */
+  .pu-sidebar,
+  .perfil-sidebar {
+    position: static;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px;
+    padding: 20px;
+    text-align: left;
+  }
+
+  .pu-sidebar-avatar { margin: 0; flex-shrink: 0; }
+  .pu-sidebar-nombre { font-size: 0.95rem; margin-bottom: 2px; }
+  .pu-sidebar-tipo   { margin-bottom: 0; }
+  .pu-sidebar-identity { display: flex; align-items: center; gap: 12px; }
+
+  /* Navegación en fila */
+  .pu-sidebar-nav {
+    flex-direction: row; flex-wrap: wrap;
+    justify-content: flex-start; width: 100%; gap: 6px;
+  }
+
+  .pu-nav-item { padding: 9px 14px; font-size: 0.83rem; border: 1px solid var(--gray-200); }
+  .pu-nav-item.active { border-color: var(--purple); }
+
+  /* Ocultar bloques auxiliares del sidebar en tablet */
+  .pu-sidebar-promo,
+  .pu-sidebar-bloque,
+  .pu-sidebar-checks { display: none; }
+
+  .pu-nav-logout-wrapper { width: 100%; padding-top: 0; margin-top: 0; }
+  .pu-stats-row           { grid-template-columns: repeat(2, 1fr); }
+  .pu-grid-2              { grid-template-columns: 1fr; }
+
+  /* Datos del perfil debajo del avatar */
+  .pu-perfil-datos { border-left: none; border-top: 1px solid var(--gray-200); padding-left: 0; padding-top: 16px; width: 100%; }
+  body.dark-mode .pu-perfil-datos { border-color: #334155; }
+
+  .pu-perfil-datos-grid { grid-template-columns: repeat(2, 1fr); }
+  .pu-modal-box { padding: 28px 24px; }
+  .pu-card--promo { padding: 24px; }
+}
+
+/* ===========================
+   RESPONSIVE — MÓVIL (≤ 600px)
+=========================== */
+@media (max-width: 600px) {
+
+  .pu-main { padding: 12px 10px 40px; }
+
+  /* Sidebar completamente vertical y centrado */
+  .pu-sidebar,
+  .perfil-sidebar { flex-direction: column; align-items: center; text-align: center; padding: 20px 16px; }
+
+  .pu-sidebar-avatar { margin: 0 auto 12px; }
+  .pu-sidebar-nombre { font-size: 1rem; }
+  .pu-sidebar-tipo   { margin-bottom: 12px; }
+
+  /* Nav con scroll horizontal si hay muchos links */
+  .pu-sidebar-nav {
+    justify-content: center; overflow-x: auto;
+    flex-wrap: nowrap; -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px; width: 100%; gap: 6px;
+  }
+
+  .pu-nav-item { flex-shrink: 0; font-size: 0.8rem; padding: 8px 12px; }
+
+  .pu-perfil-datos-grid { grid-template-columns: 1fr; }
+
+  .pu-modal { padding: 12px; }
+  .pu-modal-box { padding: 24px 18px; border-radius: 16px; }
+
+  /* Botones del modal en columna */
+  .pu-modal-actions { flex-direction: column; }
+  .pu-modal-btn-cancel,
+  .pu-modal-btn-save { flex: unset; width: 100%; }
+
+  /* Hero del perfil en columna */
+  .pu-perfil-hero { flex-direction: column; align-items: center; text-align: center; gap: 16px; }
+  .pu-perfil-info p { justify-content: center; }
+  .pu-badge-tipo    { margin: 8px auto 0; }
+
+  .pu-stats-row { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .pu-stat-num  { font-size: 1.4rem; }
+
+  /* Tabla con scroll horizontal */
+  .pu-table { font-size: 0.78rem; min-width: 480px; }
+  .pu-table__th { padding: 10px 6px; font-size: 0.7rem; }
+  .pu-table__td { padding: 10px 6px; }
+
+  /* Card promo en columna */
+  .pu-promo-inner  { flex-direction: column; gap: 16px; }
+  .pu-promo-precio { text-align: left; width: 100%; }
+  .pu-promo-titulo { font-size: 1.1rem; }
+  .pu-promo-valor  { font-size: 1.6rem; }
+
+  /* Campos de datos en columna */
+  .pu-field { flex-direction: column; align-items: flex-start; gap: 4px; }
+  .pu-field-val { text-align: left; }
+
+  /* Items de config en columna */
+  .pu-config-item { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .pu-config-item button,
+  .pu-config-item .pu-btn-secondary,
+  .pu-config-item .pu-btn-danger { width: 100%; justify-content: center; }
+
+  .pu-page-header { gap: 10px; }
+  .pu-btn-edit { width: 100%; justify-content: center; }
+  .pu-card     { padding: 16px; }
+  .pu-card--promo { padding: 18px; }
+  .pu-page-header h1 { font-size: 1.2rem; }
+}
+
+/* ===========================
+   RESPONSIVE — EXTRA PEQUEÑO (≤ 380px)
+=========================== */
+@media (max-width: 380px) {
+
+  /* Solo mostrar el ícono de los links del sidebar, ocultar el texto */
+  .pu-nav-item span { display: none; }
+  .pu-nav-item      { padding: 9px 10px; }
+
+  .pu-stats-row  { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .pu-stat-num   { font-size: 1.2rem; }
+  .pu-stat-label { font-size: 0.7rem; }
+}
+
+/* ===========================
+   SIDEBAR BLOQUES DE RESERVAS
+   Variante con estadísticas y links de soporte
+=========================== */
+.pu-sidebar-bloque--stats { background: rgba(124, 58, 237, 0.07); border-color: rgba(124, 58, 237, 0.15); }
+.pu-sidebar-bloque--green { background: rgba(34, 197, 94, 0.06);  border-color: rgba(34, 197, 94, 0.15); }
+
+.pu-sidebar-bloque__title { font-size: 0.78rem; font-weight: 700; color: var(--purple); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+.pu-sidebar-bloque__title--green { color: #16a34a; }
+
+/* Mini estadísticas del sidebar (nro de reservas, total gastado, etc.) */
+.pu-sidebar-bloque__stats { display: flex; justify-content: space-between; gap: 6px; }
+
+.pu-sidebar-bloque__stat  {
+  display: flex; flex-direction: column; align-items: center; flex: 1;
+  background: rgba(124, 58, 237, 0.06); border-radius: 8px; padding: 8px 4px;
+}
+
+.pu-sidebar-bloque__num   { font-size: 1.2rem; font-weight: 800; color: var(--purple); font-family: var(--font-head); line-height: 1; }
+.pu-sidebar-bloque__label { font-size: 0.68rem; color: var(--gray-500); margin-top: 2px; }
+
+/* Links de acciones rápidas en el sidebar */
+.pu-sidebar-bloque__links { display: flex; flex-direction: column; gap: 6px; }
+
+.pu-sidebar-bloque__link {
+  font-size: 0.75rem; color: var(--gray-500); text-decoration: none;
+  display: flex; align-items: center; gap: 6px; transition: color 0.2s;
+}
+
+.pu-sidebar-bloque__link i     { color: #16a34a; width: 14px; }
+.pu-sidebar-bloque__link:hover { color: #16a34a; }
+
+/* Dark mode de los bloques de reservas */
+body.dark-mode .pu-sidebar-bloque--stats    { background: rgba(124, 58, 237, 0.12); border-color: rgba(124, 58, 237, 0.25); }
+body.dark-mode .pu-sidebar-bloque--green    { background: rgba(34, 197, 94, 0.08);  border-color: rgba(34, 197, 94, 0.2); }
+body.dark-mode .pu-sidebar-bloque__stat     { background: rgba(124, 58, 237, 0.12); }
+body.dark-mode .pu-sidebar-bloque__label    { color: #94a3b8; }
+body.dark-mode .pu-sidebar-bloque__link     { color: #94a3b8; }

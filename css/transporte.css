@@ -1,0 +1,825 @@
+/* ===========================
+   TRANSPORTE ESPECÍFICO
+   Estilos exclusivos de la página de transporte.
+   Se carga junto al index.css global.
+=========================== */
+
+
+/* ── Variables de color y tipografía ──
+   Se definen aquí por si este CSS se usa sin index.css */
+
+:root {
+    --purple: #7c3aed;
+    /* Morado principal de la marca */
+    --purple-light: #a855f7;
+    /* Morado más claro (hovers, acentos) */
+    --purple-dark: #5b21b6;
+    /* Morado oscuro (hovers de botones) */
+    --white: #ffffff;
+    --gray-100: #f8fafc;
+    /* Fondo muy claro */
+    --gray-200: #e2e8f0;
+    /* Bordes y divisores */
+    --gray-600: #475569;
+    /* Texto secundario */
+    --gray-800: #1e293b;
+    /* Texto principal */
+    --font-head: 'Montserrat', sans-serif;
+    /* Fuente de títulos */
+    --radius: 14px;
+    /* Radio de bordes de tarjetas */
+}
+
+
+/* ===========================
+   HERO — Sección de cabecera con imagen de fondo
+=========================== */
+
+.module-hero {
+    /* Gradiente oscuro sobre la imagen para legibilidad del texto */
+    background: linear-gradient(rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.3)), url('../img/bantra.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    padding: 130px 20px 70px;
+    /* Espacio superior grande por la navbar fija */
+    text-align: center;
+    color: white;
+}
+
+
+/* Título principal del hero — escala con clamp() para todos los dispositivos */
+
+.module-title {
+    font-family: var(--font-head);
+    font-size: clamp(1.8rem, 5vw, 3.2rem);
+    /* Min 1.8rem, fluido, max 3.2rem */
+    font-weight: 800;
+    margin-bottom: 10px;
+}
+
+
+/* Subtítulo descriptivo bajo el título */
+
+.module-subtitle {
+    font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+    color: rgba(255, 255, 255, 0.85);
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+
+/* ===========================
+   BUSCADOR — Formulario de búsqueda de transporte  
+=========================== */
+
+.search-container {
+    max-width: 1100px;
+    margin: 30px auto 60px;
+    background: var(--white);
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+    /* Grid flexible: columnas de mínimo 200px, se ajustan automáticamente */
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    position: relative;
+    z-index: 10;
+    /* Sobre el hero para que no quede tapado */
+}
+
+
+/* Cada grupo de campo: label + input/select */
+
+.search-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+
+/* Etiqueta del campo de búsqueda */
+
+.search-group label {
+    font-weight: 700;
+    font-size: 0.8rem;
+    color: var(--gray-800);
+    text-transform: uppercase;
+    font-family: var(--font-head);
+}
+
+
+/* Campos de texto y selects del buscador */
+
+.search-group select,
+.search-group input {
+    padding: 12px;
+    border: 1px solid var(--gray-200);
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    outline: none;
+    width: 100%;
+}
+
+
+/* Botón "Buscar transporte" */
+
+.btn-buscar {
+    background: var(--purple);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 20px;
+    font-family: var(--font-head);
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    align-self: flex-end;
+    /* Se alinea al fondo del grupo */
+    width: 100%;
+}
+
+.btn-buscar:hover {
+    background: var(--purple-dark);
+    transform: translateY(-1px);
+    /* Efecto de elevación sutil */
+}
+
+
+/* ===========================
+   GRID DE RESULTADOS — Cuadrícula de tarjetas de transporte
+=========================== */
+
+.results-grid {
+    max-width: 1200px;
+    margin: 0 auto 80px;
+    padding: 0 20px;
+    display: grid;
+    /* Columnas de mínimo 320px, máximo las que quepan */
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 30px;
+}
+
+
+/* ===========================
+   TARJETAS DE VUELO
+=========================== */
+
+.card-item {
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+    /* Las esquinas redondeadas cortan la imagen */
+    transition: transform 0.3s ease;
+    border: 1px solid var(--gray-100);
+    display: flex;
+    flex-direction: column;
+    /* Columna para que el footer quede abajo */
+}
+
+
+/* Elevación al pasar el cursor */
+
+.card-item:hover {
+    transform: translateY(-8px);
+}
+
+
+/* Imagen de portada de la tarjeta */
+
+.card-banner {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    /* Recorta la imagen para llenar el espacio */
+    display: block;
+}
+
+
+/* Cuerpo de la tarjeta: contiene tag, título, descripción */
+
+.card-body {
+    padding: 25px;
+    flex-grow: 1;
+    /* Ocupa el espacio sobrante para empujar el footer hacia abajo */
+    display: flex;
+    flex-direction: column;
+}
+
+
+/* Etiqueta de categoría (ej: "Vuelo directo", "Con escala") */
+
+.card-tag {
+    background: #f1f5f9;
+    color: var(--purple);
+    padding: 5px 12px;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    display: inline-block;
+}
+
+.card-body h3 {
+    font-family: var(--font-head);
+    font-size: 1.3rem;
+    margin-bottom: 10px;
+    color: var(--gray-800);
+}
+
+.card-body p {
+    color: var(--gray-600);
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+    flex-grow: 1;
+    /* Empuja el footer hacia abajo */
+    line-height: 1.6;
+}
+
+
+/* Pie de la tarjeta: precio + botones */
+
+.card-footer {
+    display: flex;
+    flex-wrap: wrap;
+    /* Los botones se envuelven en pantallas pequeñas */
+    align-items: center;
+    gap: 8px;
+    border-top: 1px solid var(--gray-100);
+    padding-top: 15px;
+    margin-top: auto;
+}
+
+
+/* El precio tiene prioridad de espacio flexible */
+
+.card-footer .price {
+    flex: 1 1 auto;
+    min-width: 90px;
+}
+
+
+/* Los botones no se estiran */
+
+.card-footer .btn-reservar,
+.card-footer .btn-carrito {
+    flex: 0 0 auto;
+}
+
+
+/* Precio en morado y negrita */
+
+.price {
+    font-weight: 800;
+    color: var(--purple);
+    font-size: 1.2rem;
+}
+
+
+/* Botón "Reservar" */
+
+.btn-reservar {
+    background-color: var(--purple);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 10px;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    font-family: var(--font-head);
+    font-weight: 700;
+    font-size: 0.88rem;
+    transition: all 0.3s;
+}
+
+.btn-reservar:hover {
+    background-color: var(--purple-light);
+}
+
+
+/* Botón "Acceder" dentro de tarjetas (cuando el usuario no está logueado) */
+
+.card-body .btn-acceder,
+.card-footer .btn-acceder {
+    background-color: var(--purple);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-family: var(--font-head);
+    font-weight: 700;
+    transition: all 0.3s;
+}
+
+.card-body .btn-acceder:hover,
+.card-footer .btn-acceder:hover {
+    background-color: var(--purple-light);
+}
+
+
+/* ── Estado vacío: texto de estado cuando se está buscando ── */
+
+.transporte-status-text {
+    font-family: var(--font-head);
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--purple);
+    background: rgba(124, 58, 237, 0.07);
+    border: 1.5px solid rgba(124, 58, 237, 0.2);
+    padding: 10px 18px;
+    border-radius: 50px;
+    display: inline-block;
+}
+
+
+/* Caja de estado vacío: cuando no hay transporte disponibles */
+
+.transporte-empty-box {
+    text-align: center;
+    background: var(--white);
+    border: 1.5px solid var(--gray-200);
+    border-radius: 20px;
+    padding: 48px 32px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+}
+
+.transporte-empty-box i {
+    font-size: 2.8rem;
+    color: var(--gray-200);
+    /* Ícono en gris claro para denotar ausencia */
+    margin-bottom: 16px;
+    display: block;
+}
+
+.transporte-empty-box h3 {
+    font-family: var(--font-head);
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--gray-800);
+    margin-bottom: 8px;
+}
+
+.transporte-empty-box p {
+    font-size: 0.9rem;
+    color: var(--gray-600);
+    margin-bottom: 20px;
+}
+
+
+/* Animación de entrada para las tarjetas al cargar */
+
+@keyframes fadeInCard {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+/* ===========================
+   MODO OSCURO — Sobreescrituras para tema oscuro
+=========================== */
+
+body.dark-mode .search-container {
+    background: #1e293b;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.35);
+}
+
+body.dark-mode .search-group label {
+    color: #f1f5f9;
+}
+
+body.dark-mode .search-group select,
+body.dark-mode .search-group input {
+    background: #0f172a;
+    border-color: #334155;
+    color: #f1f5f9;
+}
+
+body.dark-mode .card-item {
+    background: #1e293b;
+    border-color: #334155;
+}
+
+body.dark-mode .card-body h3 {
+    color: #f1f5f9;
+}
+
+body.dark-mode .card-body p {
+    color: #94a3b8;
+}
+
+body.dark-mode .card-tag {
+    background: #0f172a;
+}
+
+body.dark-mode .card-footer {
+    border-top-color: #334155;
+}
+
+body.dark-mode .transporte-status-text {
+    background: rgba(168, 85, 247, 0.1);
+    border-color: rgba(168, 85, 247, 0.3);
+    color: var(--purple-light);
+}
+
+body.dark-mode .transporte-empty-box {
+    background: #1e293b;
+    border-color: #334155;
+}
+
+body.dark-mode .transporte-empty-box h3 {
+    color: #f1f5f9;
+}
+
+body.dark-mode .transporte-empty-box p {
+    color: #94a3b8;
+}
+
+body.dark-mode .transporte-empty-box i {
+    color: #334155;
+}
+
+
+/* ============================================================
+   RESPONSIVE — TABLET (768px – 1023px)
+   ============================================================ */
+
+@media (max-width: 1023px) {
+    .module-hero {
+        padding: 100px 24px 56px;
+    }
+    /* Buscador en 2 columnas */
+    .search-container {
+        grid-template-columns: repeat(2, 1fr);
+        margin: 24px 20px 48px;
+        padding: 24px;
+    }
+    /* El botón buscar se expande a ambas columnas */
+    .btn-buscar {
+        grid-column: 1 / -1;
+    }
+    /* Resultados en 2 columnas */
+    .results-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+        padding: 0 20px;
+        margin-bottom: 60px;
+    }
+}
+
+
+/* ============================================================
+   RESPONSIVE — MÓVIL GRANDE (480px – 767px)
+   ============================================================ */
+
+@media (max-width: 767px) {
+    .module-hero {
+        padding: 88px 20px 48px;
+    }
+    /* Buscador en 1 columna */
+    .search-container {
+        grid-template-columns: 1fr;
+        margin: 20px 16px 40px;
+        padding: 20px;
+        border-radius: 16px;
+    }
+    .btn-buscar {
+        grid-column: 1 / -1;
+        padding: 14px;
+        font-size: 1rem;
+    }
+    /* Resultados en 1 columna */
+    .results-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+        padding: 0 16px;
+        margin-bottom: 48px;
+    }
+    .card-banner {
+        height: 200px;
+    }
+    .card-body {
+        padding: 20px;
+    }
+    .card-body h3 {
+        font-size: 1.15rem;
+    }
+    .transporte-empty-box {
+        padding: 36px 20px;
+    }
+}
+
+
+/* ============================================================
+   RESPONSIVE — MÓVIL PEQUEÑO (hasta 479px)
+   ============================================================ */
+
+@media (max-width: 479px) {
+    .module-hero {
+        padding: 80px 16px 40px;
+    }
+    .search-container {
+        margin: 16px 12px 32px;
+        padding: 16px;
+        border-radius: 14px;
+        gap: 12px;
+    }
+    .search-group label {
+        font-size: 0.75rem;
+    }
+    .search-group select,
+    .search-group input {
+        padding: 10px;
+        font-size: 0.85rem;
+    }
+    .btn-buscar {
+        padding: 13px;
+        font-size: 0.95rem;
+    }
+    .results-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+        padding: 0 12px;
+        margin-bottom: 40px;
+    }
+    .card-banner {
+        height: 180px;
+    }
+    .card-body {
+        padding: 16px;
+    }
+    .card-body h3 {
+        font-size: 1.05rem;
+    }
+    .card-body p {
+        font-size: 0.85rem;
+    }
+    .price {
+        font-size: 1.05rem;
+    }
+    .btn-reservar {
+        padding: 8px 14px;
+        font-size: 0.82rem;
+    }
+    .transporte-empty-box {
+        padding: 28px 16px;
+    }
+    .transporte-empty-box i {
+        font-size: 2.2rem;
+    }
+    .transporte-empty-box h3 {
+        font-size: 1rem;
+    }
+    /* El botón de acceder en la navbar se hace más pequeño */
+    .btn-acceder {
+        font-size: 0.75rem !important;
+        padding: 7px 12px !important;
+    }
+}
+
+
+/* ===========================
+   MODAL DETALLES DE VUELO
+   Popup con la información completa al hacer clic en "Ver Detalles"
+=========================== */
+
+
+/* Fondo semitransparente que bloquea el contenido detrás */
+
+.vd-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    /* Ocupa toda la pantalla */
+    z-index: 999999;
+    background: rgba(0, 0, 0, 0.75);
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+
+/* El overlay se hace visible cuando tiene la clase .visible */
+
+.vd-overlay.visible {
+    display: flex;
+}
+
+
+/* Caja blanca del modal */
+
+.vd-box {
+    background: #fff;
+    border-radius: 18px;
+    max-width: 560px;
+    width: 100%;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+    border-top: 7px solid var(--purple);
+    /* Acento morado en la parte superior */
+    position: relative;
+    animation: vdEntrar 0.25s ease;
+    /* Animación de entrada */
+}
+
+
+/* Animación: el modal aparece subiendo y escalando */
+
+@keyframes vdEntrar {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+
+/* Botón × para cerrar el modal */
+
+.vd-cerrar {
+    position: absolute;
+    top: 14px;
+    right: 18px;
+    background: none;
+    border: none;
+    font-size: 28px;
+    color: #94a3b8;
+    cursor: pointer;
+    z-index: 2;
+    line-height: 1;
+    padding: 4px 8px;
+    transition: color 0.2s;
+}
+
+.vd-cerrar:hover {
+    color: #1e293b;
+}
+
+
+/* Imagen de cabecera del modal */
+
+.vd-img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    display: block;
+}
+
+
+/* Contenido principal del modal */
+
+.vd-body {
+    padding: 28px 30px 24px;
+}
+
+
+/* Título del vuelo dentro del modal */
+
+.vd-titulo {
+    font-family: var(--font-head);
+    font-size: 1.35rem;
+    color: var(--purple);
+    margin-bottom: 20px;
+}
+
+
+/* Grid de 2 columnas para los datos del vuelo */
+
+.vd-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+
+/* Un item de dato ocupa las 2 columnas (para descripciones largas) */
+
+.vd-info-full {
+    grid-column: 1 / -1;
+}
+
+
+/* Cada par ícono + dato */
+
+.vd-info-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.vd-info-item i {
+    color: var(--purple);
+    font-size: 1rem;
+    margin-top: 3px;
+    flex-shrink: 0;
+    /* El ícono no se encoge */
+}
+
+.vd-info-item div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+
+/* Etiqueta pequeña en mayúsculas (ej: "AEROLÍNEA", "DURACIÓN") */
+
+.vd-label {
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--gray-600);
+    font-family: var(--font-head);
+}
+
+
+/* Valor del dato (ej: "Avianca", "2h 15min") */
+
+.vd-val {
+    font-size: 0.9rem;
+    color: var(--gray-800);
+}
+
+
+/* Pie del modal: precio + botón de acción */
+
+.vd-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid var(--gray-200);
+    padding-top: 18px;
+    gap: 12px;
+}
+
+
+/* Precio grande en el pie del modal */
+
+.vd-precio {
+    font-family: var(--font-head);
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--purple);
+}
+
+
+/* ── Dark mode del modal ── */
+
+body.dark-mode .vd-box {
+    background: #1e293b;
+}
+
+body.dark-mode .vd-titulo {
+    color: var(--purple-light);
+}
+
+body.dark-mode .vd-val {
+    color: #f1f5f9;
+}
+
+body.dark-mode .vd-label {
+    color: #94a3b8;
+}
+
+body.dark-mode .vd-footer {
+    border-top-color: #334155;
+}
+
+body.dark-mode .vd-cerrar {
+    color: #64748b;
+}
+
+body.dark-mode .vd-cerrar:hover {
+    color: #f1f5f9;
+}
+
+
+/* En móviles pequeños el grid pasa a 1 columna */
+
+@media (max-width: 479px) {
+    .vd-info-grid {
+        grid-template-columns: 1fr;
+    }
+    .vd-body {
+        padding: 20px 18px 18px;
+    }
+    .vd-titulo {
+        font-size: 1.1rem;
+    }
+}
