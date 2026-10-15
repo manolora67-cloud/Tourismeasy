@@ -24,7 +24,9 @@ psql -U postgres -d tourismeasy -f .\db\DB_TOURISMEASY.sql
 
 El usuario `postgres` del ejemplo es el usuario local de PostgreSQL; reemplázalo por el que corresponda a tu instalación. También puedes crear `tourismeasy` desde pgAdmin y ejecutar allí el archivo SQL.
 
-El esquema principal crea 36 tablas y carga datos iniciales, incluyendo el departamento de Santander, sus municipios y registros de ejemplo. El script utiliza construcciones propias de PostgreSQL, como `SERIAL`, `JSONB`, expresiones regulares y `ON CONFLICT`; no es un script MySQL.
+El esquema nuevo crea 33 tablas y carga datos iniciales, incluyendo el departamento de Santander, sus municipios y registros de ejemplo. `USUARIOS` guarda directamente el perfil y las credenciales de administración; no existe una tabla genérica `PERSONAS` ni cuentas para viajeros. Las reseñas son públicas y se guardan con el nombre proporcionado por quien las publica; los likes se identifican por visitante. `TIPOS_DOCUMENTOS` se conserva porque las cuentas de artesanos/e-commerce todavía la utilizan.
+
+Este archivo representa una instalación nueva. Importa el esquema en una base vacía; no lo ejecutes sobre una base anterior para intentar actualizarla. Si tienes datos que conservar, respáldalos antes y coordina una migración explícita por separado.
 
 ### Instalar funciones SQL
 
@@ -47,20 +49,20 @@ El nombre de base de datos usado actualmente por la configuración es `tourismea
 El esquema reúne entidades para:
 
 - **Ubicación y catálogos:** departamentos, ciudades, tipos de documento, tipos de plan, servicios de hospedaje y clases de transporte.
-- **Cuentas y empresas:** personas, usuarios viajeros, empresas, usuarios de empresa y cuentas de artesanos/e-commerce.
+- **Cuentas y empresas:** el perfil admin está integrado en `USUARIOS`, junto con empresas, usuarios de empresa y cuentas de artesanos/e-commerce. Los viajeros no se registran ni inician sesión.
 - **Servicios turísticos:** planes, hospedajes y transporte, con relaciones entre planes y componentes, hospedajes y servicios, y transporte y clases.
 - **Comercio artesanal:** productos, categorías y datos de sus vendedores.
-- **Comunidad:** reseñas de plataforma y likes asociados a cuentas o visitantes.
+- **Comunidad:** reseñas públicas sin cuenta y likes identificados por navegador visitante.
 - **Administración y soporte:** configuración por rol, festividades, auditoría, estadísticas y control de limpieza de reseñas.
 - **Seguridad e historial:** historial de contraseñas y cambios, intentos de inicio de sesión y tokens de recuperación.
 
-Las claves foráneas, restricciones `CHECK` e índices únicos del archivo SQL validan relaciones y valores como estados, puntuaciones, formatos de correo y disponibilidad. Por ejemplo, una reseña debe tener un autor registrado o un nombre anónimo, y un like debe pertenecer a una cuenta o a un visitante identificable.
+Las claves foráneas, restricciones `CHECK` e índices únicos del archivo SQL validan relaciones y valores como estados, puntuaciones, formatos de correo y disponibilidad. Las reseñas públicas se publican con nombre y sin cuenta; los likes se identifican por un token local del navegador. `datos_referencia.php` solo entrega ciudades y tipos de plan, que son las listas usadas por los formularios vigentes.
 
 ## Datos iniciales y producción
 
-El script incluye datos de demostración, entre ellos cuentas de usuario y empresa. No uses esas cuentas ni sus contraseñas derivadas en producción: cambia o elimina los registros de ejemplo, crea credenciales nuevas y revisa el método de almacenamiento de contraseñas antes de poner la base de datos en servicio real.
+El script incluye datos de demostración, entre ellos una cuenta de administración y cuentas de empresa. No uses esas cuentas ni sus contraseñas derivadas en producción: cambia o elimina los registros de ejemplo, crea credenciales nuevas y revisa el método de almacenamiento de contraseñas antes de poner la base de datos en servicio real.
 
-Antes de aplicar cambios a una base existente, realiza una copia de seguridad. Aunque las tablas se crean con `IF NOT EXISTS` y muchos datos usan `ON CONFLICT DO NOTHING`, el archivo no sustituye un proceso de migraciones versionadas ni actualiza automáticamente todas las estructuras existentes.
+Antes de aplicar cambios a una base existente, realiza una copia de seguridad. Aunque las tablas se crean con `IF NOT EXISTS` y muchos datos usan `ON CONFLICT DO NOTHING`, el esquema está destinado a una base vacía y no actualiza estructuras existentes.
 
 ## Copia de seguridad y restauración
 

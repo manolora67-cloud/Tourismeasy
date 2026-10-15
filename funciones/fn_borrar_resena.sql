@@ -1,6 +1,5 @@
 CREATE OR REPLACE FUNCTION fn_borrar_resena(
-    p_id_resena  RESENAS_PLATAFORMA.ID_RESENA%TYPE,
-    p_id_persona RESENAS_PLATAFORMA.ID_PERSONA%TYPE
+    p_id_resena RESENAS_PLATAFORMA.ID_RESENA%TYPE
 )
 RETURNS TABLE (
     ok      BOOLEAN,
@@ -11,12 +10,12 @@ DECLARE
     v_filas INTEGER;
 BEGIN
     DELETE FROM RESENAS_PLATAFORMA
-    WHERE ID_RESENA = p_id_resena AND ID_PERSONA = p_id_persona;
+    WHERE ID_RESENA = p_id_resena;
 
     GET DIAGNOSTICS v_filas = ROW_COUNT;
 
     IF v_filas = 0 THEN
-        RETURN QUERY SELECT FALSE, 'Reseña no encontrada o sin permiso.'::TEXT;
+        RETURN QUERY SELECT FALSE, 'Reseña no encontrada.'::TEXT;
         RETURN;
     END IF;
 

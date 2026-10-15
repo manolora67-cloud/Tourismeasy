@@ -288,7 +288,7 @@
         // únicamente el cuadro compacto verde "Verificación completada".
         box.classList.add('te-cap-collapsed');
 
-        // Disparamos un evento personalizado para que login.js sepa que el CAPTCHA fue resuelto
+        // Disparamos un evento personalizado para que auth.js sepa que el CAPTCHA fue resuelto
         wrap.dispatchEvent(new CustomEvent('captcha:verified', { bubbles: true }));
     }
 
@@ -351,7 +351,7 @@
         }
     };
 
-    // Alternativa desacoplada: si login.js no quiere importar/llamar directamente a TeCaptcha,
+    // Alternativa desacoplada: si auth.js no quiere importar/llamar directamente a TeCaptcha,
     // puede simplemente disparar este evento en el document cuando el login falle:
     //   document.dispatchEvent(new CustomEvent('te-login-failed'));
     document.addEventListener('te-login-failed', function () {
@@ -410,7 +410,7 @@
     }
 
     // ── Inyecta el CAPTCHA y observa cambios en el DOM ──
-    // Necesario porque el modal de login se inserta dinámicamente por login.js
+    // Necesario porque el formulario de login se inserta dinámicamente por auth.js
     function waitAndInject() {
         inject();
         // MutationObserver detecta cuando aparecen nuevos elementos en la página

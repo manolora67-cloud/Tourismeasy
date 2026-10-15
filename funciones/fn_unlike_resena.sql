@@ -1,7 +1,6 @@
 CREATE OR REPLACE FUNCTION fn_unlike_resena(
     p_id_resena  RESENAS_PLATAFORMA.ID_RESENA%TYPE,
-    p_id_persona RESENAS_PLATAFORMA.ID_PERSONA%TYPE DEFAULT NULL,
-    p_visitor_id LIKES_RESENAS.VISITOR_ID%TYPE DEFAULT NULL
+    p_visitor_id LIKES_RESENAS.VISITOR_ID%TYPE
 )
 RETURNS TABLE (
     ok      BOOLEAN,
@@ -15,13 +14,8 @@ BEGIN
         RETURN;
     END IF;
 
-    IF p_id_persona IS NOT NULL THEN
-        DELETE FROM LIKES_RESENAS
-        WHERE ID_RESENA = p_id_resena AND ID_PERSONA = p_id_persona;
-    ELSE
-        DELETE FROM LIKES_RESENAS
-        WHERE ID_RESENA = p_id_resena AND VISITOR_ID = p_visitor_id;
-    END IF;
+    DELETE FROM LIKES_RESENAS
+    WHERE ID_RESENA = p_id_resena AND VISITOR_ID = p_visitor_id;
 
     RETURN QUERY
     SELECT TRUE, 'OK'::TEXT, COUNT(*)::INTEGER
@@ -30,7 +24,7 @@ BEGIN
 EXCEPTION
     WHEN FOREIGN_KEY_VIOLATION THEN
         RAISE NOTICE 'fn_unlike_resena - FK inválida: %', SQLERRM;
-        RETURN QUERY SELECT FALSE, 'Error: reseña o usuario no válido.'::TEXT, NULL::INTEGER;
+        RETURN QUERY SELECT FALSE, 'Error: reseña no válida.'::TEXT, NULL::INTEGER;
     WHEN CHECK_VIOLATION THEN
         RAISE NOTICE 'fn_unlike_resena - Check violado: %', SQLERRM;
         RETURN QUERY SELECT FALSE, 'Error de integridad de datos.'::TEXT, NULL::INTEGER;

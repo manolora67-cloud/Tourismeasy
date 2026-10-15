@@ -1,7 +1,7 @@
 <?php
 /**
  * login.php
- * Verifica credenciales llamando a fn_login_empresa() / fn_login_persona()
+ * Verifica credenciales llamando a fn_login_empresa() / fn_login_admin()
  * y devuelve los datos de sesión.
  */
 
@@ -15,9 +15,9 @@ require_once __DIR__ . '/../cors.php';
 $input    = json_decode(file_get_contents('php://input'), true);
 $email    = trim($input['email']    ?? '');
 $password = trim($input['password'] ?? '');
-$tipo     = trim($input['tipo']     ?? 'viajero');
+$tipo     = trim($input['tipo']     ?? '');
 
-if (!$email || !$password || !in_array($tipo, ['viajero', 'admin', 'empresa'])) {
+if (!$email || !$password || !in_array($tipo, ['admin', 'empresa'], true)) {
     http_response_code(400);
     echo json_encode(["ok" => false, "error" => "Datos incompletos."]);
     exit;
@@ -79,16 +79,15 @@ try {
         ]);
 
     } else {
-        $stmt = $pdo->prepare("SELECT * FROM fn_login_persona(:email, :hash)");
+        $stmt = $pdo->prepare("SELECT * FROM fn_login_admin(:email, :hash)");
         $stmt->execute([':email' => $email, ':hash' => $hash]);
         $row = $stmt->fetch();
 
         if (!$row['ok']) {
             registrarIntentoLogin($pdo, $email, false);
-            $tipoLabel = $tipo === 'admin' ? 'Administrador' : 'Viajero';
             try {
                 $pdo->prepare("SELECT fn_registrar_auditoria(NULL, 'Login fallido', 'Sesiones', :detalle, 'advertencia')")
-                    ->execute([':detalle' => $tipoLabel . ': intento con correo ' . $email]);
+                    ->execute([':detalle' => 'Administrador: intento con correo ' . $email]);
             } catch (PDOException $eAudit) {
                 error_log('[TourismEasy] login.php - auditoría - ' . $eAudit->getMessage());
             }

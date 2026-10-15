@@ -1,5 +1,6 @@
 <?php
 
+session_start();
 require_once __DIR__ . '/../con_db/db.php';
 
 header('Content-Type: application/json');
@@ -10,30 +11,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(204); exit; }
 
 $input          = json_decode(file_get_contents('php://input'), true);
 $accion         = strtoupper(trim($input['accion']     ?? ''));
-$id_persona     = trim($input['id_persona']     ?? '');
+$admin_id       = ($_SESSION['tipo'] ?? '') === 'admin' ? trim($_SESSION['id_persona'] ?? '') : '';
 $id_resena      = intval($input['id_resena']    ?? 0);
 $rating         = intval($input['rating']       ?? 0);
 $texto          = trim($input['texto']          ?? '');
 $nombre_anonimo = trim($input['nombre_anonimo'] ?? '');
 $visitor_id     = trim($input['visitor_id']     ?? '');
 
-// EDITAR y BORRAR sí exigen sesión siempre (necesitan probar dueño de la
-// reseña). CREAR y LIKE/UNLIKE aceptan cuenta O identidad anónima:
-//   - CREAR: id_persona o nombre_anonimo
-//   - LIKE/UNLIKE: id_persona o visitor_id (un token que genera el navegador)
-if (in_array($accion, ['EDITAR', 'BORRAR']) && !$id_persona) {
+// Solo administración puede editar o moderar reseñas de visitantes.
+if (in_array($accion, ['EDITAR', 'BORRAR'], true) && !$admin_id) {
     http_response_code(401);
     echo json_encode(["ok" => false, "error" => "No autorizado."]);
     exit;
 }
 
-if ($accion === 'CREAR' && !$id_persona && !$nombre_anonimo) {
+if ($accion === 'CREAR' && !$nombre_anonimo) {
     http_response_code(400);
-    echo json_encode(["ok" => false, "error" => "Ingresa tu nombre para publicar, o inicia sesión."]);
+    echo json_encode(["ok" => false, "error" => "Ingresa tu nombre para publicar."]);
     exit;
 }
 
-if (in_array($accion, ['LIKE', 'UNLIKE']) && !$id_persona && !$visitor_id) {
+if (in_array($accion, ['LIKE', 'UNLIKE']) && !$visitor_id) {
     http_response_code(400);
     echo json_encode(["ok" => false, "error" => "No se pudo identificar tu navegador para el like."]);
     exit;
@@ -43,9 +41,8 @@ try {
     switch ($accion) {
 
         case 'CREAR':
-            $stmt = $pdo->prepare("SELECT * FROM fn_crear_resena(:persona, :rating, :texto, :anonimo)");
+            $stmt = $pdo->prepare("SELECT * FROM fn_crear_resena(:rating, :texto, :anonimo)");
             $stmt->execute([
-                ':persona' => $id_persona ?: null,
                 ':rating'  => $rating,
                 ':texto'   => $texto,
                 ':anonimo' => $nombre_anonimo ?: null,
@@ -69,10 +66,9 @@ try {
                 echo json_encode(["ok" => false, "error" => "ID de reseña requerido."]);
                 exit;
             }
-            $stmt = $pdo->prepare("SELECT * FROM fn_editar_resena(:id, :persona, :rating, :texto)");
+            $stmt = $pdo->prepare("SELECT * FROM fn_editar_resena(:id, :rating, :texto)");
             $stmt->execute([
                 ':id'      => $id_resena,
-                ':persona' => $id_persona,
                 ':rating'  => $rating,
                 ':texto'   => $texto,
             ]);
@@ -90,8 +86,8 @@ try {
                 echo json_encode(["ok" => false, "error" => "ID de reseña requerido."]);
                 exit;
             }
-            $stmt = $pdo->prepare("SELECT * FROM fn_borrar_resena(:id, :persona)");
-            $stmt->execute([':id' => $id_resena, ':persona' => $id_persona]);
+            $stmt = $pdo->prepare("SELECT * FROM fn_borrar_resena(:id)");
+            $stmt->execute([':id' => $id_resena]);
             $row = $stmt->fetch();
 
             if (!$row['ok']) {
@@ -106,10 +102,9 @@ try {
                 echo json_encode(["ok" => false, "error" => "ID de reseña requerido."]);
                 exit;
             }
-            $stmt = $pdo->prepare("SELECT * FROM fn_like_resena(:id, :persona, :visitor)");
+            $stmt = $pdo->prepare("SELECT * FROM fn_like_resena(:id, :visitor)");
             $stmt->execute([
                 ':id'      => $id_resena,
-                ':persona' => $id_persona ?: null,
                 ':visitor' => $visitor_id ?: null,
             ]);
             $row = $stmt->fetch();
@@ -126,10 +121,9 @@ try {
                 echo json_encode(["ok" => false, "error" => "ID de reseña requerido."]);
                 exit;
             }
-            $stmt = $pdo->prepare("SELECT * FROM fn_unlike_resena(:id, :persona, :visitor)");
+            $stmt = $pdo->prepare("SELECT * FROM fn_unlike_resena(:id, :visitor)");
             $stmt->execute([
                 ':id'      => $id_resena,
-                ':persona' => $id_persona ?: null,
                 ':visitor' => $visitor_id ?: null,
             ]);
             $row = $stmt->fetch();

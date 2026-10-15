@@ -1,7 +1,7 @@
 /* ===========================
    AUTH MODAL - TourismEasy
    Estilos del modal de login/registro.
-   El HTML del modal es inyectado por login.js,
+   El HTML del formulario es inyectado por auth.js,
    no está escrito en el HTML de las páginas.
 =========================== */
 
@@ -211,6 +211,27 @@
   color: var(--gray-800);
   text-transform: uppercase;
   letter-spacing: 0.4px;
+}
+
+.field-group > input,
+.field-group > select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: 10px;
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  color: var(--gray-800);
+  background: var(--gray-100);
+  outline: none;
+  transition: border-color 0.25s, background 0.25s, box-shadow 0.25s;
+}
+
+.field-group > input:focus,
+.field-group > select:focus {
+  border-color: var(--purple);
+  background: var(--white);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12);
 }
 
 /* Contenedor del input con ícono dentro */
@@ -702,6 +723,20 @@ body.dark-mode .auth-tab {
 
 body.dark-mode .field-group label {
   color: #cbd5e1;
+}
+
+body.dark-mode .field-group > input,
+body.dark-mode .field-group > select {
+  background: #0f172a;
+  border-color: #334155;
+  color: #f1f5f9;
+}
+
+body.dark-mode .field-group > input:focus,
+body.dark-mode .field-group > select:focus {
+  background: #1e293b;
+  border-color: var(--purple-light);
+  box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.15);
 }
 
 body.dark-mode .field-wrap input,

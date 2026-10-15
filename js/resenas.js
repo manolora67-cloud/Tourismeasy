@@ -5,7 +5,6 @@
     var nombreAnonimoInput = document.getElementById("resenaNombreAnonimo");
     var formBox = document.getElementById("resenaFormBox");
     var gracias = document.getElementById("resenaGracias");
-    var loginBtn = document.getElementById("resenaLoginBtn");
     var stars = document.querySelectorAll(".resena-star");
     var textarea = document.getElementById("resenaTexto");
     var charCount = document.getElementById("resenaCharCount");
@@ -18,12 +17,6 @@
     var BASE = _enHtml ? "../resenas/" : "resenas/";
     var URL_GET = BASE + "get_resenas.php";
     var URL_ACCION = BASE + "accion_resena.php";
-
-    // ── Lee la sesión activa ──
-    function getSess() {
-        return JSON.parse(sessionStorage.getItem("te_session") || "null") ||
-            JSON.parse(localStorage.getItem("te_session") || "null");
-    }
 
     // ── Identificador de visitante (para dar like sin cuenta) ──
     // Se genera una sola vez por navegador y se guarda en localStorage,
@@ -40,42 +33,11 @@
         return id;
     }
 
-    // ── Muestra el campo "Tu nombre" solo si no hay sesión de viajero ──
-    // (el formulario en sí ahora está siempre visible: cualquiera puede
-    // publicar, con cuenta o sin ella)
-    function checkSession() {
-        var sess = getSess();
-        var esViajero = sess && sess.tipo === "viajero" && (sess.nombre || sess.name);
-        if (anonGroup) anonGroup.style.display = esViajero ? "none" : "block";
-    }
-    checkSession();
+    if (anonGroup) anonGroup.style.display = "block";
 
     // Precarga en segundo plano las listas de groserías (EN+ES) para que
     // el primer envío de reseña no tenga que esperar la descarga.
     prepararFiltro();
-
-    // Re-chequea si el usuario cierra el modal de login
-    document.addEventListener("click", function (e) {
-        var overlay = document.getElementById("authDialog") ||
-            document.getElementById("loginModal") ||
-            document.getElementById("loginOverlay");
-        if (overlay && (e.target === overlay || e.target.classList.contains("modal-close"))) {
-            setTimeout(checkSession, 200);
-        }
-    });
-
-    window.addEventListener("storage", function (e) {
-        if (e.key === "te_session") checkSession();
-    });
-
-    setInterval(function () {
-        var sess = getSess();
-        if (sess && sess.tipo === "viajero" && anonGroup && anonGroup.style.display !== "none") checkSession();
-    }, 800);
-
-    // (Antes este botón abría el modal flotante de login con
-    // window.TourismAuth.open(). Ahora se deja que el <a> navegue
-    // normalmente a login.html, igual que el resto de enlaces de login.)
 
     // ── Interactividad de estrellas ──
     stars.forEach(function (star) {
@@ -219,36 +181,17 @@
     function buildCard(r) {
         var partes = (r.nombre || "Viajero").trim().split(" ");
         var iniciales = (partes[0][0] + (partes[1] ? partes[1][0] : "")).toUpperCase();
-        var sessMine = getSess();
-        var esMia = sessMine && sessMine.id && String(sessMine.id) === String(r.id_persona);
-        var esViajero = sessMine && sessMine.tipo === "viajero";
-
-        // No puede dar like a su propia reseña (solo se puede probar la
-        // autoría cuando hay cuenta; una reseña anónima no se puede "autolikear"
-        // porque no hay forma de saber si el visitante es el mismo autor)
-        var puedelikeear = !esMia;
+        var puedelikeear = true;
         var likesCount = parseInt(r.likes) || 0;
 
         // Estado real: ¿el usuario actual ya le dio like a esta reseña?
         // (viene calculado desde el backend, así se conserva al recargar)
         var yaLeDiLike = !!(parseInt(r.ya_di_like) || 0);
 
-        // Botones de editar / borrar solo en reseñas propias
-        var acciones = "";
-        if (esMia) {
-            acciones =
-                '<div class="resena-acciones">' +
-                '<button class="resena-btn-editar" data-id="' + r.id + '" title="Editar"> Editar</button>' +
-                '<button class="resena-btn-borrar" data-id="' + r.id + '" title="Borrar"> Borrar</button>' +
-                '</div>';
-        }
-
         // Botón de like
         var likeClass = puedelikeear ? "resena-btn-like" : "resena-btn-like disabled";
         if (yaLeDiLike) likeClass += " liked";
-        var likeTitle = puedelikeear ?
-            "¿Te gustó esta reseña?" :
-            "No puedes dar like a tu propia reseña";
+        var likeTitle = "¿Te gustó esta reseña?";
 
         var likeHtml =
             '<button class="' + likeClass + '" data-id="' + r.id + '" ' +
@@ -272,66 +215,18 @@
             '<div class="resena-footer">' +
             '<div class="resena-stars-display">' + buildStarsHtml(r.rating || r.puntuacion) + '</div>' +
             likeHtml +
-            '</div>' +
-            acciones;
-
-        // ── Evento: Editar ──
-        var btnEditar = card.querySelector(".resena-btn-editar");
-        if (btnEditar) btnEditar.addEventListener("click", function () {
-            var id = +this.dataset.id;
-            var cardEl = sliderTrack.querySelector('[data-id="' + id + '"]');
-            if (!cardEl) return;
-            var textoActual = cardEl.querySelector(".testimonial-text").textContent;
-            var ratingActual = cardEl.querySelectorAll('.resena-stars-display span[style*="f59e0b"]').length;
-            textarea.value = textoActual;
-            charCount.textContent = textoActual.length + " / 140";
-            rating = ratingActual;
-            stars.forEach(function (s) { s.classList.toggle("selected", +s.dataset.val <= rating); });
-            editandoId = id;
-            submitBtn.textContent = "Guardar cambios";
-            formBox.scrollIntoView({ behavior: "smooth", block: "center" });
-            textarea.focus();
-        });
-
-        // ── Evento: Borrar ──
-        var btnBorrar = card.querySelector(".resena-btn-borrar");
-        if (btnBorrar) btnBorrar.addEventListener("click", function () {
-            var id = +this.dataset.id;
-            if (!confirm("¿Seguro que quieres borrar esta reseña?")) return;
-            var sess = getSess();
-            fetch(URL_ACCION, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ accion: "BORRAR", id_persona: sess.id, id_resena: id })
-            })
-                .then(function (r) { return r.json(); })
-                .then(function (res) {
-                    if (!res.ok) { alert(res.error || "Error al borrar"); return; }
-                    var cardEl = sliderTrack.querySelector('[data-id="' + id + '"]');
-                    if (cardEl) cardEl.remove();
-                    window.dispatchEvent(new Event("resenasListas"));
-                })
-                .catch(function () { alert("Error de conexión al borrar."); });
-        });
+            '</div>';
 
         // ── Evento: Like / Unlike ──
         var btnLike = card.querySelector(".resena-btn-like");
         if (btnLike && puedelikeear) {
             btnLike.addEventListener("click", function () {
-                var sess = getSess();
-                var esViajeroLike = !!(sess && sess.tipo === "viajero");
-
                 var id = +this.dataset.id;
                 var yaLiked = this.dataset.liked === "1";
                 var accion = yaLiked ? "UNLIKE" : "LIKE";
                 var btn = this;
 
-                var body = { accion: accion, id_resena: id };
-                if (esViajeroLike) {
-                    body.id_persona = sess.id;
-                } else {
-                    body.visitor_id = getVisitorId();
-                }
+                var body = { accion: accion, id_resena: id, visitor_id: getVisitorId() };
 
                 btn.disabled = true;
 
@@ -364,9 +259,7 @@
     // ── Cargar reseñas desde la BD ────────────────────────────────────────
 
     function cargarResenas() {
-        var sess = getSess();
         var params = new URLSearchParams();
-        if (sess && sess.id) params.set("id_persona", sess.id);
         params.set("visitor_id", getVisitorId());
         var url = URL_GET + "?" + params.toString();
 
@@ -465,19 +358,10 @@
 
     // ── Publicar / Editar reseña ──────────────────────────────────────────
 
-    var editandoId = null;
-
     submitBtn.addEventListener("click", async function () {
-        var sess = getSess();
-        var esViajero = !!(sess && sess.tipo === "viajero");
         var nombreAnonimo = nombreAnonimoInput ? nombreAnonimoInput.value.trim() : "";
 
-        // Si está editando, sí o sí necesita sesión (solo se llega aquí
-        // desde el botón "Editar", que solo aparece en reseñas propias).
-        if (editandoId && !esViajero) { checkSession(); return; }
-
-        // Si no hay sesión, necesita al menos un nombre para publicar
-        if (!esViajero && !nombreAnonimo) {
+        if (!nombreAnonimo) {
             nombreAnonimoInput.focus();
             nombreAnonimoInput.style.animation = "shake 0.3s";
             setTimeout(function () { nombreAnonimoInput.style.animation = ""; }, 400);
@@ -501,16 +385,10 @@
         submitBtn.disabled = true;
         var texto = await limpiarTexto(textoOriginal);
 
-        var accion = editandoId ? "EDITAR" : "CREAR";
-        var body = { accion: accion, rating: rating, texto: texto };
-        if (esViajero) {
-            body.id_persona = sess.id;
-        } else {
-            body.nombre_anonimo = nombreAnonimo;
-        }
-        if (editandoId) body.id_resena = editandoId;
+        var body = { accion: "CREAR", rating: rating, texto: texto };
+        body.nombre_anonimo = nombreAnonimo;
 
-        var nombreParaMostrar = esViajero ? (sess.nombre || "Viajero") : nombreAnonimo;
+        var nombreParaMostrar = nombreAnonimo;
 
         fetch(URL_ACCION, {
             method: "POST",
@@ -522,23 +400,16 @@
                 submitBtn.disabled = false;
                 if (!res.ok) { alert(res.error || "Error al publicar reseña."); return; }
 
-                if (editandoId) {
-                    cargarResenas();
-                    editandoId = null;
-                    submitBtn.textContent = "Publicar reseña";
-                } else {
-                    var nueva = {
-                        id: res.id_resena,
-                        id_persona: esViajero ? sess.id : null,
-                        nombre: nombreParaMostrar,
-                        rating: rating,
-                        texto: texto,
-                        fecha: res.fecha || new Date().toISOString(),
-                        likes: 0
-                    };
-                    sliderTrack.insertBefore(buildCard(nueva), sliderTrack.firstChild);
-                    window.dispatchEvent(new Event("resenasListas"));
-                }
+                var nueva = {
+                    id: res.id_resena,
+                    nombre: nombreParaMostrar,
+                    rating: rating,
+                    texto: texto,
+                    fecha: res.fecha || new Date().toISOString(),
+                    likes: 0
+                };
+                sliderTrack.insertBefore(buildCard(nueva), sliderTrack.firstChild);
+                window.dispatchEvent(new Event("resenasListas"));
 
                 // Resetear formulario
                 textarea.value = "";
