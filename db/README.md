@@ -1,0 +1,79 @@
+# Base de datos de TourismEasy
+
+La aplicación usa PostgreSQL y accede a la base de datos mediante PDO. El esquema y los datos iniciales están en [`DB_TOURISMEASY.sql`](DB_TOURISMEASY.sql); las funciones SQL que invocan los endpoints PHP están en [`../funciones/`](../funciones/).
+
+## Requisitos
+
+- PostgreSQL.
+- `psql` en el PATH, o pgAdmin/otra herramienta que pueda ejecutar archivos SQL.
+- PHP con la extensión `pdo_pgsql` para que el backend se conecte a PostgreSQL.
+
+## Crear e importar la base de datos
+
+Desde PowerShell, en la raíz del repositorio, crea la base de datos:
+
+```powershell
+createdb -U postgres tourismeasy
+```
+
+Importa el esquema y los datos iniciales:
+
+```powershell
+psql -U postgres -d tourismeasy -f .\db\DB_TOURISMEASY.sql
+```
+
+El usuario `postgres` del ejemplo es el usuario local de PostgreSQL; reemplázalo por el que corresponda a tu instalación. También puedes crear `tourismeasy` desde pgAdmin y ejecutar allí el archivo SQL.
+
+El esquema principal crea 36 tablas y carga datos iniciales, incluyendo el departamento de Santander, sus municipios y registros de ejemplo. El script utiliza construcciones propias de PostgreSQL, como `SERIAL`, `JSONB`, expresiones regulares y `ON CONFLICT`; no es un script MySQL.
+
+### Instalar funciones SQL
+
+Después de importar el esquema, carga los archivos `.sql` de `funciones/` en la misma base de datos. Estos definen rutinas para operaciones como autenticación, registro, gestión de planes, hospedajes, transporte, productos, reseñas y auditoría. Por ejemplo:
+
+```powershell
+psql -U postgres -d tourismeasy -f .\funciones\fn_listar_planes_publico.sql
+```
+
+Repite el comando para los archivos que requiere la aplicación, o ejecútalos desde pgAdmin. Las tablas deben existir antes de instalar las funciones que las usan.
+
+## Configurar el backend
+
+La conexión PDO se encuentra en [`../con_db/db.php`](../con_db/db.php). En la versión actual, host, puerto, nombre de base de datos, usuario y contraseña se configuran en ese archivo versionado. Para una prueba local puedes ajustar los valores, pero no subas cambios con credenciales. Antes de compartir o desplegar el proyecto, migra esta configuración a un mecanismo local y no versionado.
+
+El nombre de base de datos usado actualmente por la configuración es `tourismeasy`, con el puerto PostgreSQL habitual `5432`. La disponibilidad de las funciones del sistema depende de haber importado también los scripts SQL necesarios de `funciones/`.
+
+## Organización del modelo
+
+El esquema reúne entidades para:
+
+- **Ubicación y catálogos:** departamentos, ciudades, tipos de documento, tipos de plan, servicios de hospedaje y clases de transporte.
+- **Cuentas y empresas:** personas, usuarios viajeros, empresas, usuarios de empresa y cuentas de artesanos/e-commerce.
+- **Servicios turísticos:** planes, hospedajes y transporte, con relaciones entre planes y componentes, hospedajes y servicios, y transporte y clases.
+- **Comercio artesanal:** productos, categorías y datos de sus vendedores.
+- **Comunidad:** reseñas de plataforma y likes asociados a cuentas o visitantes.
+- **Administración y soporte:** configuración por rol, festividades, auditoría, estadísticas y control de limpieza de reseñas.
+- **Seguridad e historial:** historial de contraseñas y cambios, intentos de inicio de sesión y tokens de recuperación.
+
+Las claves foráneas, restricciones `CHECK` e índices únicos del archivo SQL validan relaciones y valores como estados, puntuaciones, formatos de correo y disponibilidad. Por ejemplo, una reseña debe tener un autor registrado o un nombre anónimo, y un like debe pertenecer a una cuenta o a un visitante identificable.
+
+## Datos iniciales y producción
+
+El script incluye datos de demostración, entre ellos cuentas de usuario y empresa. No uses esas cuentas ni sus contraseñas derivadas en producción: cambia o elimina los registros de ejemplo, crea credenciales nuevas y revisa el método de almacenamiento de contraseñas antes de poner la base de datos en servicio real.
+
+Antes de aplicar cambios a una base existente, realiza una copia de seguridad. Aunque las tablas se crean con `IF NOT EXISTS` y muchos datos usan `ON CONFLICT DO NOTHING`, el archivo no sustituye un proceso de migraciones versionadas ni actualiza automáticamente todas las estructuras existentes.
+
+## Copia de seguridad y restauración
+
+Ejemplo de respaldo en formato SQL:
+
+```powershell
+pg_dump -U postgres -d tourismeasy -f .\tourismeasy-backup.sql
+```
+
+Para restaurar el archivo en una base previamente creada:
+
+```powershell
+psql -U postgres -d tourismeasy -f .\tourismeasy-backup.sql
+```
+
+Guarda los respaldos fuera del repositorio y restringe el acceso: pueden contener datos personales.
