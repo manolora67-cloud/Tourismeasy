@@ -1,0 +1,39 @@
+CREATE OR REPLACE FUNCTION fn_listar_empresas()
+RETURNS TABLE (
+    nit         EMPRESAS.ID_EMPRESA%TYPE,
+    nombre      EMPRESAS.NOM_EMPRESA%TYPE,
+    contacto    EMPRESAS.EMAIL_INSTITU_EMPRESA%TYPE,
+    id_ciudad   EMPRESAS.ID_CIUDAD%TYPE,
+    sede        CIUDADES.NOM_CIUDAD%TYPE,
+    servicio    EMPRESAS.TIPO_SERVICIO%TYPE,
+    estado      USUARIOS_EMPRESA.ESTADO%TYPE,
+    email_login USUARIOS_EMPRESA.EMAIL_LOGIN%TYPE
+) AS
+$$
+BEGIN
+    RETURN QUERY
+    SELECT
+        e.ID_EMPRESA, e.NOM_EMPRESA, e.EMAIL_INSTITU_EMPRESA,
+        e.ID_CIUDAD, c.NOM_CIUDAD, e.TIPO_SERVICIO, u.ESTADO, u.EMAIL_LOGIN
+    FROM EMPRESAS e
+    JOIN USUARIOS_EMPRESA u ON u.ID_EMPRESA = e.ID_EMPRESA
+    LEFT JOIN CIUDADES c    ON c.ID_CIUDAD  = e.ID_CIUDAD
+    WHERE u.ESTADO IN ('ACTIVO', 'INACTIVO')
+    ORDER BY e.NOM_EMPRESA;
+
+EXCEPTION
+    WHEN FOREIGN_KEY_VIOLATION THEN
+        RAISE NOTICE 'fn_listar_empresas - FK inválida: %', SQLERRM;
+        RETURN;
+    WHEN CHECK_VIOLATION THEN
+        RAISE NOTICE 'fn_listar_empresas - Check violado: %', SQLERRM;
+        RETURN;
+    WHEN LOCK_NOT_AVAILABLE THEN
+        RAISE NOTICE 'fn_listar_empresas - Tabla bloqueada: %', SQLERRM;
+        RETURN;
+    WHEN OTHERS THEN
+        RAISE NOTICE 'fn_listar_empresas - Error inesperado: %', SQLERRM;
+        RETURN;
+END;
+$$
+LANGUAGE plpgsql;

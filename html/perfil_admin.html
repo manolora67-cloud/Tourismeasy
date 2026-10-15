@@ -1,0 +1,553 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mi Perfil - Panel Administrador - TourismEasy</title>
+    <link rel="stylesheet" href="../css/index.css" />
+    <link rel="stylesheet" href="../css/login.css" />
+    <link rel="stylesheet" href="../css/panel_admin.css" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;500&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="javascript:location.reload()" class="nav-logo">
+                <img src="../img/TURISMEASY.png" alt="Logo" class="logo-img" />
+                <span class="logo-text">TOURISMEASY</span>
+            </a>
+            <span class="panel-navbar-label"><i class="fa-solid fa-shield-halved"></i> Panel Administrador</span>
+            <div class="nav-slot">
+                <div id="sessionWidgetSlot"></div>
+                <button class="btn-dark-mode" id="darkModeToggle">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="pu-main">
+        <div class="pu-container" style="align-items: stretch">
+            <!-- SIDEBAR -->
+            <aside class="pu-sidebar" style="display: flex; flex-direction: column">
+                <div class="pu-sidebar-avatar pu-sidebar-avatar-empresa" id="sidebarAvatar">
+                    AD
+                </div>
+                <div class="pu-sidebar-nombre" id="sidebarNombre">
+                    Administrador TourismEasy
+                </div>
+                <div class="pu-sidebar-tipo">
+                    <i class="fa-solid fa-shield-halved"></i> Administrador
+                </div>
+                <nav class="pu-sidebar-nav">
+                    <a href="panel_admin.html" class="pu-nav-item pu-nav-highlight"><i
+                            class="fa-solid fa-shield-halved"></i>
+                        Panel Admin</a>
+                    <a href="perfil_admin.html" class="pu-nav-item active"><i class="fa-solid fa-user"></i> Mi
+                        Perfil</a>
+                    <a href="config_admin.html" class="pu-nav-item"><i class="fa-solid fa-gear"></i> Configuración</a>
+                </nav>
+
+                <div class="pe-sidebar-bloque pe-sidebar-bloque--purple">
+                    <p class="pe-sidebar-bloque__titulo pe-sidebar-bloque__titulo--purple">
+                        <i class="fa-solid fa-circle-nodes"></i> Estado del sistema
+                    </p>
+                    <div class="pe-sidebar-checks">
+                        <div class="pe-sidebar-check">
+                            <i class="fa-solid fa-circle-check" style="color: #22c55e"></i> Plataforma operativa
+                        </div>
+                        <div class="pe-sidebar-check">
+                            <i class="fa-solid fa-circle-check" style="color: #22c55e"></i> Base de datos activa
+                        </div>
+                        <div class="pe-sidebar-check">
+                            <i class="fa-solid fa-circle-check" style="color: #22c55e"></i> Perfil activo
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pe-sidebar-bloque pe-sidebar-bloque--verde">
+                    <p class="pe-sidebar-bloque__titulo pe-sidebar-bloque__titulo--verde">
+                        <i class="fa-solid fa-bolt"></i> Acceso rápido
+                    </p>
+                    <div class="pe-accesos">
+                        <a href="panel_admin.html" class="pe-acceso-link"><i class="fa-solid fa-chart-line"></i> Ver
+                            estadísticas</a>
+                        <a href="panel_admin.html" class="pe-acceso-link"><i class="fa-solid fa-building"></i> Ver
+                            empresas</a>
+                        <a href="panel_admin.html" class="pe-acceso-link"><i class="fa-solid fa-user-friends"></i> Ver
+                            artesanos</a>
+                    </div>
+                </div>
+
+                <div class="pe-sidebar-bloque pe-sidebar-bloque--red">
+                    <p class="pe-sidebar-bloque__titulo pe-sidebar-bloque__titulo--red">
+                        <i class="fa-solid fa-clock-rotate-left"></i> Última actividad
+                    </p>
+                    <div class="pe-actividad" id="ultimaActividadList">
+                        <div class="pe-actividad-item">
+                            <div class="pe-actividad-icon pe-actividad-icon--purple">
+                                <i class="fa-solid fa-circle-dot"></i>
+                            </div>
+                            <div>
+                                <p class="pe-actividad-titulo">Cargando…</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: auto; padding-top: 16px">
+                    <a href="#" class="pu-nav-item pu-nav-danger" style="display: block" id="sidebarLogout">
+                        <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión
+                    </a>
+                </div>
+            </aside>
+
+            <!-- CONTENT -->
+            <div class="pu-content">
+                <div class="pu-page-header">
+                    <h1><i class="fa-solid fa-user"></i> Perfil de Administrador</h1>
+                    <button class="pu-btn-edit" id="btnEditPerfil">
+                        <i class="fa-solid fa-pen"></i> Editar perfil
+                    </button>
+                </div>
+
+                <div class="pu-card">
+                    <div class="pu-perfil-hero">
+                        <div class="pu-perfil-avatar pu-perfil-avatar-empresa" id="perfilAvatar">
+                            AD
+                        </div>
+                        <div class="pu-perfil-info">
+                            <h2 id="perfilNombre">Administrador TourismEasy</h2>
+                            <p>
+                                <i class="fa-solid fa-envelope"></i> <span id="perfilEmail">admin@tourismeasy.com</span>
+                            </p>
+                            <p><i class="fa-solid fa-shield-halved"></i> Acceso: Total</p>
+                            <p>
+                                <i class="fa-solid fa-location-dot"></i> Bucaramanga, Santander
+                            </p>
+                            <span class="pu-badge-tipo pu-badge-empresa"><i class="fa-solid fa-crown"></i> Administrador
+                                principal</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pu-grid-2">
+                    <div class="pu-card">
+                        <h3 class="pu-card-title">
+                            <i class="fa-solid fa-info-circle"></i> Datos del administrador
+                        </h3>
+                        <div class="pu-field-list">
+                            <div class="pu-field">
+                                <span class="pu-field-label">Nombre</span><span class="pu-field-val"
+                                    id="infoNombre">Administrador
+                                    TourismEasy</span>
+                            </div>
+                            <div class="pu-field">
+                                <span class="pu-field-label">Rol</span><span class="pu-field-val">Administrador
+                                    principal</span>
+                            </div>
+                            <div class="pu-field">
+                                <span class="pu-field-label">Correo</span><span class="pu-field-val"
+                                    id="infoEmail">admin@tourismeasy.com</span>
+                            </div>
+                            <div class="pu-field">
+                                <span class="pu-field-label">Teléfono</span><span class="pu-field-val"
+                                    id="infoTelefono">+57 317 461 3395</span>
+                            </div>
+                            <div class="pu-field">
+                                <span class="pu-field-label">Ciudad</span><span class="pu-field-val">Bucaramanga,
+                                    Santander</span>
+                            </div>
+                            <div class="pu-field">
+                                <span class="pu-field-label">Activo desde</span><span class="pu-field-val"
+                                    id="infoActivoDesde">Abril 2026</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pu-card">
+                        <h3 class="pu-card-title">
+                            <i class="fa-solid fa-key"></i> Permisos y acceso
+                        </h3>
+                        <div class="pu-services-list">
+                            <div class="pu-service-item">
+                                <i class="fa-solid fa-building"></i> Gestión de empresas
+                            </div>
+                            <div class="pu-service-item">
+                                <i class="fa-solid fa-bus"></i> Gestión de transporte
+                            </div>
+                            <div class="pu-service-item">
+                                <i class="fa-solid fa-hotel"></i> Gestión de hospedajes
+                            </div>
+                            <div class="pu-service-item">
+                                <i class="fa-solid fa-map-location-dot"></i> Gestión de planes
+                            </div>
+                            <div class="pu-service-item">
+                                <i class="fa-solid fa-user-friends"></i> Gestión de artesanos
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pu-card">
+                    <h3 class="pu-card-title">
+                        <i class="fa-solid fa-chart-simple"></i> Estadísticas globales de la plataforma
+                    </h3>
+                    <div class="pu-stats-row">
+                        <div class="pu-stat">
+                            <span class="pu-stat-num" id="adminStatEmpresas">—</span><span
+                                class="pu-stat-label">Empresas registradas</span>
+                        </div>
+                        <div class="pu-stat">
+                            <span class="pu-stat-num" id="adminStatCalif">—</span><span
+                                class="pu-stat-label">Calificación promedio</span>
+                        </div>
+                        <div class="pu-stat">
+                            <span class="pu-stat-num" id="adminStatServicios">—</span><span
+                                class="pu-stat-label">Servicios activos</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <div id="site-footer"></div>
+    <script src="../componentes/footer.js"></script>
+    <script>
+        (function () {
+            var sess = sessionStorage.getItem("te_session");
+            if (!sess) {
+                window.location.href = "../index.html";
+                return;
+            }
+            var u = JSON.parse(sess);
+            if (u.tipo !== "admin") {
+                window.location.href = "../index.html";
+                return;
+            }
+            var av = document.getElementById("sidebarAvatar");
+            var nm = document.getElementById("sidebarNombre");
+            var pa = document.getElementById("perfilAvatar");
+            var pn = document.getElementById("perfilNombre");
+            var ni = document.getElementById("infoNombre");
+            if (av) av.textContent = u.avatar || "AD";
+            if (nm) nm.textContent = u.nombre || "Administrador";
+            if (pa) pa.textContent = u.avatar || "AD";
+            if (pn) pn.textContent = u.nombre || "Administrador TourismEasy";
+            if (ni) ni.textContent = u.nombre || "Administrador TourismEasy";
+        })();
+
+        // SESSION WIDGET
+        (function () {
+            var user = JSON.parse(sessionStorage.getItem("te_session") || "null");
+            var slot = document.getElementById("sessionWidgetSlot");
+            if (!user || !slot) return;
+            var w = document.createElement("div");
+            w.id = "sessionWidget";
+            w.className = "session-widget";
+            var ini = user.avatar || ((user.nombre || "AD").trim().split(/\s+/).map(function (x) {
+                return x[0] || "";
+            }).join("").toUpperCase().slice(0, 2) || "AD");
+            w.innerHTML = '<button class="session-trigger" id="sessionTrigger"><div class="session-avatar">' + ini + '</div><div class="session-info"><span class="session-name">' + (user.nombre || "Administrador") + '</span><span class="session-tipo">Administrador</span></div><i class="fa-solid fa-chevron-down session-chevron" id="sessionChevron"></i></button><div class="session-dropdown" id="sessionDropdown"><a class="session-menu-item session-menu-highlight" href="panel_admin.html"><i class="fa-solid fa-shield-halved"></i> Panel Administrador</a><a class="session-menu-item" href="perfil_admin.html"><i class="fa-solid fa-user"></i> Mi Perfil</a><a class="session-menu-item" href="config_admin.html"><i class="fa-solid fa-gear"></i> Configuracion</a><a class="session-menu-item session-menu-danger" id="btnLogout" href="#"><i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesion</a></div>';
+            slot.appendChild(w);
+            var trig = w.querySelector("#sessionTrigger"),
+                drop = w.querySelector("#sessionDropdown"),
+                chev = w.querySelector("#sessionChevron");
+            trig.addEventListener("click", function (e) {
+                e.stopPropagation();
+                var o = drop.classList.toggle("open");
+                chev.style.transform = o ? "rotate(180deg)" : "rotate(0deg)";
+            });
+            document.addEventListener("click", function () {
+                drop.classList.remove("open");
+                chev.style.transform = "rotate(0deg)";
+            });
+            w.querySelector("#btnLogout").addEventListener("click", function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                sessionStorage.removeItem("te_session");
+                window.location.href = "../index.html";
+            });
+        })();
+
+        var darkModeBtn = document.getElementById("darkModeToggle");
+        var darkModeIcon = darkModeBtn.querySelector("i");
+
+        function applyTheme(dark) {
+            document.body.classList.toggle("dark-mode", dark);
+            darkModeIcon.className = dark ? "fa-solid fa-sun" : "fa-solid fa-moon";
+            localStorage.setItem("theme", dark ? "dark" : "light");
+        }
+        var savedTheme = localStorage.getItem("theme");
+        applyTheme(
+            savedTheme ?
+                savedTheme === "dark" :
+                window.matchMedia("(prefers-color-scheme: dark)").matches,
+        );
+        darkModeBtn.addEventListener("click", function () {
+            applyTheme(!document.body.classList.contains("dark-mode"));
+        });
+
+        var logoutBtn = document.getElementById("sidebarLogout");
+        if (logoutBtn) {
+            logoutBtn.addEventListener("click", function (e) {
+                e.preventDefault();
+                sessionStorage.removeItem("te_session");
+                window.location.href = "../index.html";
+            });
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <script src="../js/santanderianidad.js"></script>
+    <script>
+        // Perfil de administrador - 100% desde la BD, sin localStorage
+        (function () {
+            var sesion = {};
+            try {
+                sesion = JSON.parse(sessionStorage.getItem("te_session") || "{}");
+            } catch (e) { }
+
+            var API_BASE = window.location.origin + '/Tourismeasy/login/';
+            var adminActual = {};
+
+            var MESES_ES = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+
+            function formatearFechaRegistro(fechaStr) {
+                if (!fechaStr) return null;
+                var f = new Date(fechaStr.replace(" ", "T"));
+                if (isNaN(f.getTime())) return null;
+                return MESES_ES[f.getMonth()] + " " + f.getFullYear();
+            }
+
+            function set(id, val) {
+                var e = document.getElementById(id);
+                if (e) e.textContent = val;
+            }
+
+            function aplicarDatos(d) {
+                var nombreCompleto = ((d.nombre || "") + " " + (d.apellido || "")).trim() || sesion.nombre || "Administrador TourismEasy";
+                var email = d.email_login || sesion.email || "admin@tourismeasy.com";
+                var initials = nombreCompleto.split(/\s+/).map(function (w) {
+                    return w[0] || "";
+                }).join("").substring(0, 2).toUpperCase() || "AD";
+
+                set("perfilNombre", nombreCompleto);
+                set("perfilEmail", email);
+                set("perfilAvatar", initials);
+                set("infoNombre", nombreCompleto);
+                set("infoEmail", email);
+                set("infoTelefono", d.celular || "—");
+                set("infoActivoDesde", formatearFechaRegistro(d.fecha_registro) || "—");
+
+                var sidebarAv = document.getElementById("sidebarAvatar");
+                if (sidebarAv) sidebarAv.textContent = initials;
+                var sidebarNm = document.getElementById("sidebarNombre");
+                if (sidebarNm) sidebarNm.textContent = nombreCompleto;
+            }
+
+            function cargarPerfil() {
+                if (!sesion.id) return;
+                fetch(API_BASE + 'get_perfil_admin.php?id=' + encodeURIComponent(sesion.id))
+                    .then(function (r) {
+                        return r.json();
+                    })
+                    .then(function (data) {
+                        if (data.ok && data.admin) {
+                            adminActual = data.admin;
+                            aplicarDatos(adminActual);
+                        }
+                    })
+                    .catch(function (err) {
+                        console.error("No se pudo cargar el perfil del administrador:", err);
+                    });
+            }
+            cargarPerfil();
+
+            function tiempoRelativo(fechaStr) {
+                var f = new Date((fechaStr || "").replace(" ", "T"));
+                if (isNaN(f.getTime())) return "";
+                var ahora = new Date();
+                var diffMin = Math.floor((ahora - f) / 60000);
+
+                if (diffMin < 1) return "Hace un momento";
+                if (diffMin < 60) return "Hace " + diffMin + " min";
+
+                var diffH = Math.floor(diffMin / 60);
+                var esHoy = f.toDateString() === ahora.toDateString();
+                if (esHoy) {
+                    return "Hoy, " + f.toLocaleTimeString("es-CO", { hour: "numeric", minute: "2-digit" });
+                }
+                if (diffH < 24) return "Hace " + diffH + (diffH === 1 ? " hora" : " horas");
+
+                var diffD = Math.floor(diffH / 24);
+                if (diffD < 7) return "Hace " + diffD + (diffD === 1 ? " día" : " días");
+
+                return f.toLocaleDateString("es-CO");
+            }
+
+            function cargarUltimaActividad() {
+                var cont = document.getElementById("ultimaActividadList");
+                if (!cont) return;
+
+                fetch(window.location.origin + '/Tourismeasy/soli_empresas/get_auditoria.php', { credentials: 'include' })
+                    .then(function (r) {
+                        return r.json();
+                    })
+                    .then(function (data) {
+                        if (!data.ok || !data.data || !data.data.length) {
+                            cont.innerHTML = '<div class="pe-actividad-item"><div><p class="pe-actividad-titulo">Sin actividad reciente</p></div></div>';
+                            return;
+                        }
+
+                        cont.innerHTML = data.data.slice(0, 3).map(function (ev) {
+                            return '<div class="pe-actividad-item">' +
+                                '<div class="pe-actividad-icon pe-actividad-icon--purple"><i class="fa-solid fa-circle-dot"></i></div>' +
+                                '<div>' +
+                                '<p class="pe-actividad-titulo">' + ev.accion + '</p>' +
+                                '<p class="pe-actividad-hora">' + tiempoRelativo(ev.fecha) + '</p>' +
+                                '</div>' +
+                                '</div>';
+                        }).join('');
+                    })
+                    .catch(function (err) {
+                        console.error("No se pudo cargar la última actividad:", err);
+                        cont.innerHTML = '<div class="pe-actividad-item"><div><p class="pe-actividad-titulo">No se pudo cargar</p></div></div>';
+                    });
+            }
+            cargarUltimaActividad();
+
+            function cargarEstadisticas() {
+                fetch(API_BASE + 'get_estadisticas_admin.php')
+                    .then(function (r) {
+                        return r.json();
+                    })
+                    .then(function (data) {
+                        if (!data.ok || !data.estadisticas) return;
+                        var st = data.estadisticas;
+                        set("adminStatEmpresas", (st.empresas_registradas !== null && st.empresas_registradas !== undefined) ? st.empresas_registradas : "—");
+                        set("adminStatCalif", st.calificacion_promedio !== null ? st.calificacion_promedio.toFixed(1) : "—");
+                        set("adminStatServicios", (st.servicios_activos !== null && st.servicios_activos !== undefined) ? st.servicios_activos : "—");
+                    })
+                    .catch(function (err) {
+                        console.error("No se pudieron cargar las estadísticas:", err);
+                    });
+            }
+            cargarEstadisticas();
+
+            // Modal editar perfil
+            var modal = document.getElementById("modalEditarAdmin");
+            var btnAbrir = document.getElementById("btnEditPerfil");
+            var btnCerrar = document.getElementById("btnCerrarModalAdmin");
+            var btnCancelar = document.getElementById("btnCancelarModalAdmin");
+            var btnGuardar = document.getElementById("btnGuardarPerfilAdmin");
+            var toast = document.getElementById("toastExitoAdmin");
+            if (!modal || !btnAbrir) return;
+
+            function abrirModal() {
+                var nombreCompleto = ((adminActual.nombre || "") + " " + (adminActual.apellido || "")).trim() || sesion.nombre || "";
+                document.getElementById("editNombreAdmin").value = nombreCompleto;
+                document.getElementById("editEmailAdmin").value = adminActual.email_login || sesion.email || "";
+                document.getElementById("editTelAdmin").value = adminActual.celular || "";
+                modal.style.display = "flex";
+                toast.style.display = "none";
+                document.body.style.overflow = "hidden";
+            }
+
+            function cerrarModal() {
+                modal.style.display = "none";
+                document.body.style.overflow = "";
+            }
+
+            btnAbrir.addEventListener("click", abrirModal);
+            btnCerrar.addEventListener("click", cerrarModal);
+            btnCancelar.addEventListener("click", cerrarModal);
+            modal.addEventListener("click", function (e) {
+                if (e.target === modal) cerrarModal();
+            });
+
+            btnGuardar.addEventListener("click", function () {
+                var nombreCompleto = document.getElementById("editNombreAdmin").value.trim();
+                var email = document.getElementById("editEmailAdmin").value.trim();
+                var tel = document.getElementById("editTelAdmin").value.trim();
+
+                if (!nombreCompleto) {
+                    document.getElementById("editNombreAdmin").focus();
+                    return;
+                }
+                if (!email) {
+                    document.getElementById("editEmailAdmin").focus();
+                    return;
+                }
+
+                var partes = nombreCompleto.split(/\s+/);
+                var nombre = partes.shift() || nombreCompleto;
+                var apellido = partes.join(" ") || nombre;
+
+                btnGuardar.disabled = true;
+
+                fetch(API_BASE + 'actualizar_perfil_admin.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        id: sesion.id,
+                        nombre: nombre,
+                        apellido: apellido,
+                        email: email,
+                        tel: tel,
+                    }),
+                })
+                    .then(function (r) {
+                        return r.json();
+                    })
+                    .then(function (data) {
+                        btnGuardar.disabled = false;
+                        if (!data.ok) {
+                            alert(data.error || "No se pudo actualizar el perfil.");
+                            return;
+                        }
+
+                        adminActual.nombre = nombre;
+                        adminActual.apellido = apellido;
+                        adminActual.celular = tel;
+                        adminActual.email_login = email;
+                        aplicarDatos(adminActual);
+
+                        sesion.nombre = nombreCompleto;
+                        sesion.email = email;
+                        sessionStorage.setItem("te_session", JSON.stringify(sesion));
+
+                        toast.style.display = "block";
+                        setTimeout(function () {
+                            cerrarModal();
+                        }, 1400);
+                    })
+                    .catch(function (err) {
+                        btnGuardar.disabled = false;
+                        console.error("Error al actualizar el perfil:", err);
+                        alert("No se pudo actualizar el perfil. Intenta de nuevo.");
+                    });
+            });
+
+            document.querySelectorAll("#modalEditarAdmin .pu-modal-input").forEach(function (inp) {
+                inp.addEventListener("focus", function () {
+                    this.style.borderColor = "var(--purple)";
+                });
+                inp.addEventListener("blur", function () {
+                    this.style.borderColor = "var(--gray-200)";
+                });
+            });
+        })();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,5 @@
+# Environment variables and local secrets
+.env
+.env.*
+!.env.example
+/api/config.local.php

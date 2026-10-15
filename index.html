@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TourismEasy</title>
+    <link rel="stylesheet" href="css/index.css" />
+    <link rel="stylesheet" href="css/login.css" />
+    <link rel="stylesheet" href="css/articulos.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="css/captcha.css" />
+    <link rel="stylesheet" href="css/cookies.css" />
+    <link rel="stylesheet" href="css/agente-ia.css" />
+    <link rel="stylesheet" href="css/resenas_likes.css" />
+    <link rel="icon" type="image/png" href="img/TURISMEASY.png">
+</head>
+
+<body>
+    <!-- NAVBAR: se rellena solo con js/components/navbar.js -->
+    <div id="site-navbar" data-context="root" data-active="inicio"></div>
+
+    <!-- HERO -->
+    <section class="hero">
+        <video class="hero-video" autoplay muted loop playsinline id="miVideo">
+            <source src="audio-video/chaparro.mp4" type="video/mp4" />
+        </video>
+        <button class="btn-sound" onclick="toggleAudio()" id="btnSound">🔇 Activar sonido</button>
+
+        <div class="hero-content">
+            <h1 class="hero-title">Turismo Inclusivo,<br />Ojos, Oídos y<br />Pasos Libres</h1>
+            <p class="hero-subtitle">
+                La plataforma que conecta a las empresas turísticas de Santander con viajeros que necesitan experiencias accesibles e inclusivas.
+            </p>
+            <a href="html/planes_turisticos.html" class="btn-primary">Explorar destinos &rarr;</a>
+        </div>
+
+        <div class="hero-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+        </div>
+    </section>
+
+    <!-- DESTINOS: se rellena solo con js/components/destinos.js -->
+    <div id="site-destinos"></div>
+
+    <!-- TESTIMONIOS (esta ya la maneja tu resenas.js, se deja igual) -->
+    <section class="testimonios">
+        <div class="section-container">
+            <h2 class="section-title center">Lo que dicen nuestros viajeros</h2>
+            <p class="section-desc center">
+                Miles de viajeros han confiado en TourismEasy para vivir experiencias únicas e inclusivas.
+            </p>
+            <div class="slider-wrapper">
+                <div class="slider-track" id="sliderTrack"></div>
+            </div>
+            <div class="slider-dots" id="sliderDots"></div>
+
+            <div class="resena-wrapper" id="resenaWrapper">
+                <div class="resena-form-box" id="resenaFormBox">
+                    <h3 class="resena-form-title"><i class="fa-solid fa-pen-to-square"></i> Deja tu reseña</h3>
+                    <div class="resena-anon-group" id="resenaAnonGroup">
+                        <label for="resenaNombreAnonimo">Tu nombre</label>
+                        <input type="text" class="resena-anon-input" id="resenaNombreAnonimo" placeholder="¿Cómo te llamas?" maxlength="60" autocomplete="name">
+                        <p class="resena-anon-hint">¿Ya tienes cuenta? <a href="html/login.html" id="resenaLoginBtn">Inicia sesión</a> para que tu reseña quede asociada a tu perfil.</p>
+                    </div>
+                    <div class="resena-stars-row" id="resenaStars">
+                        <span class="resena-star" data-val="1">&#9733;</span>
+                        <span class="resena-star" data-val="2">&#9733;</span>
+                        <span class="resena-star" data-val="3">&#9733;</span>
+                        <span class="resena-star" data-val="4">&#9733;</span>
+                        <span class="resena-star" data-val="5">&#9733;</span>
+                    </div>
+                    <textarea class="resena-textarea" id="resenaTexto" placeholder="Cuéntanos tu experiencia con TourismEasy..." maxlength="140"></textarea>
+                    <div class="resena-form-footer">
+                        <span class="resena-char-count" id="resenaCharCount">0 / 140</span>
+                        <button class="btn-resena-submit" id="resenaSubmit" type="button">Publicar reseña</button>
+                    </div>
+                </div>
+                <div class="resena-gracias" id="resenaGracias" style="display: none">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <p>¡Gracias por tu reseña, <strong id="resenaNombreGracias"></strong>!</p>
+                    <small>Tu opinión ya aparece en el carrusel.</small>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ARTICULOS: se rellena solo con componentes/articulos.js -->
+    <div id="site-articulos"></div>
+
+    <div id="site-footer"></div>
+
+    <script src="componentes/navbar.js"></script>
+    <script src="componentes/btn-acceder.js"></script>
+    <script src="componentes/dark-mode-toggle.js"></script>
+    <script src="componentes/destinos.js"></script>
+    <script src="componentes/articulos.js"></script>
+    <script src="componentes/footer.js"></script>
+
+    <script src="js/captcha.js"></script>
+    <script src="js/cookies.js"></script>
+    <script src="js/login.js"></script>
+    <script src="js/resenas.js"></script>
+    <script src="componentes/agente-ia.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <script src="js/santanderianidad.js"></script>
+
+    <script>
+        // Activa/silencia el sonido del video del hero.
+        // El video arranca "muted" a propósito: así lo exigen los navegadores
+        // para permitir el autoplay. Solo se puede des-mutear tras un clic
+        // real del usuario (que es justo lo que dispara este botón).
+        function toggleAudio() {
+            const video = document.getElementById('miVideo');
+            const btn = document.getElementById('btnSound');
+            if (!video || !btn) return;
+
+            if (video.muted) {
+                video.muted = false;
+                btn.textContent = '🔊 Silenciar';
+            } else {
+                video.muted = true;
+                btn.textContent = '🔇 Activar sonido';
+            }
+        }
+    </script>
+</body>
+
+</html>

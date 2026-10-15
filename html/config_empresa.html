@@ -1,0 +1,598 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Configuración - Avianca S.A. - TourismEasy</title>
+    <link rel="stylesheet" href="../css/index.css" />
+    <link rel="stylesheet" href="../css/login.css" />
+    <link rel="stylesheet" href="../css/panel_empresa.css" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;500&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="javascript:location.reload()" class="nav-logo">
+                <img src="../img/TURISMEASY.png" alt="Logo" class="logo-img" />
+                <span class="logo-text">TOURISMEASY</span>
+            </a>
+            <span class="panel-navbar-label" id="navbarLabel"><i class="fa-solid fa-plane"></i> Panel Empresa</span>
+            <div class="nav-slot">
+                <div id="sessionWidgetSlot"></div>
+                <button class="btn-dark-mode" id="darkModeToggle">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="pu-main">
+        <div class="pu-container">
+            <!-- ── SIDEBAR ── -->
+            <aside class="pu-sidebar">
+                <div class="pu-sidebar-avatar" id="sidebarAvatar">AV</div>
+                <div class="pu-sidebar-nombre" id="sidebarNombre">Avianca S.A.</div>
+                <div class="pu-sidebar-tipo" id="sidebarTipo">
+                    <i class="fa-solid fa-plane"></i> Empresa aliada
+                </div>
+
+                <nav class="pu-sidebar-nav">
+                    <a href="panel_transporte.html" class="pu-nav-item" id="sidebarMiPanel"><i
+                            class="fa-solid fa-chart-line"></i> Mi Panel</a>
+                    <a href="perfil_empresa.html" class="pu-nav-item"><i class="fa-solid fa-user"></i> Mi Perfil</a>
+                    <a href="config_empresa.html" class="pu-nav-item active"><i class="fa-solid fa-gear"></i>
+                        Configuración</a>
+                </nav>
+
+                <!-- Preferencias actuales -->
+                <div class="pe-sidebar-bloque pe-sidebar-bloque--purple">
+                    <p class="pe-sidebar-bloque__titulo pe-sidebar-bloque__titulo--purple">
+                        <i class="fa-solid fa-sliders"></i> Preferencias actuales
+                    </p>
+                    <div class="pe-sidebar-row">
+                        <span>Tema</span><span class="pe-sidebar-row__val--gray" id="temaActual">Claro</span>
+                    </div>
+                    <div class="pe-sidebar-row">
+                        <span>Notificaciones</span><span class="pe-sidebar-row__val--verde">2 activas</span>
+                    </div>
+                    <div class="pe-sidebar-row">
+                        <span>Idioma</span><span class="pe-sidebar-row__val--gray">Español</span>
+                    </div>
+                </div>
+
+                <!-- Consejos de seguridad -->
+                <div class="pe-sidebar-bloque pe-sidebar-bloque--amber">
+                    <p class="pe-sidebar-bloque__titulo pe-sidebar-bloque__titulo--amber">
+                        <i class="fa-solid fa-lightbulb"></i> Consejos de seguridad
+                    </p>
+                    <ul class="pe-sidebar-checks">
+                        <li class="pe-sidebar-check">
+                            <i class="fa-solid fa-shield" style="color: #d97706"></i> Cambia tu contraseña cada 3 meses
+                        </li>
+                        <li class="pe-sidebar-check">
+                            <i class="fa-solid fa-eye-slash" style="color: #d97706"></i> No compartas tus credenciales
+                        </li>
+                        <li class="pe-sidebar-check">
+                            <i class="fa-solid fa-right-from-bracket" style="color: #d97706"></i> Cierra sesión en
+                            equipos públicos
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Estado de la cuenta -->
+                <div class="pe-sidebar-bloque pe-sidebar-bloque--verde">
+                    <p class="pe-sidebar-bloque__titulo pe-sidebar-bloque__titulo--verde">
+                        <i class="fa-solid fa-circle-check"></i> Estado de la cuenta
+                    </p>
+                    <div class="pe-sidebar-row">
+                        <span>Plan</span><span class="pe-sidebar-row__val--verde">Aliada Activa</span>
+                    </div>
+                    <div class="pe-sidebar-row">
+                        <span>Verificación</span><span class="pe-sidebar-row__val--verde"><i
+                                class="fa-solid fa-check"></i>
+                            Verificada</span>
+                    </div>
+                    <div class="pe-sidebar-row">
+                        <span>Miembro desde</span><span class="pe-sidebar-row__val--gray" id="miembroDesde">—</span>
+                    </div>
+                </div>
+
+                <!-- Accesos rápidos -->
+                <div class="pe-sidebar-bloque pe-sidebar-bloque--purple">
+                    <p class="pe-sidebar-bloque__titulo pe-sidebar-bloque__titulo--purple">
+                        <i class="fa-solid fa-bolt"></i> Accesos rápidos
+                    </p>
+                    <div class="pe-accesos">
+                        <a href="panel_transporte.html" class="pe-acceso-link" id="accesoPanel"><i
+                                class="fa-solid fa-plane"></i> Ver
+                            mis servicios</a>
+                        <a href="perfil_empresa.html" class="pe-acceso-link"><i class="fa-solid fa-pen-to-square"></i>
+                            Editar
+                            perfil</a>
+                    </div>
+                </div>
+
+                <!-- Actividad reciente -->
+                <div class="pe-sidebar-bloque pe-sidebar-bloque--purple">
+                    <p class="pe-sidebar-bloque__titulo pe-sidebar-bloque__titulo--purple">
+                        <i class="fa-solid fa-clock-rotate-left"></i> Actividad reciente
+                    </p>
+                    <div class="pe-actividad">
+                        <div class="pe-actividad-item">
+                            <div class="pe-actividad-icon pe-actividad-icon--verde">
+                                <i class="fa-solid fa-calendar-check"></i>
+                            </div>
+                            <div>
+                                <p class="pe-actividad-titulo">Nuevo contacto por WhatsApp</p>
+                                <p class="pe-actividad-hora">Hace 10 minutos</p>
+                            </div>
+                        </div>
+                        <div class="pe-actividad-item" id="actividadServicio">
+                            <div class="pe-actividad-icon pe-actividad-icon--purple">
+                                <i class="fa-solid fa-plane" id="actividadIcono"></i>
+                            </div>
+                            <div>
+                                <p class="pe-actividad-titulo" id="actividadTitulo">Servicio publicado</p>
+                                <p class="pe-actividad-hora">Ayer a las 3:45 pm</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pu-nav-logout-wrapper">
+                    <a href="#" class="pu-nav-item pu-nav-danger" id="sidebarLogout">
+                        <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión
+                    </a>
+                </div>
+            </aside>
+
+            <!-- ── CONTENIDO ── -->
+            <div class="pu-content">
+                <div class="pu-page-header">
+                    <h1><i class="fa-solid fa-gear"></i> Configuración de Empresa</h1>
+                </div>
+
+                <!-- Seguridad -->
+                <div class="pu-card">
+                    <h3 class="pu-card-title">
+                        <i class="fa-solid fa-lock"></i> Seguridad de la cuenta
+                    </h3>
+                    <div class="pu-config-item">
+                        <div>
+                            <strong>Contraseña</strong>
+                            <p>Última actualización: hace 0 días</p>
+                        </div>
+                        <button class="pu-btn-secondary">Cambiar contraseña</button>
+                    </div>
+                    <div class="pu-config-item">
+                        <div>
+                            <strong>Correo de contacto</strong>
+                            <p id="configEmail">notificaciones@avianca.com</p>
+                        </div>
+                        <button class="pu-btn-secondary">Cambiar correo</button>
+                    </div>
+                </div>
+
+                <!-- Notificaciones -->
+                <div class="pu-card">
+                    <h3 class="pu-card-title">
+                        <i class="fa-solid fa-bell"></i> Notificaciones
+                    </h3>
+                    <div class="pu-toggle-item">
+                        <div>
+                            <strong>Cancelaciones</strong>
+                            <p>Recibir alerta cuando se cancele una solicitud</p>
+                        </div>
+                        <label class="pu-toggle"><input type="checkbox" id="toggleNotifCancelaciones" checked /><span
+                                class="pu-toggle-slider"></span></label>
+                    </div>
+                    <div class="pu-toggle-item">
+                        <div>
+                            <strong>Boletín de TourismEasy</strong>
+                            <p>Novedades y estadísticas de la plataforma</p>
+                        </div>
+                        <label class="pu-toggle"><input type="checkbox" id="toggleNotifBoletin" /><span
+                                class="pu-toggle-slider"></span></label>
+                    </div>
+
+                    <button class="pu-btn-primary" id="btnGuardarConfigEmpresa">
+                        <i class="fa-solid fa-check"></i> Guardar preferencias
+                    </button>
+                </div>
+
+                <div class="pu-card">
+                    <h3 class="pu-card-title">
+                        <i class="fa-solid fa-palette"></i> Apariencia
+                    </h3>
+                    <div class="pu-config-item">
+                        <div>
+                            <strong>Tema</strong>
+                            <p>Modo oscuro / claro</p>
+                        </div>
+                        <label class="pu-toggle"><input type="checkbox" id="themeToggle" /><span
+                                class="pu-toggle-slider"></span></label>
+                    </div>
+                </div>
+
+                <!-- Privacidad -->
+                <!-- Zona peligro -->
+                <div class="pu-card pu-card-danger">
+                    <h3 class="pu-card-title pu-card-title--danger">
+                        <i class="fa-solid fa-triangle-exclamation"></i> Zona de peligro
+                    </h3>
+                    <div class="pu-config-item">
+                        <div>
+                            <strong>Restablecer configuración</strong>
+                            <p>Vuelve todos los ajustes a sus valores por defecto.</p>
+                        </div>
+                        <button class="pu-btn-secondary">Restablecer</button>
+                    </div>
+                    <div class="pu-config-item">
+                        <div>
+                            <strong>Cerrar sesión en todos los dispositivos</strong>
+                            <p>Finaliza todas las sesiones activas de la empresa.</p>
+                        </div>
+                        <button class="pu-btn-danger">Cerrar todas las sesiones</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <div id="site-footer"></div>
+    <script src="../componentes/footer.js"></script>
+    <script>
+        // SESSION WIDGET
+        (function () {
+            var user = JSON.parse(sessionStorage.getItem("te_session") || "null");
+            var slot = document.getElementById("sessionWidgetSlot");
+            if (!user || !slot) return;
+            var w = document.createElement("div");
+            w.id = "sessionWidget";
+            w.className = "session-widget";
+            var ini = ((user.nombre || user.avatar || "AV").trim().split(/\s+/).map(function (x) {
+                return x[0] || "";
+            }).join("").toUpperCase().slice(0, 2) || "AV");
+            var _srv = (user.tipoServicio || user.servicio || "TRANSPORTE").toUpperCase();
+            var _panelLinks = {
+                TRANSPORTE: "panel_transporte.html",
+                HOSPEDAJE: "panel_hospedaje.html",
+                PLANES: "panel_planes.html",
+                PERSONAL_AUXILIAR: "panel_auxiliar.html",
+                AUXILIAR: "panel_auxiliar.html"
+            };
+            var _panelIcons = {
+                TRANSPORTE: "fa-bus",
+                HOSPEDAJE: "fa-hotel",
+                PLANES: "fa-map-location-dot",
+                PERSONAL_AUXILIAR: "fa-person-cane",
+                AUXILIAR: "fa-person-cane"
+            };
+            var _panelHref = _panelLinks[_srv] || "panel_transporte.html";
+            var _panelIcon = _panelIcons[_srv] || "fa-bus";
+            w.innerHTML = '<button class="session-trigger" id="sessionTrigger"><div class="session-avatar">' + ini + '</div><div class="session-info"><span class="session-name">' + (user.nombre || "Empresa") + '</span><span class="session-tipo">Empresa</span></div><i class="fa-solid fa-chevron-down session-chevron" id="sessionChevron"></i></button><div class="session-dropdown" id="sessionDropdown"><a class="session-menu-item session-menu-highlight" href="' + _panelHref + '"><i class="fa-solid ' + _panelIcon + '"></i> Panel Empresa</a><a class="session-menu-item" href="perfil_empresa.html"><i class="fa-solid fa-user"></i> Mi Perfil</a><a class="session-menu-item" href="config_empresa.html"><i class="fa-solid fa-gear"></i> Configuracion</a><a class="session-menu-item session-menu-danger" id="btnLogout" href="#"><i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesion</a></div>';
+            slot.appendChild(w);
+            var trig = w.querySelector("#sessionTrigger"),
+                drop = w.querySelector("#sessionDropdown"),
+                chev = w.querySelector("#sessionChevron");
+            trig.addEventListener("click", function (e) {
+                e.stopPropagation();
+                var o = drop.classList.toggle("open");
+                chev.style.transform = o ? "rotate(180deg)" : "rotate(0deg)";
+            });
+            document.addEventListener("click", function () {
+                drop.classList.remove("open");
+                chev.style.transform = "rotate(0deg)";
+            });
+            w.querySelector("#btnLogout").addEventListener("click", function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                sessionStorage.removeItem("te_session");
+                window.location.href = "../index.html";
+            });
+        })();
+
+        // ── TEMA OSCURO/CLARO ─────────────────────────────────────────────────
+        var darkModeBtn = document.getElementById("darkModeToggle");
+        var darkModeIcon = darkModeBtn.querySelector("i");
+
+        function applyTheme(dark) {
+            document.body.classList.toggle("dark-mode", dark);
+            darkModeIcon.className = dark ? "fa-solid fa-sun" : "fa-solid fa-moon";
+            localStorage.setItem("theme", dark ? "dark" : "light");
+            // Actualizar el label de tema en el sidebar
+            var temaEl = document.getElementById("temaActual");
+            if (temaEl) temaEl.textContent = dark ? "Oscuro" : "Claro";
+            // Mantener sincronizado el switch de la tarjeta "Apariencia"
+            var themeToggleEl = document.getElementById("themeToggle");
+            if (themeToggleEl) themeToggleEl.checked = dark;
+        }
+        var savedTheme = localStorage.getItem("theme");
+        var isDark = savedTheme ? savedTheme === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+        applyTheme(isDark);
+        darkModeBtn.addEventListener("click", function () {
+            applyTheme(!document.body.classList.contains("dark-mode"));
+        });
+
+        var themeToggle = document.getElementById("themeToggle");
+        if (themeToggle) {
+            themeToggle.addEventListener("change", function () {
+                applyTheme(themeToggle.checked);
+            });
+        }
+
+        // ── DATOS DE EMPRESA ─────────────────────────────────────────────────
+        (function () {
+            var sess = sessionStorage.getItem("te_session");
+            if (!sess) {
+                window.location.href = "../index.html";
+                return;
+            }
+            var u = JSON.parse(sess);
+            if (u.tipo !== "empresa") {
+                window.location.href = "../index.html";
+                return;
+            }
+
+            var NORM = {
+                "viajes": "transporte",
+                "transporte": "transporte",
+                "hospedaje": "hospedaje",
+                "planes": "planes",
+                "todos los servicios": "todo",
+                "todo": "todo"
+            };
+            var ICONO = {
+                "transporte": "fa-bus",
+                "auxiliar": "fa-person-cane",
+                "hospedaje": "fa-hotel",
+                "planes": "fa-map-location-dot",
+                "todo": "fa-star"
+            };
+            var ACCESO_LABEL = {
+                "transporte": "Ver mi transporte",
+                "auxiliar": "Ver mis auxiliares",
+                "hospedaje": "Ver mis hospedajes",
+                "planes": "Ver mis planes",
+                "todo": "Ver mis servicios"
+            };
+            var ACT_LABEL = {
+                "transporte": "Transporte publicado",
+                "auxiliar": "Auxiliar registrado",
+                "hospedaje": "Hospedaje publicado",
+                "planes": "Plan publicado",
+                "todo": "Servicio publicado"
+            };
+
+            // Buscar datos en te_empresas_pendientes, fallback a te_solicitudes
+            var sol = null;
+            try {
+                var pend = JSON.parse(localStorage.getItem("te_empresas_pendientes") || "[]");
+                sol = pend.find(function (s) {
+                    return s.email && s.email.toLowerCase() === u.email.toLowerCase();
+                });
+            } catch (e) { }
+            if (!sol) {
+                try {
+                    var viejas = JSON.parse(localStorage.getItem("te_solicitudes") || "[]");
+                    var sv = viejas.find(function (s) {
+                        return s.contacto && s.contacto.toLowerCase() === u.email.toLowerCase();
+                    });
+                    if (sv) sol = {
+                        nombre: sv.empresa,
+                        nit: sv.nit,
+                        ciudad: sv.sede,
+                        servicio: sv.servicio,
+                        email: u.email
+                    };
+                } catch (e) { }
+            }
+
+            var servicioRaw = (sol && sol.servicio) || u.tipoServicio || "transporte";
+            var servicio = NORM[(servicioRaw || "").toLowerCase()] || "transporte";
+            var icono = ICONO[servicio] || "fa-bus";
+
+            // Avatar y nombre
+            var av = document.getElementById("sidebarAvatar");
+            var nm = document.getElementById("sidebarNombre");
+            var _nomCfg = u.nombre || u.avatar || "AV";
+            var _inisCfg = _nomCfg.trim().split(/\s+/).map(function (w) {
+                return w[0] || '';
+            }).join('').toUpperCase().slice(0, 2) || "AV";
+            if (av) av.textContent = _inisCfg;
+            if (nm) nm.textContent = u.nombre || "";
+
+            // Tipo de empresa en sidebar
+            var st = document.getElementById("sidebarTipo");
+            if (st) st.innerHTML = '<i class="fa-solid ' + icono + '"></i> Empresa aliada';
+
+            // Navbar label
+            var nl = document.getElementById("navbarLabel");
+            if (nl) nl.innerHTML = '<i class="fa-solid ' + icono + '"></i> Panel Empresa';
+
+            // Correo
+            var em = document.getElementById("configEmail");
+            if (em) em.textContent = u.email || "";
+
+            // Título de página
+            document.title = "Configuración - " + (u.nombre || "Empresa") + " - TourismEasy";
+
+            // Miembro desde: mes y año actuales
+            var meses = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+            var hoy = new Date();
+            var md = document.getElementById("miembroDesde");
+            if (md) md.textContent = meses[hoy.getMonth()] + " " + hoy.getFullYear();
+
+            // Acceso rápido según tipo
+            var ap = document.getElementById("accesoPanel");
+            if (ap) ap.innerHTML = '<i class="fa-solid ' + icono + '"></i> ' + (ACCESO_LABEL[servicio] || "Ver mis servicios");
+
+            // Actividad reciente según tipo
+            var actI = document.getElementById("actividadIcono");
+            var actT = document.getElementById("actividadTitulo");
+            if (actI) actI.className = "fa-solid " + icono;
+            if (actT) actT.textContent = ACT_LABEL[servicio] || "Servicio publicado";
+
+            // Notificaciones activas: contar toggles encendidos
+            var toggles = document.querySelectorAll(".pu-toggle input[type=checkbox]");
+            var activas = 0;
+            toggles.forEach(function (t) {
+                if (t.checked) activas++;
+            });
+            var notifEl = document.querySelector(".pe-sidebar-row__val--verde");
+            if (notifEl) notifEl.textContent = activas + (activas === 1 ? " activa" : " activas");
+
+            // Actualizar contador al cambiar toggles
+            toggles.forEach(function (t) {
+                t.addEventListener("change", function () {
+                    var cnt = 0;
+                    toggles.forEach(function (x) {
+                        if (x.checked) cnt++;
+                    });
+                    if (notifEl) notifEl.textContent = cnt + (cnt === 1 ? " activa" : " activas");
+                });
+            });
+        })();
+
+        document
+            .getElementById("sidebarLogout")
+            .addEventListener("click", function (e) {
+                e.preventDefault();
+                sessionStorage.removeItem("te_session");
+                window.location.href = "../index.html";
+            });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <script src="../js/santanderianidad.js"></script>
+    <script>
+        (function () {
+            try {
+                var u = JSON.parse(sessionStorage.getItem("te_session") || "null");
+                if (!u || u.tipo !== "empresa") return;
+                var m = {
+                    transporte: "panel_transporte.html",
+                    hospedaje: "panel_hospedaje.html",
+                    planes: "panel_planes.html",
+                    auxiliar: "panel_auxiliar.html",
+                    personal_auxiliar: "panel_auxiliar.html"
+                };
+                var dest = m[(u.tipoServicio || "").toLowerCase()] || "panel_transporte.html";
+                document.querySelectorAll("#sidebarMiPanel, #accesoPanel").forEach(function (a) {
+                    a.href = dest;
+                });
+            } catch (e) { }
+        })();
+    </script>
+    <script>
+        // Configuración de la empresa (CONFIG_EMPRESA) - 100% desde la BD
+        (function () {
+            var sesion = {};
+            try {
+                sesion = JSON.parse(sessionStorage.getItem("te_session") || "{}");
+            } catch (e) { }
+            if (!sesion.id) return;
+
+            var API_BASE = window.location.origin + '/Tourismeasy/login/';
+
+            var chkCancelaciones = document.getElementById("toggleNotifCancelaciones");
+            var chkBoletin = document.getElementById("toggleNotifBoletin");
+
+            function guardarConfig(campo, valor) {
+                return fetch(API_BASE + 'actualizar_config_empresa.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        id: sesion.id,
+                        campo: campo,
+                        valor: valor
+                    }),
+                }).catch(function (err) {
+                    console.error("No se pudo guardar la configuración:", err);
+                });
+            }
+
+            fetch(API_BASE + 'get_config_empresa.php?id=' + encodeURIComponent(sesion.id))
+                .then(function (r) {
+                    return r.json();
+                })
+                .then(function (data) {
+                    if (!data.ok || !data.config) return;
+                    var cfg = data.config;
+                    if (chkCancelaciones) chkCancelaciones.checked = !!cfg.notif_cancelaciones;
+                    if (chkBoletin) chkBoletin.checked = !!cfg.notif_boletin;
+
+                    // El tema guardado en la BD manda sobre lo detectado localmente
+                    if (cfg.tema_oscuro !== null && cfg.tema_oscuro !== undefined && typeof applyTheme === "function") {
+                        applyTheme(!!cfg.tema_oscuro);
+                    }
+
+                    // Recontar notificaciones activas en el sidebar con los valores reales
+                    var toggles = document.querySelectorAll(".pu-toggle input[type=checkbox]");
+                    var activas = 0;
+                    toggles.forEach(function (t) {
+                        if (t.checked) activas++;
+                    });
+                    var notifEl = document.querySelector(".pe-sidebar-row__val--verde");
+                    if (notifEl) notifEl.textContent = activas + (activas === 1 ? " activa" : " activas");
+                })
+                .catch(function (err) {
+                    console.error("No se pudo cargar la configuración:", err);
+                });
+
+            if (chkCancelaciones) {
+                chkCancelaciones.addEventListener("change", function () {
+                    guardarConfig("notif_cancelaciones", chkCancelaciones.checked);
+                });
+            }
+            if (chkBoletin) {
+                chkBoletin.addEventListener("change", function () {
+                    guardarConfig("notif_boletin", chkBoletin.checked);
+                });
+            }
+
+            // Persistir el tema en la BD cuando el usuario lo cambia manualmente
+            if (typeof darkModeBtn !== "undefined" && darkModeBtn) {
+                darkModeBtn.addEventListener("click", function () {
+                    guardarConfig("tema_oscuro", document.body.classList.contains("dark-mode"));
+                });
+            }
+            if (typeof themeToggle !== "undefined" && themeToggle) {
+                themeToggle.addEventListener("change", function () {
+                    guardarConfig("tema_oscuro", document.body.classList.contains("dark-mode"));
+                });
+            }
+
+            // Botón "Guardar preferencias": reenvía el estado actual de todo y confirma visualmente
+            var btnGuardarConfigEmpresa = document.getElementById("btnGuardarConfigEmpresa");
+            if (btnGuardarConfigEmpresa) {
+                btnGuardarConfigEmpresa.addEventListener("click", function () {
+                    var original = btnGuardarConfigEmpresa.innerHTML;
+                    var pendientes = [];
+                    if (chkCancelaciones) pendientes.push(guardarConfig("notif_cancelaciones", chkCancelaciones.checked));
+                    if (chkBoletin) pendientes.push(guardarConfig("notif_boletin", chkBoletin.checked));
+                    pendientes.push(guardarConfig("tema_oscuro", document.body.classList.contains("dark-mode")));
+
+                    btnGuardarConfigEmpresa.disabled = true;
+                    Promise.all(pendientes).then(function () {
+                        btnGuardarConfigEmpresa.innerHTML = '<i class="fa-solid fa-circle-check"></i> ¡Guardado!';
+                        setTimeout(function () {
+                            btnGuardarConfigEmpresa.innerHTML = original;
+                            btnGuardarConfigEmpresa.disabled = false;
+                        }, 1800);
+                    });
+                });
+            }
+        })();
+    </script>
+</body>
+
+</html>

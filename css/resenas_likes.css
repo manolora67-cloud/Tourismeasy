@@ -1,0 +1,76 @@
+/* ================================================================
+   TourismEasy — Estilos para reseñas: fecha relativa + like
+   ================================================================ */
+
+.resena-fecha {
+    display: block;
+    font-size: 0.72rem;
+    color: var(--color-text-muted, #94a3b8);
+    margin-top: 2px;
+}
+
+.resena-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+
+/* ── Estado base: siempre rojo, con o sin sesión ── */
+
+.resena-btn-like {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: none;
+    border: 1px solid #ff4c4c;
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 0.82rem;
+    cursor: pointer;
+    color: #d81616;
+    transition: background 0.18s, border-color 0.18s, color 0.18s, transform 0.1s;
+    user-select: none;
+}
+
+.resena-btn-like:hover:not(:disabled) {
+    background: #fff1f2;
+    border-color: #ff4c4c;
+    color: #ff0000;
+}
+
+
+/* ── Con like dado: fondo relleno ── */
+
+.resena-btn-like.liked {
+    background: #fff1f2;
+    border-color: #ff4c4c;
+    color: #e11d1d;
+    font-weight: 600;
+}
+
+.resena-btn-like:active:not(:disabled) {
+    transform: scale(0.92);
+}
+
+
+/* ── Deshabilitado: mismo color, solo cursor diferente ── */
+
+.resena-btn-like:disabled,
+.resena-btn-like.disabled {
+    border-color: #ff4c4c;
+    color: #d81616;
+    opacity: 1;
+    cursor: default;
+}
+
+.like-icon {
+    font-size: 1rem;
+    line-height: 1;
+}
+
+.like-count {
+    min-width: 10px;
+    text-align: center;
+}
