@@ -52,6 +52,8 @@
                     <a href="perfil_admin.html" class="pu-nav-item"><i class="fa-solid fa-user"></i> Mi Perfil</a>
                     <a href="config_admin.html" class="pu-nav-item active"><i class="fa-solid fa-gear"></i>
                         Configuración</a>
+                    <a href="festividades_admin.html" class="pu-nav-item"><i class="fa-solid fa-calendar-days"></i>
+                        Festividades</a>
                 </nav>
 
                 <div class="pe-sidebar-bloque pe-sidebar-bloque--purple">
@@ -290,7 +292,7 @@
             var ini = user.avatar || ((user.nombre || "AD").trim().split(/\s+/).map(function (x) {
                 return x[0] || "";
             }).join("").toUpperCase().slice(0, 2) || "AD");
-            w.innerHTML = '<button class="session-trigger" id="sessionTrigger"><div class="session-avatar">' + ini + '</div><div class="session-info"><span class="session-name">' + (user.nombre || "Administrador") + '</span><span class="session-tipo">Administrador</span></div><i class="fa-solid fa-chevron-down session-chevron" id="sessionChevron"></i></button><div class="session-dropdown" id="sessionDropdown"><a class="session-menu-item session-menu-highlight" href="panel_admin.html"><i class="fa-solid fa-shield-halved"></i> Panel Administrador</a><a class="session-menu-item" href="perfil_admin.html"><i class="fa-solid fa-user"></i> Mi Perfil</a><a class="session-menu-item" href="config_admin.html"><i class="fa-solid fa-gear"></i> Configuracion</a><a class="session-menu-item session-menu-danger" id="btnLogout" href="#"><i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesion</a></div>';
+            w.innerHTML = '<button class="session-trigger" id="sessionTrigger"><div class="session-avatar">' + ini + '</div><div class="session-info"><span class="session-name">' + (user.nombre || "Administrador") + '</span><span class="session-tipo">Administrador</span></div><i class="fa-solid fa-chevron-down session-chevron" id="sessionChevron"></i></button><div class="session-dropdown" id="sessionDropdown"><a class="session-menu-item session-menu-highlight" href="panel_admin.html"><i class="fa-solid fa-shield-halved"></i> Panel Administrador</a><a class="session-menu-item" href="perfil_admin.html"><i class="fa-solid fa-user"></i> Mi Perfil</a><a class="session-menu-item" href="config_admin.html"><i class="fa-solid fa-gear"></i> Configuracion</a><a class="session-menu-item" href="festividades_admin.html"><i class="fa-solid fa-calendar-days"></i> Festividades</a><a class="session-menu-item session-menu-danger" id="btnLogout" href="#"><i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesion</a></div>';
             slot.appendChild(w);
             var trig = w.querySelector("#sessionTrigger"),
                 drop = w.querySelector("#sessionDropdown"),

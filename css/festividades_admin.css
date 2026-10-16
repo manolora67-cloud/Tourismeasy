@@ -1,0 +1,306 @@
+.festividades-admin-layout {
+    align-items: stretch;
+}
+
+.festividades-admin-content {
+    flex: 1;
+    min-width: 0;
+    padding: 28px;
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: 18px;
+    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05);
+}
+
+.festividades-admin-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 22px;
+}
+
+.festividades-admin-header h1 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 4px 0 8px;
+    color: var(--gray-800);
+    font: 800 1.65rem var(--font-head);
+}
+
+.festividades-admin-header h1 i,
+.festividades-admin-eyebrow {
+    color: var(--purple);
+}
+
+.festividades-admin-header p:last-child {
+    margin: 0;
+    color: var(--gray-600);
+}
+
+.festividades-admin-eyebrow {
+    margin: 0;
+    font: 800 0.7rem var(--font-head);
+    letter-spacing: 0.1em;
+}
+
+.festividades-admin-table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--gray-200);
+    border-radius: 14px;
+}
+
+.festividades-admin-table {
+    min-width: 560px;
+}
+
+.festividades-admin-table td {
+    vertical-align: middle;
+}
+
+.festividad-cell-title {
+    display: block;
+    color: var(--gray-800);
+    font-weight: 700;
+}
+
+.festividad-cell-subtitle {
+    display: block;
+    margin-top: 4px;
+    color: var(--gray-500);
+    font-size: 0.78rem;
+}
+
+.festividad-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.festividad-action {
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--gray-200);
+    border-radius: 9px;
+    background: var(--white);
+    color: var(--purple);
+    cursor: pointer;
+}
+
+.festividad-action:hover {
+    background: rgba(124, 58, 237, 0.08);
+}
+
+.festividad-action-delete {
+    color: #dc2626;
+}
+
+.festividades-empty {
+    padding: 28px !important;
+    color: var(--gray-500);
+    text-align: center;
+}
+
+.festividades-admin-alert {
+    margin-bottom: 16px;
+    padding: 12px 16px;
+    border: 1px solid #fecaca;
+    border-radius: 10px;
+    background: #fef2f2;
+    color: #b91c1c;
+    font-size: 0.9rem;
+}
+
+.festividad-dialog {
+    width: min(680px, calc(100% - 28px));
+    max-height: min(90vh, 820px);
+    padding: 0;
+    border: 0;
+    border-radius: 18px;
+    color: var(--gray-800);
+    box-shadow: 0 24px 80px rgba(15, 23, 42, 0.3);
+}
+
+.festividad-dialog::backdrop {
+    background: rgba(15, 23, 42, 0.6);
+}
+
+.festividad-dialog form {
+    padding: 24px;
+}
+
+.festividad-dialog-header,
+.festividad-dialog-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+}
+
+.festividad-dialog-header {
+    margin-bottom: 20px;
+}
+
+.festividad-dialog-header h2 {
+    margin: 0 0 5px;
+    font: 800 1.25rem var(--font-head);
+}
+
+.festividad-dialog-header p {
+    margin: 0;
+    color: var(--gray-500);
+    font-size: 0.86rem;
+}
+
+.festividad-dialog-close {
+    width: 38px;
+    height: 38px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--gray-100);
+    color: var(--gray-700);
+    cursor: pointer;
+}
+
+.festividad-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 15px;
+}
+
+.festividad-field {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 6px;
+    color: var(--gray-700);
+    font: 700 0.82rem var(--font-head);
+}
+
+.festividad-field-wide {
+    grid-column: 1 / -1;
+}
+
+.festividad-field input:not([type="color"]),
+.festividad-field select,
+.festividad-field textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--gray-300);
+    border-radius: 9px;
+    background: var(--white);
+    color: var(--gray-800);
+    font: 500 0.9rem var(--font-body);
+}
+
+.festividad-field input[type="color"] {
+    width: 100%;
+    height: 42px;
+    padding: 4px;
+    border: 1px solid var(--gray-300);
+    border-radius: 9px;
+    background: var(--white);
+}
+
+.festividad-field small {
+    color: var(--gray-500);
+    font: 400 0.72rem var(--font-body);
+}
+
+.festividad-dialog-actions {
+    justify-content: flex-end;
+    margin-top: 22px;
+}
+
+.festividad-btn-cancel,
+.festividad-btn-save {
+    padding: 10px 18px;
+    border: 0;
+    border-radius: 9px;
+    font: 700 0.85rem var(--font-head);
+    cursor: pointer;
+}
+
+.festividad-btn-cancel {
+    background: var(--gray-100);
+    color: var(--gray-700);
+}
+
+.festividad-btn-save {
+    background: var(--purple);
+    color: #fff;
+}
+
+.festividad-btn-save:disabled {
+    cursor: wait;
+    opacity: 0.65;
+}
+
+.festividades-logout {
+    margin-top: auto;
+}
+
+body.dark-mode .festividades-admin-content,
+body.dark-mode .festividad-dialog {
+    background: #1e293b;
+    color: #f1f5f9;
+}
+
+body.dark-mode .festividades-admin-header h1,
+body.dark-mode .festividad-cell-title {
+    color: #f1f5f9;
+}
+
+body.dark-mode .festividades-admin-header p:last-child,
+body.dark-mode .festividad-cell-subtitle,
+body.dark-mode .festividad-dialog-header p {
+    color: #94a3b8;
+}
+
+body.dark-mode .festividades-admin-table-wrap,
+body.dark-mode .festividad-action {
+    border-color: #334155;
+}
+
+body.dark-mode .festividad-action,
+body.dark-mode .festividad-field input:not([type="color"]),
+body.dark-mode .festividad-field select,
+body.dark-mode .festividad-field textarea {
+    background: #0f172a;
+    color: #f1f5f9;
+}
+
+body.dark-mode .festividad-field {
+    color: #cbd5e1;
+}
+
+body.dark-mode .festividad-dialog-close,
+body.dark-mode .festividad-btn-cancel {
+    background: #334155;
+    color: #e2e8f0;
+}
+
+@media (max-width: 780px) {
+    .festividades-admin-content {
+        padding: 20px;
+    }
+
+    .festividades-admin-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 520px) {
+    .festividad-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .festividad-field-wide {
+        grid-column: auto;
+    }
+
+    .festividad-dialog form {
+        padding: 18px;
+    }
+}

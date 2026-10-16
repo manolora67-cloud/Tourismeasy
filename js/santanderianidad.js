@@ -2,6 +2,7 @@
     // ⏱️ DURACIÓN DEL DESTELLO (en segundos) que resalta la tarjeta del destino relacionado con la festividad del día.
     // Cambia SOLO este número para ajustar cuánto dura el destello (afecta el CSS y el JS automáticamente).
     const DURACION_DESTELLO_SEGUNDOS = 5;
+    const API_FESTIVIDADES = new URL("../admin/festividades.php", document.currentScript.src).href;
 
     // 1. DICCIONARIO DE 48 FESTIVIDADES (4 POR MES) — MUNICIPALES DE SANTANDER Y NACIONALES DE COLOMBIA
     const FESTIVIDADES = {
@@ -621,9 +622,9 @@
             wrapper.className = "snt-wrapper";
             wrapper.innerHTML = `
                 <div class="snt-card">
-                    <p style="color:#fff;font-family:'Open Sans';letter-spacing:5px;margin-bottom:15px;font-weight:700;text-shadow: 1px 1px 4px rgba(0,0,0,0.7);">${fiesta.subtitulo}</p>
-                    <h1 class="snt-title">${fiesta.titulo}</h1>
-                    <p style="color:#ffffff;font-family:'Open Sans';margin-top:25px;font-size:1.2rem;text-shadow: 1px 1px 4px rgba(0,0,0,0.7);">${fiesta.frase}</p>
+                    <p style="color:#fff;font-family:'Open Sans';letter-spacing:5px;margin-bottom:15px;font-weight:700;text-shadow: 1px 1px 4px rgba(0,0,0,0.7);">${escaparHTML(fiesta.subtitulo)}</p>
+                    <h1 class="snt-title">${escaparHTML(fiesta.titulo).replace(/&lt;br\s*\/?&gt;/gi, "<br>")}</h1>
+                    <p style="color:#ffffff;font-family:'Open Sans';margin-top:25px;font-size:1.2rem;text-shadow: 1px 1px 4px rgba(0,0,0,0.7);">${escaparHTML(fiesta.frase)}</p>
                     ${botonesHTML}
                 </div>`;
             document.body.appendChild(wrapper);
@@ -683,7 +684,7 @@
 
         const ant = document.createElement("div");
         ant.className = "snt-ant";
-        ant.innerHTML = fiesta.emoji;
+        ant.textContent = fiesta.emoji;
         ant.onclick = () => {
             if (window.confetti) {
                 confetti({
@@ -723,10 +724,55 @@
         );
     }
 
-    if (document.readyState === "complete") {
-        lanzarCelebracion();
-    } // Si el documento ya se cargó, ejecutamos inmediatamente, sino esperamos al evento load para asegurar que todo el contenido esté listo antes de mostrar la celebración
-    else {
-        window.addEventListener("load", lanzarCelebracion);
+    function escaparHTML(valor) {
+        return String(valor)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#39;");
     }
+
+    function colorValido(color, respaldo) {
+        return /^#[0-9a-fA-F]{6}$/.test(color || "") ? color : respaldo;
+    }
+
+    async function cargarFestividadesAdministradas() {
+        try {
+            const response = await fetch(API_FESTIVIDADES, { credentials: "include" });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const result = await response.json();
+            if (!result.ok || !Array.isArray(result.data)) throw new Error("Respuesta de festividades inválida");
+
+            const originales = Object.values(FESTIVIDADES);
+            Object.keys(FESTIVIDADES).forEach((fecha) => delete FESTIVIDADES[fecha]);
+            result.data.forEach((row) => {
+                const fecha = String(row.fecha_clave || "").trim();
+                const original = originales.find((item) => item.id === row.id_festividad);
+                const c1 = colorValido(row.color_1, "#009B3A");
+                const c2 = colorValido(row.color_2, "#FFCD00");
+                const c3 = colorValido(row.color_3, "#FFFFFF");
+                FESTIVIDADES[fecha] = {
+                    id: row.id_festividad,
+                    subtitulo: row.subtitulo,
+                    titulo: row.titulo,
+                    frase: row.frase,
+                    emoji: row.emoji,
+                    colores: [c1, c2, c3],
+                    bgCard: colorValido(row.bg_card, "#1e293b"),
+                    destino: original ? original.destino : undefined,
+                };
+            });
+        } catch (error) {
+            console.error("No se pudieron cargar las festividades administradas; se usarán los datos locales.", error);
+        }
+
+        if (document.readyState === "complete") {
+            lanzarCelebracion();
+        } else {
+            window.addEventListener("load", lanzarCelebracion, { once: true });
+        }
+    }
+
+    cargarFestividadesAdministradas();
 })();

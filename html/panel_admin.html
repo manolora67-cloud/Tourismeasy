@@ -138,6 +138,9 @@
             <button class="panel-tab" data-tab="contenido">
                 <i class="fa-solid fa-map-location-dot"></i> <span>Portada</span>
             </button>
+            <button class="panel-tab" data-tab="festividades">
+                <i class="fa-solid fa-calendar-days"></i> <span>Festividades</span>
+            </button>
             <button class="panel-tab" data-tab="resenas">
                 <i class="fa-solid fa-star"></i> <span>Reseñas</span>
             </button>
@@ -321,6 +324,18 @@
             <div id="portadaEditor" class="portada-editor" hidden></div>
         </section>
 
+        <section class="panel-content" id="tab-festividades">
+            <div class="panel-content-header">
+                <div>
+                    <h2><i class="fa-solid fa-calendar-days"></i> Gestión de festividades</h2>
+                    <p>Administra las celebraciones que aparecen en la portada del sitio.</p>
+                </div>
+                <a class="btn-panel-add" href="festividades_admin.html">
+                    <i class="fa-solid fa-pen-to-square"></i> Administrar festividades
+                </a>
+            </div>
+        </section>
+
     </main>
 
     <!-- FOOTER -->
@@ -407,6 +422,7 @@
                 '<a class="session-menu-item" href="panel_admin.html"><i class="fa-solid fa-shield-halved"></i> Panel Admin</a>' +
                 '<a class="session-menu-item" href="perfil_admin.html"><i class="fa-solid fa-user"></i> Mi Perfil</a>' +
                 '<a class="session-menu-item" href="config_admin.html"><i class="fa-solid fa-gear"></i> Configuración</a>' +
+                '<a class="session-menu-item" href="festividades_admin.html"><i class="fa-solid fa-calendar-days"></i> Festividades</a>' +
                 '<a class="session-menu-item session-menu-danger" id="btnLogout" href="#"><i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión</a>' +
                 "</div>";
             if (navContainer && insertBefore)

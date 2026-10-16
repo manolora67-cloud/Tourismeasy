@@ -30,6 +30,10 @@ El esquema nuevo crea 35 tablas y carga datos iniciales, incluyendo el departame
 
 Este archivo representa una instalación nueva. Importa el esquema en una base vacía; no lo ejecutes sobre una base anterior para intentar actualizarla. Si tienes datos que conservar, haz un respaldo y conserva esa base por separado.
 
+### Calendario administrable de festividades
+
+La instalación nueva carga las 48 fechas iniciales en `FESTIVIDADES_SANTANDER`. El administrador puede gestionarlas desde el apartado **Festividades** del panel. Las funciones SQL para listar, guardar y eliminar festividades están en `funciones/` y se instalan junto con el resto de funciones.
+
 ### Contenido administrable de la portada
 
 El esquema base ya incluye las tablas necesarias para administrar tarjetas y artículos. Al abrir por primera vez el panel de administración sobre una base nueva, se copian automáticamente a PostgreSQL los ocho destinos y artículos iniciales del sitio. No ejecutes este archivo sobre una base existente para actualizarla: está pensado para instalar el proyecto en una base vacía.
@@ -66,7 +70,7 @@ foreach ($archivo in $finales) {
 }
 ```
 
-El procedimiento incluye los 68 scripts SQL del directorio, incluida `fn_toggle_disponibilidad_transporte.sql`, que se conserva aunque los endpoints actuales no la invocan. Las dependencias ordenadas al final son: eliminación de transporte empresa, guardado unificado de hospedaje y productos, e inicialización del contenido de portada. Los scripts actualizados de listado para hospedaje y transporte también se instalan con este procedimiento.
+El procedimiento incluye los 71 scripts SQL del directorio, incluidos `fn_toggle_disponibilidad_transporte.sql` y las funciones de festividades, que se conservan o instalan junto con el resto aunque algunos scripts no sean invocados por un endpoint actual. Las dependencias ordenadas al final son: eliminación de transporte empresa, guardado unificado de hospedaje y productos, e inicialización del contenido de portada. Los scripts actualizados de listado para hospedaje y transporte también se instalan con este procedimiento.
 
 El bloque inicia `psql` una vez por archivo; para evitar que solicite la contraseña repetidamente, configura el archivo `pgpass.conf` de PostgreSQL para tu usuario local o ejecuta cada script desde pgAdmin.
 

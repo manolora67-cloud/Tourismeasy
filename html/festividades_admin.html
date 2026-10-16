@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Festividades - Panel Administrador - TourismEasy</title>
+    <link rel="stylesheet" href="../css/index.css" />
+    <link rel="stylesheet" href="../css/login.css" />
+    <link rel="stylesheet" href="../css/panel_admin.css" />
+    <link rel="stylesheet" href="../css/festividades_admin.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="panel_admin.html" class="nav-logo">
+                <img src="../img/TURISMEASY.png" alt="TourismEasy Logo" class="logo-img" />
+                <span class="logo-text">TOURISMEASY</span>
+            </a>
+            <span class="panel-navbar-label"><i class="fa-solid fa-shield-halved"></i> Panel Administrador</span>
+            <div class="nav-slot">
+                <div id="sessionWidgetSlot"></div>
+                <button class="btn-dark-mode" id="darkModeToggle" aria-label="Cambiar modo oscuro/claro">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="pu-main">
+        <div class="pu-container festividades-admin-layout">
+            <aside class="pu-sidebar">
+                <div class="pu-sidebar-avatar pu-sidebar-avatar-empresa" id="sidebarAvatar">AD</div>
+                <div class="pu-sidebar-nombre" id="sidebarNombre">Administrador TourismEasy</div>
+                <div class="pu-sidebar-tipo"><i class="fa-solid fa-shield-halved"></i> Administrador</div>
+                <nav class="pu-sidebar-nav">
+                    <a href="panel_admin.html" class="pu-nav-item"><i class="fa-solid fa-shield-halved"></i> Panel Admin</a>
+                    <a href="perfil_admin.html" class="pu-nav-item"><i class="fa-solid fa-user"></i> Mi Perfil</a>
+                    <a href="config_admin.html" class="pu-nav-item"><i class="fa-solid fa-gear"></i> Configuración</a>
+                    <a href="festividades_admin.html" class="pu-nav-item active"><i class="fa-solid fa-calendar-days"></i> Festividades</a>
+                </nav>
+                <a href="#" class="pu-nav-item pu-nav-danger festividades-logout" id="btnLogout">
+                    <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión
+                </a>
+            </aside>
+
+            <section class="festividades-admin-content">
+                <header class="festividades-admin-header">
+                    <div>
+                        <p class="festividades-admin-eyebrow">CONTENIDO DEL SITIO</p>
+                        <h1><i class="fa-solid fa-calendar-days"></i> Festividades</h1>
+                        <p>Administra las celebraciones que se muestran en la portada de TourismEasy.</p>
+                    </div>
+                    <button class="btn-panel-add" id="btnAgregarFestividad" type="button">
+                        <i class="fa-solid fa-plus"></i> Agregar festividad
+                    </button>
+                </header>
+
+                <div class="festividades-admin-alert" id="festividadesError" role="alert" hidden></div>
+                <div class="festividades-admin-table-wrap">
+                    <table class="panel-table festividades-admin-table">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Festividad</th>
+                                <th>Tipo</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="festividadesTabla">
+                            <tr><td colspan="4" class="festividades-empty">Cargando festividades…</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <dialog class="festividad-dialog" id="festividadDialog">
+        <form id="festividadForm">
+            <header class="festividad-dialog-header">
+                <div>
+                    <h2 id="festividadDialogTitle">Agregar festividad</h2>
+                    <p>Completa los datos que aparecerán en la celebración.</p>
+                </div>
+                <button class="festividad-dialog-close" id="btnCerrarDialogo" type="button" aria-label="Cerrar">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </header>
+
+            <div class="festividades-admin-alert" id="festividadFormError" role="alert" hidden></div>
+
+            <div class="festividad-form-grid">
+                <label class="festividad-field">
+                    <span>Identificador</span>
+                    <input name="id" required minlength="3" maxlength="40" pattern="[a-z0-9_-]+" placeholder="fiesta_del_pueblo" autocomplete="off">
+                    <small>Solo minúsculas, números, guion y guion bajo.</small>
+                </label>
+                <label class="festividad-field">
+                    <span>Fecha (MM-DD)</span>
+                    <input name="fecha_clave" required maxlength="5" pattern="(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])" placeholder="08-15">
+                </label>
+                <label class="festividad-field">
+                    <span>Subtítulo</span>
+                    <input name="subtitulo" required minlength="3" maxlength="80">
+                </label>
+                <label class="festividad-field">
+                    <span>Título</span>
+                    <input name="titulo" required minlength="3" maxlength="120">
+                </label>
+                <label class="festividad-field festividad-field-wide">
+                    <span>Frase</span>
+                    <textarea name="frase" required minlength="5" maxlength="200" rows="3"></textarea>
+                </label>
+                <label class="festividad-field">
+                    <span>Emoji</span>
+                    <input name="emoji" required maxlength="10" placeholder="🎉">
+                </label>
+                <label class="festividad-field">
+                    <span>Tipo</span>
+                    <select name="tipo" required>
+                        <option value="REGIONAL">Regional</option>
+                        <option value="NACIONAL">Nacional</option>
+                    </select>
+                </label>
+                <label class="festividad-field">
+                    <span>Color de la bandera 1</span>
+                    <input name="color_1" type="color" required value="#009B3A">
+                </label>
+                <label class="festividad-field">
+                    <span>Color de la bandera 2</span>
+                    <input name="color_2" type="color" required value="#FFCD00">
+                </label>
+                <label class="festividad-field">
+                    <span>Color de la bandera 3</span>
+                    <input name="color_3" type="color" required value="#FFFFFF">
+                </label>
+                <label class="festividad-field">
+                    <span>Color del fondo</span>
+                    <input name="bg_card" type="color" required value="#1e293b">
+                </label>
+                <label class="festividad-field festividad-field-wide">
+                    <span>Código de ciudad (opcional)</span>
+                    <input name="id_ciudad" inputmode="numeric" maxlength="6" pattern="[0-9]{5,6}" placeholder="68001">
+                </label>
+            </div>
+
+            <footer class="festividad-dialog-actions">
+                <button class="festividad-btn-cancel" id="btnCancelarFestividad" type="button">Cancelar</button>
+                <button class="festividad-btn-save" id="btnGuardarFestividad" type="submit">
+                    <i class="fa-solid fa-floppy-disk"></i> Guardar
+                </button>
+            </footer>
+        </form>
+    </dialog>
+
+    <script src="../js/festividades-admin.js"></script>
+</body>
+
+</html>
