@@ -2,7 +2,7 @@
 
 La aplicación usa PostgreSQL y accede a la base de datos mediante PDO. El esquema y los datos iniciales están en [`DB_TOURISMEASY.sql`](DB_TOURISMEASY.sql); las funciones SQL que invocan los endpoints PHP están en [`../funciones/`](../funciones/).
 
-Consulta el [diccionario de datos](DICCIONARIO_DATOS.md) para ver tablas, columnas, tipos, claves y restricciones del esquema relacional.
+Consulta el [diccionario de datos en Excel](DICCIONARIO_DATOS.xlsx) para ver, en una sola hoja, los atributos, tipos, restricciones, nulabilidad, descripciones y relaciones del esquema. Cada tabla tiene su propio bloque con título, encabezados y espacio de separación.
 
 ## Requisitos
 

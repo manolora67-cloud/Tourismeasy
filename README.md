@@ -78,4 +78,4 @@ El servidor integrado de PHP es para desarrollo local, no para producción. Para
 
 ## Base de datos
 
-El detalle del esquema, las instrucciones de importación y las funciones SQL está en [db/README.md](db/README.md). El [diccionario de datos](db/DICCIONARIO_DATOS.md) documenta las tablas, columnas y relaciones de la base de datos.
+El detalle del esquema, las instrucciones de importación y las funciones SQL está en [db/README.md](db/README.md). El [diccionario de datos en Excel](db/DICCIONARIO_DATOS.xlsx) documenta en una hoja las tablas, columnas y relaciones de la base de datos.
