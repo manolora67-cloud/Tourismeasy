@@ -1,10 +1,10 @@
 /*
-    TABLAS : 35
+  TABLAS : 35
   Maestras:           6
   Informativas:       3
-    Operacionales:     11
+  Operacionales:     11
   Relacionales:       4
-    Soporte/Auditoría:  3
+  Soporte/Auditoría:  3
   Históricas:         4
   Seguridad:          4
 */
