@@ -11,7 +11,7 @@ $allowed = in_array($origin, $ALLOWED_ORIGINS) ? $origin : $ALLOWED_ORIGINS[0];
 header("Access-Control-Allow-Origin: $allowed");
 header('Access-Control-Allow-Credentials: true');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type');
+header('Access-Control-Allow-Headers: Content-Type, X-CSRF-Token');
 header('Content-Type: application/json');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -21,10 +21,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 require_once __DIR__ . '/api/cloudinary_config.php';
 
-if (empty($_SESSION['id_empresa']) || ($_SESSION['tipo'] ?? '') !== 'empresa') {
+$tipoSesion = $_SESSION['tipo'] ?? '';
+$esEmpresa = $tipoSesion === 'empresa' && !empty($_SESSION['id_empresa']);
+$esAdmin = $tipoSesion === 'admin' && !empty($_SESSION['id_persona']);
+if (!$esEmpresa && !$esAdmin) {
     http_response_code(401);
     echo json_encode(["ok" => false, "error" => "No autorizado."]);
     exit;
+}
+
+if ($esAdmin) {
+    $csrf = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
+    if (empty($_SESSION['csrf_portada']) || !hash_equals($_SESSION['csrf_portada'], $csrf)) {
+        http_response_code(403);
+        echo json_encode(["ok" => false, "error" => "La sesión de edición expiró. Recarga el panel e intenta de nuevo."]);
+        exit;
+    }
 }
 
 if (empty($_FILES['imagen']) || $_FILES['imagen']['error'] !== UPLOAD_ERR_OK) {
@@ -59,7 +71,8 @@ if ($file['size'] > 5 * 1024 * 1024) {
 // ── Subida a Cloudinary (signed upload) ──────────────────────────────
 // Un identificador propio para la imagen, igual de estilo al que usabas
 // para el nombre de archivo local: NIT_timestamp_random
-$publicId = $_SESSION['id_empresa'] . '_' . time() . '_' . bin2hex(random_bytes(4));
+$identificador = $esAdmin ? 'admin_' . $_SESSION['id_persona'] : $_SESSION['id_empresa'];
+$publicId = $identificador . '_' . time() . '_' . bin2hex(random_bytes(4));
 
 $timestamp = time();
 

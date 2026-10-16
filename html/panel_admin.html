@@ -8,9 +8,8 @@
     <link rel="stylesheet" href="../css/index.css" />
     <link rel="stylesheet" href="../css/login.css" />
     <link rel="stylesheet" href="../css/panel_admin.css" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;500&display=swap"
-        rel="stylesheet" />
+    <link rel="stylesheet" href="../css/contenido_admin.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;500&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
 </head>
@@ -135,6 +134,9 @@
             </button>
             <button class="panel-tab" data-tab="artesanos">
                 <i class="fa-solid fa-palette"></i> <span>Artesanos</span>
+            </button>
+            <button class="panel-tab" data-tab="contenido">
+                <i class="fa-solid fa-map-location-dot"></i> <span>Portada</span>
             </button>
             <button class="panel-tab" data-tab="resenas">
                 <i class="fa-solid fa-star"></i> <span>Reseñas</span>
@@ -303,6 +305,22 @@
             </div>
         </div>
 
+        <!-- TAB: CONTENIDO DE PORTADA -->
+        <section class="panel-content" id="tab-contenido">
+            <div class="panel-content-header">
+                <div>
+                    <h2><i class="fa-solid fa-map-location-dot"></i> Destinos de la portada</h2>
+                    <p class="portada-help">Administra las tarjetas y el artículo que se abre al seleccionarlas.</p>
+                </div>
+                <button class="btn-panel-add" id="btnNuevoDestino" type="button">
+                    <i class="fa-solid fa-plus"></i> Crear destino
+                </button>
+            </div>
+            <p id="portadaEstado" class="portada-status" role="status"></p>
+            <div id="portadaDestinos" class="portada-grid"></div>
+            <div id="portadaEditor" class="portada-editor" hidden></div>
+        </section>
+
     </main>
 
     <!-- FOOTER -->
@@ -310,22 +328,17 @@
     <script src="../componentes/footer.js"></script>
 
     <!-- MODALES PANEL ADMIN -->
-    <div id="panelModalOverlay"
-        style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9000;align-items:center;justify-content:center;">
-        <div id="panelModalBox"
-            style="background:#fff;border-radius:20px;padding:32px;max-width:560px;width:94%;max-height:90vh;overflow-y:auto;position:relative;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
-            <button id="panelModalClose"
-                style="position:absolute;top:16px;right:18px;background:none;border:none;font-size:1.4rem;cursor:pointer;color:#64748b;">&times;</button>
-            <h2 id="panelModalTitle"
-                style="font-family:'Montserrat',sans-serif;font-size:1.2rem;font-weight:800;color:#1e293b;margin:0 0 20px;">
+    <div id="panelModalOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9000;align-items:center;justify-content:center;">
+        <div id="panelModalBox" style="background:#fff;border-radius:20px;padding:32px;max-width:560px;width:94%;max-height:90vh;overflow-y:auto;position:relative;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
+            <button id="panelModalClose" style="position:absolute;top:16px;right:18px;background:none;border:none;font-size:1.4rem;cursor:pointer;color:#64748b;">&times;</button>
+            <h2 id="panelModalTitle" style="font-family:'Montserrat',sans-serif;font-size:1.2rem;font-weight:800;color:#1e293b;margin:0 0 20px;">
             </h2>
             <div id="panelModalBody"></div>
         </div>
     </div>
 
     <!-- TOAST -->
-    <div id="adminToast"
-        style="position:fixed;bottom:28px;right:28px;background:#7c3aed;color:#fff;padding:12px 20px;border-radius:12px;font-family:'Montserrat',sans-serif;font-weight:700;font-size:0.85rem;z-index:9999;display:none;box-shadow:0 8px 24px rgba(124,58,237,0.35);gap:8px;align-items:center;">
+    <div id="adminToast" style="position:fixed;bottom:28px;right:28px;background:#7c3aed;color:#fff;padding:12px 20px;border-radius:12px;font-family:'Montserrat',sans-serif;font-weight:700;font-size:0.85rem;z-index:9999;display:none;box-shadow:0 8px 24px rgba(124,58,237,0.35);gap:8px;align-items:center;">
         <i class="fa-solid fa-check-circle"></i> <span id="toastMsg"></span>
     </div>
 
@@ -333,7 +346,7 @@
         // ── ESTADO GLOBAL ────────────────────────────────────────────────────
         var adminUser = "admin@tourismeasy.com";
         // ── VERIFICAR SESION ─────────────────────────────────────────────────
-        (function () {
+        (function() {
             var sess = sessionStorage.getItem("te_session");
             if (!sess) {
                 // window.location.href = "../index.html"; // comentado para demo
@@ -361,15 +374,15 @@
         var savedTheme = localStorage.getItem("theme");
         applyTheme(
             savedTheme ?
-                savedTheme === "dark" :
-                window.matchMedia("(prefers-color-scheme: dark)").matches,
+            savedTheme === "dark" :
+            window.matchMedia("(prefers-color-scheme: dark)").matches,
         );
-        darkModeBtn.addEventListener("click", function () {
+        darkModeBtn.addEventListener("click", function() {
             applyTheme(!document.body.classList.contains("dark-mode"));
         });
 
         // SESSION WIDGET
-        (function () {
+        (function() {
             var user = JSON.parse(sessionStorage.getItem("te_session") || "null");
             if (!user) return;
             var navContainer = document.querySelector(".nav-container");
@@ -401,22 +414,31 @@
             var trigger = widget.querySelector("#sessionTrigger");
             var dropdown = widget.querySelector("#sessionDropdown");
             var chevron = widget.querySelector("#sessionChevron");
-            trigger.addEventListener("click", function (e) {
+            trigger.addEventListener("click", function(e) {
                 e.stopPropagation();
                 var isOpen = dropdown.classList.toggle("open");
                 chevron.style.transform = isOpen ? "rotate(180deg)" : "rotate(0deg)";
             });
-            document.addEventListener("click", function () {
+            document.addEventListener("click", function() {
                 dropdown.classList.remove("open");
                 chevron.style.transform = "rotate(0deg)";
             });
             widget
                 .querySelector("#btnLogout")
-                .addEventListener("click", function (e) {
+                .addEventListener("click", async function(e) {
                     e.preventDefault();
                     e.stopPropagation();
-                    sessionStorage.removeItem("te_session");
-                    window.location.href = "../index.html";
+                    try {
+                        await fetch("../login/logout_admin.php", {
+                            method: "POST",
+                            credentials: "include"
+                        });
+                    } catch (error) {
+                        console.warn("No se pudo confirmar el cierre de sesión en el servidor.", error);
+                    } finally {
+                        sessionStorage.removeItem("te_session");
+                        window.location.href = "../index.html";
+                    }
                 });
         })();
 
@@ -436,14 +458,14 @@
         // ── Cargar solicitudes pendientes reales desde la BD ──
         function cargarSolicitudesBD() {
             fetch("../soli_empresas/get_solicitudes.php", {
-                credentials: "include"
-            })
-                .then(function (r) {
+                    credentials: "include"
+                })
+                .then(function(r) {
                     return r.json();
                 })
-                .then(function (data) {
+                .then(function(data) {
                     if (!data.ok) return;
-                    solicitudesData = data.data.map(function (s) {
+                    solicitudesData = data.data.map(function(s) {
                         return {
                             nit: s.nit || "—",
                             nombre: s.nombre || s.contacto,
@@ -457,7 +479,7 @@
                     renderSolicitudes();
                     updateStats();
                 })
-                .catch(function () {
+                .catch(function() {
                     console.warn("No se pudieron cargar solicitudes desde la BD.");
                 });
         }
@@ -465,14 +487,14 @@
         // ── Cargar empresas reales (activas e inactivas) desde la BD ──
         function cargarEmpresasBD() {
             fetch("../soli_empresas/get_empresas.php", {
-                credentials: "include"
-            })
-                .then(function (r) {
+                    credentials: "include"
+                })
+                .then(function(r) {
                     return r.json();
                 })
-                .then(function (data) {
+                .then(function(data) {
                     if (!data.ok) return;
-                    empresasData = data.data.map(function (e) {
+                    empresasData = data.data.map(function(e) {
                         return {
                             nit: e.nit,
                             nombre: e.nombre,
@@ -486,7 +508,7 @@
                     renderEmpresas();
                     updateStats();
                 })
-                .catch(function () {
+                .catch(function() {
                     console.warn("No se pudieron cargar empresas desde la BD.");
                 });
         }
@@ -494,14 +516,14 @@
         // ── Cargar auditoría real desde la BD ──
         function cargarAuditoriaBD() {
             fetch("../soli_empresas/get_auditoria.php", {
-                credentials: "include"
-            })
-                .then(function (r) {
+                    credentials: "include"
+                })
+                .then(function(r) {
                     return r.json();
                 })
-                .then(function (data) {
+                .then(function(data) {
                     if (!data.ok) return;
-                    auditoriaData = data.data.map(function (a) {
+                    auditoriaData = data.data.map(function(a) {
                         return {
                             fecha: (a.fecha || "").substring(0, 16).replace("T", " "),
                             usuario: a.usuario,
@@ -514,7 +536,7 @@
                     renderAuditoria();
                     updateStats();
                 })
-                .catch(function () {
+                .catch(function() {
                     console.warn("No se pudo cargar la auditoría desde la BD.");
                 });
         }
@@ -526,7 +548,7 @@
             document.getElementById("toastMsg").textContent = msg;
             t.style.display = "flex";
             clearTimeout(t._timer);
-            t._timer = setTimeout(function () {
+            t._timer = setTimeout(function() {
                 t.style.display = "none";
             }, 3000);
         }
@@ -553,7 +575,7 @@
         window.closePanelModal = closePanelModal;
 
         document.getElementById("panelModalClose").addEventListener("click", closePanelModal);
-        document.getElementById("panelModalOverlay").addEventListener("click", function (e) {
+        document.getElementById("panelModalOverlay").addEventListener("click", function(e) {
             if (e.target === this) closePanelModal();
         });
 
@@ -572,11 +594,11 @@
         // ── STATS ────────────────────────────────────────────────────────────
         function updateStats() {
             var total = empresasData.length;
-            var activas = empresasData.filter(function (e) {
+            var activas = empresasData.filter(function(e) {
                 return e.estado === "ACTIVO";
             }).length;
             var inactivas = total - activas;
-            var alertas = auditoriaData.filter(function (a) {
+            var alertas = auditoriaData.filter(function(a) {
                 return a.nivel === "alerta";
             }).length;
             var pendientes = solicitudesData.length; // ya viene solo con las PENDIENTE
@@ -597,7 +619,7 @@
                 tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:#64748b;font-style:italic;">No hay empresas registradas todavía</td></tr>';
                 return;
             }
-            empresasData.forEach(function (emp) {
+            empresasData.forEach(function(emp) {
                 var icono = servicioIconos[(emp.servicio || "").toLowerCase()] || "fa-tag";
                 var servicioLabel = _svcLabel[emp.servicio] || emp.servicio;
                 var activa = emp.estado === "ACTIVO";
@@ -623,13 +645,13 @@
                 tbody.appendChild(tr);
             });
             // Bind acciones
-            tbody.querySelectorAll(".btn-tbl-del").forEach(function (btn) {
-                btn.addEventListener("click", function () {
+            tbody.querySelectorAll(".btn-tbl-del").forEach(function(btn) {
+                btn.addEventListener("click", function() {
                     toggleEstadoEmpresa(this.dataset.nit);
                 });
             });
-            tbody.querySelectorAll(".btn-tbl-trash").forEach(function (btn) {
-                btn.addEventListener("click", function () {
+            tbody.querySelectorAll(".btn-tbl-trash").forEach(function(btn) {
+                btn.addEventListener("click", function() {
                     eliminarEmpresa(this.dataset.nit);
                 });
             });
@@ -644,7 +666,7 @@
                 tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:32px;color:#64748b;font-style:italic;">No hay solicitudes pendientes</td></tr>';
                 return;
             }
-            pendientes.forEach(function (sol) {
+            pendientes.forEach(function(sol) {
                 var icono = servicioIconos[(sol.servicio || "").toLowerCase()] || "fa-tag";
                 var servicioLabel = _svcLabel[sol.servicio] || sol.servicio;
                 var tr = document.createElement("tr");
@@ -662,20 +684,20 @@
                     '</div></td>';
                 tbody.appendChild(tr);
             });
-            tbody.querySelectorAll(".btn-tbl-accept").forEach(function (btn) {
-                btn.addEventListener("click", function () {
+            tbody.querySelectorAll(".btn-tbl-accept").forEach(function(btn) {
+                btn.addEventListener("click", function() {
                     aceptarSolicitud(this.dataset.nit);
                 });
             });
-            tbody.querySelectorAll(".btn-tbl-reject").forEach(function (btn) {
-                btn.addEventListener("click", function () {
+            tbody.querySelectorAll(".btn-tbl-reject").forEach(function(btn) {
+                btn.addEventListener("click", function() {
                     rechazarSolicitud(this.dataset.nit);
                 });
             });
         }
 
         function aceptarSolicitud(id) {
-            var sol = solicitudesData.find(function (s) {
+            var sol = solicitudesData.find(function(s) {
                 return s.nit === id;
             });
             if (!sol) return;
@@ -694,29 +716,29 @@
                 '<button id="btnConfirmAceptar" data-nit="' + id + '" style="background:#16a34a;color:#fff;border:none;padding:11px 28px;border-radius:50px;font-family:\'Montserrat\',sans-serif;font-weight:700;font-size:.88rem;cursor:pointer;"><i class="fa-solid fa-check"></i> Aceptar</button>' +
                 '<button onclick="closePanelModal()" style="background:none;border:1.5px solid ' + borderColor + ';padding:11px 20px;border-radius:50px;font-family:\'Montserrat\',sans-serif;font-weight:700;font-size:.88rem;cursor:pointer;color:' + subColor + ';">Cancelar</button>' +
                 '</div></div>');
-            document.getElementById("btnConfirmAceptar").addEventListener("click", function () {
+            document.getElementById("btnConfirmAceptar").addEventListener("click", function() {
                 var nit2 = this.dataset.nit;
-                var s = solicitudesData.find(function (x) {
+                var s = solicitudesData.find(function(x) {
                     return x.nit === nit2;
                 });
                 if (!s) return;
                 var btnConf = this;
                 btnConf.disabled = true;
                 fetch("../soli_empresas/accion_solicitud.php", {
-                    method: "POST",
-                    credentials: "include",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        nit: s.nit,
-                        accion: "APROBAR"
+                        method: "POST",
+                        credentials: "include",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            nit: s.nit,
+                            accion: "APROBAR"
+                        })
                     })
-                })
-                    .then(function (r) {
+                    .then(function(r) {
                         return r.json();
                     })
-                    .then(function (res) {
+                    .then(function(res) {
                         btnConf.disabled = false;
                         if (!res.ok) {
                             showToast(res.error || "Error al aprobar", "#ef4444");
@@ -728,7 +750,7 @@
                         closePanelModal();
                         showToast(s.nombre + " — aceptada ✓", "#16a34a");
                     })
-                    .catch(function () {
+                    .catch(function() {
                         btnConf.disabled = false;
                         showToast("Error de conexión al aprobar", "#ef4444");
                     });
@@ -736,7 +758,7 @@
         }
 
         function rechazarSolicitud(id) {
-            var sol = solicitudesData.find(function (s) {
+            var sol = solicitudesData.find(function(s) {
                 return s.nit === id;
             });
             if (!sol) return;
@@ -755,29 +777,29 @@
                 '<button id="btnConfirmRechazar" data-nit="' + id + '" style="background:#dc2626;color:#fff;border:none;padding:11px 28px;border-radius:50px;font-family:\'Montserrat\',sans-serif;font-weight:700;font-size:.88rem;cursor:pointer;"><i class="fa-solid fa-xmark"></i> Rechazar</button>' +
                 '<button onclick="closePanelModal()" style="background:none;border:1.5px solid ' + borderColor + ';padding:11px 20px;border-radius:50px;font-family:\'Montserrat\',sans-serif;font-weight:700;font-size:.88rem;cursor:pointer;color:' + subColor + ';">Cancelar</button>' +
                 '</div></div>');
-            document.getElementById("btnConfirmRechazar").addEventListener("click", function () {
+            document.getElementById("btnConfirmRechazar").addEventListener("click", function() {
                 var nit2 = this.dataset.nit;
-                var s = solicitudesData.find(function (x) {
+                var s = solicitudesData.find(function(x) {
                     return x.nit === nit2;
                 });
                 if (!s) return;
                 var btnConf2 = this;
                 btnConf2.disabled = true;
                 fetch("../soli_empresas/accion_solicitud.php", {
-                    method: "POST",
-                    credentials: "include",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        nit: s.nit,
-                        accion: "RECHAZAR"
+                        method: "POST",
+                        credentials: "include",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            nit: s.nit,
+                            accion: "RECHAZAR"
+                        })
                     })
-                })
-                    .then(function (r) {
+                    .then(function(r) {
                         return r.json();
                     })
-                    .then(function (res) {
+                    .then(function(res) {
                         btnConf2.disabled = false;
                         if (!res.ok) {
                             showToast(res.error || "Error al rechazar", "#ef4444");
@@ -788,7 +810,7 @@
                         closePanelModal();
                         showToast(s.nombre + " — rechazada", "#ef4444");
                     })
-                    .catch(function () {
+                    .catch(function() {
                         btnConf2.disabled = false;
                         showToast("Error de conexión al rechazar", "#ef4444");
                     });
@@ -797,24 +819,24 @@
 
 
         function toggleEstadoEmpresa(nit) {
-            var emp = empresasData.find(function (e) {
+            var emp = empresasData.find(function(e) {
                 return e.nit === nit;
             });
             if (!emp) return;
             fetch("../soli_empresas/actualizar_estado_empresa.php", {
-                method: "POST",
-                credentials: "include",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    nit: nit
+                    method: "POST",
+                    credentials: "include",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        nit: nit
+                    })
                 })
-            })
-                .then(function (r) {
+                .then(function(r) {
                     return r.json();
                 })
-                .then(function (res) {
+                .then(function(res) {
                     if (!res.ok) {
                         showToast(res.error || "Error al actualizar el estado", "#ef4444");
                         return;
@@ -826,13 +848,13 @@
                     var activada = res.estado === "ACTIVO";
                     showToast(emp.nombre + " — " + (activada ? "activada ✓" : "inactivada"), activada ? "#16a34a" : "#ef4444");
                 })
-                .catch(function () {
+                .catch(function() {
                     showToast("Error de conexión al actualizar el estado", "#ef4444");
                 });
         }
 
         function eliminarEmpresa(nit) {
-            var emp = empresasData.find(function (e) {
+            var emp = empresasData.find(function(e) {
                 return e.nit === nit;
             });
             if (!emp) return;
@@ -851,23 +873,23 @@
                 '<button id="btnConfirmEliminar" data-nit="' + nit + '" style="background:#dc2626;color:#fff;border:none;padding:11px 28px;border-radius:50px;font-family:\'Montserrat\',sans-serif;font-weight:700;font-size:.88rem;cursor:pointer;"><i class="fa-solid fa-trash"></i> Eliminar</button>' +
                 '<button onclick="closePanelModal()" style="background:none;border:1.5px solid ' + borderColor + ';padding:11px 20px;border-radius:50px;font-family:\'Montserrat\',sans-serif;font-weight:700;font-size:.88rem;cursor:pointer;color:' + subColor + ';">Cancelar</button>' +
                 '</div></div>');
-            document.getElementById("btnConfirmEliminar").addEventListener("click", function () {
+            document.getElementById("btnConfirmEliminar").addEventListener("click", function() {
                 var btn = this;
                 btn.disabled = true;
                 fetch("../soli_empresas/eliminar_empresa.php", {
-                    method: "POST",
-                    credentials: "include",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        nit: nit
+                        method: "POST",
+                        credentials: "include",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            nit: nit
+                        })
                     })
-                })
-                    .then(function (r) {
+                    .then(function(r) {
                         return r.json();
                     })
-                    .then(function (res) {
+                    .then(function(res) {
                         btn.disabled = false;
                         if (!res.ok) {
                             showToast(res.error || "No se pudo eliminar", "#ef4444");
@@ -878,7 +900,7 @@
                         closePanelModal();
                         showToast(emp.nombre + " — eliminada", "#ef4444");
                     })
-                    .catch(function () {
+                    .catch(function() {
                         btn.disabled = false;
                         showToast("Error de conexión al eliminar", "#ef4444");
                     });
@@ -890,12 +912,12 @@
         function renderAuditoria(filtro) {
             var tbody = document.querySelector("#tab-auditoria .panel-table tbody");
             var datos = filtro && filtro !== "Todos los eventos" ?
-                auditoriaData.filter(function (a) {
+                auditoriaData.filter(function(a) {
                     return a.modulo === filtro || (filtro === "Alertas" && a.nivel === "alerta");
                 }) :
                 auditoriaData;
             tbody.innerHTML = "";
-            datos.forEach(function (a) {
+            datos.forEach(function(a) {
                 var accionHtml, nivelHtml;
                 if (a.nivel === "alerta") {
                     accionHtml = '<span class="badge-acc" style="background:rgba(239,68,68,.1);color:#dc2626"><i class="fa-solid fa-triangle-exclamation"></i> ' + a.accion + '</span>';
@@ -933,7 +955,7 @@
         }
 
         // Filtro auditoría
-        document.querySelector("#tab-auditoria .panel-select").addEventListener("change", function () {
+        document.querySelector("#tab-auditoria .panel-select").addEventListener("change", function() {
             renderAuditoria(this.value);
         });
 
@@ -948,12 +970,12 @@
 
 
         // TABS
-        document.querySelectorAll(".panel-tab").forEach(function (tab) {
-            tab.addEventListener("click", function () {
-                document.querySelectorAll(".panel-tab").forEach(function (t) {
+        document.querySelectorAll(".panel-tab").forEach(function(tab) {
+            tab.addEventListener("click", function() {
+                document.querySelectorAll(".panel-tab").forEach(function(t) {
                     t.classList.remove("active");
                 });
-                document.querySelectorAll(".panel-content").forEach(function (c) {
+                document.querySelectorAll(".panel-content").forEach(function(c) {
                     c.classList.remove("active");
                 });
                 tab.classList.add("active");
@@ -962,24 +984,26 @@
                     .classList.add("active");
             });
         });
-
     </script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <script src="../js/santanderianidad.js"></script>
+    <script src="../componentes/destinos.js"></script>
+    <script src="../componentes/articulos.js"></script>
+    <script src="../js/contenido-admin.js"></script>
 
     <!-- Reseñas de la plataforma: carga resenas.js solo cuando el tab está activo -->
     <script>
-        (function () {
+        (function() {
             var resenasCargadas = false;
 
             // Construye el resumen de puntuación (promedio + barras por estrella) a partir del localStorage
             function buildAdminSummary() {
                 var BASE = window.location.origin + '/Tourismeasy/resenas/';
                 fetch(BASE + 'get_resenas.php')
-                    .then(function (r) {
+                    .then(function(r) {
                         return r.json();
                     })
-                    .then(function (data) {
+                    .then(function(data) {
                         var resenas = (data.ok && data.data) ? data.data : [];
                         var emptyEl = document.getElementById("adminSinResenas");
                         var summaryEl = document.getElementById("adminRatingSummary");
@@ -996,7 +1020,7 @@
                         if (emptyEl) emptyEl.style.display = "none";
                         if (summaryEl) summaryEl.style.display = "flex";
 
-                        var total = resenas.reduce(function (s, r) {
+                        var total = resenas.reduce(function(s, r) {
                             return s + (r.rating || r.calificacion || 0);
                         }, 0);
                         var avg = (total / resenas.length).toFixed(1);
@@ -1007,7 +1031,7 @@
                         if (barsEl) {
                             barsEl.innerHTML = "";
                             for (var v = 5; v >= 1; v--) {
-                                var cnt = resenas.filter(function (r) {
+                                var cnt = resenas.filter(function(r) {
                                     return (r.rating || r.calificacion) === v;
                                 }).length;
                                 var pct = Math.round((cnt / resenas.length) * 100);
@@ -1022,7 +1046,7 @@
                             }
                         }
                     })
-                    .catch(function () { });
+                    .catch(function() {});
             }
 
             // Carga resenas.js dinámicamente la primera vez que se abre el tab
@@ -1034,20 +1058,20 @@
                 resenasCargadas = true;
                 var s = document.createElement("script");
                 s.src = "../js/resenas.js";
-                s.onload = function () {
+                s.onload = function() {
                     buildAdminSummary();
                 };
                 document.body.appendChild(s);
             }
 
             // Escucha el clic en el tab de reseñas
-            document.addEventListener("click", function (e) {
+            document.addEventListener("click", function(e) {
                 var btn = e.target.closest(".panel-tab[data-tab='resenas']");
                 if (btn) setTimeout(cargarResenasTab, 50);
             });
 
             // Actualiza el resumen si cambian los datos desde otra pestaña
-            window.addEventListener("storage", function (e) {
+            window.addEventListener("storage", function(e) {
                 if (e.key === "te_resenas") buildAdminSummary();
             });
         })();
@@ -1055,7 +1079,7 @@
 
     <!-- ── Artesanos TourismLocal ── -->
     <script>
-        (function () {
+        (function() {
             var API = window.location.origin + '/Tourismeasy/e-commerce/artesanos_admin.php';
             var tbody = document.getElementById('artesanos-table-body');
             var estadoActual = 'PENDIENTE';
@@ -1064,26 +1088,28 @@
             // ── Resumen para las tarjetas del header (se carga junto con el panel,
             // sin esperar a que se abra la pestaña de Artesanos) ──
             function cargarStatsArtesanos() {
-                fetch(API + '?estado=TODOS', { credentials: 'include' })
-                    .then(function (r) {
+                fetch(API + '?estado=TODOS', {
+                        credentials: 'include'
+                    })
+                    .then(function(r) {
                         return r.json();
                     })
-                    .then(function (data) {
+                    .then(function(data) {
                         if (!data.ok) return;
                         var total = data.artesanos.length;
-                        var pendientes = data.artesanos.filter(function (a) {
+                        var pendientes = data.artesanos.filter(function(a) {
                             return a.estado === 'PENDIENTE';
                         }).length;
                         document.getElementById('statArtesanosTotal').textContent = total;
                         document.getElementById('statArtesanosPendientes').textContent = pendientes;
                     })
-                    .catch(function () { });
+                    .catch(function() {});
             }
             cargarStatsArtesanos();
 
             // Cargar al activar el tab
-            document.querySelectorAll('.panel-tab').forEach(function (tab) {
-                tab.addEventListener('click', function () {
+            document.querySelectorAll('.panel-tab').forEach(function(tab) {
+                tab.addEventListener('click', function() {
                     if (tab.dataset.tab === 'artesanos' && !cargado) {
                         cargarArtesanos(estadoActual);
                         cargado = true;
@@ -1092,9 +1118,9 @@
             });
 
             // Filtros de estado
-            document.querySelectorAll('[data-estado-artesano]').forEach(function (btn) {
-                btn.addEventListener('click', function () {
-                    document.querySelectorAll('[data-estado-artesano]').forEach(function (b) {
+            document.querySelectorAll('[data-estado-artesano]').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('[data-estado-artesano]').forEach(function(b) {
                         b.classList.remove('active');
                     });
                     btn.classList.add('active');
@@ -1107,18 +1133,20 @@
                 tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;opacity:.6">' +
                     '<i class="fa-solid fa-spinner fa-spin"></i> Cargando...</td></tr>';
 
-                fetch(API + '?estado=' + estado, { credentials: 'include' })
-                    .then(function (r) {
+                fetch(API + '?estado=' + estado, {
+                        credentials: 'include'
+                    })
+                    .then(function(r) {
                         return r.json();
                     })
-                    .then(function (data) {
+                    .then(function(data) {
                         if (!data.ok || !data.artesanos.length) {
                             tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;opacity:.6">' +
                                 'No hay artesanos en este estado.</td></tr>';
                             return;
                         }
                         tbody.innerHTML = '';
-                        data.artesanos.forEach(function (a) {
+                        data.artesanos.forEach(function(a) {
                             var fecha = (a.fecha_registro || '').replace('T', ' ').split('.')[0].split(' ')[0];
                             var esPendiente = a.estado === 'PENDIENTE';
                             var esActivo = a.estado === 'ACTIVO';
@@ -1149,18 +1177,18 @@
                         });
 
                         // Eventos aprobar/rechazar
-                        tbody.querySelectorAll('.btn-aprobar').forEach(function (btn) {
-                            btn.addEventListener('click', function () {
+                        tbody.querySelectorAll('.btn-aprobar').forEach(function(btn) {
+                            btn.addEventListener('click', function() {
                                 accionArtesano(btn.dataset.id, 'aprobar');
                             });
                         });
-                        tbody.querySelectorAll('.btn-rechazar').forEach(function (btn) {
-                            btn.addEventListener('click', function () {
+                        tbody.querySelectorAll('.btn-rechazar').forEach(function(btn) {
+                            btn.addEventListener('click', function() {
                                 accionArtesano(btn.dataset.id, 'rechazar');
                             });
                         });
                     })
-                    .catch(function () {
+                    .catch(function() {
                         tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#f87171;padding:2rem;">' +
                             'Error al cargar artesanos.</td></tr>';
                     });
@@ -1173,20 +1201,20 @@
                 if (!confirm(confirmMsg)) return;
 
                 fetch(API, {
-                    method: 'POST',
-                    credentials: 'include',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        id: id,
-                        accion: accion
+                        method: 'POST',
+                        credentials: 'include',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            id: id,
+                            accion: accion
+                        })
                     })
-                })
-                    .then(function (r) {
+                    .then(function(r) {
                         return r.json();
                     })
-                    .then(function (data) {
+                    .then(function(data) {
                         if (data.ok) {
                             cargarArtesanos(estadoActual);
                             cargarStatsArtesanos();
@@ -1194,7 +1222,7 @@
                             alert('Error: ' + (data.error || 'Intenta de nuevo.'));
                         }
                     })
-                    .catch(function () {
+                    .catch(function() {
                         alert('No se pudo conectar con el servidor.');
                     });
             }

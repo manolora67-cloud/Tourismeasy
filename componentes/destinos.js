@@ -1,6 +1,5 @@
 (function() {
         const mount = document.getElementById("site-destinos");
-        if (!mount) return;
 
         const DESTINOS = [{
                 key: "bucaramanga",
@@ -62,21 +61,33 @@
             },
         ];
 
+        window.TE_DESTINOS = DESTINOS;
+        if (!mount) return;
+
+        const escapeHtml = (value) => String(value == null ? "" : value).replace(/[&<>\"']/g, (char) => ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            "\"": "&quot;",
+            "'": "&#39;"
+        }[char]));
+
         const cardTemplate = (d) => `
     <div class="card">
       <div class="card-img">
-        <img src="${d.img}" alt="${d.alt}" />
-        ${d.badge ? `<span class="card-badge">${d.badge}</span>` : ""}
+        <img src="${escapeHtml(d.img)}" alt="${escapeHtml(d.alt)}" loading="lazy" />
+        ${d.badge ? `<span class="card-badge">${escapeHtml(d.badge)}</span>` : ""}
       </div>
       <div class="card-body">
-        <h3>${d.titulo}</h3>
-        <p>${d.desc}</p>
-        <a href="#" class="card-link" data-article="${d.key}">Leer artículo &rarr;</a>
+        <h3>${escapeHtml(d.titulo)}</h3>
+        <p>${escapeHtml(d.desc)}</p>
+        <a href="#" class="card-link" data-article="${escapeHtml(d.key)}">Leer artículo &rarr;</a>
       </div>
     </div>
   `;
 
-  mount.innerHTML = `
+        function renderDestinos(destinos) {
+            mount.innerHTML = `
     <section class="destinos" id="destinos">
       <div class="section-container">
         <div class="section-header">
@@ -88,9 +99,20 @@
           </div>
         </div>
         <div class="cards-grid">
-          ${DESTINOS.map(cardTemplate).join("")}
+          ${destinos.map(cardTemplate).join("")}
         </div>
       </div>
     </section>
   `;
+      }
+
+      renderDestinos(DESTINOS);
+      fetch("api/contenido_portada.php")
+        .then((response) => response.ok ? response.json() : null)
+        .then((result) => {
+          if (result && result.ok && Array.isArray(result.data) && (result.data.length || result.initialized)) {
+            renderDestinos(result.data);
+          }
+        })
+        .catch(() => {});
 })();

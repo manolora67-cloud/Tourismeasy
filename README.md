@@ -6,6 +6,7 @@ TourismEasy es una plataforma web de turismo inclusivo enfocada en Santander, Co
 
 - Exploración de destinos, planes turísticos, hospedajes y transporte.
 - Acceso para administración y empresas, con solicitud de registro empresarial.
+- Gestión administrativa de las tarjetas de destinos y artículos de la portada, incluidas sus imágenes.
 - Atención y contacto de viajeros por WhatsApp; no se crean cuentas de viajeros.
 - Gestión de servicios y productos artesanales.
 - Reseñas y reacciones de viajeros.

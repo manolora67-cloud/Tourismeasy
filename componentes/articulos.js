@@ -1,6 +1,5 @@
 (function() {
     const mount = document.getElementById("site-articulos");
-    if (!mount) return;
 
     const ARTICULOS = [{
             key: "bucaramanga",
@@ -179,13 +178,25 @@
             ctaTexto: "¿Listo para explorar Los Santos?",
         },
     ];
+
+    window.TE_ARTICULOS = ARTICULOS;
+    if (!mount) return;
+
+    const escapeHtml = (value) => String(value == null ? "" : value).replace(/[&<>\"']/g, (char) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        "\"": "&quot;",
+        "'": "&#39;"
+    }[char]));
+
     const datoHTML = (d) =>
-        `<div class="art-dato"><span class="art-dato-label">${d.label}</span><span class="art-dato-val">${d.val}</span></div>`;
+        `<div class="art-dato"><span class="art-dato-label">${escapeHtml(d.label)}</span><span class="art-dato-val">${escapeHtml(d.val)}</span></div>`;
 
     const seccionHTML = (s) =>
         `<div class="art-seccion">
-      <h3 class="art-seccion-titulo">${s.titulo}</h3>
-      <p>${s.texto}</p>
+    <h3 class="art-seccion-titulo">${escapeHtml(s.titulo)}</h3>
+    <p>${escapeHtml(s.texto)}</p>
     </div>`;
 
     const overlayHTML = (a) => `
@@ -193,24 +204,24 @@
       <div class="art-modal">
         <button class="art-close" data-close="${a.key}" aria-label="Cerrar artículo">&times;</button>
         <div class="art-hero">
-          <video class="art-video-bg" muted loop playsinline preload="metadata">
-            <source src="${a.video}" type="video/mp4" />
+          <video class="art-video-bg" poster="${escapeHtml(a.poster || "")}" muted loop playsinline preload="metadata">
+            <source src="${escapeHtml(a.video || "")}" type="video/mp4" />
           </video>
           <button class="art-btn-sound" onclick="toggleArtSound(this)">🔇</button>
           <div class="art-hero-overlay">
-            <span class="art-badge">${a.badge}</span>
-            <h2 class="art-titulo">${a.titulo}</h2>
-            <p class="art-subtitulo">${a.subtitulo}</p>
+            <span class="art-badge">${escapeHtml(a.badge)}</span>
+            <h2 class="art-titulo">${escapeHtml(a.titulo)}</h2>
+            <p class="art-subtitulo">${escapeHtml(a.subtitulo)}</p>
           </div>
         </div>
         <div class="art-body">
           <div class="art-datos-rapidos">
             ${a.datos.map(datoHTML).join("")}
           </div>
-          <p class="art-intro">${a.intro}</p>
+          <p class="art-intro">${escapeHtml(a.intro)}</p>
           ${a.secciones.map(seccionHTML).join("")}
           <div class="art-cta">
-            <p>${a.ctaTexto}</p>
+            <p>${escapeHtml(a.ctaTexto)}</p>
             <a href="html/planes_turisticos.html" class="art-btn-reservar">
               <i class="fa-solid fa-calendar-check"></i> Ver planes disponibles
             </a>
@@ -220,7 +231,21 @@
     </div>
   `;
 
-    mount.innerHTML = ARTICULOS.map(overlayHTML).join("");
+    function renderArticulos(articulos) {
+        mount.innerHTML = articulos.map(overlayHTML).join("");
+    }
+
+    renderArticulos(ARTICULOS);
+    fetch("api/contenido_portada.php")
+        .then((response) => response.ok ? response.json() : null)
+        .then((result) => {
+            if (!result || !result.ok || !Array.isArray(result.data) || (!result.data.length && !result.initialized)) return;
+            const articulos = result.data
+                .filter((destino) => destino.article)
+                .map((destino) => ({...destino.article, key: destino.key, poster: destino.img }));
+            renderArticulos(articulos);
+        })
+        .catch(() => {});
 
     // ---- Abrir / cerrar artículos (delegación de eventos) ----
     function pauseArtVideo(overlay) {
