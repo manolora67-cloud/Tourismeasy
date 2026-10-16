@@ -1,45 +1,55 @@
+DROP FUNCTION IF EXISTS fn_listar_hospedaje_empresa(VARCHAR);
+
 CREATE OR REPLACE FUNCTION fn_listar_hospedaje_empresa(
     h_id_empresa HOSPEDAJE.ID_EMPRESA%TYPE
 )
-RETURNS TABLE (
-    id             HOSPEDAJE.ID_HOSPEDAJE%TYPE,
-    nombre         HOSPEDAJE.NOM_HOSPEDAJE%TYPE,
-    tipo           HOSPEDAJE.TIPO_HOSPEDAJE%TYPE,
-    id_ciudad      HOSPEDAJE.ID_CIUDAD%TYPE,
-    ciudad         CIUDADES.NOM_CIUDAD%TYPE,
-    descripcion    HOSPEDAJE.DESCRIPCION%TYPE,
-    precio_noche   HOSPEDAJE.PRECIO_NOCHE%TYPE,
-    accesibilidad  HOSPEDAJE.ACCESIBILIDAD%TYPE,
-    capacidad_max  HOSPEDAJE.CAPACIDAD_MAX%TYPE,
-    disponible     HOSPEDAJE.DISPONIBILIDAD%TYPE,
-    img_url        HOSPEDAJE.IMG_URL%TYPE,
-    fecha_creacion HOSPEDAJE.FECHA_CREACION%TYPE
-) AS
+RETURNS JSONB AS
 $$
+DECLARE
+    v_hospedajes JSONB;
 BEGIN
-    RETURN QUERY
-    SELECT
-        H.ID_HOSPEDAJE, H.NOM_HOSPEDAJE, H.TIPO_HOSPEDAJE, H.ID_CIUDAD, C.NOM_CIUDAD,
-        H.DESCRIPCION, H.PRECIO_NOCHE, H.ACCESIBILIDAD, H.CAPACIDAD_MAX,
-        H.DISPONIBILIDAD, H.IMG_URL, H.FECHA_CREACION
+    SELECT COALESCE(JSONB_AGG(JSONB_BUILD_OBJECT(
+        'id', H.ID_HOSPEDAJE,
+        'nombre', H.NOM_HOSPEDAJE,
+        'tipo', H.TIPO_HOSPEDAJE,
+        'id_ciudad', H.ID_CIUDAD,
+        'ciudad', C.NOM_CIUDAD,
+        'descripcion', H.DESCRIPCION,
+        'precio_noche', H.PRECIO_NOCHE,
+        'accesibilidad', H.ACCESIBILIDAD,
+        'capacidad_max', H.CAPACIDAD_MAX,
+        'disponible', H.DISPONIBILIDAD,
+        'img_url', H.IMG_URL,
+        'fecha_creacion', H.FECHA_CREACION,
+        'servicios', COALESCE(S.SERVICIOS, '[]'::JSONB),
+        'servicios_txt', COALESCE(S.SERVICIOS_TXT, '')
+    ) ORDER BY H.FECHA_CREACION DESC), '[]'::JSONB)
+    INTO v_hospedajes
     FROM HOSPEDAJE H
     LEFT JOIN CIUDADES C ON C.ID_CIUDAD = H.ID_CIUDAD
-    WHERE H.ID_EMPRESA = h_id_empresa
-    ORDER BY H.FECHA_CREACION DESC;
+    LEFT JOIN LATERAL (
+        SELECT JSONB_AGG(JSONB_BUILD_OBJECT('id', SH.ID_SERVICIO, 'nombre', SH.NOMBRE_SERVICIO) ORDER BY SH.NOMBRE_SERVICIO) AS SERVICIOS,
+               STRING_AGG(SH.NOMBRE_SERVICIO, ', ' ORDER BY SH.NOMBRE_SERVICIO) AS SERVICIOS_TXT
+        FROM HOSPEDAJE_SERVICIOS HS
+        JOIN SERVICIOS_HOSPEDAJE SH ON SH.ID_SERVICIO = HS.ID_SERVICIO
+        WHERE HS.ID_HOSPEDAJE = H.ID_HOSPEDAJE
+    ) S ON TRUE
+    WHERE H.ID_EMPRESA = h_id_empresa;
+    RETURN v_hospedajes;
 
 EXCEPTION
     WHEN FOREIGN_KEY_VIOLATION THEN
         RAISE NOTICE 'fn_listar_hospedaje_empresa - FK inválida: %', SQLERRM;
-        RETURN;
+        RETURN NULL;
     WHEN CHECK_VIOLATION THEN
         RAISE NOTICE 'fn_listar_hospedaje_empresa - Check violado: %', SQLERRM;
-        RETURN;
+        RETURN NULL;
     WHEN LOCK_NOT_AVAILABLE THEN
         RAISE NOTICE 'fn_listar_hospedaje_empresa - Tabla bloqueada: %', SQLERRM;
-        RETURN;
+        RETURN NULL;
     WHEN OTHERS THEN
         RAISE NOTICE 'fn_listar_hospedaje_empresa: %', SQLERRM;
-        RETURN;
+        RETURN NULL;
 END;
 $$
 LANGUAGE plpgsql;

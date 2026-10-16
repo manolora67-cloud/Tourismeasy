@@ -236,13 +236,19 @@
     }
 
     renderArticulos(ARTICULOS);
-    fetch("api/contenido_portada.php")
+    fetch("admin/contenido_portada.php")
         .then((response) => response.ok ? response.json() : null)
         .then((result) => {
             if (!result || !result.ok || !Array.isArray(result.data) || (!result.data.length && !result.initialized)) return;
             const articulos = result.data
                 .filter((destino) => destino.article)
-                .map((destino) => ({...destino.article, key: destino.key, poster: destino.img }));
+                .map((destino) => {
+                    let article = destino.article;
+                    if (typeof article === "string") {
+                        try { article = JSON.parse(article); } catch (error) { article = {}; }
+                    }
+                    return {...article, key: destino.key, poster: destino.img };
+                });
             renderArticulos(articulos);
         })
         .catch(() => {});

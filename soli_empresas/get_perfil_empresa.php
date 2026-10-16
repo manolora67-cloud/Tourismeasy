@@ -5,40 +5,22 @@
  * GET ?id=NIT_EMPRESA
  */
 
+session_start();
 require_once __DIR__ . '/../con_db/db.php';
 
 header('Content-Type: application/json');
 require_once __DIR__ . '/../cors.php';
 
-$id = trim($_GET['id'] ?? '');
+$id = ($_SESSION['tipo'] ?? '') === 'empresa' ? ($_SESSION['id_empresa'] ?? '') : '';
 
 if (!$id) {
-    http_response_code(400);
-    echo json_encode(["ok" => false, "error" => "id requerido."]);
+    http_response_code(401);
+    echo json_encode(["ok" => false, "error" => "No autorizado."]);
     exit;
 }
 
 try {
-    $stmt = $pdo->prepare("
-        SELECT
-            e.ID_EMPRESA            AS nit,
-            e.NOM_EMPRESA           AS nombre,
-            e.EMAIL_INSTITU_EMPRESA AS email_inst,
-            e.NUM_CONTACTO_EMPRESA  AS contacto,
-            e.TIPO_SERVICIO         AS servicio,
-            e.ID_CIUDAD             AS id_ciudad,
-            c.NOM_CIUDAD            AS ciudad,
-            d.NOM_DPTO              AS departamento,
-            u.EMAIL_LOGIN           AS email_login,
-            u.ESTADO                AS estado,
-            u.FECHA_REGISTRO        AS fecha_registro
-        FROM EMPRESAS e
-        JOIN USUARIOS_EMPRESA u ON u.ID_EMPRESA   = e.ID_EMPRESA
-        LEFT JOIN CIUDADES    c ON c.ID_CIUDAD     = e.ID_CIUDAD
-        LEFT JOIN DEPARTAMENTOS d ON d.ID_DPTO     = c.ID_DPTO
-        WHERE e.ID_EMPRESA = :id
-        LIMIT 1
-    ");
+    $stmt = $pdo->prepare('SELECT * FROM fn_obtener_perfil_empresa(:id)');
     $stmt->execute([':id' => $id]);
     $empresa = $stmt->fetch();
 

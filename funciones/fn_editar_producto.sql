@@ -13,6 +13,13 @@ CREATE OR REPLACE FUNCTION fn_editar_producto(
 RETURNS BOOLEAN AS
 $$
 BEGIN
+    IF p_id_persona IS NOT NULL AND NOT EXISTS (
+        SELECT 1 FROM USUARIOS_ECOMMERCE
+        WHERE ID_PERSONA_ECOMMERCE = p_id_persona AND ESTADO = 'ACTIVO'
+    ) THEN
+        RETURN FALSE;
+    END IF;
+
     IF NOT EXISTS (
         SELECT 1 FROM PRODUCTOS_ARTESANALES
         WHERE ID_PRODUCTO = p_id
@@ -53,7 +60,7 @@ BEGIN
         ID_CIUDAD    = p_id_ciudad,
         NUM_CONTACTO = p_contacto,
         DESCRIPCION  = p_descripcion,
-        IMG_URL      = p_img_url
+        IMG_URL      = COALESCE(p_img_url, IMG_URL)
     WHERE ID_PRODUCTO = p_id
       AND (p_id_persona IS NULL OR ID_PERSONA_ECOMMERCE = p_id_persona);
 

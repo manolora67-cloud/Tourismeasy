@@ -33,12 +33,6 @@ $disponible    = isset($input['disponible']) ? (bool)$input['disponible'] : true
 $img_url       = trim($input['img_url']        ?? '') ?: null;
 $id_editar     = isset($input['id']) ? intval($input['id']) : null;
 
-if (!$nombre || !$duracion || !$incluye || !$id_tipo_plan || $precio <= 0 || !$accesibilidad || !$id_ciudad) {
-    http_response_code(400);
-    echo json_encode(["ok" => false, "error" => "Faltan campos obligatorios (nombre, duración, incluye, tipo de plan, precio, accesibilidad, ciudad)."]);
-    exit;
-}
-
 try {
     if ($id_editar) {
         $stmt = $pdo->prepare("

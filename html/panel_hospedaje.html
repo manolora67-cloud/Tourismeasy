@@ -8,9 +8,7 @@
     <link rel="stylesheet" href="../css/index.css" />
     <link rel="stylesheet" href="../css/login.css" />
     <link rel="stylesheet" href="../css/panel_hospedaje.css" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;500&display=swap"
-        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;500&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
 </head>
@@ -50,33 +48,27 @@
         <div class="panel-stats">
             <div class="stat-card">
                 <div class="stat-icon stat-icon-blue"><i class="fa-solid fa-hotel"></i></div>
-                <div class="stat-info"><span class="stat-num" id="statPublicados">0</span><span
-                        class="stat-label">Hospedajes publicados</span></div>
+                <div class="stat-info"><span class="stat-num" id="statPublicados">0</span><span class="stat-label">Hospedajes publicados</span></div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon stat-icon-orange"><i class="fa-solid fa-sack-dollar"></i></div>
-                <div class="stat-info"><span class="stat-num" id="statPrecioPromedio">$0</span><span
-                        class="stat-label">Precio promedio / noche</span></div>
+                <div class="stat-info"><span class="stat-num" id="statPrecioPromedio">$0</span><span class="stat-label">Precio promedio / noche</span></div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon stat-icon-yellow"><i class="fa-solid fa-circle-check"></i></div>
-                <div class="stat-info"><span class="stat-num" id="statActivos">0</span><span
-                        class="stat-label">Hospedajes activos</span></div>
+                <div class="stat-info"><span class="stat-num" id="statActivos">0</span><span class="stat-label">Hospedajes activos</span></div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon stat-icon-red"><i class="fa-solid fa-arrow-trend-up"></i></div>
-                <div class="stat-info"><span class="stat-num" id="statPrecioCaro">—</span><span class="stat-label"
-                        id="statPrecioCaroLabel">Más caro / noche</span></div>
+                <div class="stat-info"><span class="stat-num" id="statPrecioCaro">—</span><span class="stat-label" id="statPrecioCaroLabel">Más caro / noche</span></div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon stat-icon-green"><i class="fa-solid fa-arrow-trend-down"></i></div>
-                <div class="stat-info"><span class="stat-num" id="statPrecioBarato">—</span><span class="stat-label"
-                        id="statPrecioBaratoLabel">Más barato / noche</span></div>
+                <div class="stat-info"><span class="stat-num" id="statPrecioBarato">—</span><span class="stat-label" id="statPrecioBaratoLabel">Más barato / noche</span></div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon stat-icon-blue"><i class="fa-solid fa-clock-rotate-left"></i></div>
-                <div class="stat-info"><span class="stat-num" id="statUltimo">—</span><span class="stat-label"
-                        id="statUltimoLabel">Último publicado</span></div>
+                <div class="stat-info"><span class="stat-num" id="statUltimo">—</span><span class="stat-label" id="statUltimoLabel">Último publicado</span></div>
             </div>
         </div>
 
@@ -100,8 +92,7 @@
                     </thead>
                     <tbody id="tabla-servicios">
                         <tr>
-                            <td colspan="6" style="text-align:center;color:#64748b;padding:32px;">No hay hospedajes
-                                registrados aun.</td>
+                            <td colspan="6" style="text-align:center;color:#64748b;padding:32px;">No hay hospedajes registrados aun.</td>
                         </tr>
                     </tbody>
                 </table>
@@ -125,8 +116,7 @@
             </div>
             <div class="vm-body">
                 <div class="vm-grid">
-                    <div class="vm-field"><label class="vm-label">Nombre</label><input class="vm-input" id="vm-nombre"
-                            type="text" placeholder="Ej: Hotel El Prado" /></div>
+                    <div class="vm-field"><label class="vm-label">Nombre</label><input class="vm-input" id="vm-nombre" type="text" placeholder="Ej: Hotel El Prado" /></div>
                     <div class="vm-field"><label class="vm-label">Tipo</label><select class="vm-input" id="vm-tipo">
                             <option value="">Selecciona...</option>
                             <option value="Hotel">Hotel</option>
@@ -137,23 +127,17 @@
                             <option value="Apartamento">Apartamento</option>
                             <option value="Glamping">Glamping</option>
                         </select></div>
-                    <div class="vm-field"><label class="vm-label">Capacidad max. (personas)</label><input
-                            class="vm-input" id="vm-capacidad" type="number" min="1" placeholder="Ej: 4" /></div>
-                    <div class="vm-field"><label class="vm-label">Precio (/ noche)</label><input class="vm-input"
-                            id="vm-precio" type="text" placeholder="Ej: 180000" /></div>
+                    <div class="vm-field"><label class="vm-label">Capacidad max. (personas)</label><input class="vm-input" id="vm-capacidad" type="number" min="1" placeholder="Ej: 4" /></div>
+                    <div class="vm-field"><label class="vm-label">Precio (/ noche)</label><input class="vm-input" id="vm-precio" type="text" placeholder="Ej: 180000" /></div>
                     <div class="vm-field vm-field--full"><label class="vm-label">Servicios incluidos</label>
-                        <div id="vm-servicios-box"
-                            style="display:flex;flex-wrap:wrap;gap:8px;padding:10px;border:1px solid rgba(148,163,184,.25);border-radius:8px;">
+                        <div id="vm-servicios-box" style="display:flex;flex-wrap:wrap;gap:8px;padding:10px;border:1px solid rgba(148,163,184,.25);border-radius:8px;">
                             <span style="opacity:.6;font-size:.85rem;">Cargando servicios...</span>
                         </div>
                     </div>
-                    <div class="vm-field vm-field--full"><label class="vm-label">Ciudad</label><select class="vm-input"
-                            id="vm-ciudad">
+                    <div class="vm-field vm-field--full"><label class="vm-label">Ciudad</label><select class="vm-input" id="vm-ciudad">
                             <option value="">Cargando ciudades...</option>
                         </select></div>
-                    <div class="vm-field vm-field--full"><label class="vm-label">Descripcion (opcional)</label><textarea
-                            class="vm-input" id="vm-descripcion" rows="3" placeholder="Describe el hospedaje..."
-                            style="resize:vertical;"></textarea></div>
+                    <div class="vm-field vm-field--full"><label class="vm-label">Descripcion (opcional)</label><textarea class="vm-input" id="vm-descripcion" rows="3" placeholder="Describe el hospedaje..." style="resize:vertical;"></textarea></div>
                     <div class="vm-field vm-field--full">
                         <label class="vm-label">Accesibilidad</label>
                         <select class="vm-input" id="vm-acc">
@@ -169,17 +153,14 @@
                         <label class="vm-label">Estado</label>
                         <select class="vm-input" id="vm-estado">
                             <option value="activo">Activo</option>
-                            <option value="pendiente">Pendiente</option>
-                            <option value="cancelado">Cancelado</option>
+                            <option value="cancelado">Inactivo</option>
                         </select>
                     </div>
                     <div class="vm-field vm-field--full">
                         <label class="vm-label">Foto de referencia (opcional)</label>
-                        <input class="vm-input" id="vm-foto" type="file" accept="image/*"
-                            style="padding:8px 12px;cursor:pointer;">
+                        <input class="vm-input" id="vm-foto" type="file" accept="image/*" style="padding:8px 12px;cursor:pointer;">
                         <div id="vm-foto-preview" style="margin-top:8px;display:none;">
-                            <img id="vm-foto-img" src="" alt="Vista previa"
-                                style="width:100%;max-height:160px;object-fit:cover;border-radius:10px;border:1.5px solid #334155;">
+                            <img id="vm-foto-img" src="" alt="Vista previa" style="width:100%;max-height:160px;object-fit:cover;border-radius:10px;border:1.5px solid #334155;">
                         </div>
                     </div>
                 </div>
@@ -201,8 +182,7 @@
                 <button class="vm-close" id="vDel-close">&times;</button>
             </div>
             <div class="vm-body">
-                <p class="vm-del-msg">Seguro de eliminar el hospedaje <strong id="vDel-ruta"></strong>? Esta accion no
-                    se puede deshacer.</p>
+                <p class="vm-del-msg">Seguro de eliminar el hospedaje <strong id="vDel-ruta"></strong>? Esta accion no se puede deshacer.</p>
             </div>
             <div class="vm-footer">
                 <button class="vm-btn-cancel" id="vDel-cancel">Cancelar</button>
@@ -221,8 +201,7 @@
             </div>
             <div class="vm-body">
                 <div id="vDetalle-foto-wrap" style="display:none;margin-bottom:16px;">
-                    <img id="vDetalle-foto" src="" alt="Foto"
-                        style="width:100%;max-height:180px;object-fit:cover;border-radius:10px;border:1.5px solid #334155;">
+                    <img id="vDetalle-foto" src="" alt="Foto" style="width:100%;max-height:180px;object-fit:cover;border-radius:10px;border:1.5px solid #334155;">
                 </div>
                 <h3 id="vDetalle-nombre" style="color:#a855f7;font-size:1.2rem;margin:0 0 18px 0;"></h3>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px 24px;">
@@ -276,7 +255,7 @@
     <script src="../js/santanderianidad.js"></script>
     <script>
         // SESION
-        (function () {
+        (function() {
             var sess = sessionStorage.getItem("te_session");
             if (!sess) {
                 window.location.href = "../index.html";
@@ -304,19 +283,19 @@
         }
         var st = localStorage.getItem("theme");
         applyTheme(st ? st === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches);
-        dmBtn.addEventListener("click", function () {
+        dmBtn.addEventListener("click", function() {
             applyTheme(!document.body.classList.contains("dark-mode"));
         });
 
         // SESSION WIDGET
-        (function () {
+        (function() {
             var user = JSON.parse(sessionStorage.getItem("te_session") || "null");
             var slot = document.getElementById("sessionWidgetSlot");
             if (!user || !slot) return;
             var w = document.createElement("div");
             w.id = "sessionWidget";
             w.className = "session-widget";
-            var ini = ((user.nombre || "AV").trim().split(/\s+/).map(function (x) {
+            var ini = ((user.nombre || "AV").trim().split(/\s+/).map(function(x) {
                 return x[0] || "";
             }).join("").toUpperCase().slice(0, 2) || "AV");
             var _srv = (user.tipoServicio || user.servicio || "HOSPEDAJE").toUpperCase();
@@ -341,16 +320,16 @@
             var trig = w.querySelector("#sessionTrigger"),
                 drop = w.querySelector("#sessionDropdown"),
                 chev = w.querySelector("#sessionChevron");
-            trig.addEventListener("click", function (e) {
+            trig.addEventListener("click", function(e) {
                 e.stopPropagation();
                 var o = drop.classList.toggle("open");
                 chev.style.transform = o ? "rotate(180deg)" : "rotate(0deg)";
             });
-            document.addEventListener("click", function () {
+            document.addEventListener("click", function() {
                 drop.classList.remove("open");
                 chev.style.transform = "rotate(0deg)";
             });
-            w.querySelector("#btnLogout").addEventListener("click", function (e) {
+            w.querySelector("#btnLogout").addEventListener("click", function(e) {
                 e.preventDefault();
                 e.stopPropagation();
                 sessionStorage.removeItem("te_session");
@@ -365,6 +344,20 @@
             visual: '<span class="badge-acc"><i class="fa-solid fa-eye-slash"></i> Guia visual</span>',
             dog: '<span class="badge-acc"><i class="fa-solid fa-dog"></i> Perro guia</span>',
             ramp: '<span class="badge-acc"><i class="fa-solid fa-person-walking"></i> Rampa de acceso</span>'
+        };
+        var ACC_VALUE = {
+            "Sin servicio especial": "none",
+            "Cuarto adaptado silla de ruedas": "wheelchair",
+            "Senalizacion visual para sordos": "deaf",
+            "Guia para discapacidad visual": "visual",
+            "Perro guia permitido": "dog",
+            "Rampa de acceso": "ramp",
+            none: "none",
+            wheelchair: "wheelchair",
+            deaf: "deaf",
+            visual: "visual",
+            dog: "dog",
+            ramp: "ramp"
         };
         var EST_MAP = {
             activo: '<span class="estado-activo">Activo</span>',
@@ -381,44 +374,44 @@
         var _catalogoServicios = [];
 
         fetch("../hospedaje/servicios_hospedaje.php", {
-            credentials: "include"
-        })
-            .then(function (r) {
+                credentials: "include"
+            })
+            .then(function(r) {
                 return r.json();
             })
-            .then(function (res) {
+            .then(function(res) {
                 _catalogoServicios = (res.ok && res.data) ? res.data : [];
                 var box = document.getElementById("vm-servicios-box");
                 if (!_catalogoServicios.length) {
                     box.innerHTML = '<span style="opacity:.6;font-size:.85rem;">No hay servicios disponibles.</span>';
                     return;
                 }
-                box.innerHTML = _catalogoServicios.map(function (s) {
+                box.innerHTML = _catalogoServicios.map(function(s) {
                     return '<label style="display:flex;align-items:center;gap:6px;font-size:.85rem;cursor:pointer;">' +
                         '<input type="checkbox" class="vm-servicio-chk" value="' + s.id + '"> ' + s.nombre + '</label>';
                 }).join("");
             })
-            .catch(function () {
+            .catch(function() {
                 document.getElementById("vm-servicios-box").innerHTML = '<span style="opacity:.6;font-size:.85rem;">No se pudieron cargar los servicios.</span>';
             });
 
         function marcarServicios(idsSeleccionados) {
             var ids = idsSeleccionados || [];
-            document.querySelectorAll(".vm-servicio-chk").forEach(function (chk) {
+            document.querySelectorAll(".vm-servicio-chk").forEach(function(chk) {
                 chk.checked = ids.indexOf(parseInt(chk.value, 10)) !== -1;
             });
         }
 
         fetch("../datos_referencia.php?tipo=ciudades", {
-            credentials: "include"
-        })
-            .then(function (r) {
+                credentials: "include"
+            })
+            .then(function(r) {
                 return r.json();
             })
-            .then(function (res) {
+            .then(function(res) {
                 var sel = document.getElementById("vm-ciudad");
                 sel.innerHTML = '<option value="">Selecciona ciudad...</option>';
-                (res.data && res.data.ciudades || []).forEach(function (c) {
+                (res.data && res.data.ciudades || []).forEach(function(c) {
                     var o = document.createElement("option");
                     o.value = c.id;
                     o.textContent = c.nombre;
@@ -429,7 +422,7 @@
         // Cierra cualquier modal que haya quedado abierto antes de mostrar uno nuevo
         function closeAllVM() {
             if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
-            document.querySelectorAll(".vm-overlay.vm-visible").forEach(function (ov) {
+            document.querySelectorAll(".vm-overlay.vm-visible").forEach(function(ov) {
                 ov.classList.remove("vm-visible");
                 ov.setAttribute("aria-hidden", "true");
             });
@@ -448,7 +441,7 @@
                 marcarServicios(JSON.parse(row.dataset.serviciosIds || "[]"));
                 document.getElementById("vm-ciudad").value = row.dataset.idCiudad || "";
                 document.getElementById("vm-descripcion").value = row.dataset.descripcion || "";
-                document.getElementById("vm-acc").value = row.dataset.acc || "none";
+                document.getElementById("vm-acc").value = ACC_VALUE[row.dataset.acc] || "none";
                 document.getElementById("vm-estado").value = row.dataset.disponible === "true" ? "activo" : "cancelado";
                 var fp = document.getElementById("vm-foto-preview"),
                     fi = document.getElementById("vm-foto-img");
@@ -464,7 +457,7 @@
                     _foto64 = "";
                 }
             } else {
-                ["vm-nombre", "vm-precio", "vm-descripcion"].forEach(function (id) {
+                ["vm-nombre", "vm-precio", "vm-descripcion"].forEach(function(id) {
                     document.getElementById(id).value = "";
                 });
                 marcarServicios([]);
@@ -493,24 +486,24 @@
             document.getElementById("vm-foto-img").src = "";
             _foto64 = "";
         }
-        document.getElementById("vm-foto").addEventListener("change", function (e) {
+        document.getElementById("vm-foto").addEventListener("change", function(e) {
             var file = e.target.files[0];
             if (!file) return;
             var r = new FileReader();
-            r.onload = function (ev) {
+            r.onload = function(ev) {
                 _foto64 = ev.target.result;
                 document.getElementById("vm-foto-img").src = _foto64;
                 document.getElementById("vm-foto-preview").style.display = "block";
             };
             r.readAsDataURL(file);
         });
-        document.getElementById("btn-nuevo").addEventListener("click", function () {
+        document.getElementById("btn-nuevo").addEventListener("click", function() {
             openModal(null);
         });
         document.getElementById("vModal-close").addEventListener("click", closeModal);
         document.getElementById("vModal-cancel").addEventListener("click", closeModal);
 
-        document.getElementById("vModal-save").addEventListener("click", function () {
+        document.getElementById("vModal-save").addEventListener("click", function() {
             var nombre = document.getElementById("vm-nombre").value.trim();
             var tipo = document.getElementById("vm-tipo").value;
             var precioRaw = document.getElementById("vm-precio").value.trim().replace(/[^0-9]/g, "");
@@ -536,7 +529,7 @@
                 id_ciudad: idCiudad,
                 descripcion: document.getElementById("vm-descripcion").value.trim(),
                 precio_noche: parseInt(precioRaw, 10),
-                servicios_ids: Array.prototype.slice.call(document.querySelectorAll(".vm-servicio-chk:checked")).map(function (chk) {
+                servicios_ids: Array.prototype.slice.call(document.querySelectorAll(".vm-servicio-chk:checked")).map(function(chk) {
                     return parseInt(chk.value, 10);
                 }),
                 accesibilidad: ACC_LABEL[accVal] || accVal || "Sin servicio especial",
@@ -552,17 +545,17 @@
                 btn.disabled = true;
                 btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
                 fetch("../hospedaje/crear.php", {
-                    method: "POST",
-                    credentials: "include",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(payload)
-                })
-                    .then(function (r) {
+                        method: "POST",
+                        credentials: "include",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(payload)
+                    })
+                    .then(function(r) {
                         return r.json();
                     })
-                    .then(function (res) {
+                    .then(function(res) {
                         if (!res.ok) {
                             alert("Error: " + (res.error || "No se pudo guardar."));
                             return;
@@ -570,10 +563,10 @@
                         cargarHospedajes();
                         closeModal();
                     })
-                    .catch(function () {
+                    .catch(function() {
                         alert("Error de conexión al guardar.");
                     })
-                    .finally(function () {
+                    .finally(function() {
                         btn.disabled = false;
                         btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar';
                     });
@@ -584,17 +577,17 @@
                 var fd = new FormData();
                 fd.append("imagen", _fotoFile);
                 fetch("../subir_imagen.php", {
-                    method: "POST",
-                    credentials: "include",
-                    body: fd
-                })
-                    .then(function (r) {
+                        method: "POST",
+                        credentials: "include",
+                        body: fd
+                    })
+                    .then(function(r) {
                         return r.json();
                     })
-                    .then(function (res) {
+                    .then(function(res) {
                         _doSave(res.ok ? res.url : _imgUrl);
                     })
-                    .catch(function () {
+                    .catch(function() {
                         _doSave(_imgUrl);
                     });
             } else {
@@ -619,7 +612,7 @@
         }
         document.getElementById("vDel-close").addEventListener("click", closeDel);
         document.getElementById("vDel-cancel").addEventListener("click", closeDel);
-        document.getElementById("vDel-confirm").addEventListener("click", function () {
+        document.getElementById("vDel-confirm").addEventListener("click", function() {
             if (!_delId) {
                 closeDel();
                 return;
@@ -628,19 +621,19 @@
             btn.disabled = true;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Eliminando...';
             fetch("../hospedaje/eliminar.php", {
-                method: "POST",
-                credentials: "include",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    id: _delId
+                    method: "POST",
+                    credentials: "include",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        id: _delId
+                    })
                 })
-            })
-                .then(function (r) {
+                .then(function(r) {
                     return r.json();
                 })
-                .then(function (res) {
+                .then(function(res) {
                     if (!res.ok) {
                         alert("Error: " + (res.error || "No se pudo eliminar."));
                         return;
@@ -648,10 +641,10 @@
                     cargarHospedajes();
                     closeDel();
                 })
-                .catch(function () {
+                .catch(function() {
                     alert("Error de conexión al eliminar.");
                 })
-                .finally(function () {
+                .finally(function() {
                     btn.disabled = false;
                     btn.innerHTML = '<i class="fa-solid fa-trash"></i> Si, eliminar';
                 });
@@ -688,7 +681,7 @@
         }
         document.getElementById("vDetalle-close").addEventListener("click", closeDetalle);
         document.getElementById("vDetalle-close2").addEventListener("click", closeDetalle);
-        document.getElementById("tabla-servicios").addEventListener("click", function (e) {
+        document.getElementById("tabla-servicios").addEventListener("click", function(e) {
             var row = e.target.closest("tr");
             if (!row) return;
             if (e.target.closest(".btn-tbl-view")) openDetalle(row);
@@ -710,7 +703,7 @@
                 el.textContent = "$0";
                 return;
             }
-            var suma = data.reduce(function (acc, item) {
+            var suma = data.reduce(function(acc, item) {
                 return acc + (Number(item.precio_noche) || 0);
             }, 0);
             var promedio = Math.round(suma / data.length);
@@ -738,7 +731,9 @@
             var elUltimoLabel = document.getElementById("statUltimoLabel");
 
             if (elActivos) {
-                elActivos.textContent = (data || []).filter(function (item) { return !!item.disponible; }).length;
+                elActivos.textContent = (data || []).filter(function(item) {
+                    return !!item.disponible;
+                }).length;
             }
 
             if (!data || !data.length) {
@@ -752,7 +747,7 @@
             }
 
             // Precio más caro / más barato por noche
-            var ordenPorPrecio = data.slice().sort(function (a, b) {
+            var ordenPorPrecio = data.slice().sort(function(a, b) {
                 return (Number(b.precio_noche) || 0) - (Number(a.precio_noche) || 0);
             });
             var caro = ordenPorPrecio[0];
@@ -763,9 +758,11 @@
             if (elBaratoLabel) elBaratoLabel.textContent = "Más barato: " + (barato.nombre || "");
 
             // Último hospedaje publicado (por fecha_creacion)
-            var conFecha = data.filter(function (item) { return !!item.fecha_creacion; });
+            var conFecha = data.filter(function(item) {
+                return !!item.fecha_creacion;
+            });
             if (conFecha.length) {
-                var ultimo = conFecha.slice().sort(function (a, b) {
+                var ultimo = conFecha.slice().sort(function(a, b) {
                     return new Date(b.fecha_creacion) - new Date(a.fecha_creacion);
                 })[0];
                 if (elUltimoNum) elUltimoNum.textContent = fmtDateCorta(ultimo.fecha_creacion);
@@ -773,6 +770,18 @@
             } else {
                 if (elUltimoNum) elUltimoNum.textContent = "—";
             }
+        }
+
+        function escapeHtml(value) {
+            return String(value == null ? "" : value).replace(/[&<>\"']/g, function(char) {
+                return {
+                    "&": "&amp;",
+                    "<": "&lt;",
+                    ">": "&gt;",
+                    "\"": "&quot;",
+                    "'": "&#39;"
+                }[char];
+            });
         }
 
         function renderFila(item) {
@@ -785,7 +794,7 @@
             tr.dataset.precio = item.precio_noche || "";
             tr.dataset.capacidad = item.capacidad_max || "";
             tr.dataset.servicios = item.servicios_txt || "";
-            tr.dataset.serviciosIds = JSON.stringify((item.servicios || []).map(function (s) {
+            tr.dataset.serviciosIds = JSON.stringify((item.servicios || []).map(function(s) {
                 return s.id;
             }));
             tr.dataset.accesibilidad = item.accesibilidad || "";
@@ -794,7 +803,7 @@
             tr.dataset.disponible = item.disponible ? "true" : "false";
             tr.dataset.imgUrl = item.img_url || "";
             var dispHtml = item.disponible ? '<span class="estado-activo">Activo</span>' : '<span class="estado-cancelado">Inactivo</span>';
-            tr.innerHTML = "<td><strong>" + (item.nombre || "") + "</strong></td><td>" + (item.tipo || "") + "</td><td>" + (item.ciudad || "") + "</td><td><strong class='precio-purple'>$" + Number(item.precio_noche || 0).toLocaleString("es-CO") + "</strong></td><td>" + dispHtml + "</td><td><div class='table-actions'><button class='btn-tbl-view' title='Ver detalle'><i class='fa-solid fa-eye'></i></button><button class='btn-tbl-edit'><i class='fa-solid fa-pen'></i></button><button class='btn-tbl-del'><i class='fa-solid fa-trash'></i></button></div></td>";
+            tr.innerHTML = "<td><strong>" + escapeHtml(item.nombre || "") + "</strong></td><td>" + escapeHtml(item.tipo || "") + "</td><td>" + escapeHtml(item.ciudad || "") + "</td><td><strong class='precio-purple'>$" + Number(item.precio_noche || 0).toLocaleString("es-CO") + "</strong></td><td>" + dispHtml + "</td><td><div class='table-actions'><button class='btn-tbl-view' title='Ver detalle'><i class='fa-solid fa-eye'></i></button><button class='btn-tbl-edit'><i class='fa-solid fa-pen'></i></button><button class='btn-tbl-del'><i class='fa-solid fa-trash'></i></button></div></td>";
             return tr;
         }
 
@@ -802,12 +811,12 @@
             var tbody = document.getElementById("tabla-servicios");
             tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:#94a3b8"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</td></tr>';
             fetch("../hospedaje/listar.php?panel=1", {
-                credentials: "include"
-            })
-                .then(function (r) {
+                    credentials: "include"
+                })
+                .then(function(r) {
                     return r.json();
                 })
-                .then(function (res) {
+                .then(function(res) {
                     tbody.innerHTML = "";
                     if (!res.ok || !res.data || !res.data.length) {
                         tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:#94a3b8">Aun no has publicado hospedajes.</td></tr>';
@@ -816,14 +825,14 @@
                         actualizarStatsExtra([]);
                         return;
                     }
-                    res.data.forEach(function (item) {
+                    res.data.forEach(function(item) {
                         tbody.appendChild(renderFila(item));
                     });
                     actualizarContador();
                     actualizarPrecioPromedio(res.data);
                     actualizarStatsExtra(res.data);
                 })
-                .catch(function () {
+                .catch(function() {
                     tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#ef4444;padding:24px">Error al cargar. Recarga la pagina.</td></tr>';
                 });
         }

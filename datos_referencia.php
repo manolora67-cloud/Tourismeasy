@@ -22,21 +22,16 @@ if (!in_array($tipo, $tiposPermitidos, true)) {
 }
 
 try {
-    $respuesta = [];
-
-    if ($tipo === 'ciudades' || $tipo === 'todos') {
-        $stmt = $pdo->query("SELECT ID_CIUDAD AS id, NOM_CIUDAD AS nombre FROM CIUDADES ORDER BY NOM_CIUDAD");
-        $respuesta['ciudades'] = $stmt->fetchAll();
+    $stmt = $pdo->prepare('SELECT fn_datos_referencia(:tipo) AS datos');
+    $stmt->execute([':tipo' => $tipo]);
+    $json = $stmt->fetchColumn();
+    if ($json === false || $json === null) {
+        throw new RuntimeException('La función SQL no devolvió datos de referencia.');
     }
-
-    if ($tipo === 'tipos_plan' || $tipo === 'todos') {
-        $stmt = $pdo->query("SELECT ID_TIPO_PLAN AS id, NOM_TIPO_PLAN AS nombre FROM TIPOS_DE_PLAN_TURISTICO ORDER BY NOM_TIPO_PLAN");
-        $respuesta['tipos_plan'] = $stmt->fetchAll();
-    }
-
+    $respuesta = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
     echo json_encode(["ok" => true, "data" => $respuesta]);
 
-} catch (PDOException $e) {
+} catch (Throwable $e) {
     error_log('[TourismEasy] datos_referencia.php - ' . $e->getMessage());
     http_response_code(500);
     echo json_encode(["ok" => false, "error" => "Error al obtener datos de referencia."]);

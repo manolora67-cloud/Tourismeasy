@@ -25,9 +25,9 @@ TourismEasy es una plataforma web de turismo inclusivo enfocada en Santander, Co
 
 ## Requisitos
 
-- PHP con las extensiones `pdo_pgsql` y `mbstring`.
+- PHP 7.3 o posterior con `pdo_pgsql` y `mbstring`. Para carga de imágenes a Cloudinary también se requiere `curl`; para SMTP cifrado, `openssl`. `fileinfo` habilita la validación MIME de imágenes.
 - Composer.
-- PostgreSQL y su cliente `psql` (o una herramienta gráfica como pgAdmin).
+- PostgreSQL 9.5 o posterior (el esquema usa `ON CONFLICT`) y su cliente `psql` o una herramienta gráfica como pgAdmin.
 - Una base de datos inicializada con el esquema del proyecto.
 
 ## Instalación y ejecución local
@@ -41,7 +41,7 @@ TourismEasy es una plataforma web de turismo inclusivo enfocada en Santander, Co
 
 3. Crea la base de datos e importa el esquema y los datos de referencia. Sigue la [guía de la base de datos](db/README.md).
 4. Configura la conexión PostgreSQL de [con_db/db.php](con_db/db.php) para tu instancia local. La configuración está en un archivo versionado; no publiques cambios que incluyan credenciales.
-5. Configura los servicios externos que necesites. El asistente lee `GROQ_API_KEY` desde el entorno; sin ella, usa respuestas locales. En la versión actual, Cloudinary y el correo no leen sus credenciales del entorno: antes de habilitarlos, migra esa configuración a un mecanismo local y no versionado.
+5. Configura los servicios externos que necesites. El asistente lee `GROQ_API_KEY` desde el entorno; sin ella, usa respuestas locales. Cloudinary y el correo aún tienen credenciales configuradas en el código; no los habilites en un entorno compartido hasta migrarlas a una configuración local y no versionada.
 6. Desde la raíz del proyecto, inicia el servidor integrado de PHP:
 
    ```sh
@@ -63,16 +63,17 @@ El servidor integrado de PHP es para desarrollo local, no para producción. Para
 | [login/](login/), [recuperacion/](recuperacion/), [resenas/](resenas/) | Endpoints de cuentas, recuperación y reseñas. |
 | [planes/](planes/), [hospedaje/](hospedaje/), [transporte/](transporte/) | Endpoints de servicios turísticos. |
 | [e-commerce/](e-commerce/) | Endpoints de productos y cuentas de artesanos. |
+| [admin/](admin/) | Endpoint de contenido administrable de portada. |
 | [api/](api/) | Asistente y configuración de servicios externos. |
 | [con_db/](con_db/) | Conexión PDO y utilidades de sesión. |
 | [db/](db/) | Esquema y datos iniciales de PostgreSQL. |
 | [funciones/](funciones/) | Funciones SQL utilizadas por el backend. |
-| [img/](img/), [audio-video/](audio-video/), [uploads/](uploads/) | Recursos multimedia. |
+| [img/](img/), [audio-video/](audio-video/) | Recursos multimedia del sitio. Las imágenes subidas se alojan en Cloudinary. |
 
 ## Configuración y seguridad
 
-- No guardes claves API, contraseñas SMTP, credenciales de Cloudinary ni contraseñas de la base de datos en Git.
-- `GROQ_API_KEY` es la variable de entorno que utiliza el asistente. En la versión actual, las credenciales de la base de datos, Cloudinary y correo están definidas en [con_db/db.php](con_db/db.php), [api/cloudinary_config.php](api/cloudinary_config.php) y [recuperacion/servicio_correo.php](recuperacion/servicio_correo.php). Si estuvieron expuestas, revócalas y genera nuevas antes de compartir o desplegar el proyecto; migra la configuración a un mecanismo local y no versionado.
+- No guardes claves API, contraseñas SMTP, credenciales de Cloudinary ni contraseñas de la base de datos en Git. **La configuración actual del proyecto todavía contiene credenciales en archivos versionados**: no las reutilices en un despliegue compartido. Rótalas si siguen activas y migra la configuración a variables de entorno o archivos locales ignorados por Git.
+- `GROQ_API_KEY` es la variable de entorno que utiliza el asistente. En esta versión, la conexión PostgreSQL, Cloudinary y SMTP siguen configurados directamente en [con_db/db.php](con_db/db.php), [api/cloudinary_config.php](api/cloudinary_config.php) y [recuperacion/servicio_correo.php](recuperacion/servicio_correo.php), respectivamente.
 - Los registros insertados por el esquema son datos iniciales/de demostración; reemplázalos y revisa las cuentas antes de usar la plataforma en producción.
 
 ## Base de datos

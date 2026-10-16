@@ -1,3 +1,5 @@
+DROP FUNCTION IF EXISTS fn_buscar_transporte(VARCHAR, VARCHAR, DATE, VARCHAR, INTEGER);
+
 CREATE OR REPLACE FUNCTION fn_buscar_transporte(
     t_origen     TRANSPORTE.ORIGEN%TYPE DEFAULT NULL,
     t_destino    TRANSPORTE.DESTINO%TYPE DEFAULT NULL,
@@ -6,18 +8,18 @@ CREATE OR REPLACE FUNCTION fn_buscar_transporte(
     p_id_clase   CLASE_SERVICIO_TRANSPORTE.ID_CLASE%TYPE DEFAULT NULL
 )
 RETURNS TABLE (
-    ejecucion_exitosa   BOOLEAN,
-    t_id_transporte     TRANSPORTE.ID_TRANSPORTE%TYPE,
-    t_nom_empresa       EMPRESAS.NOM_EMPRESA%TYPE,
-    t_ciudad_origen     TRANSPORTE.ORIGEN%TYPE,
-    t_ciudad_destino    TRANSPORTE.DESTINO%TYPE,
-    t_fecha_salida      TRANSPORTE.FECHA_SALIDA%TYPE,
-    t_hora_salida       TRANSPORTE.HORA_SALIDA%TYPE,
-    t_precio            TRANSPORTE.PRECIO%TYPE,
-    t_descripcion       TRANSPORTE.DESCRIPCION%TYPE,
-    t_img_url           TRANSPORTE.IMG_URL%TYPE,
-    t_id_clase          CLASE_SERVICIO_TRANSPORTE.ID_CLASE%TYPE,
-    t_nombre_clase      CLASE_SERVICIO_TRANSPORTE.NOMBRE_CLASE%TYPE
+    id             TRANSPORTE.ID_TRANSPORTE%TYPE,
+    empresa        EMPRESAS.NOM_EMPRESA%TYPE,
+    origen         TRANSPORTE.ORIGEN%TYPE,
+    destino        TRANSPORTE.DESTINO%TYPE,
+    fecha_salida   TRANSPORTE.FECHA_SALIDA%TYPE,
+    hora_salida    TRANSPORTE.HORA_SALIDA%TYPE,
+    precio         TRANSPORTE.PRECIO%TYPE,
+    descripcion    TRANSPORTE.DESCRIPCION%TYPE,
+    img_url        TRANSPORTE.IMG_URL%TYPE,
+    id_clase       CLASE_SERVICIO_TRANSPORTE.ID_CLASE%TYPE,
+    nombre_clase   CLASE_SERVICIO_TRANSPORTE.NOMBRE_CLASE%TYPE,
+    disponible     TRANSPORTE.DISPONIBILIDAD%TYPE
 ) AS
 $$
 BEGIN
@@ -35,7 +37,6 @@ BEGIN
 
     RETURN QUERY
     SELECT
-        TRUE,
         T.ID_TRANSPORTE,
         E.NOM_EMPRESA,
         T.ORIGEN,
@@ -46,7 +47,8 @@ BEGIN
         T.DESCRIPCION,
         T.IMG_URL,
         CST.ID_CLASE,
-        CST.NOMBRE_CLASE
+        CST.NOMBRE_CLASE,
+        T.DISPONIBILIDAD
     FROM TRANSPORTE T
     INNER JOIN EMPRESAS E
         ON E.ID_EMPRESA = T.ID_EMPRESA

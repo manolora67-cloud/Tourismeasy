@@ -2,7 +2,7 @@
 /**
  * e-commerce/crear.php
  * GET  ?ajax=1&id=X   -> devuelve UN producto (fn_obtener_producto), para precargar el formulario de edición
- * POST ajax=1          -> crea (fn_agregar_producto) o actualiza (fn_editar_producto) un producto
+ * POST ajax=1          -> guarda mediante fn_guardar_producto()
  *
  * El id del artesano dueño del producto YA NO se toma de lo que mande el
  * formulario (formData.id_persona) — eso lo puede editar cualquiera con las
@@ -17,97 +17,7 @@ require_once __DIR__ . '/../cors.php';
 
 header('Content-Type: application/json');
 
-// ── Cloudinary: config con las credenciales para subir las fotos de productos ──
-require_once __DIR__ . '/../api/cloudinary_config.php';
-
-/**
- * Recibe el string que llega en img_base64 y decide qué hacer:
- * - Si es una imagen nueva (empieza con "data:image/...") la sube a Cloudinary
- *   (Cloudinary acepta directamente un data URI base64 como "file", no hace
- *   falta decodificarlo ni guardarlo en disco nosotros mismos).
- * - Si no (es decir, ya es una URL existente, como pasa al editar sin cambiar
- *   la foto) la deja igual.
- * Devuelve la URL final que se debe guardar en la columna IMG_URL, o null/la
- * anterior si la subida falla (para no perder la imagen que ya tenía el producto).
- */
-function guardarImagenSiEsNueva(string $imgBase64, ?string $imgUrlActual): ?string {
-    if ($imgBase64 === '') {
-        return $imgUrlActual; // no mandaron nada nuevo, se conserva lo que había
-    }
-
-    if (strpos($imgBase64, 'data:image') !== 0) {
-        // No es base64 nuevo, es la URL que ya traía el producto (caso de "editar sin cambiar foto")
-        return $imgBase64;
-    }
-
-    $idPersona = $_SESSION['artesano_id'] ?? 'artesano';
-    $publicId  = $idPersona . '_' . time() . '_' . bin2hex(random_bytes(4));
-    $timestamp = time();
-
-    // Los parámetros que se firman deben ir en orden alfabético, separados por &,
-    // sin incluir archivo, api_key, ni la propia firma.
-    $paramsAFirmar = [
-        'folder'    => CLOUDINARY_FOLDER_PRODUCTOS,
-        'public_id' => $publicId,
-        'timestamp' => $timestamp,
-    ];
-    ksort($paramsAFirmar);
-
-    $stringAFirmar = '';
-    foreach ($paramsAFirmar as $key => $value) {
-        $stringAFirmar .= ($stringAFirmar === '' ? '' : '&') . $key . '=' . $value;
-    }
-    $signature = sha1($stringAFirmar . CLOUDINARY_API_SECRET);
-
-    $postFields = [
-        'file'      => $imgBase64, // Cloudinary acepta el data URI base64 directamente
-        'api_key'   => CLOUDINARY_API_KEY,
-        'timestamp' => $timestamp,
-        'signature' => $signature,
-        'folder'    => CLOUDINARY_FOLDER_PRODUCTOS,
-        'public_id' => $publicId,
-    ];
-
-    $url = 'https://api.cloudinary.com/v1_1/' . CLOUDINARY_CLOUD_NAME . '/image/upload';
-
-    $ch = curl_init($url);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $postFields);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-
-    $respuesta = curl_exec($ch);
-    $curlError = curl_error($ch);
-    $httpCode  = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
-
-    if ($respuesta === false) {
-        error_log('[TourismEasy] crear.php - Cloudinary cURL error: ' . $curlError);
-        return $imgUrlActual;
-    }
-
-    $data = json_decode($respuesta, true);
-
-    if ($httpCode !== 200 || empty($data['secure_url'])) {
-        error_log('[TourismEasy] crear.php - Cloudinary error (HTTP ' . $httpCode . '): ' . $respuesta);
-        return $imgUrlActual;
-    }
-
-    return $data['secure_url'];
-}
-
-// ── Validación de formato server-side (nunca confiar solo en el formulario del navegador) ──
-// Las reglas de negocio (categoría válida, ciudad válida, longitudes) las revalida la función de BD.
-function validarProducto(array $d): ?string {
-    if (strlen($d['name']) < 3)               return 'El nombre debe tener al menos 3 caracteres.';
-    if (strlen($d['provider']) < 3)            return 'El proveedor debe tener al menos 3 caracteres.';
-    if (!in_array($d['category'], ['talleres', 'bisuteria', 'alfareria'], true)) return 'Categoría inválida.';
-    if (!is_numeric($d['price']) || $d['price'] <= 0)  return 'El precio debe ser mayor a 0.';
-    if (strlen($d['id_ciudad']) < 5)           return 'Selecciona una ciudad válida.';
-    if (!preg_match('/^\+?[0-9 ]{7,20}$/', $d['contacto'])) return 'Teléfono de contacto inválido.';
-    if (strlen($d['description']) < 10)        return 'La descripción debe tener al menos 10 caracteres.';
-    return null; // sin errores
-}
+require_once __DIR__ . '/servicio_imagen_producto.php';
 
 try {
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
@@ -137,8 +47,7 @@ try {
     }
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $id    = $_POST['id'] ?? null;
-        // El id del artesano viene de la sesión de servidor, nunca del formulario.
+        $id = !empty($_POST['id']) ? (int)$_POST['id'] : null;
         $idPersona = $_SESSION['artesano_id'] ?? null;
         $datos = [
             'name'        => trim($_POST['name'] ?? ''),
@@ -157,59 +66,27 @@ try {
             exit;
         }
 
-        $error = validarProducto($datos);
-        if ($error) {
-            http_response_code(422);
-            echo json_encode(['ok' => false, 'error' => $error]);
-            exit;
-        }
-
         if ($id) {
-            // ── ACTUALIZAR producto existente (solo si es del artesano logueado) ──
-            $stmtActual = $pdo->prepare("SELECT img_url FROM fn_obtener_producto(:id)");
-            $stmtActual->execute(['id' => $id]);
-            $filaActual = $stmtActual->fetch();
-            if (!$filaActual) {
+            $stmtActual = $pdo->prepare('SELECT 1 FROM fn_obtener_producto(:id, :id_persona)');
+            $stmtActual->execute(['id' => $id, 'id_persona' => $idPersona]);
+            if (!$stmtActual->fetchColumn()) {
                 http_response_code(404);
                 echo json_encode(['ok' => false, 'error' => 'Producto no encontrado.']);
                 exit;
             }
 
-            $imgUrl = guardarImagenSiEsNueva($imgBase64, $filaActual['img_url']);
+        }
 
-            $stmt = $pdo->prepare("
-                SELECT fn_editar_producto(:id, :name, :provider, :category, :price, :id_ciudad, :contacto, :description, :img_url, :id_persona)
-            ");
-            $stmt->execute([
-                'id'          => $id,
-                'name'        => $datos['name'],
-                'provider'    => $datos['provider'],
-                'category'    => $datos['category'],
-                'price'       => $datos['price'],
-                'id_ciudad'   => $datos['id_ciudad'],
-                'contacto'    => $datos['contacto'],
-                'description' => $datos['description'],
-                'img_url'     => $imgUrl,
-                'id_persona'  => $idPersona,
-            ]);
-
-            if (!$stmt->fetchColumn()) {
-                http_response_code(403);
-                echo json_encode(['ok' => false, 'error' => 'No se pudo actualizar el producto. Verifica que sea tuyo y que los datos sean correctos.']);
-                exit;
-            }
-
-            echo json_encode(['ok' => true, 'id_producto' => $id]);
+        $imgUrl = subirImagenCloudinary($imgBase64);
+        if (!$id && !$imgUrl) {
+            http_response_code(422);
+            echo json_encode(['ok' => false, 'error' => 'No se pudo subir la imagen del producto. Inténtalo de nuevo.']);
             exit;
         }
 
-        // ── CREAR producto nuevo, asociado al artesano logueado ──
-        $imgUrl = guardarImagenSiEsNueva($imgBase64, null);
-
-        $stmt = $pdo->prepare("
-            SELECT fn_agregar_producto(:name, :provider, :category, :price, :id_ciudad, :contacto, :description, :img_url, :id_persona)
-        ");
+        $stmt = $pdo->prepare('SELECT * FROM fn_guardar_producto(:id, :name, :provider, :category, :price, :id_ciudad, :contacto, :description, :img_url, :id_persona)');
         $stmt->execute([
+            'id'          => $id,
             'name'        => $datos['name'],
             'provider'    => $datos['provider'],
             'category'    => $datos['category'],
@@ -220,15 +97,14 @@ try {
             'img_url'     => $imgUrl,
             'id_persona'  => $idPersona,
         ]);
-        $nuevoId = $stmt->fetchColumn();
-
-        if (!$nuevoId) {
+        $resultado = $stmt->fetch();
+        if (!$resultado || !in_array($resultado['ok'], [true, 't', 'true', '1', 1], true)) {
             http_response_code(422);
-            echo json_encode(['ok' => false, 'error' => 'No se pudo crear el producto. Verifica los datos.']);
+            echo json_encode(['ok' => false, 'error' => 'No se pudo guardar el producto. Verifica los datos y que la cuenta esté activa.']);
             exit;
         }
 
-        echo json_encode(['ok' => true, 'id_producto' => (int) $nuevoId]);
+        echo json_encode(['ok' => true, 'id_producto' => (int)$resultado['id_producto']]);
         exit;
     }
 

@@ -6,55 +6,29 @@
  * GET ?id=ID_EMPRESA
  */
 
+session_start();
 require_once __DIR__ . '/../con_db/db.php';
 
 header('Content-Type: application/json');
 require_once __DIR__ . '/../cors.php';
 
-$id = trim($_GET['id'] ?? '');
+$id = ($_SESSION['tipo'] ?? '') === 'empresa' ? ($_SESSION['id_empresa'] ?? '') : '';
 
 if (!$id) {
-    http_response_code(400);
-    echo json_encode(["ok" => false, "error" => "id requerido."]);
+    http_response_code(401);
+    echo json_encode(["ok" => false, "error" => "No autorizado."]);
     exit;
 }
 
 try {
-    $chkEmpresa = $pdo->prepare("SELECT 1 FROM USUARIOS_EMPRESA WHERE ID_EMPRESA = :id");
-    $chkEmpresa->execute([':id' => $id]);
-    if (!$chkEmpresa->fetch()) {
+    $stmt = $pdo->prepare('SELECT * FROM fn_obtener_config_empresa(:id)');
+    $stmt->execute([':id' => $id]);
+    $config = $stmt->fetch();
+    if (!$config) {
         http_response_code(403);
         echo json_encode(["ok" => false, "error" => "No autorizado."]);
         exit;
     }
-
-    // Crear la fila con valores por defecto si todavía no existe
-    $stmtIns = $pdo->prepare("
-        INSERT INTO CONFIG_EMPRESA (ID_EMPRESA)
-        VALUES (:id)
-        ON CONFLICT (ID_EMPRESA) DO NOTHING
-    ");
-    $stmtIns->execute([':id' => $id]);
-
-    $stmt = $pdo->prepare("
-        SELECT
-            NOTIF_NUEVAS_RESERVAS AS notif_reservas,
-            NOTIF_CANCELACIONES   AS notif_cancelaciones,
-            NOTIF_BOLETIN         AS notif_boletin,
-            TEMA_OSCURO           AS tema_oscuro
-        FROM CONFIG_EMPRESA
-        WHERE ID_EMPRESA = :id
-        LIMIT 1
-    ");
-    $stmt->execute([':id' => $id]);
-    $config = $stmt->fetch();
-
-    if (!$config) {
-        http_response_code(404);
-        echo json_encode(["ok" => false, "error" => "Configuración no encontrada."]);
-        exit;
-    }
-
     echo json_encode(["ok" => true, "config" => $config]);
 
 } catch (PDOException $e) {

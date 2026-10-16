@@ -12,14 +12,7 @@ require_once __DIR__ . '/../cors.php';
 header('Content-Type: application/json');
 
 try {
-    $stmt = $pdo->query("
-        SELECT
-            ID_CLASE AS id,
-            NOMBRE_CLASE AS nombre
-        FROM CLASE_SERVICIO_TRANSPORTE
-        WHERE ACTIVO = TRUE
-        ORDER BY NOMBRE_CLASE ASC
-    ");
+    $stmt = $pdo->query('SELECT * FROM fn_listar_clases_transporte()');
 
     $rows = $stmt->fetchAll();
 

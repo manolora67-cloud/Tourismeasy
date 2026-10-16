@@ -5,27 +5,23 @@ CREATE OR REPLACE FUNCTION fn_eliminar_hospedaje(
 RETURNS BOOLEAN AS
 $$
 DECLARE
-    v_id_empresa_db HOSPEDAJE.ID_EMPRESA%TYPE;
+    v_id_eliminado HOSPEDAJE.ID_HOSPEDAJE%TYPE;
 BEGIN
-    SELECT ID_EMPRESA INTO v_id_empresa_db
-    FROM HOSPEDAJE
-    WHERE ID_HOSPEDAJE = h_id_hospedaje;
-
-    IF NOT FOUND THEN
+    IF NOT EXISTS (
+        SELECT 1 FROM USUARIOS_EMPRESA
+        WHERE ID_EMPRESA = h_id_empresa AND ESTADO = 'ACTIVO'
+    ) OR NOT EXISTS (
+        SELECT 1 FROM EMPRESAS
+        WHERE ID_EMPRESA = h_id_empresa AND TIPO_SERVICIO = 'HOSPEDAJE'
+    ) THEN
         RETURN FALSE;
     END IF;
-
-    IF v_id_empresa_db <> h_id_empresa THEN
-        RETURN FALSE;
-    END IF;
-
-    -- Primero se limpia la relación muchos-a-muchos con servicios (FK)
-    DELETE FROM HOSPEDAJE_SERVICIOS WHERE ID_HOSPEDAJE = h_id_hospedaje;
 
     DELETE FROM HOSPEDAJE
-    WHERE ID_HOSPEDAJE = h_id_hospedaje AND ID_EMPRESA = h_id_empresa;
+    WHERE ID_HOSPEDAJE = h_id_hospedaje AND ID_EMPRESA = h_id_empresa
+    RETURNING ID_HOSPEDAJE INTO v_id_eliminado;
 
-    RETURN TRUE;
+    RETURN v_id_eliminado IS NOT NULL;
 
 EXCEPTION
     WHEN FOREIGN_KEY_VIOLATION THEN

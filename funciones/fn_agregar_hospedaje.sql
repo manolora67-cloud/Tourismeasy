@@ -30,6 +30,10 @@ BEGIN
         RETURN NULL;
     END IF;
 
+    IF h_tipo IS NULL OR LENGTH(TRIM(h_tipo)) = 0 THEN
+        RETURN NULL;
+    END IF;
+
     IF h_precio_noche <= 0 THEN
         RETURN NULL;
     END IF;
@@ -38,7 +42,23 @@ BEGIN
         RETURN NULL;
     END IF;
 
+    IF h_accesibilidad IS NULL OR LENGTH(TRIM(h_accesibilidad)) < 3 THEN
+        RETURN NULL;
+    END IF;
+
+    IF h_descripcion IS NOT NULL AND LENGTH(TRIM(h_descripcion)) < 5 THEN
+        RETURN NULL;
+    END IF;
+
     IF NOT EXISTS (SELECT 1 FROM CIUDADES WHERE ID_CIUDAD = h_id_ciudad) THEN
+        RETURN NULL;
+    END IF;
+
+    IF EXISTS (
+        SELECT 1 FROM UNNEST(COALESCE(h_servicios_ids, '{}'::INTEGER[])) AS s(id)
+        LEFT JOIN SERVICIOS_HOSPEDAJE sh ON sh.ID_SERVICIO = s.id
+        WHERE sh.ID_SERVICIO IS NULL OR sh.ACTIVO = FALSE
+    ) THEN
         RETURN NULL;
     END IF;
 
@@ -53,10 +73,10 @@ BEGIN
     )
     RETURNING ID_HOSPEDAJE INTO v_nuevo_id;
 
-    -- Vincular servicios (solo los que realmente existen en el catálogo)
+    -- Vincular servicios activos del catálogo.
     IF h_servicios_ids IS NOT NULL THEN
         FOREACH v_sid IN ARRAY h_servicios_ids LOOP
-            IF EXISTS (SELECT 1 FROM SERVICIOS_HOSPEDAJE WHERE ID_SERVICIO = v_sid) THEN
+            IF EXISTS (SELECT 1 FROM SERVICIOS_HOSPEDAJE WHERE ID_SERVICIO = v_sid AND ACTIVO = TRUE) THEN
                 INSERT INTO HOSPEDAJE_SERVICIOS (ID_HOSPEDAJE, ID_SERVICIO)
                 VALUES (v_nuevo_id, v_sid)
                 ON CONFLICT DO NOTHING;

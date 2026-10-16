@@ -1,5 +1,5 @@
 (() => {
-    const API = '../api/contenido_portada.php';
+    const API = '../admin/contenido_portada.php';
     const list = document.getElementById('portadaDestinos');
     const editor = document.getElementById('portadaEditor');
     const status = document.getElementById('portadaEstado');
@@ -18,6 +18,18 @@
         "'": '&#39;'
     }[char]));
     const adminAsset = (value) => /^(img|audio-video)\//.test(value || '') ? `../${value}` : value;
+    const parseArticle = (value) => {
+        if (value && typeof value === 'object') return value;
+        if (typeof value === 'string') {
+            try { return JSON.parse(value); } catch (error) { return {}; }
+        }
+        return {};
+    };
+    const normalizeRows = (rows) => rows.map((row) => ({
+        ...row,
+        article: parseArticle(row.article),
+        publicado: row.publicado === true || ['1', 't', 'true'].includes(String(row.publicado).toLowerCase())
+    }));
 
     function showStatus(message, error = false) {
         status.textContent = message;
@@ -38,7 +50,7 @@
         try {
             const result = await request(`${API}?admin=1`);
             csrf = result.csrf || '';
-            destinos = Array.isArray(result.data) ? result.data : [];
+            destinos = Array.isArray(result.data) ? normalizeRows(result.data) : [];
             if (!destinos.length) {
                 const defaultsDestinos = window.TE_DESTINOS || [];
                 const defaultsArticulos = window.TE_ARTICULOS || [];
@@ -48,13 +60,13 @@
                         headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
                         body: JSON.stringify({ action: 'bootstrap', destinos: defaultsDestinos, articulos: defaultsArticulos })
                     });
-                    destinos = initialized.data || [];
+                    destinos = normalizeRows(initialized.data || []);
                 }
             }
             render();
             showStatus(`${destinos.length} destino${destinos.length === 1 ? '' : 's'} en el catálogo.`);
         } catch (error) {
-            showStatus(error.message + ' Si es una instalación existente, ejecuta la migración SQL de contenido de portada.', true);
+            showStatus(error.message + ' Verifica que importaste las funciones de contenido de portada indicadas en db/README.md.', true);
             list.innerHTML = '';
         } finally {
             cargando = false;

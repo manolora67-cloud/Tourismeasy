@@ -2,9 +2,10 @@
 /**
  * login/actualizar_config_empresa.php
  * Actualiza un campo de configuración de la empresa (upsert).
- * Espera JSON: { "id": "ID_EMPRESA", "campo": "notif_reservas" | "notif_cancelaciones" | "notif_boletin" | "tema_oscuro", "valor": true|false }
+ * Espera JSON: { "campo": "notif_cancelaciones" | "notif_boletin" | "tema_oscuro", "valor": true|false }
  */
 
+session_start();
 require_once __DIR__ . '/../con_db/db.php';
 
 header('Content-Type: application/json');
@@ -12,44 +13,33 @@ require_once __DIR__ . '/../cors.php';
 
 $input = json_decode(file_get_contents('php://input'), true);
 
-$id    = trim($input['id']    ?? '');
+$id    = ($_SESSION['tipo'] ?? '') === 'empresa' ? ($_SESSION['id_empresa'] ?? '') : '';
 $campo = trim($input['campo'] ?? '');
 $valor = $input['valor'] ?? null;
 
-$columnas = [
-    'notif_reservas'      => 'NOTIF_NUEVAS_RESERVAS',
-    'notif_cancelaciones' => 'NOTIF_CANCELACIONES',
-    'notif_boletin'       => 'NOTIF_BOLETIN',
-    'tema_oscuro'         => 'TEMA_OSCURO',
-];
+if (!$id) {
+    http_response_code(401);
+    echo json_encode(["ok" => false, "error" => "No autorizado."]);
+    exit;
+}
 
-if (!$id || !$campo || !array_key_exists($campo, $columnas) || !is_bool($valor)) {
+if (!$campo || !in_array($campo, ['notif_cancelaciones', 'notif_boletin', 'tema_oscuro'], true) || !is_bool($valor)) {
     http_response_code(400);
     echo json_encode(["ok" => false, "error" => "Datos inválidos."]);
     exit;
 }
 
-$columna = $columnas[$campo];
-
 try {
-    $chkEmpresa = $pdo->prepare("SELECT 1 FROM USUARIOS_EMPRESA WHERE ID_EMPRESA = :id");
-    $chkEmpresa->execute([':id' => $id]);
-    if (!$chkEmpresa->fetch()) {
-        http_response_code(403);
-        echo json_encode(["ok" => false, "error" => "No autorizado."]);
-        exit;
-    }
-
-    $sql = "
-        INSERT INTO CONFIG_EMPRESA (ID_EMPRESA, $columna)
-        VALUES (:id, :valor)
-        ON CONFLICT (ID_EMPRESA) DO UPDATE
-        SET $columna = :valor, FECHA_ACTUALIZACION = NOW()
-    ";
-    $stmt = $pdo->prepare($sql);
+    $stmt = $pdo->prepare('SELECT fn_actualizar_config_empresa(:id, :campo, :valor)::TEXT');
     $stmt->bindValue(':id', $id);
+    $stmt->bindValue(':campo', $campo);
     $stmt->bindValue(':valor', $valor, PDO::PARAM_BOOL);
     $stmt->execute();
+    if (!in_array($stmt->fetchColumn(), ['t', 'true', '1', 1, true], true)) {
+        http_response_code(403);
+        echo json_encode(["ok" => false, "error" => "No autorizado o configuración inválida."]);
+        exit;
+    }
 
     echo json_encode(["ok" => true]);
 

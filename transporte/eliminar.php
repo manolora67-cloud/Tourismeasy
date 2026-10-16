@@ -31,46 +31,9 @@ if (!$id) {
 }
 
 try {
-    // 1. Confirmar que la ruta exista, sea de esta empresa, y ver su estado actual
-    $chk = $pdo->prepare("
-        SELECT DISPONIBILIDAD
-        FROM TRANSPORTE
-        WHERE ID_TRANSPORTE = :id AND ID_EMPRESA = :emp
-    ");
-    $chk->execute([':id' => $id, ':emp' => $id_empresa]);
-    $ruta = $chk->fetch();
-
-    if (!$ruta) {
-        echo json_encode(["ok" => false, "error" => "Registro no encontrado o no pertenece a tu empresa."]);
-        exit;
-    }
-
-    $estabaDisponible = ($ruta['disponibilidad'] === true || $ruta['disponibilidad'] === 't');
-
-    // 2. fn_eliminar_transporte exige DISPONIBILIDAD = FALSE, así que la desactivamos primero si hace falta
-    if ($estabaDisponible) {
-        $stmtToggle = $pdo->prepare("SELECT fn_toggle_disponibilidad_transporte(:id, :emp)");
-        $stmtToggle->execute([':id' => $id, ':emp' => $id_empresa]);
-        if (!$stmtToggle->fetchColumn()) {
-            echo json_encode(["ok" => false, "error" => "No se pudo desactivar la ruta antes de eliminarla."]);
-            exit;
-        }
-    }
-
-    // 3. Eliminar
-    $stmt = $pdo->prepare("SELECT fn_eliminar_transporte(:id, :emp)");
+    $stmt = $pdo->prepare('SELECT fn_eliminar_transporte_empresa(:id, :emp)');
     $stmt->execute([':id' => $id, ':emp' => $id_empresa]);
-    $ok = $stmt->fetchColumn();
-
-    if (!$ok) {
-        // No se pudo eliminar (por ejemplo, la empresa dejó de estar activa
-        // o de ser tipo TRANSPORTE, o hubo un error de datos en la función).
-        // Si la habíamos desactivado nosotros, la reactivamos para no dejarla
-        // desactivada por accidente solo por haber intentado borrarla.
-        if ($estabaDisponible) {
-            $pdo->prepare("SELECT fn_toggle_disponibilidad_transporte(:id, :emp)")
-                ->execute([':id' => $id, ':emp' => $id_empresa]);
-        }
+    if (!in_array($stmt->fetchColumn(), [true, 't', 'true', '1', 1], true)) {
         echo json_encode(["ok" => false, "error" => "No se pudo eliminar la ruta."]);
         exit;
     }

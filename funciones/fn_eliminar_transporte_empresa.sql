@@ -1,0 +1,34 @@
+CREATE OR REPLACE FUNCTION fn_eliminar_transporte_empresa(
+    p_id TRANSPORTE.ID_TRANSPORTE%TYPE,
+    p_id_empresa TRANSPORTE.ID_EMPRESA%TYPE
+)
+RETURNS TRANSPORTE.DISPONIBILIDAD%TYPE AS
+$$
+DECLARE
+    v_disponible TRANSPORTE.DISPONIBILIDAD%TYPE;
+BEGIN
+    SELECT t.DISPONIBILIDAD INTO v_disponible
+    FROM TRANSPORTE t
+    WHERE t.ID_TRANSPORTE = p_id AND t.ID_EMPRESA = p_id_empresa
+    FOR UPDATE;
+    IF NOT FOUND THEN RETURN FALSE; END IF;
+
+    IF v_disponible THEN
+        UPDATE TRANSPORTE SET DISPONIBILIDAD = FALSE WHERE ID_TRANSPORTE = p_id;
+    END IF;
+
+    IF fn_eliminar_transporte(p_id, p_id_empresa) THEN
+        RETURN TRUE;
+    END IF;
+
+    IF v_disponible THEN
+        UPDATE TRANSPORTE SET DISPONIBILIDAD = TRUE WHERE ID_TRANSPORTE = p_id;
+    END IF;
+    RETURN FALSE;
+EXCEPTION
+    WHEN FOREIGN_KEY_VIOLATION THEN RAISE NOTICE 'fn_eliminar_transporte_empresa - FK inválida: %', SQLERRM; RETURN FALSE;
+    WHEN CHECK_VIOLATION THEN RAISE NOTICE 'fn_eliminar_transporte_empresa - Check violado: %', SQLERRM; RETURN FALSE;
+    WHEN LOCK_NOT_AVAILABLE THEN RAISE NOTICE 'fn_eliminar_transporte_empresa - Fila bloqueada: %', SQLERRM; RETURN FALSE;
+    WHEN OTHERS THEN RAISE NOTICE 'fn_eliminar_transporte_empresa: %', SQLERRM; RETURN FALSE;
+END;
+$$ LANGUAGE plpgsql;

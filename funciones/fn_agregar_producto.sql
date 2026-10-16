@@ -34,6 +34,10 @@ BEGIN
         RETURN NULL;
     END IF;
 
+    IF p_img_url IS NULL OR LENGTH(TRIM(p_img_url)) < 5 THEN
+        RETURN NULL;
+    END IF;
+
     IF NOT EXISTS (SELECT 1 FROM CIUDADES WHERE ID_CIUDAD = p_id_ciudad) THEN
         RETURN NULL;
     END IF;

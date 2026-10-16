@@ -67,34 +67,7 @@ try {
         ':id_clase' => $id_clase,
     ]);
 
-    $rows = $stmt->fetchAll();
-
-
-    /*
-     * La función devuelve columnas con prefijo t_
-     * y un booleano de control.
-     * Las mapeamos a las claves que espera el frontend.
-     */
-    $data = array_map(function($r) {
-        return [
-            "id"            => $r['t_id_transporte'],
-            "empresa"       => $r['t_nom_empresa'],
-            "origen"        => $r['t_ciudad_origen'],
-            "destino"       => $r['t_ciudad_destino'],
-            "fecha_salida"  => $r['t_fecha_salida'],
-            "hora_salida"   => $r['t_hora_salida'],
-            "precio"        => $r['t_precio'],
-            "descripcion"   => $r['t_descripcion'],
-            "img_url"       => $r['t_img_url'],
-            "id_clase"      => $r['t_id_clase'],
-            "nombre_clase"  => $r['t_nombre_clase'],
-            "disponible"    => true
-        ];
-    }, array_filter($rows, function($r) {
-        return $r['ejecucion_exitosa'] === true ||
-               $r['ejecucion_exitosa'] === 't';
-    }));
-
+    $data = $stmt->fetchAll();
 
     echo json_encode([
         "ok" => true,

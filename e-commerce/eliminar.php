@@ -37,10 +37,10 @@ if (!$idPersona) {
 }
 
 try {
-    $stmt = $pdo->prepare("SELECT fn_eliminar_producto(:id, :id_persona)");
+    $stmt = $pdo->prepare("SELECT fn_eliminar_producto(:id, :id_persona)::TEXT");
     $stmt->execute(['id' => $id, 'id_persona' => $idPersona]);
 
-    if (!$stmt->fetchColumn()) {
+    if (!filter_var($stmt->fetchColumn(), FILTER_VALIDATE_BOOLEAN)) {
         http_response_code(403);
         echo json_encode(['ok' => false, 'error' => 'No se pudo eliminar: el producto no existe o no te pertenece.']);
         exit;

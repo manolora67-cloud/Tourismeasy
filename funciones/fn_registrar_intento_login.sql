@@ -1,0 +1,18 @@
+CREATE OR REPLACE FUNCTION fn_registrar_intento_login(
+    p_email INTENTOS_LOGIN.EMAIL%TYPE,
+    p_ip INTENTOS_LOGIN.IP_ORIGEN%TYPE,
+    p_exitoso INTENTOS_LOGIN.EXITOSO%TYPE
+)
+RETURNS INTENTOS_LOGIN.EXITOSO%TYPE AS
+$$
+BEGIN
+    INSERT INTO INTENTOS_LOGIN (EMAIL, IP_ORIGEN, EXITOSO)
+    VALUES (LOWER(BTRIM(p_email)), p_ip, p_exitoso);
+    RETURN TRUE;
+EXCEPTION
+    WHEN FOREIGN_KEY_VIOLATION THEN RAISE NOTICE 'fn_registrar_intento_login - FK inválida: %', SQLERRM; RETURN FALSE;
+    WHEN CHECK_VIOLATION THEN RAISE NOTICE 'fn_registrar_intento_login - Check violado: %', SQLERRM; RETURN FALSE;
+    WHEN LOCK_NOT_AVAILABLE THEN RAISE NOTICE 'fn_registrar_intento_login - Tabla bloqueada: %', SQLERRM; RETURN FALSE;
+    WHEN OTHERS THEN RAISE NOTICE 'fn_registrar_intento_login: %', SQLERRM; RETURN FALSE;
+END;
+$$ LANGUAGE plpgsql;

@@ -107,7 +107,7 @@
       }
 
       renderDestinos(DESTINOS);
-      fetch("api/contenido_portada.php")
+      fetch("admin/contenido_portada.php")
         .then((response) => response.ok ? response.json() : null)
         .then((result) => {
           if (result && result.ok && Array.isArray(result.data) && (result.data.length || result.initialized)) {

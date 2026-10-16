@@ -4,7 +4,7 @@ La aplicación usa PostgreSQL y accede a la base de datos mediante PDO. El esque
 
 ## Requisitos
 
-- PostgreSQL.
+- PostgreSQL 9.5 o posterior (el esquema utiliza `ON CONFLICT`). No se ha declarado ni verificado aquí una versión máxima.
 - `psql` en el PATH, o pgAdmin/otra herramienta que pueda ejecutar archivos SQL.
 - PHP con la extensión `pdo_pgsql` para que el backend se conecte a PostgreSQL.
 
@@ -32,19 +32,48 @@ Este archivo representa una instalación nueva. Importa el esquema en una base v
 
 El esquema base ya incluye las tablas necesarias para administrar tarjetas y artículos. Al abrir por primera vez el panel de administración sobre una base nueva, se copian automáticamente a PostgreSQL los ocho destinos y artículos iniciales del sitio. No ejecutes este archivo sobre una base existente para actualizarla: está pensado para instalar el proyecto en una base vacía.
 
-### Instalar funciones SQL
+### Instalar las funciones SQL
 
-Después de importar el esquema, carga los archivos `.sql` de `funciones/` en la misma base de datos. Estos definen rutinas para operaciones como autenticación, registro, gestión de planes, hospedajes, transporte, productos, reseñas y auditoría. Por ejemplo:
+Los endpoints PHP invocan las funciones definidas en `funciones/`; hay que instalarlas todas para disponer del proyecto completo. Ejecuta el bloque siguiente en PowerShell **desde la raíz del repositorio**, después de importar el esquema. Instala primero auditoría, luego los scripts restantes y, al final, los wrappers que dependen de otras funciones y el inicializador de portada. `ON_ERROR_STOP` hace que el proceso se detenga si un archivo falla.
 
 ```powershell
-psql -U postgres -d tourismeasy -f .\funciones\fn_listar_planes_publico.sql
+$db = 'tourismeasy'
+$user = 'postgres' # Sustituye por tu usuario local de PostgreSQL
+$dir = '.\funciones'
+$finales = @(
+	'fn_eliminar_transporte_empresa.sql',
+	'fn_guardar_hospedaje.sql',
+	'fn_guardar_producto.sql',
+	'fn_inicializar_contenido_portada.sql'
+)
+
+& psql -v ON_ERROR_STOP=1 -U $user -d $db -f (Join-Path $dir 'fn_registrar_auditoria.sql')
+if ($LASTEXITCODE -ne 0) { throw 'Falló fn_registrar_auditoria.sql' }
+
+Get-ChildItem $dir -Filter '*.sql' |
+	Where-Object { $_.Name -ne 'fn_registrar_auditoria.sql' -and $_.Name -notin $finales } |
+	Sort-Object Name |
+	ForEach-Object {
+		& psql -v ON_ERROR_STOP=1 -U $user -d $db -f $_.FullName
+		if ($LASTEXITCODE -ne 0) { throw "Falló $($_.Name)" }
+	}
+
+foreach ($archivo in $finales) {
+	& psql -v ON_ERROR_STOP=1 -U $user -d $db -f (Join-Path $dir $archivo)
+	if ($LASTEXITCODE -ne 0) { throw "Falló $archivo" }
+}
 ```
 
-Repite el comando para los archivos que requiere la aplicación, o ejecútalos desde pgAdmin. Las tablas deben existir antes de instalar las funciones que las usan.
+El procedimiento incluye los 68 scripts SQL del directorio, incluida `fn_toggle_disponibilidad_transporte.sql`, que se conserva aunque los endpoints actuales no la invocan. Las dependencias ordenadas al final son: eliminación de transporte empresa, guardado unificado de hospedaje y productos, e inicialización del contenido de portada. Los scripts actualizados de listado para hospedaje y transporte también se instalan con este procedimiento.
+
+El bloque inicia `psql` una vez por archivo; para evitar que solicite la contraseña repetidamente, configura el archivo `pgpass.conf` de PostgreSQL para tu usuario local o ejecuta cada script desde pgAdmin.
+
+Este procedimiento está destinado a una base vacía recién creada. Algunos scripts reemplazan funciones existentes con `DROP FUNCTION`; no lo uses como migración sobre una base con datos o funciones en uso. Para actualizar una instalación existente, respalda primero la base y prepara una migración compatible con sus dependencias.
+
 
 ## Configurar el backend
 
-La conexión PDO se encuentra en [`../con_db/db.php`](../con_db/db.php). En la versión actual, host, puerto, nombre de base de datos, usuario y contraseña se configuran en ese archivo versionado. Para una prueba local puedes ajustar los valores, pero no subas cambios con credenciales. Antes de compartir o desplegar el proyecto, migra esta configuración a un mecanismo local y no versionado.
+La conexión PDO se encuentra en [`../con_db/db.php`](../con_db/db.php). Actualmente host, puerto, nombre de base de datos, usuario y contraseña están escritos en ese archivo versionado. No publiques credenciales; rótalas si siguen activas y migra la configuración a variables de entorno o un archivo local excluido de Git antes de compartir o desplegar el proyecto.
 
 El nombre de base de datos usado actualmente por la configuración es `tourismeasy`, con el puerto PostgreSQL habitual `5432`. La disponibilidad de las funciones del sistema depende de haber importado también los scripts SQL necesarios de `funciones/`.
 

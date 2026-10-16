@@ -28,12 +28,12 @@ function actualizarBotonWhatsApp(btn) {
 }
 
 // ── MODAL VER DETALLES DE HOSPEDAJE ──────────────────────────
-(function () {
+(function() {
     var overlay = document.getElementById('hosp-detalle-overlay');
     var cerrar = document.getElementById('hosp-cerrar');
 
-    document.querySelectorAll('.btn-ver-detalles').forEach(function (btn) {
-        btn.addEventListener('click', function () {
+    document.querySelectorAll('.btn-ver-detalles').forEach(function(btn) {
+        btn.addEventListener('click', function() {
             var _s = btn.dataset.img || '';
             document.getElementById('hosp-img').src = _s ? (_s.startsWith('http') || _s.startsWith('../') ? _s : '../' + _s) : '';
             document.getElementById('hosp-titulo').textContent = btn.dataset.titulo || '';
@@ -55,16 +55,16 @@ function actualizarBotonWhatsApp(btn) {
     }
 
     cerrar.addEventListener('click', cerrarModal);
-    overlay.addEventListener('click', function (e) {
+    overlay.addEventListener('click', function(e) {
         if (e.target === overlay) cerrarModal();
     });
-    document.addEventListener('keydown', function (e) {
+    document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') cerrarModal();
     });
 })();
 
 // ── BUSCADOR DE HOSPEDAJE ──────────────────────────────────
-(function () {
+(function() {
     var inputDestino = document.getElementById('input-destino');
     var inputAcces = document.getElementById('input-accesibilidad');
     var btnBuscar = document.getElementById('btn-buscar-hotel');
@@ -101,12 +101,12 @@ function actualizarBotonWhatsApp(btn) {
         var cards = grid.querySelectorAll('.card-item');
         var visible = 0;
 
-        cards.forEach(function (card) {
+        cards.forEach(function(card) {
             var municipio = normalize(card.getAttribute('data-municipio') || '');
             var accesText = normalize(
                 card.querySelector('.btn-ver-detalles') ?
-                    card.querySelector('.btn-ver-detalles').getAttribute('data-accesibilidad') || '' :
-                    ''
+                card.querySelector('.btn-ver-detalles').getAttribute('data-accesibilidad') || '' :
+                ''
             );
 
             // Coincidencia de destino
@@ -161,42 +161,63 @@ function actualizarBotonWhatsApp(btn) {
     inputAcces.addEventListener('change', filtrar);
 
     // Buscar al presionar Enter en el input
-    inputDestino.addEventListener('keydown', function (e) {
+    inputDestino.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') filtrar();
     });
 })();
 
 // ── HOSPEDAJES DINÁMICOS DESDE PANEL EMPRESA ─────────────────────────
-(function () {
+(function() {
     var grid = document.getElementById("results-grid");
     if (!grid) return;
 
+    function escapeHtml(value) {
+        return String(value == null ? "" : value).replace(/[&<>\"']/g, function(char) {
+            return { "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" }[char];
+        });
+    }
+
+    function safeImageUrl(value) {
+        var url = String(value || "").trim();
+        if (/^https?:\/\//i.test(url)) return url;
+        return /^[a-z0-9_./%() -]+$/i.test(url) && !url.startsWith("//") ? "../" + url : "";
+    }
+
     function renderCard(item) {
-        var nombre = item.nombre || "Sin nombre";
+        var nombre = escapeHtml(item.nombre || "Sin nombre");
+        var tipo = escapeHtml(item.tipo || "Hospedaje");
+        var ciudadTexto = item.ciudad || "";
+        var accesibilidadTexto = item.accesibilidad || "";
+        var ciudad = escapeHtml(ciudadTexto);
+        var accesibilidad = escapeHtml(accesibilidadTexto);
+        var descripcion = escapeHtml(item.descripcion || ciudadTexto + " · " + accesibilidadTexto);
+        var servicios = escapeHtml(item.servicios_txt || "—");
+        var empresa = escapeHtml(item.empresa || "");
+        var whatsapp = escapeHtml(item.whatsapp || item.telefono || item.num_contacto_empresa || "");
+        var imagen = escapeHtml(safeImageUrl(item.img_url));
         var precioDisplay = item.precio_noche ? "$" + parseInt(item.precio_noche).toLocaleString("es-CO") + " / noche" : "Consultar";
-        var imgHtml = item.img_url ?
-            '<img src="' + (item.img_url ? (item.img_url.startsWith("http") ? item.img_url : "../" + item.img_url) : "") + '" class="card-banner" alt="' + nombre + '">' :
+        var imgHtml = imagen ?
+            '<img src="' + imagen + '" class="card-banner" alt="' + nombre + '">' :
             '<div class="card-banner" style="background:linear-gradient(135deg,#1e1b4b,#4c1d95);display:flex;align-items:center;justify-content:center;height:200px;"><i class="fa-solid fa-hotel" style="font-size:3rem;color:#a855f7;"></i></div>';
         var card = document.createElement("article");
         card.className = "card-item card-item--empresa";
-        card.setAttribute("data-municipio", (item.ciudad || "").toLowerCase());
+        card.setAttribute("data-municipio", ciudadTexto.toLowerCase());
         card.innerHTML = imgHtml +
             '<div class="card-body">' +
-            '<span class="card-tag" style="background:rgba(168,85,247,0.18);color:#a855f7;">' + (item.tipo || "Hospedaje") + '</span>' +
+            '<span class="card-tag" style="background:rgba(168,85,247,0.18);color:#a855f7;">' + tipo + '</span>' +
             '<h3>' + nombre + '</h3>' +
             '<p style="display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;">' +
-            (item.descripcion || (item.ciudad || "") + " · " + (item.accesibilidad || "")) + '</p>' +
+            descripcion + '</p>' +
             '<div class="card-footer">' +
             '<span class="price">' + precioDisplay + '</span>' +
             '<button class="btn-reservar btn-ver-detalles btn-ver-detalles-empresa"' +
-            ' data-titulo="' + nombre + '" data-tipo="' + (item.tipo || "") + '"' +
-            ' data-ubicacion="' + (item.ciudad || "") + '" data-capacidad="' + (item.capacidad_max || "—") + '"' +
-            ' data-servicios="' + (item.servicios_txt || "—") + '" data-accesibilidad="' + (item.accesibilidad || "—") + '"' +
-            ' data-precio="' + precioDisplay + '" data-empresa="' + (item.empresa || "") + '"' +
-            ' data-whatsapp="' + (item.whatsapp || item.telefono || item.num_contacto_empresa || "") + '"' +
-            ' data-img="' + (item.img_url || "") + '">Ver detalles</button>' +
+            ' data-titulo="' + nombre + '" data-tipo="' + escapeHtml(item.tipo || "") + '"' +
+            ' data-ubicacion="' + ciudad + '" data-capacidad="' + escapeHtml(item.capacidad_max || "—") + '"' +
+            ' data-servicios="' + servicios + '" data-accesibilidad="' + (accesibilidad || "—") + '"' +
+            ' data-precio="' + escapeHtml(precioDisplay) + '" data-empresa="' + empresa + '"' +
+            ' data-whatsapp="' + whatsapp + '" data-img="' + imagen + '">Ver detalles</button>' +
             '</div></div>';
-        card.querySelector(".btn-ver-detalles-empresa").addEventListener("click", function () {
+        card.querySelector(".btn-ver-detalles-empresa").addEventListener("click", function() {
             var btn = this;
             var overlay = document.getElementById("hosp-detalle-overlay");
             var _s = btn.dataset.img || "";
@@ -218,22 +239,22 @@ function actualizarBotonWhatsApp(btn) {
 
     grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:48px;color:#94a3b8"><i class="fa-solid fa-spinner fa-spin fa-2x"></i><p style="margin-top:12px">Cargando hospedajes disponibles...</p></div>';
     fetch("../hospedaje/listar.php", {
-        credentials: "include"
-    })
-        .then(function (r) {
+            credentials: "include"
+        })
+        .then(function(r) {
             return r.json();
         })
-        .then(function (res) {
+        .then(function(res) {
             grid.innerHTML = "";
             if (!res.ok || !res.data || !res.data.length) {
                 grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:48px;color:#94a3b8"><i class="fa-solid fa-hotel fa-2x"></i><p style="margin-top:12px">No hay hospedajes disponibles por el momento.</p></div>';
                 return;
             }
-            res.data.forEach(function (item) {
+            res.data.forEach(function(item) {
                 renderCard(item);
             });
         })
-        .catch(function () {
+        .catch(function() {
             grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:48px;color:#ef4444">Error al cargar. Intenta recargar la página.</div>';
         });
 })();
