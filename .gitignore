@@ -2,5 +2,5 @@
 .env
 .env.*
 !.env.example
-/api/config.local.php
+/api/config.php
 /api/cloudinary_config.php
