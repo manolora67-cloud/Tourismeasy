@@ -1,0 +1,19 @@
+CREATE OR REPLACE FUNCTION fn_historico_plan_turistico()
+RETURNS TRIGGER AS
+$$
+BEGIN
+    INSERT INTO HISTORICO_PLAN_TURISTICO (
+        ID_PLAN_ORIGINAL,
+        DATOS_SNAPSHOT,
+        ACCION
+    )
+    VALUES (
+        OLD.ID_PLAN_TURISTICO,
+        TO_JSONB(OLD),
+        TG_OP
+    );
+
+    RETURN NULL;
+END;
+$$
+LANGUAGE plpgsql;

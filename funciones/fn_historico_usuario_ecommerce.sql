@@ -1,0 +1,19 @@
+CREATE OR REPLACE FUNCTION fn_historico_usuario_ecommerce()
+RETURNS TRIGGER AS
+$$
+BEGIN
+    INSERT INTO HISTORICO_USUARIO_ECOMMERCE (
+        ID_PERSONA_ECOMMERCE,
+        DATOS_SNAPSHOT,
+        ACCION
+    )
+    VALUES (
+        OLD.ID_PERSONA_ECOMMERCE,
+        (TO_JSONB(OLD) - 'CONTRASENA') || JSONB_BUILD_OBJECT('_tabla_origen', TG_TABLE_NAME),
+        TG_OP
+    );
+
+    RETURN NULL;
+END;
+$$
+LANGUAGE plpgsql;
