@@ -2,7 +2,7 @@
 
 La aplicación usa PostgreSQL y accede a la base de datos mediante PDO. El esquema y los datos iniciales están en [`DB_TOURISMEASY.sql`](DB_TOURISMEASY.sql); las funciones SQL que invocan los endpoints PHP están en [`../funciones/`](../funciones/).
 
-Consulta el [diccionario de datos en Excel](DICCIONARIO_DATOS.xlsx) para ver, en una sola hoja, los atributos, tipos, restricciones, nulabilidad, descripciones y relaciones del esquema. Cada tabla tiene su propio bloque con título, encabezados y espacio de separación.
+Consulta el [diccionario de datos en Excel](Diccionario_de_datos_TourismEasy.xlsx) para ver, en una sola hoja, los atributos, tipos, restricciones, nulabilidad, descripciones y relaciones del esquema. Cada tabla tiene su propio bloque con título, encabezados y espacio de separación.
 
 ## Requisitos
 
@@ -104,7 +104,7 @@ El esquema reúne entidades para:
 - **Comercio artesanal:** productos, categorías y datos de sus vendedores.
 - **Comunidad:** reseñas públicas sin cuenta y likes identificados por navegador visitante.
 - **Administración y soporte:** configuración por rol, festividades, auditoría, estadísticas y control de limpieza de reseñas.
-- **Seguridad e historial:** historial de contraseñas y cambios, intentos de inicio de sesión y tokens de recuperación.
+- **Seguridad e historial:** historial de contraseñas y cambios, intentos de inicio de sesión y tokens de recuperación. La recuperación por correo funciona para admin, empresa y artesano: `TOKENS_RECUPERACION` relaciona el token con `USUARIOS`, `USUARIOS_EMPRESA` o `USUARIOS_ECOMMERCE`, y las funciones `fn_solicitar_recuperacion` y `fn_restablecer_contrasena` guardan el token y actualizan la contraseña correspondiente.
 
 Las claves foráneas, restricciones `CHECK` e índices únicos del archivo SQL validan relaciones y valores como estados, puntuaciones, formatos de correo y disponibilidad. Las reseñas públicas se publican con nombre y sin cuenta; los likes se identifican por un token local del navegador. `datos_referencia.php` solo entrega ciudades y tipos de plan, que son las listas usadas por los formularios vigentes.
 

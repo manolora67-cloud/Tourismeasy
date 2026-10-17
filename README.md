@@ -11,7 +11,7 @@ TourismEasy es una plataforma web de turismo inclusivo enfocada en Santander, Co
 - Gestión de servicios y productos artesanales.
 - Reseñas y reacciones de viajeros.
 - Perfiles y preferencias de administración y empresas.
-- Recuperación de contraseña por correo electrónico para administración y empresas.
+- Recuperación de contraseña por correo electrónico para administración, empresas y artesanos del e-commerce.
 - Asistente virtual Sue para preguntas sobre turismo en Santander. Sin una clave de Groq configurada, dispone de respuestas locales limitadas.
 - Carga de imágenes mediante Cloudinary.
 
@@ -78,4 +78,4 @@ El servidor integrado de PHP es para desarrollo local, no para producción. Para
 
 ## Base de datos
 
-El detalle del esquema, las instrucciones de importación y las funciones SQL está en [db/README.md](db/README.md). El [diccionario de datos en Excel](db/DICCIONARIO_DATOS.xlsx) documenta en una hoja las tablas, columnas y relaciones de la base de datos.
+El detalle del esquema, las instrucciones de importación y las funciones SQL está en [db/README.md](db/README.md). El [diccionario de datos en Excel](db/Diccionario_de_datos_TourismEasy.xlsx) documenta en una hoja las tablas, columnas y relaciones de la base de datos.
