@@ -1,4 +1,4 @@
-(function () {
+(function() {
     "use strict";
 
     const inHtml = window.location.pathname.includes("/html/");
@@ -45,8 +45,21 @@
         <p class="field-msg" id="loginStatus" role="status"></p>
       </form>
       <form class="auth-form" id="formRegister" novalidate>
-        <p>Registra tu empresa. La cuenta quedará pendiente de aprobación.</p>
-        <div class="field-group">
+                <div class="register-intro">
+                    <span class="register-mark" aria-hidden="true"><i class="fa-solid fa-store"></i></span>
+                    <div class="register-copy">
+                        <span class="register-eyebrow">Portal para empresas</span>
+                        <h2>Solicita acceso a TourismEasy</h2>
+                        <p>Completa los datos de tu empresa. El acceso al panel se habilita después de la revisión.</p>
+                    </div>
+                </div>
+                <ol class="register-flow" aria-label="Etapas de la solicitud">
+                    <li><span class="register-step-number">01</span><span>Envías los datos</span></li>
+                    <li><span class="register-step-number">02</span><span>Revisamos la solicitud</span></li>
+                    <li><span class="register-step-number">03</span><span>Accedes al panel</span></li>
+                </ol>
+                <div class="register-field-grid">
+                <div class="field-group register-field-wide">
           <label for="eNombre">Nombre de la empresa</label>
           <input type="text" id="eNombre" maxlength="50" required>
           <span class="field-msg" id="eNombreMsg"></span>
@@ -80,11 +93,12 @@
           <input type="tel" id="eTel" inputmode="numeric" pattern="[0-9]{7,15}" maxlength="15" required>
           <span class="field-msg" id="eTelMsg"></span>
         </div>
-        <div class="field-group">
+                <div class="field-group register-field-wide">
           <label for="ePass">Contraseña (mínimo 8 caracteres)</label>
           <input type="password" id="ePass" autocomplete="new-password" minlength="8" required>
           <span class="field-msg" id="ePassMsg"></span>
         </div>
+                </div>
         <label class="check-row"><input type="checkbox" id="eTerms" required> Acepto los términos y la política de privacidad.</label>
         <button type="submit" class="btn-auth" id="btnRegEmpresa"><span class="btn-text">Enviar solicitud</span><div class="btn-spinner"></div></button>
         <p class="field-msg" id="registerStatus" role="status"></p>
@@ -115,6 +129,10 @@
             tabRegister.classList.toggle("active", register);
             loginForm.classList.toggle("active", !register);
             registerForm.classList.toggle("active", register);
+            document.getElementById("authDialogTitle").textContent = register ?
+                "Solicitud de acceso empresarial" :
+                "Acceso para empresas y administración";
+            if (loginPage) loginPage.classList.toggle("register-open", register);
             loginStatus.textContent = "";
             registerStatus.textContent = "";
         }
@@ -147,7 +165,7 @@
                 document.getElementById("eUbicacionMsg").classList.add("error");
             });
 
-        loginForm.addEventListener("submit", async (event) => {
+        loginForm.addEventListener("submit", async(event) => {
             event.preventDefault();
             loginStatus.textContent = "";
             loginStatus.classList.remove("error", "ok");
@@ -175,9 +193,9 @@
                 const result = await response.json();
                 if (!response.ok || !result.ok) throw new Error(result.error || "No se pudo iniciar sesión.");
                 sessionStorage.setItem("te_session", JSON.stringify(result.session));
-                const destino = result.session.tipo === "admin"
-                    ? "panel_admin.html"
-                    : ({ transporte: "panel_transporte.html", hospedaje: "panel_hospedaje.html", planes: "panel_planes.html" }[String(result.session.tipoServicio || "").toLowerCase()] || "panel_transporte.html");
+                const destino = result.session.tipo === "admin" ?
+                    "panel_admin.html" :
+                    ({ transporte: "panel_transporte.html", hospedaje: "panel_hospedaje.html", planes: "panel_planes.html" }[String(result.session.tipoServicio || "").toLowerCase()] || "panel_transporte.html");
                 window._loginSuccess = true;
                 window.location.href = destino;
             } catch (error) {
@@ -190,7 +208,7 @@
             }
         });
 
-        registerForm.addEventListener("submit", async (event) => {
+        registerForm.addEventListener("submit", async(event) => {
             event.preventDefault();
             registerStatus.textContent = "";
             registerStatus.classList.remove("error", "ok");
@@ -289,9 +307,9 @@
         if (!user) return;
 
         const panel = panelForSession(user);
-        const menu = user.tipo === "admin"
-            ? `<a class="session-menu-item session-menu-highlight" href="${route(panel)}">Panel Admin</a><a class="session-menu-item" href="${route("perfil_admin.html")}">Mi Perfil</a><a class="session-menu-item" href="${route("config_admin.html")}">Configuración</a>`
-            : `<a class="session-menu-item session-menu-highlight" href="${route(panel)}">Mi Panel</a><a class="session-menu-item" href="${route("perfil_empresa.html")}">Mi Perfil</a><a class="session-menu-item" href="${route("config_empresa.html")}">Configuración</a>`;
+        const menu = user.tipo === "admin" ?
+            `<a class="session-menu-item session-menu-highlight" href="${route(panel)}">Panel Admin</a><a class="session-menu-item" href="${route("perfil_admin.html")}">Mi Perfil</a><a class="session-menu-item" href="${route("config_admin.html")}">Configuración</a>` :
+            `<a class="session-menu-item session-menu-highlight" href="${route(panel)}">Mi Panel</a><a class="session-menu-item" href="${route("perfil_empresa.html")}">Mi Perfil</a><a class="session-menu-item" href="${route("config_empresa.html")}">Configuración</a>`;
         const widget = document.createElement("div");
         widget.className = "session-widget";
         widget.innerHTML = `<button class="session-trigger"><span class="session-avatar"></span><span class="session-info"><span class="session-name"></span><span class="session-tipo"></span></span><i class="fa-solid fa-chevron-down session-chevron"></i></button><div class="session-dropdown">${menu}<a class="session-menu-item session-menu-danger logout-btn" href="#">Cerrar sesión</a></div>`;
@@ -316,14 +334,14 @@
     }
 
     window.TourismAuth = {
-        open: function (tab) {
+        open: function(tab) {
             if (!loginPage) {
                 window.location.href = pageBase + "login.html";
                 return;
             }
             if (tab === "register") document.getElementById("tabRegister").click();
         },
-        close: function () {
+        close: function() {
             window._loginSuccess = true;
             window.location.href = inHtml ? "../index.html" : "index.html";
         }
