@@ -25,13 +25,29 @@ $nombre        = trim($input['nombre']         ?? '');
 $duracion      = trim($input['duracion']       ?? '');
 $descripcion   = trim($input['descripcion']    ?? '');
 $incluye       = trim($input['incluye']        ?? '');
-$id_tipo_plan  = intval($input['id_tipo_plan'] ?? 0);
+$id_tipo_plan_entrada = $input['id_tipo_plan'] ?? null;
+$id_tipo_plan  = (is_string($id_tipo_plan_entrada) || is_int($id_tipo_plan_entrada))
+    ? trim((string)$id_tipo_plan_entrada)
+    : '';
 $precio        = intval($input['precio']       ?? 0);
 $accesibilidad = trim($input['accesibilidad']  ?? '');
 $id_ciudad     = trim($input['id_ciudad']      ?? '');
 $disponible    = isset($input['disponible']) ? (bool)$input['disponible'] : true;
 $img_url       = trim($input['img_url']        ?? '') ?: null;
-$id_editar     = isset($input['id']) ? intval($input['id']) : null;
+$id_editar = null;
+if (isset($input['id'])) {
+    $id_editar_entrada = $input['id'];
+    $id_editar = (is_string($id_editar_entrada) || is_int($id_editar_entrada))
+        ? trim((string)$id_editar_entrada)
+        : '';
+}
+
+if (!preg_match('/^[1-9][0-9]?$/D', $id_tipo_plan)
+    || ($id_editar !== null && !preg_match('/^[1-9][0-9]{0,9}$/D', $id_editar))) {
+    http_response_code(400);
+    echo json_encode(["ok" => false, "error" => "ID de plan o tipo de plan inválido."]);
+    exit;
+}
 
 try {
     if ($id_editar) {
@@ -84,7 +100,7 @@ try {
             exit;
         }
 
-        echo json_encode(["ok" => true, "mensaje" => "Plan creado.", "id" => (int) $nuevoId]);
+        echo json_encode(["ok" => true, "mensaje" => "Plan creado.", "id" => (string)$nuevoId]);
     }
 
 } catch (PDOException $e) {

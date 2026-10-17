@@ -326,10 +326,23 @@
         widget.querySelector(".session-trigger").addEventListener("click", () => {
             widget.querySelector(".session-dropdown").classList.toggle("open");
         });
-        widget.querySelector(".logout-btn").addEventListener("click", (event) => {
+        widget.querySelector(".logout-btn").addEventListener("click", async(event) => {
             event.preventDefault();
-            clearSession();
-            window.location.href = inHtml ? "../index.html" : "index.html";
+            try {
+                const response = await fetch(apiBase + "login/logout_admin.php", {
+                    method: "POST",
+                    credentials: "include"
+                });
+                const result = await response.json();
+                if (!response.ok || !result.ok) {
+                    throw new Error(result.error || "No se pudo cerrar la sesión.");
+                }
+                clearSession();
+                window.location.href = inHtml ? "../index.html" : "index.html";
+            } catch (error) {
+                console.error("No se pudo cerrar la sesión en el servidor:", error);
+                alert(error.message || "No se pudo cerrar la sesión. Intenta de nuevo.");
+            }
         });
     }
 

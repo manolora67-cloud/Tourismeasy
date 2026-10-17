@@ -1,8 +1,8 @@
 <?php
 /**
  * e-commerce/login_artesano.php
- * Valida credenciales del artesano llamando a fn_login_artesano()
- * y devuelve sesión.
+ * Delega autenticación y registro del intento a fn_procesar_login()
+ * y establece la sesión del artesano.
  */
 
 session_start();
@@ -23,59 +23,74 @@ if (!$email || !$password) {
     exit;
 }
 
-// ── Bloqueo por intentos fallidos ──
-$stmtBloqueo = $pdo->prepare('SELECT * FROM fn_verificar_bloqueo_login(:email, 3, 5)');
-$stmtBloqueo->execute([':email' => $email]);
-$bloqueo = $stmtBloqueo->fetch() ?: [];
-if (in_array($bloqueo['bloqueado'] ?? false, [true, 't', 'true', '1', 1], true)) {
-    http_response_code(429);
-    echo json_encode([
-        "ok"    => false,
-        "error" => "Demasiados intentos fallidos. Intenta de nuevo en " .
-                    (int)($bloqueo['minutos_restantes'] ?? 0) . " minuto(s).",
-    ]);
-    exit;
-}
-
-$hash = hash('sha256', $password);
-
 try {
-    $stmt = $pdo->prepare("SELECT * FROM fn_login_artesano(:email, :hash)");
-    $stmt->execute([':email' => $email, ':hash' => $hash]);
+    $hashLogin = obtenerHashLoginVerificado($pdo, $email, $password, 'artesano');
+    $tokenDispositivo = null;
+    $hashDispositivo = null;
+    $hashSesion = null;
+
+    if ($hashLogin !== null) {
+        session_regenerate_id(true);
+        $tokenDispositivo = obtenerTokenDispositivo();
+        $hashDispositivo = hash('sha256', $tokenDispositivo);
+        $hashSesion = hash('sha256', session_id());
+    }
+
+    $stmt = $pdo->prepare(
+        'SELECT * FROM fn_procesar_login(:email, :hash, :tipo, :ip, :dispositivo, :sesion)'
+    );
+    $stmt->execute([
+        ':email' => $email,
+        ':hash' => $hashLogin,
+        ':tipo' => 'artesano',
+        ':ip' => obtenerIpCliente(),
+        ':dispositivo' => $hashDispositivo,
+        ':sesion' => $hashSesion,
+    ]);
     $row = $stmt->fetch();
 
-    if (!$row['ok']) {
-        $stmtIntento = $pdo->prepare('SELECT fn_registrar_intento_login(:email, :ip, FALSE)::TEXT');
-        $stmtIntento->execute([':email' => $email, ':ip' => obtenerIpCliente()]);
-        if (!filter_var($stmtIntento->fetchColumn(), FILTER_VALIDATE_BOOLEAN)) {
-            http_response_code(500);
-            echo json_encode(["ok" => false, "error" => "No se pudo registrar el intento de acceso."]);
-            exit;
-        }
-        try {
-            $pdo->prepare("SELECT fn_registrar_auditoria(NULL, 'Login fallido', 'Sesiones', :detalle, 'advertencia')")
-                ->execute([':detalle' => 'Artesano: intento con correo ' . $email]);
-        } catch (PDOException $eAudit) {
-            error_log('[TourismEasy] login_artesano.php - auditoría - ' . $eAudit->getMessage());
-        }
+    if (!$row) {
+        http_response_code(500);
+        echo json_encode(["ok" => false, "error" => "Error interno del servidor."]);
+        exit;
+    }
+
+    if ($row['codigo'] === 'BLOQUEADO') {
+        http_response_code(429);
         echo json_encode(["ok" => false, "error" => $row['mensaje']]);
         exit;
     }
 
-    $stmtIntento = $pdo->prepare('SELECT fn_registrar_intento_login(:email, :ip, TRUE)::TEXT');
-    $stmtIntento->execute([':email' => $email, ':ip' => obtenerIpCliente()]);
-    if (!filter_var($stmtIntento->fetchColumn(), FILTER_VALIDATE_BOOLEAN)) {
+    if ($row['codigo'] === 'ERROR_INTENTO') {
         http_response_code(500);
-        echo json_encode(["ok" => false, "error" => "No se pudo registrar el inicio de sesión."]);
+        echo json_encode(["ok" => false, "error" => $row['mensaje']]);
         exit;
     }
+
+    if ($row['codigo'] === 'SESION_ACTIVA') {
+        http_response_code(409);
+        echo json_encode(["ok" => false, "error" => $row['mensaje']]);
+        exit;
+    }
+
+    if ($row['codigo'] === 'SESION_INVALIDA') {
+        http_response_code(500);
+        echo json_encode(["ok" => false, "error" => $row['mensaje']]);
+        exit;
+    }
+
+    if (!filter_var($row['ok'], FILTER_VALIDATE_BOOLEAN)) {
+        echo json_encode(["ok" => false, "error" => $row['mensaje']]);
+        exit;
+    }
+
     $nombre = $row['nombre'] . ' ' . $row['apellido'];
     $avatar = strtoupper(substr($row['nombre'], 0, 1) . substr($row['apellido'], 0, 1));
 
     // Regeneramos el ID de sesión al loguear (buena práctica de seguridad,
     // evita session fixation) y guardamos los datos que admin.php necesita
     // para saber que hay una sesión válida de artesano.
-    session_regenerate_id(true);
+    guardarCookieDispositivo($tokenDispositivo);
     $_SESSION['artesano_id']     = $row['id_persona'];
     $_SESSION['artesano_nombre'] = $nombre;
 
@@ -91,7 +106,7 @@ try {
         ]
     ]);
 
-} catch (PDOException $e) {
+} catch (Throwable $e) {
     error_log('[TourismEasy] login_artesano.php - ' . $e->getMessage());
     http_response_code(500);
     echo json_encode(["ok" => false, "error" => "Error interno del servidor."]);

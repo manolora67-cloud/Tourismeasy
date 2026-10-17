@@ -22,9 +22,10 @@ if (empty($_SESSION['id_empresa']) || ($_SESSION['tipo'] ?? '') !== 'empresa') {
 
 $id_empresa = $_SESSION['id_empresa'];
 $input = json_decode(file_get_contents('php://input'), true);
-$id = intval($input['id'] ?? 0);
+$id_entrada = $input['id'] ?? null;
+$id = (is_string($id_entrada) || is_int($id_entrada)) ? trim((string)$id_entrada) : '';
 
-if (!$id) {
+if (!preg_match('/^[1-9][0-9]{0,9}$/D', $id)) {
     http_response_code(400);
     echo json_encode(["ok" => false, "error" => "ID inválido."]);
     exit;

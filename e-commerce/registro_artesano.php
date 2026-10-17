@@ -50,7 +50,12 @@ if (!preg_match('/^\+?[0-9]{7,15}$/', $celular)) {
     exit;
 }
 
-$hash = hash('sha256', $password);
+$hash = password_hash($password, PASSWORD_DEFAULT);
+if ($hash === false) {
+    http_response_code(500);
+    echo json_encode(["ok" => false, "error" => "No se pudo proteger la contraseña."]);
+    exit;
+}
 
 try {
     $stmt = $pdo->prepare("

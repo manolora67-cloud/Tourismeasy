@@ -35,7 +35,7 @@ try {
         echo json_encode(['ok' => false, 'error' => 'No se pudo guardar el hospedaje. Verifica los datos, la cuenta y los servicios activos.']);
         exit;
     }
-    echo json_encode(['ok' => true, 'id' => (int)$resultado['id_hospedaje']]);
+    echo json_encode(['ok' => true, 'id' => (string)$resultado['id_hospedaje']]);
 } catch (Throwable $e) {
     error_log('[TourismEasy] hospedaje/crear.php - ' . $e->getMessage());
     http_response_code(500);

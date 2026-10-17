@@ -26,7 +26,9 @@ psql -U postgres -d tourismeasy -f .\db\DB_TOURISMEASY.sql
 
 El usuario `postgres` del ejemplo es el usuario local de PostgreSQL; reemplázalo por el que corresponda a tu instalación. También puedes crear `tourismeasy` desde pgAdmin y ejecutar allí el archivo SQL.
 
-El esquema nuevo crea 35 tablas y carga datos iniciales, incluyendo el departamento de Santander, sus municipios y registros de ejemplo. `USUARIOS` guarda directamente el perfil y las credenciales de administración; no existe una tabla genérica `PERSONAS` ni cuentas para viajeros. Las reseñas son públicas y se guardan con el nombre proporcionado por quien las publica; los likes se identifican por visitante. `TIPOS_DOCUMENTOS` se conserva porque las cuentas de artesanos/e-commerce todavía la utilizan. `CONTENIDO_PORTADA` y `ESTADO_INICIAL_PORTADA` almacenan las tarjetas administrables y el estado de carga inicial.
+El esquema nuevo crea 34 tablas y carga datos iniciales, incluyendo el departamento de Santander, sus municipios y registros de ejemplo. `USUARIOS` guarda directamente el perfil y las credenciales de administración; no existe una tabla genérica `PERSONAS` ni cuentas para viajeros. Las reseñas son públicas y se guardan con el nombre proporcionado por quien las publica; los likes se identifican por visitante. `TIPOS_DOCUMENTOS` se conserva porque las cuentas de artesanos/e-commerce todavía la utilizan. `CONTENIDO_PORTADA` y `ESTADO_INICIAL_PORTADA` almacenan las tarjetas administrables y el estado de carga inicial.
+
+`SESIONES_ACTIVAS` mantiene una reserva por cuenta para admin, empresa y artesano. Cerrar el navegador no libera esa reserva; el endpoint de logout la elimina. El navegador conserva el token de dispositivo en una cookie `HttpOnly` por hasta 400 días. Si la cookie desaparece antes de cerrar sesión, la reserva debe eliminarse manualmente en PostgreSQL para recuperar el acceso.
 
 Este archivo representa una instalación nueva. Importa el esquema en una base vacía; no lo ejecutes sobre una base anterior para intentar actualizarla. Si tienes datos que conservar, haz un respaldo y conserva esa base por separado.
 
@@ -40,7 +42,7 @@ El esquema base ya incluye las tablas necesarias para administrar tarjetas y art
 
 ### Instalar las funciones SQL
 
-Los endpoints PHP invocan las funciones definidas en `funciones/`; hay que instalarlas todas para disponer del proyecto completo. Ejecuta el bloque siguiente en PowerShell **desde la raíz del repositorio**, después de importar el esquema. Instala primero auditoría, luego los scripts restantes y, al final, los wrappers que dependen de otras funciones y el inicializador de portada. `ON_ERROR_STOP` hace que el proceso se detenga si un archivo falla.
+Los endpoints PHP invocan las funciones definidas en `funciones/`; hay que instalarlas todas para disponer del proyecto completo. Ejecuta el bloque siguiente en PowerShell **desde la raíz del repositorio**, después de importar el esquema. Instala primero auditoría, luego los scripts restantes y, al final, los wrappers que dependen de otras funciones y el inicializador de portada. Los triggers se instalan después de todas las funciones. `ON_ERROR_STOP` hace que el proceso se detenga si un archivo falla.
 
 ```powershell
 $db = 'tourismeasy'
@@ -50,7 +52,8 @@ $finales = @(
 	'fn_eliminar_transporte_empresa.sql',
 	'fn_guardar_hospedaje.sql',
 	'fn_guardar_producto.sql',
-	'fn_inicializar_contenido_portada.sql'
+	'fn_inicializar_contenido_portada.sql',
+	'fn_procesar_login.sql'
 )
 
 & psql -v ON_ERROR_STOP=1 -U $user -d $db -f (Join-Path $dir 'fn_registrar_auditoria.sql')
@@ -68,13 +71,21 @@ foreach ($archivo in $finales) {
 	& psql -v ON_ERROR_STOP=1 -U $user -d $db -f (Join-Path $dir $archivo)
 	if ($LASTEXITCODE -ne 0) { throw "Falló $archivo" }
 }
+
+$dirTriggers = '.\triggers'
+Get-ChildItem $dirTriggers -Filter '*.sql' |
+	Sort-Object Name |
+	ForEach-Object {
+		& psql -v ON_ERROR_STOP=1 -U $user -d $db -f $_.FullName
+		if ($LASTEXITCODE -ne 0) { throw "Falló $($_.Name)" }
+	}
 ```
 
-El procedimiento incluye los 71 scripts SQL del directorio, incluidos `fn_toggle_disponibilidad_transporte.sql` y las funciones de festividades, que se conservan o instalan junto con el resto aunque algunos scripts no sean invocados por un endpoint actual. Las dependencias ordenadas al final son: eliminación de transporte empresa, guardado unificado de hospedaje y productos, e inicialización del contenido de portada. Los scripts actualizados de listado para hospedaje y transporte también se instalan con este procedimiento.
+El procedimiento incluye los 79 scripts SQL de `funciones/` y luego instala los archivos de `triggers/`. Entre las dependencias ordenadas al final están eliminación de transporte empresa, guardado unificado de hospedaje y productos, inicialización de portada y coordinación del login. Los triggers actualizan `FECHA_MODIFICACION` y guardan snapshots históricos automáticamente.
 
 El bloque inicia `psql` una vez por archivo; para evitar que solicite la contraseña repetidamente, configura el archivo `pgpass.conf` de PostgreSQL para tu usuario local o ejecuta cada script desde pgAdmin.
 
-Este procedimiento está destinado a una base vacía recién creada. Algunos scripts reemplazan funciones existentes con `DROP FUNCTION`; no lo uses como migración sobre una base con datos o funciones en uso. Para actualizar una instalación existente, respalda primero la base y prepara una migración compatible con sus dependencias.
+Este procedimiento está destinado a una base vacía recién creada; no lo uses como migración sobre una base con datos o funciones en uso. Para actualizar una instalación existente, prepara y prueba una migración compatible por separado.
 
 
 ## Configurar el backend

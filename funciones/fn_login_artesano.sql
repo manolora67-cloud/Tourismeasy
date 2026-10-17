@@ -56,22 +56,6 @@ BEGIN
         RETURN;
     END IF;
 
-    BEGIN
-        PERFORM fn_registrar_auditoria(
-            NULL,
-            'Inicio de sesión',
-            'Sesiones',
-            'Artesano: ' || v_nombre || ' ' || v_apellido || ' (' || v_email || ')',
-            'info',
-            NULL,
-            v_id
-        );
-    EXCEPTION
-        WHEN OTHERS THEN
-            -- La auditoría es informativa: si falla, no debe bloquear un login válido.
-            RAISE NOTICE 'fn_login_artesano - auditoría no crítica: %', SQLERRM;
-    END;
-
     RETURN QUERY SELECT TRUE, 'OK'::TEXT, v_id, v_nombre, v_apellido, v_email, v_estado;
 
 EXCEPTION

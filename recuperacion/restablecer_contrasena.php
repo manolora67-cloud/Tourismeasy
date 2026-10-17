@@ -29,7 +29,12 @@ if (strlen($password) < 8) {
     exit;
 }
 
-$passHash = hash('sha256', $password);
+$passHash = password_hash($password, PASSWORD_DEFAULT);
+if ($passHash === false) {
+    http_response_code(500);
+    echo json_encode(['success' => false, 'message' => 'No se pudo proteger la contraseña.']);
+    exit;
+}
 
 try {
     $stmt = $pdo->prepare("SELECT * FROM fn_restablecer_contrasena(:token, :hash)");

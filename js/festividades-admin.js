@@ -1,4 +1,4 @@
-(function () {
+(function() {
     "use strict";
 
     var endpoint = "../admin/festividades.php";
@@ -55,7 +55,7 @@
             return;
         }
 
-        festividades.forEach(function (festividad) {
+        festividades.forEach(function(festividad) {
             var fila = document.createElement("tr");
             fila.appendChild(crearCelda(festividad.fecha_clave.trim()));
 
@@ -80,7 +80,7 @@
             editar.title = "Editar festividad";
             editar.setAttribute("aria-label", "Editar " + festividad.titulo);
             editar.innerHTML = '<i class="fa-solid fa-pen"></i>';
-            editar.addEventListener("click", function () {
+            editar.addEventListener("click", function() {
                 abrirFormulario(festividad);
             });
             var eliminar = document.createElement("button");
@@ -89,7 +89,7 @@
             eliminar.title = "Eliminar festividad";
             eliminar.setAttribute("aria-label", "Eliminar " + festividad.titulo);
             eliminar.innerHTML = '<i class="fa-solid fa-trash"></i>';
-            eliminar.addEventListener("click", function () {
+            eliminar.addEventListener("click", function() {
                 eliminarFestividad(festividad);
             });
             grupo.append(editar, eliminar);
@@ -154,7 +154,7 @@
         renderizarFestividades();
     }
 
-    form.addEventListener("submit", async function (event) {
+    form.addEventListener("submit", async function(event) {
         event.preventDefault();
         limpiarError();
         if (!form.reportValidity()) return;
@@ -190,17 +190,17 @@
         }
     });
 
-    document.getElementById("btnAgregarFestividad").addEventListener("click", function () {
+    document.getElementById("btnAgregarFestividad").addEventListener("click", function() {
         abrirFormulario(null);
     });
-    document.getElementById("btnCerrarDialogo").addEventListener("click", function () {
+    document.getElementById("btnCerrarDialogo").addEventListener("click", function() {
         dialog.close();
     });
-    document.getElementById("btnCancelarFestividad").addEventListener("click", function () {
+    document.getElementById("btnCancelarFestividad").addEventListener("click", function() {
         dialog.close();
     });
 
-    document.getElementById("darkModeToggle").addEventListener("click", function () {
+    document.getElementById("darkModeToggle").addEventListener("click", function() {
         var dark = document.body.classList.toggle("dark-mode");
         localStorage.setItem("theme", dark ? "dark" : "light");
         this.querySelector("i").className = dark ? "fa-solid fa-sun" : "fa-solid fa-moon";
@@ -249,7 +249,7 @@
             ["perfil_admin.html", "fa-user", "Mi Perfil"],
             ["config_admin.html", "fa-gear", "Configuración"],
             ["festividades_admin.html", "fa-calendar-days", "Festividades"]
-        ].forEach(function (item) {
+        ].forEach(function(item) {
             var link = document.createElement("a");
             link.className = "session-menu-item";
             link.href = item[0];
@@ -260,30 +260,37 @@
         });
         widget.append(trigger, dropdown);
         slot.appendChild(widget);
-        trigger.addEventListener("click", function (event) {
+        trigger.addEventListener("click", function(event) {
             event.stopPropagation();
             var open = dropdown.classList.toggle("open");
             chevron.style.transform = open ? "rotate(180deg)" : "rotate(0deg)";
         });
-        document.addEventListener("click", function () {
+        document.addEventListener("click", function() {
             dropdown.classList.remove("open");
             chevron.style.transform = "rotate(0deg)";
         });
     })();
 
-    document.getElementById("btnLogout").addEventListener("click", async function (event) {
+    document.getElementById("btnLogout").addEventListener("click", async function(event) {
         event.preventDefault();
         try {
-            await fetch("../login/logout_admin.php", { method: "POST", credentials: "include" });
-        } catch (error) {
-            console.warn("No se pudo confirmar el cierre de sesión en el servidor.", error);
-        } finally {
+            const response = await fetch("../login/logout_admin.php", {
+                method: "POST",
+                credentials: "include"
+            });
+            const result = await response.json();
+            if (!response.ok || !result.ok) {
+                throw new Error(result.error || "No se pudo cerrar la sesión.");
+            }
             sessionStorage.removeItem("te_session");
             window.location.href = "../index.html";
+        } catch (error) {
+            console.warn("No se pudo confirmar el cierre de sesión en el servidor.", error);
+            alert(error.message || "No se pudo cerrar la sesión. Intenta de nuevo.");
         }
     });
 
-    cargarFestividades().catch(function (error) {
+    cargarFestividades().catch(function(error) {
         mostrarError(error.message);
         tableBody.replaceChildren();
     });

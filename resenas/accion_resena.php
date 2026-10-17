@@ -12,11 +12,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(204); exit; }
 $input          = json_decode(file_get_contents('php://input'), true);
 $accion         = strtoupper(trim($input['accion']     ?? ''));
 $admin_id       = ($_SESSION['tipo'] ?? '') === 'admin' ? trim($_SESSION['id_persona'] ?? '') : '';
-$id_resena      = intval($input['id_resena']    ?? 0);
+$id_resena_entrada = $input['id_resena'] ?? null;
+$id_resena = (is_string($id_resena_entrada) || is_int($id_resena_entrada))
+    ? trim((string)$id_resena_entrada)
+    : '';
 $rating         = intval($input['rating']       ?? 0);
 $texto          = trim($input['texto']          ?? '');
 $nombre_anonimo = trim($input['nombre_anonimo'] ?? '');
 $visitor_id     = trim($input['visitor_id']     ?? '');
+
+if ($id_resena !== '' && !preg_match('/^[1-9][0-9]{0,9}$/D', $id_resena)) {
+    http_response_code(400);
+    echo json_encode(["ok" => false, "error" => "ID de reseña inválido."]);
+    exit;
+}
 
 // Solo administración puede editar o moderar reseñas de visitantes.
 if (in_array($accion, ['EDITAR', 'BORRAR'], true) && !$admin_id) {

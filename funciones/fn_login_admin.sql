@@ -46,20 +46,6 @@ BEGIN
         RETURN;
     END IF;
 
-    BEGIN
-        PERFORM fn_registrar_auditoria(
-            v_id_persona,
-            'Inicio de sesión',
-            'Sesiones',
-            INITCAP(v_rol) || ': ' || v_email_login,
-            'info'
-        );
-    EXCEPTION
-        WHEN OTHERS THEN
-            -- La auditoría es informativa: si falla, no debe bloquear un login válido.
-            RAISE NOTICE 'fn_login_admin - auditoría no crítica: %', SQLERRM;
-    END;
-
     RETURN QUERY SELECT TRUE, 'OK'::TEXT, v_id_persona, v_rol, v_email_login, v_nom_persona, v_ape_persona;
 
 EXCEPTION

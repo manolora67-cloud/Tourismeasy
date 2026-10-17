@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // esta página en ese caché y la vuelven a cargar de cero (ejecutando este
     // script otra vez) cada vez que se navega hacia ella, incluso con los
     // botones atrás/adelante.
-    window.addEventListener('unload', function () { });
+    window.addEventListener('unload', function() {});
 
     // ── Elementos del DOM ──
     const productForm = document.getElementById('product-form');
@@ -106,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Si el navegador restaura esta página desde el caché de atrás/adelante
     // (bfcache) y la sesión ya no existe (por ejemplo, se cerró sesión en
     // otra pestaña), volvemos a revisar y sacamos al usuario del panel.
-    window.addEventListener('pageshow', function (e) {
+    window.addEventListener('pageshow', function(e) {
         if (e.persisted && !getSesionArtesano()) {
             window.location.replace('../html/login_ecommerce.html');
         }
@@ -121,19 +121,27 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (btnLogoutArtesano) {
-        btnLogoutArtesano.addEventListener('click', async () => {
+        btnLogoutArtesano.addEventListener('click', async() => {
             const confirmado = await confirmarCerrarSesion('¿Seguro que deseas cerrar sesión?');
             if (!confirmado) return;
 
             // Primero destruimos la sesión real de servidor; sessionStorage
             // solo era para mostrar el nombre en pantalla, no da acceso.
             try {
-                await fetch('../e-commerce/logout_artesano.php', { method: 'POST', credentials: 'include' });
+                const response = await fetch('../e-commerce/logout_artesano.php', {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                const result = await response.json();
+                if (!response.ok || !result.ok) {
+                    throw new Error(result.error || 'No se pudo cerrar la sesión.');
+                }
+                sessionStorage.removeItem(SESSION_KEY);
+                window.location.replace('../html/e-commerce.html');
             } catch (e) {
                 console.error('Error cerrando sesión en el servidor:', e);
+                alert(e.message || 'No se pudo cerrar la sesión. Intenta de nuevo.');
             }
-            sessionStorage.removeItem(SESSION_KEY);
-            window.location.replace('../html/e-commerce.html');
         });
     }
 
@@ -157,9 +165,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // ── Compresión de imagen ──
     function compressImage(file, callback) {
         const reader = new FileReader();
-        reader.onload = function (e) {
+        reader.onload = function(e) {
             const img = new Image();
-            img.onload = function () {
+            img.onload = function() {
                 const canvas = document.createElement('canvas');
                 const MAX = 400;
                 let w = img.width,
@@ -189,10 +197,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ── Preview de imagen ──
-    imgInput.addEventListener('change', function () {
+    imgInput.addEventListener('change', function() {
         const file = this.files[0];
         if (file) {
-            compressImage(file, function (compressed) {
+            compressImage(file, function(compressed) {
                 imgBase64.value = compressed;
                 previewImg.src = compressed;
                 previewContainer.style.display = 'block';
@@ -228,7 +236,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function clearAllErrors() {
         ['name', 'provider', 'category', 'price', 'ubicacion', 'contacto', 'img-file', 'description']
-            .forEach(clearFieldError);
+        .forEach(clearFieldError);
     }
 
     function validateForm() {
@@ -562,7 +570,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             document.querySelectorAll('.btn-delete').forEach(btn => {
-                btn.addEventListener('click', async () => {
+                btn.addEventListener('click', async() => {
                     const id = btn.dataset.id;
                     await handleDeleteProduct(id);
                 });
@@ -635,7 +643,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ── Guardar producto ──
-    productForm.addEventListener('submit', async (e) => {
+    productForm.addEventListener('submit', async(e) => {
         e.preventDefault();
 
         if (!validateForm()) return;

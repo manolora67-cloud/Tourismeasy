@@ -14,9 +14,15 @@ header('Content-Type: application/json');
 $origen    = trim($_GET['origen']    ?? '') ?: null;
 $destino   = trim($_GET['destino']   ?? '') ?: null;
 $fecha     = trim($_GET['fecha']     ?? '') ?: null;
-$id_clase  = isset($_GET['id_clase']) && $_GET['id_clase'] !== ''
-    ? intval($_GET['id_clase'])
-    : null;
+$id_clase = null;
+if (isset($_GET['id_clase']) && $_GET['id_clase'] !== '') {
+    $id_clase = trim($_GET['id_clase']);
+    if (!preg_match('/^[1-9][0-9]{0,9}$/D', $id_clase)) {
+        http_response_code(400);
+        echo json_encode(["ok" => false, "error" => "Clase de servicio inválida."]);
+        exit;
+    }
+}
 
 
 /* =========================================================
@@ -28,20 +34,6 @@ if ($fecha && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $fecha)) {
     echo json_encode([
         "ok" => false,
         "error" => "Formato de fecha inválido. Use YYYY-MM-DD."
-    ]);
-    exit;
-}
-
-
-/* =========================================================
-   VALIDAR CLASE
-   ========================================================= */
-
-if ($id_clase !== null && $id_clase <= 0) {
-    http_response_code(400);
-    echo json_encode([
-        "ok" => false,
-        "error" => "Clase de servicio inválida."
     ]);
     exit;
 }

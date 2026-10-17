@@ -26,18 +26,33 @@ $destino     = trim($input['destino']      ?? '');
 $fecha       = trim($input['fecha_salida'] ?? '');
 $hora        = trim($input['hora_salida']  ?? '');
 $precio      = intval($input['precio']     ?? 0);
-$id_clase    = isset($input['id_clase']) ? intval($input['id_clase']) : 0;
+$id_clase_entrada = $input['id_clase'] ?? null;
+$id_clase = (is_string($id_clase_entrada) || is_int($id_clase_entrada))
+    ? trim((string)$id_clase_entrada)
+    : '';
 $descripcion = trim($input['descripcion']  ?? '');
 $disponible  = isset($input['disponible']) ? (bool)$input['disponible'] : true;
 $img_url     = trim($input['img_url']      ?? '') ?: null;
-$id_editar   = isset($input['id']) ? intval($input['id']) : null;
+$id_editar = null;
+if (isset($input['id'])) {
+    $id_editar_entrada = $input['id'];
+    $id_editar = (is_string($id_editar_entrada) || is_int($id_editar_entrada))
+        ? trim((string)$id_editar_entrada)
+        : '';
+    if (!preg_match('/^[1-9][0-9]{0,9}$/D', $id_editar)) {
+        http_response_code(400);
+        echo json_encode(["ok" => false, "error" => "ID de ruta inválido."]);
+        exit;
+    }
+}
 
 
 /* =========================================================
    VALIDACIONES
    ========================================================= */
 
-if (!$origen || !$destino || !$fecha || !$hora || $precio <= 0 || $id_clase <= 0) {
+if (!$origen || !$destino || !$fecha || !$hora || $precio <= 0
+    || !preg_match('/^[1-9][0-9]{0,9}$/D', $id_clase)) {
     http_response_code(400);
     echo json_encode([
         "ok" => false,
@@ -165,7 +180,7 @@ try {
         echo json_encode([
             "ok" => true,
             "mensaje" => "Ruta creada.",
-            "id" => (int) $nuevoId
+            "id" => (string)$nuevoId
         ]);
     }
 

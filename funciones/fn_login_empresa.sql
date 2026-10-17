@@ -43,21 +43,6 @@ BEGIN
         RETURN;
     END IF;
 
-    BEGIN
-        PERFORM fn_registrar_auditoria(
-            NULL,
-            'Inicio de sesión',
-            'Sesiones',
-            'Empresa: ' || v_nom_empresa || ' (' || v_email_login || ')',
-            'info',
-            v_id_empresa
-        );
-    EXCEPTION
-        WHEN OTHERS THEN
-            -- La auditoría es informativa: si falla, no debe bloquear un login válido.
-            RAISE NOTICE 'fn_login_empresa - auditoría no crítica: %', SQLERRM;
-    END;
-
     RETURN QUERY SELECT TRUE, 'OK'::TEXT, v_id_empresa, v_email_login, v_nom_empresa, v_tipo_servicio;
 
 EXCEPTION
