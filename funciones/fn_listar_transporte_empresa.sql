@@ -1,7 +1,3 @@
-DROP FUNCTION IF EXISTS fn_listar_transporte_empresa(
-    VARCHAR
-);
-
 CREATE OR REPLACE FUNCTION fn_listar_transporte_empresa(
     t_id_empresa TRANSPORTE.ID_EMPRESA%TYPE
 )

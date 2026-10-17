@@ -1,17 +1,3 @@
-DROP FUNCTION IF EXISTS fn_editar_transporte(
-    VARCHAR,
-    VARCHAR,
-    VARCHAR,
-    VARCHAR,
-    DATE,
-    TIME,
-    DECIMAL,
-    VARCHAR,
-    TEXT,
-    VARCHAR,
-    BOOLEAN
-);
-
 CREATE OR REPLACE FUNCTION fn_editar_transporte(
     t_id_transporte   TRANSPORTE.ID_TRANSPORTE%TYPE,
     t_id_empresa      TRANSPORTE.ID_EMPRESA%TYPE,

@@ -111,7 +111,7 @@ BEGIN
         'secciones', v_secciones,
         'ctaTexto', COALESCE(BTRIM(v_articulo_entrada->>'ctaTexto'), '')
     );
-    v_orden := GREATEST(0, LEAST(10000, COALESCE((p_destino->>'orden')::INTEGER, 0)));
+    v_orden := GREATEST(0, LEAST(9999, COALESCE((p_destino->>'orden')::INTEGER, 0)));
     v_publicado := COALESCE((p_destino->>'publicado')::BOOLEAN, TRUE);
 
     INSERT INTO CONTENIDO_PORTADA (

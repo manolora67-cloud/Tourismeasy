@@ -127,17 +127,17 @@ CREATE TABLE IF NOT EXISTS USUARIOS
 CREATE TABLE IF NOT EXISTS CONTENIDO_PORTADA
 (
     CLAVE              VARCHAR(50)  CHECK (CLAVE ~ '^[a-z0-9-]{2,50}$'),
-    IMAGEN             TEXT         NOT NULL,
+    IMAGEN             TEXT NOT NULL,
     TEXTO_ALT          VARCHAR(200) NOT NULL,
     INSIGNIA           VARCHAR(80),
     TITULO             VARCHAR(150) NOT NULL,
-    DESCRIPCION        TEXT         NOT NULL,
-    ARTICULO           JSONB        NOT NULL DEFAULT '{}'::JSONB CHECK (JSONB_TYPEOF(ARTICULO) = 'object'),
+    DESCRIPCION        TEXT NOT NULL,
+    ARTICULO           JSONB NOT NULL DEFAULT '{}'::JSONB CHECK (JSONB_TYPEOF(ARTICULO) = 'object'),
     ORDEN              DECIMAL(4,0) NOT NULL DEFAULT 0,
-    PUBLICADO          BOOLEAN      NOT NULL DEFAULT TRUE,
+    PUBLICADO          BOOLEAN NOT NULL DEFAULT TRUE,
     MODIFICADO_POR     VARCHAR(10) REFERENCES USUARIOS(ID_PERSONA),
-    FECHA_CREACION     TIMESTAMP    NOT NULL DEFAULT NOW(),
-    FECHA_ACTUALIZACION TIMESTAMP   NOT NULL DEFAULT NOW(),
+    FECHA_CREACION     TIMESTAMP NOT NULL DEFAULT NOW(),
+    FECHA_ACTUALIZACION TIMESTAMP NOT NULL DEFAULT NOW(),
     PRIMARY KEY(CLAVE)
 );
 
@@ -168,7 +168,7 @@ CREATE TABLE IF NOT EXISTS PERSONAS_ECOMMERCE
     NUM_CEL_PERSONA_ECOMMERCE   VARCHAR(20)   NOT NULL CHECK(NUM_CEL_PERSONA_ECOMMERCE ~ '^\+?[0-9]{7,15}$'),
     EMAIL_PERSONA_ECOMMERCE     VARCHAR       NOT NULL CHECK(EMAIL_PERSONA_ECOMMERCE ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
     FECHA_REGISTRO              TIMESTAMP     NOT NULL DEFAULT NOW(),
-    FECHA_MODIFICACION      TIMESTAMP         NOT NULL DEFAULT NOW(),
+    FECHA_MODIFICACION      TIMESTAMP       NOT NULL DEFAULT NOW(),
     USUARIO_RESPONSABLE     VARCHAR(100)    NOT NULL DEFAULT CURRENT_USER,
     PRIMARY KEY(ID_PERSONA_ECOMMERCE),
     FOREIGN KEY(ID_TIPO_DOC) REFERENCES TIPOS_DOCUMENTOS(ID_TIPO_DOC)
@@ -247,37 +247,45 @@ CREATE TABLE IF NOT EXISTS TIPOS_DE_PLAN_TURISTICO
 -- OPERACIONAL
 --******************************
 
+CREATE SEQUENCE IF NOT EXISTS transporte_id_transporte_seq;
+
 CREATE TABLE IF NOT EXISTS TRANSPORTE
 (
-    ID_TRANSPORTE       SERIAL          NOT NULL,
+    ID_TRANSPORTE       DECIMAL(10,0) NOT NULL DEFAULT NEXTVAL('transporte_id_transporte_seq'),
     ID_EMPRESA          VARCHAR(10)     NOT NULL CHECK(LENGTH(ID_EMPRESA) = 10),
     ORIGEN              VARCHAR(100)    NOT NULL CHECK(LENGTH(ORIGEN) >= 3),
     DESTINO             VARCHAR(100)    NOT NULL CHECK(LENGTH(DESTINO) >= 3),
-    FECHA_SALIDA        DATE            NOT NULL CHECK(FECHA_SALIDA >= CURRENT_DATE),
+    FECHA_SALIDA        DATE            NOT NULL,
     HORA_SALIDA         TIME            NOT NULL,
     PRECIO              DECIMAL(12,0)   NOT NULL CHECK(PRECIO > 0),
     DISPONIBILIDAD      BOOLEAN         NOT NULL DEFAULT TRUE,
     DESCRIPCION         TEXT            CHECK(DESCRIPCION IS NULL OR LENGTH(DESCRIPCION) >= 5),
     IMG_URL             VARCHAR(255)    CHECK(IMG_URL IS NULL OR LENGTH(IMG_URL) >= 5),
     FECHA_CREACION      TIMESTAMP       NOT NULL DEFAULT NOW(),
-    FECHA_MODIFICACION      TIMESTAMP         NOT NULL DEFAULT NOW(),
+    FECHA_MODIFICACION      TIMESTAMP       NOT NULL DEFAULT NOW(),
     USUARIO_RESPONSABLE     VARCHAR(100)    NOT NULL DEFAULT CURRENT_USER,
     PRIMARY KEY(ID_TRANSPORTE),
     FOREIGN KEY(ID_EMPRESA) REFERENCES EMPRESAS(ID_EMPRESA)
 );
 
+ALTER SEQUENCE transporte_id_transporte_seq OWNED BY TRANSPORTE.ID_TRANSPORTE;
+
 --******************************
 -- MAESTRA
 --******************************
 
+CREATE SEQUENCE IF NOT EXISTS clase_servicio_transporte_id_clase_seq;
+
 CREATE TABLE IF NOT EXISTS CLASE_SERVICIO_TRANSPORTE
 (
-    ID_CLASE        SERIAL          NOT NULL,
+    ID_CLASE        DECIMAL(10,0) NOT NULL DEFAULT NEXTVAL('clase_servicio_transporte_id_clase_seq'),
     NOMBRE_CLASE    VARCHAR(100)    NOT NULL UNIQUE CHECK(LENGTH(NOMBRE_CLASE) >= 2),
     ACTIVO          BOOLEAN         NOT NULL DEFAULT TRUE,
     FECHA_CREACION  TIMESTAMP       NOT NULL DEFAULT NOW(),
     PRIMARY KEY(ID_CLASE)
 );
+
+ALTER SEQUENCE clase_servicio_transporte_id_clase_seq OWNED BY CLASE_SERVICIO_TRANSPORTE.ID_CLASE;
 
 --******************************
 -- RELACIONAL
@@ -285,8 +293,8 @@ CREATE TABLE IF NOT EXISTS CLASE_SERVICIO_TRANSPORTE
 
 CREATE TABLE IF NOT EXISTS TRANSPORTE_CLASE
 (
-    ID_TRANSPORTE   INT NOT NULL,
-    ID_CLASE        INT NOT NULL,
+    ID_TRANSPORTE   DECIMAL(10,0) NOT NULL,
+    ID_CLASE        DECIMAL(10,0) NOT NULL,
     PRIMARY KEY (ID_TRANSPORTE),
     FOREIGN KEY (ID_TRANSPORTE) REFERENCES TRANSPORTE(ID_TRANSPORTE) ON DELETE CASCADE,
     FOREIGN KEY (ID_CLASE) REFERENCES CLASE_SERVICIO_TRANSPORTE(ID_CLASE) ON DELETE CASCADE
@@ -296,22 +304,28 @@ CREATE TABLE IF NOT EXISTS TRANSPORTE_CLASE
 -- MAESTRA
 --******************************
 
+CREATE SEQUENCE IF NOT EXISTS servicios_hospedaje_id_servicio_seq;
+
 CREATE TABLE IF NOT EXISTS SERVICIOS_HOSPEDAJE 
 (
-    ID_SERVICIO       SERIAL        NOT NULL,
+    ID_SERVICIO       DECIMAL(10,0) NOT NULL DEFAULT NEXTVAL('servicios_hospedaje_id_servicio_seq'),
     NOMBRE_SERVICIO   VARCHAR(100)  NOT NULL UNIQUE CHECK(LENGTH(NOMBRE_SERVICIO) >= 3),
     ACTIVO            BOOLEAN       NOT NULL DEFAULT TRUE,
     FECHA_CREACION    TIMESTAMP     NOT NULL DEFAULT NOW(),
     PRIMARY KEY(ID_SERVICIO)
 );
 
+ALTER SEQUENCE servicios_hospedaje_id_servicio_seq OWNED BY SERVICIOS_HOSPEDAJE.ID_SERVICIO;
+
 --******************************
 -- OPERACIONAL
 --******************************
 
+CREATE SEQUENCE IF NOT EXISTS hospedaje_id_hospedaje_seq;
+
 CREATE TABLE IF NOT EXISTS HOSPEDAJE
 (
-    ID_HOSPEDAJE      SERIAL          NOT NULL,  
+    ID_HOSPEDAJE      DECIMAL(10,0) NOT NULL DEFAULT NEXTVAL('hospedaje_id_hospedaje_seq'),  
     ID_EMPRESA        VARCHAR(10)     NOT NULL CHECK(LENGTH(ID_EMPRESA) = 10),
     NOM_HOSPEDAJE     VARCHAR(100)    NOT NULL CHECK(LENGTH(NOM_HOSPEDAJE) >= 3),
     TIPO_HOSPEDAJE    VARCHAR(30)     NOT NULL CHECK(TIPO_HOSPEDAJE IN ('Hotel','Hotel Boutique','Finca','Cabaña','Hostal','Apartamento','Glamping')),
@@ -323,22 +337,26 @@ CREATE TABLE IF NOT EXISTS HOSPEDAJE
     IMG_URL           VARCHAR(255)    CHECK(IMG_URL IS NULL OR LENGTH(IMG_URL) >= 5),
     DISPONIBILIDAD    BOOLEAN         NOT NULL DEFAULT TRUE,
     FECHA_CREACION    TIMESTAMP       NOT NULL DEFAULT NOW(),
-    FECHA_MODIFICACION      TIMESTAMP         NOT NULL DEFAULT NOW(),
+    FECHA_MODIFICACION      TIMESTAMP       NOT NULL DEFAULT NOW(),
     USUARIO_RESPONSABLE     VARCHAR(100)    NOT NULL DEFAULT CURRENT_USER,
     PRIMARY KEY(ID_HOSPEDAJE),
     FOREIGN KEY(ID_EMPRESA) REFERENCES EMPRESAS(ID_EMPRESA),
     FOREIGN KEY(ID_CIUDAD)  REFERENCES CIUDADES(ID_CIUDAD)
 );
 
+ALTER SEQUENCE hospedaje_id_hospedaje_seq OWNED BY HOSPEDAJE.ID_HOSPEDAJE;
+
 --******************************
 -- OPERACIONAL
 --******************************
 
+CREATE SEQUENCE IF NOT EXISTS planes_turisticos_id_plan_turistico_seq;
+
 CREATE TABLE IF NOT EXISTS PLANES_TURISTICOS
 (
-    ID_PLAN_TURISTICO        SERIAL          NOT NULL,  
-    NOM_PLAN_TURISTICO       VARCHAR(100)    NOT NULL CHECK(LENGTH(NOM_PLAN_TURISTICO) >= 3),
-    DURACION                 VARCHAR(50)     NOT NULL CHECK(LENGTH(DURACION) >= 2),
+    ID_PLAN_TURISTICO        DECIMAL(10,0) NOT NULL DEFAULT NEXTVAL('planes_turisticos_id_plan_turistico_seq'),  
+    NOM_PLAN_TURISTICO       VARCHAR(100)  NOT NULL CHECK(LENGTH(NOM_PLAN_TURISTICO) >= 3),
+    DURACION                 VARCHAR(50)   NOT NULL CHECK(LENGTH(DURACION) >= 2),
     DESCRIPCION              TEXT            CHECK(DESCRIPCION IS NULL OR LENGTH(DESCRIPCION) >= 5),
     INCLUYE                  TEXT            NOT NULL CHECK(LENGTH(INCLUYE) >= 3),
     ID_TIPO_PLAN             DECIMAL(2,0)    NOT NULL CHECK(ID_TIPO_PLAN > 0),
@@ -348,22 +366,24 @@ CREATE TABLE IF NOT EXISTS PLANES_TURISTICOS
     ID_EMPRESA               VARCHAR(10)     NOT NULL CHECK(LENGTH(ID_EMPRESA) = 10),
     ID_CIUDAD                VARCHAR(6)      NOT NULL CHECK(LENGTH(ID_CIUDAD) >= 5),
     IMG_URL                  VARCHAR(255)    CHECK(IMG_URL IS NULL OR LENGTH(IMG_URL) >= 5),
-    FECHA_CREACION           TIMESTAMP       NOT NULL DEFAULT NOW(),
-    FECHA_MODIFICACION       TIMESTAMP       NOT NULL DEFAULT NOW(),
-    USUARIO_RESPONSABLE      VARCHAR(100)    NOT NULL DEFAULT CURRENT_USER,
+    FECHA_CREACION           TIMESTAMP     NOT NULL DEFAULT NOW(),
+    FECHA_MODIFICACION      TIMESTAMP       NOT NULL DEFAULT NOW(),
+    USUARIO_RESPONSABLE     VARCHAR(100)    NOT NULL DEFAULT CURRENT_USER,
     PRIMARY KEY(ID_PLAN_TURISTICO),
     FOREIGN KEY(ID_TIPO_PLAN) REFERENCES TIPOS_DE_PLAN_TURISTICO(ID_TIPO_PLAN),
     FOREIGN KEY(ID_EMPRESA)   REFERENCES EMPRESAS(ID_EMPRESA),
     FOREIGN KEY(ID_CIUDAD)    REFERENCES CIUDADES(ID_CIUDAD)
 );
 
+ALTER SEQUENCE planes_turisticos_id_plan_turistico_seq OWNED BY PLANES_TURISTICOS.ID_PLAN_TURISTICO;
+
 --******************************
 -- RELACIONAL
 --******************************
 
 CREATE TABLE IF NOT EXISTS HOSPEDAJE_SERVICIOS (
-    ID_HOSPEDAJE   INT NOT NULL,
-    ID_SERVICIO    INT NOT NULL,
+    ID_HOSPEDAJE   DECIMAL(10,0) NOT NULL,
+    ID_SERVICIO    DECIMAL(10,0) NOT NULL,
     PRIMARY KEY (ID_HOSPEDAJE, ID_SERVICIO),
     FOREIGN KEY (ID_HOSPEDAJE) REFERENCES HOSPEDAJE(ID_HOSPEDAJE) ON DELETE CASCADE,
     FOREIGN KEY (ID_SERVICIO)  REFERENCES SERVICIOS_HOSPEDAJE(ID_SERVICIO) ON DELETE CASCADE
@@ -376,9 +396,9 @@ CREATE TABLE IF NOT EXISTS HOSPEDAJE_SERVICIOS (
 CREATE TABLE IF NOT EXISTS PLAN_COMPONENTES
 (
     ID_PLAN_COMP         SERIAL       NOT NULL,
-    ID_PLAN_TURISTICO    INT          NOT NULL CHECK(ID_PLAN_TURISTICO > 0),
+    ID_PLAN_TURISTICO    DECIMAL(10,0) NOT NULL CHECK(ID_PLAN_TURISTICO > 0),
     TIPO_COMPONENTE      VARCHAR(20)  NOT NULL CHECK(TIPO_COMPONENTE IN ('HOSPEDAJE', 'TRANSPORTE')),
-    ID_HOSPEDAJE         INT          CHECK(ID_HOSPEDAJE IS NULL OR ID_HOSPEDAJE > 0),
+    ID_HOSPEDAJE         DECIMAL(10,0) CHECK(ID_HOSPEDAJE IS NULL OR ID_HOSPEDAJE > 0),
     NOTAS                VARCHAR(200) CHECK(NOTAS IS NULL OR LENGTH(NOTAS) >= 3),
     PRIMARY KEY(ID_PLAN_COMP),
     FOREIGN KEY(ID_PLAN_TURISTICO)    REFERENCES PLANES_TURISTICOS(ID_PLAN_TURISTICO),
@@ -389,9 +409,11 @@ CREATE TABLE IF NOT EXISTS PLAN_COMPONENTES
 -- SOPORTE
 --******************************
 
+CREATE SEQUENCE IF NOT EXISTS resenas_plataforma_id_resena_seq;
+
 CREATE TABLE IF NOT EXISTS RESENAS_PLATAFORMA
 (
-    ID_RESENA          SERIAL,
+    ID_RESENA          DECIMAL(10,0) NOT NULL DEFAULT NEXTVAL('resenas_plataforma_id_resena_seq'),
     NOMBRE_ANONIMO     VARCHAR(60)   NOT NULL,
     PUNTUACION         DECIMAL(1,0)  NOT NULL CHECK (PUNTUACION BETWEEN 1 AND 5),
     COMENTARIO         TEXT          NOT NULL CHECK (LENGTH(COMENTARIO) >= 10),
@@ -401,6 +423,8 @@ CREATE TABLE IF NOT EXISTS RESENAS_PLATAFORMA
     CONSTRAINT CHK_RESENAS_NOMBRE_ANONIMO
         CHECK (LENGTH(TRIM(NOMBRE_ANONIMO)) BETWEEN 2 AND 60)
 );
+
+ALTER SEQUENCE resenas_plataforma_id_resena_seq OWNED BY RESENAS_PLATAFORMA.ID_RESENA;
 
 --****************
 -- OPERACIONAL
@@ -419,17 +443,17 @@ CREATE TABLE IF NOT EXISTS CONTROL_LIMPIEZA_RESENAS
 
 CREATE TABLE IF NOT EXISTS AUDITORIA
 (
-    ID_AUDITORIA           SERIAL       NOT NULL,
-    FECHA_HORA             TIMESTAMP 	WITHOUT TIME ZONE NOT NULL,
-    ID_USUARIO             VARCHAR(10)  CHECK(ID_USUARIO IS NULL OR (LENGTH(ID_USUARIO) >= 6 AND ID_USUARIO ~ '^[0-9]+$')),
+    ID_AUDITORIA          SERIAL        NOT NULL,
+    FECHA_HORA            TIMESTAMP 	 WITHOUT TIME ZONE NOT NULL,
+    ID_USUARIO            VARCHAR(10)   CHECK(ID_USUARIO IS NULL OR (LENGTH(ID_USUARIO) >= 6 AND ID_USUARIO ~ '^[0-9]+$')),
     ID_EMPRESA             VARCHAR(10)  NULL,
     ID_PERSONA_ECOMMERCE   VARCHAR(10)  NULL,
     NOM_OPERACION          VARCHAR(50)  NOT NULL,
     DETALLE                TEXT         NULL,
     NIVEL                  VARCHAR(20)  NOT NULL DEFAULT 'info' CHECK (NIVEL IN ('info', 'advertencia', 'error')),
-	REG_ANTERIOR	       JSONB        NULL,
-	REG_NUEVO		       JSONB        NULL,
-    TABLA_AFECTADA         VARCHAR(30)  CHECK(TABLA_AFECTADA IS NULL OR LENGTH(TABLA_AFECTADA) >= 3),
+	REG_ANTERIOR	   JSONB         NULL,
+	REG_NUEVO		   JSONB         NULL,
+    TABLA_AFECTADA     VARCHAR(30)   CHECK(TABLA_AFECTADA IS NULL OR LENGTH(TABLA_AFECTADA) >= 3),
     PRIMARY KEY(ID_AUDITORIA),
     FOREIGN KEY(ID_USUARIO) REFERENCES USUARIOS(ID_PERSONA),
     FOREIGN KEY(ID_EMPRESA) REFERENCES EMPRESAS(ID_EMPRESA),
@@ -571,13 +595,20 @@ CREATE TABLE IF NOT EXISTS TOKENS_RECUPERACION
     EMAIL           VARCHAR         NOT NULL CHECK(EMAIL ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
     ID_USUARIO      VARCHAR(10)     CHECK(ID_USUARIO IS NULL OR LENGTH(ID_USUARIO) >= 6),
     ID_EMPRESA      VARCHAR(10)     CHECK(ID_EMPRESA IS NULL OR LENGTH(ID_EMPRESA) = 10),
+    ID_PERSONA_ECOMMERCE VARCHAR(10) CHECK(ID_PERSONA_ECOMMERCE IS NULL OR LENGTH(ID_PERSONA_ECOMMERCE) >= 6),
     TOKEN           VARCHAR(64)     NOT NULL UNIQUE CHECK(LENGTH(TOKEN) = 64 AND TOKEN ~ '^[a-f0-9]{64}$'),
     FECHA_CREACION  TIMESTAMP       NOT NULL DEFAULT NOW(),
     FECHA_EXPIRA    TIMESTAMP       NOT NULL CHECK(FECHA_EXPIRA > FECHA_CREACION),
     USADO           BOOLEAN         NOT NULL DEFAULT FALSE,
     PRIMARY KEY(ID_TOKEN),
     FOREIGN KEY(ID_USUARIO) REFERENCES USUARIOS(ID_PERSONA),
-    FOREIGN KEY(ID_EMPRESA) REFERENCES USUARIOS_EMPRESA(ID_EMPRESA)
+    FOREIGN KEY(ID_EMPRESA) REFERENCES USUARIOS_EMPRESA(ID_EMPRESA),
+    FOREIGN KEY(ID_PERSONA_ECOMMERCE) REFERENCES USUARIOS_ECOMMERCE(ID_PERSONA_ECOMMERCE),
+    CONSTRAINT CHK_DUENO_UNICO_TOKEN CHECK (
+        (ID_USUARIO IS NOT NULL AND ID_EMPRESA IS NULL AND ID_PERSONA_ECOMMERCE IS NULL) OR
+        (ID_USUARIO IS NULL AND ID_EMPRESA IS NOT NULL AND ID_PERSONA_ECOMMERCE IS NULL) OR
+        (ID_USUARIO IS NULL AND ID_EMPRESA IS NULL AND ID_PERSONA_ECOMMERCE IS NOT NULL)
+    )
 );
 
 --******************************
@@ -587,7 +618,7 @@ CREATE TABLE IF NOT EXISTS TOKENS_RECUPERACION
 CREATE TABLE IF NOT EXISTS LIKES_RESENAS
 (
     ID_LIKE      SERIAL,
-    ID_RESENA    INT          NOT NULL CHECK(ID_RESENA > 0),
+    ID_RESENA    DECIMAL(10,0) NOT NULL CHECK(ID_RESENA > 0),
     VISITOR_ID   VARCHAR(64)  NOT NULL CHECK(LENGTH(VISITOR_ID) BETWEEN 10 AND 64),
     FECHA_LIKE   TIMESTAMP    NOT NULL DEFAULT NOW(),
     PRIMARY KEY (ID_LIKE),
@@ -1064,61 +1095,65 @@ ON CONFLICT (NOMBRE_CLASE) DO NOTHING;
 -- *************************
 
 INSERT INTO HOSPEDAJE (
-    ID_EMPRESA, NOM_HOSPEDAJE, TIPO_HOSPEDAJE, ID_CIUDAD, DESCRIPCION,
+    ID_HOSPEDAJE, ID_EMPRESA, NOM_HOSPEDAJE, TIPO_HOSPEDAJE, ID_CIUDAD, DESCRIPCION,
     PRECIO_NOCHE, ACCESIBILIDAD, CAPACIDAD_MAX, IMG_URL, DISPONIBILIDAD,
     FECHA_CREACION
 ) VALUES
-('8305551119', 'Casa Campestre La Ceiba', 'Finca', '68547', 'Finca accesible con senderos y zonas verdes.', 185000, 'Rampa de acceso', 6, NULL, TRUE, TIMESTAMP '2025-01-18 09:30:00'),
-('8060001793', 'Hotel Decameron Chicamocha', 'Hotel', '68001', 'Hotel urbano con habitaciones adaptadas.', 420000, 'Cuarto adaptado silla de ruedas', 4, NULL, TRUE, TIMESTAMP '2025-02-11 14:15:00'),
-('8903040993', 'Estelar San Gil Centro', 'Hotel', '68679', 'Hospedaje central con apoyo para movilidad.', 295000, 'Rampa de acceso', 3, NULL, TRUE, TIMESTAMP '2025-03-07 11:00:00'),
-('8305551119', 'Cabanas del Rio Manso', 'Cabaña', '68679', 'Cabanas familiares cerca del rio y del centro.', 230000, 'Perro guia permitido', 5, NULL, TRUE, TIMESTAMP '2025-04-22 08:45:00'),
-('8060001793', 'Hotel Mirador de Barichara', 'Hotel Boutique', '68079', 'Hotel boutique con guia visual y atencion personalizada.', 510000, 'Guia para discapacidad visual', 2, NULL, TRUE, TIMESTAMP '2025-05-13 16:20:00'),
-('8903040993', 'Posada Camino Real', 'Hostal', '68079', 'Posada patrimonial con acceso por rampa.', 160000, 'Rampa de acceso', 4, NULL, TRUE, TIMESTAMP '2025-06-09 10:10:00'),
-('8305551119', 'Finca El Robledal', 'Finca', '68872', 'Finca de descanso con habitaciones amplias.', 275000, 'Cuarto adaptado silla de ruedas', 8, NULL, TRUE, TIMESTAMP '2025-07-27 12:35:00'),
-('8060001793', 'Hotel Zapatoca Colonial', 'Hotel', '68872', 'Hotel tranquilo con senalizacion visual.', 245000, 'Senalizacion visual para sordos', 3, NULL, TRUE, TIMESTAMP '2025-08-16 13:50:00'),
-('8903040993', 'Apartasuite Bucara Norte', 'Apartamento', '68001', 'Apartamentos amoblados con ascensor adaptado.', 205000, 'Ascensor adaptado', 4, NULL, TRUE, TIMESTAMP '2025-09-05 07:25:00'),
-('8305551119', 'Glamping Mesa de los Santos', 'Glamping', '68547', 'Glamping accesible con parqueadero cercano.', 385000, 'Rampa de acceso', 2, NULL, TRUE, TIMESTAMP '2025-10-19 15:40:00'),
-('8060001793', 'Hotel Estacion del Cacao', 'Hotel', '68679', 'Hotel con servicio de apoyo para visitantes.', 315000, 'Perro guia permitido', 5, NULL, TRUE, TIMESTAMP '2025-11-08 09:05:00'),
-('8903040993', 'Refugio La Montanita', 'Cabaña', '68855', 'Cabanas rurales con circulacion accesible.', 198000, 'Rampa de acceso', 6, NULL, TRUE, TIMESTAMP '2025-12-14 17:30:00'),
-('8305551119', 'Casa de Hospedaje El Socorro', 'Hostal', '68755', 'Alojamiento familiar junto al centro historico.', 145000, 'Cuarto adaptado silla de ruedas', 3, NULL, TRUE, TIMESTAMP '2026-01-12 10:25:00'),
-('8060001793', 'Hotel Piedecuesta Plaza', 'Hotel', '68547', 'Hotel de negocios con ascensor y apoyo visual.', 280000, 'Ascensor adaptado', 4, NULL, TRUE, TIMESTAMP '2026-02-23 08:10:00'),
-('8903040993', 'Finca Dulce Horizonte', 'Finca', '68276', 'Finca accesible para turismo de descanso.', 320000, 'Rampa de acceso', 7, NULL, TRUE, TIMESTAMP '2026-03-18 14:55:00'),
-('8305551119', 'Hotel San Gil Aventura', 'Hotel', '68679', 'Hotel para grupos con servicios de accesibilidad.', 260000, 'Senalizacion visual para sordos', 5, NULL, TRUE, TIMESTAMP '2026-04-06 11:45:00'),
-('8060001793', 'Cabanas del Valle', 'Cabaña', '68079', 'Cabanas con acceso nivelado y parqueadero.', 350000, 'Rampa de acceso', 4, NULL, TRUE, TIMESTAMP '2026-05-21 16:05:00'),
-('8903040993', 'Apartamentos La Estacion', 'Apartamento', '68001', 'Apartamentos con ascensor adaptado y wifi.', 225000, 'Ascensor adaptado', 3, NULL, TRUE, TIMESTAMP '2026-06-15 09:55:00'),
-('8305551119', 'Hosteria Camino a Velez', 'Hostal', '68855', 'Hosteria rural con personal de apoyo.', 175000, 'Perro guia permitido', 4, NULL, TRUE, TIMESTAMP '2026-08-03 13:20:00'),
-('8060001793', 'Hotel Mirador del Chicamocha', 'Hotel Boutique', '68001', 'Hotel boutique con habitacion adaptada y vista panoramica.', 560000, 'Cuarto adaptado silla de ruedas', 2, NULL, TRUE, TIMESTAMP '2026-09-24 18:15:00')
-ON CONFLICT DO NOTHING;
+(1, '8305551119', 'Casa Campestre La Ceiba', 'Finca', '68547', 'Finca accesible con senderos y zonas verdes.', 185000, 'Rampa de acceso', 6, NULL, TRUE, TIMESTAMP '2025-01-18 09:30:00'),
+(2, '8060001793', 'Hotel Decameron Chicamocha', 'Hotel', '68001', 'Hotel urbano con habitaciones adaptadas.', 420000, 'Cuarto adaptado silla de ruedas', 4, NULL, TRUE, TIMESTAMP '2025-02-11 14:15:00'),
+(3, '8903040993', 'Estelar San Gil Centro', 'Hotel', '68679', 'Hospedaje central con apoyo para movilidad.', 295000, 'Rampa de acceso', 3, NULL, TRUE, TIMESTAMP '2025-03-07 11:00:00'),
+(4, '8305551119', 'Cabanas del Rio Manso', 'Cabaña', '68679', 'Cabanas familiares cerca del rio y del centro.', 230000, 'Perro guia permitido', 5, NULL, TRUE, TIMESTAMP '2025-04-22 08:45:00'),
+(5, '8060001793', 'Hotel Mirador de Barichara', 'Hotel Boutique', '68079', 'Hotel boutique con guia visual y atencion personalizada.', 510000, 'Guia para discapacidad visual', 2, NULL, TRUE, TIMESTAMP '2025-05-13 16:20:00'),
+(6, '8903040993', 'Posada Camino Real', 'Hostal', '68079', 'Posada patrimonial con acceso por rampa.', 160000, 'Rampa de acceso', 4, NULL, TRUE, TIMESTAMP '2025-06-09 10:10:00'),
+(7, '8305551119', 'Finca El Robledal', 'Finca', '68872', 'Finca de descanso con habitaciones amplias.', 275000, 'Cuarto adaptado silla de ruedas', 8, NULL, TRUE, TIMESTAMP '2025-07-27 12:35:00'),
+(8, '8060001793', 'Hotel Zapatoca Colonial', 'Hotel', '68872', 'Hotel tranquilo con senalizacion visual.', 245000, 'Senalizacion visual para sordos', 3, NULL, TRUE, TIMESTAMP '2025-08-16 13:50:00'),
+(9, '8903040993', 'Apartasuite Bucara Norte', 'Apartamento', '68001', 'Apartamentos amoblados con ascensor adaptado.', 205000, 'Ascensor adaptado', 4, NULL, TRUE, TIMESTAMP '2025-09-05 07:25:00'),
+(10, '8305551119', 'Glamping Mesa de los Santos', 'Glamping', '68547', 'Glamping accesible con parqueadero cercano.', 385000, 'Rampa de acceso', 2, NULL, TRUE, TIMESTAMP '2025-10-19 15:40:00'),
+(11, '8060001793', 'Hotel Estacion del Cacao', 'Hotel', '68679', 'Hotel con servicio de apoyo para visitantes.', 315000, 'Perro guia permitido', 5, NULL, TRUE, TIMESTAMP '2025-11-08 09:05:00'),
+(12, '8903040993', 'Refugio La Montanita', 'Cabaña', '68855', 'Cabanas rurales con circulacion accesible.', 198000, 'Rampa de acceso', 6, NULL, TRUE, TIMESTAMP '2025-12-14 17:30:00'),
+(13, '8305551119', 'Casa de Hospedaje El Socorro', 'Hostal', '68755', 'Alojamiento familiar junto al centro historico.', 145000, 'Cuarto adaptado silla de ruedas', 3, NULL, TRUE, TIMESTAMP '2026-01-12 10:25:00'),
+(14, '8060001793', 'Hotel Piedecuesta Plaza', 'Hotel', '68547', 'Hotel de negocios con ascensor y apoyo visual.', 280000, 'Ascensor adaptado', 4, NULL, TRUE, TIMESTAMP '2026-02-23 08:10:00'),
+(15, '8903040993', 'Finca Dulce Horizonte', 'Finca', '68276', 'Finca accesible para turismo de descanso.', 320000, 'Rampa de acceso', 7, NULL, TRUE, TIMESTAMP '2026-03-18 14:55:00'),
+(16, '8305551119', 'Hotel San Gil Aventura', 'Hotel', '68679', 'Hotel para grupos con servicios de accesibilidad.', 260000, 'Senalizacion visual para sordos', 5, NULL, TRUE, TIMESTAMP '2026-04-06 11:45:00'),
+(17, '8060001793', 'Cabanas del Valle', 'Cabaña', '68079', 'Cabanas con acceso nivelado y parqueadero.', 350000, 'Rampa de acceso', 4, NULL, TRUE, TIMESTAMP '2026-05-21 16:05:00'),
+(18, '8903040993', 'Apartamentos La Estacion', 'Apartamento', '68001', 'Apartamentos con ascensor adaptado y wifi.', 225000, 'Ascensor adaptado', 3, NULL, TRUE, TIMESTAMP '2026-06-15 09:55:00'),
+(19, '8305551119', 'Hosteria Camino a Velez', 'Hostal', '68855', 'Hosteria rural con personal de apoyo.', 175000, 'Perro guia permitido', 4, NULL, TRUE, TIMESTAMP '2026-08-03 13:20:00'),
+(20, '8060001793', 'Hotel Mirador del Chicamocha', 'Hotel Boutique', '68001', 'Hotel boutique con habitacion adaptada y vista panoramica.', 560000, 'Cuarto adaptado silla de ruedas', 2, NULL, TRUE, TIMESTAMP '2026-09-24 18:15:00')
+ON CONFLICT (ID_HOSPEDAJE) DO NOTHING;
+
+SELECT setval(pg_get_serial_sequence('hospedaje', 'id_hospedaje'), (SELECT MAX(ID_HOSPEDAJE)::BIGINT FROM HOSPEDAJE));
 
 -- *************************
 -- POBLADO TABLA TRANSPORTE
 -- *************************
 
 INSERT INTO TRANSPORTE (
-    ID_EMPRESA, ORIGEN, DESTINO, FECHA_SALIDA, HORA_SALIDA, PRECIO,
+    ID_TRANSPORTE, ID_EMPRESA, ORIGEN, DESTINO, FECHA_SALIDA, HORA_SALIDA, PRECIO,
     DISPONIBILIDAD, DESCRIPCION, IMG_URL, FECHA_CREACION
 ) VALUES
-('9012345670', 'Bucaramanga', 'San Gil', DATE '2026-10-20', TIME '06:30', 42000, TRUE, 'Servicio intermunicipal con asistencia al abordar.', NULL, TIMESTAMP '2025-01-05 06:15:00'),
-('9012345671', 'San Gil', 'Barichara', DATE '2026-10-24', TIME '08:00', 18000, TRUE, 'Ruta corta con espacio para ayudas de movilidad.', NULL, TIMESTAMP '2025-02-02 09:10:00'),
-('9012345672', 'Piedecuesta', 'Bucaramanga', DATE '2026-10-28', TIME '07:15', 12000, TRUE, 'Ruta regional con paradas accesibles.', NULL, TIMESTAMP '2025-03-01 12:30:00'),
-('9012345670', 'Bucaramanga', 'Barichara', DATE '2026-11-01', TIME '05:45', 56000, FALSE, 'Servicio directo de fin de semana.', NULL, TIMESTAMP '2025-04-08 08:00:00'),
-('9012345671', 'San Gil', 'Socorro', DATE '2026-11-05', TIME '09:20', 16000, TRUE, 'Ruta regional con asistencia al pasajero.', NULL, TIMESTAMP '2025-05-11 10:45:00'),
-('9012345672', 'Bucaramanga', 'Zapatoca', DATE '2026-11-09', TIME '06:00', 48000, TRUE, 'Servicio con espacio para equipaje y silla plegable.', NULL, TIMESTAMP '2025-06-04 14:05:00'),
-('9012345670', 'Velez', 'Bucaramanga', DATE '2026-11-13', TIME '07:30', 52000, TRUE, 'Ruta intermunicipal con paradas programadas.', NULL, TIMESTAMP '2025-07-02 16:40:00'),
-('9012345671', 'Bucaramanga', 'Piedecuesta', DATE '2026-11-17', TIME '10:00', 10000, TRUE, 'Servicio urbano regional de alta frecuencia.', NULL, TIMESTAMP '2025-08-10 07:50:00'),
-('9012345672', 'San Gil', 'Bucaramanga', DATE '2026-11-21', TIME '14:15', 42000, FALSE, 'Ruta de regreso con asistencia en terminal.', NULL, TIMESTAMP '2025-09-01 11:20:00'),
-('9012345670', 'Bucaramanga', 'Velez', DATE '2026-11-25', TIME '06:50', 58000, TRUE, 'Servicio expreso entre municipios.', NULL, TIMESTAMP '2025-10-12 13:30:00'),
-('9012345671', 'Zapatoca', 'San Gil', DATE '2026-11-29', TIME '08:40', 39000, TRUE, 'Ruta turistica con paradas de descanso.', NULL, TIMESTAMP '2025-11-03 09:25:00'),
-('9012345672', 'Piedecuesta', 'San Gil', DATE '2026-12-03', TIME '05:55', 36000, TRUE, 'Servicio temprano con apoyo de equipaje.', NULL, TIMESTAMP '2025-12-01 06:35:00'),
-('9012345670', 'Bucaramanga', 'Socorro', DATE '2026-12-07', TIME '07:10', 45000, TRUE, 'Ruta con informacion anticipada de accesibilidad.', NULL, TIMESTAMP '2026-01-09 15:15:00'),
-('9012345671', 'Socorro', 'Barichara', DATE '2026-12-11', TIME '09:35', 21000, TRUE, 'Conexion regional para visitantes.', NULL, TIMESTAMP '2026-02-03 08:20:00'),
-('9012345672', 'Bucaramanga', 'San Gil', DATE '2026-12-15', TIME '06:25', 43000, FALSE, 'Servicio de temporada con cupos limitados.', NULL, TIMESTAMP '2026-03-13 12:10:00'),
-('9012345670', 'Barichara', 'Bucaramanga', DATE '2026-12-19', TIME '15:00', 56000, TRUE, 'Retorno directo con asistencia en equipaje.', NULL, TIMESTAMP '2026-04-02 10:55:00'),
-('9012345671', 'Bucaramanga', 'Zapatoca', DATE '2026-12-23', TIME '06:10', 49000, TRUE, 'Ruta rural con parada de descanso.', NULL, TIMESTAMP '2026-05-14 14:30:00'),
-('9012345672', 'Velez', 'San Gil', DATE '2026-12-27', TIME '08:25', 31000, TRUE, 'Servicio regional con informacion de abordaje.', NULL, TIMESTAMP '2026-06-05 07:05:00'),
-('9012345670', 'Piedecuesta', 'Barichara', DATE '2026-12-29', TIME '05:40', 51000, TRUE, 'Ruta turistica con asistencia bajo solicitud.', NULL, TIMESTAMP '2026-08-01 09:45:00'),
-('9012345671', 'Bucaramanga', 'Velez', DATE '2026-12-31', TIME '07:55', 59000, TRUE, 'Servicio intermunicipal de temporada.', NULL, TIMESTAMP '2026-09-10 16:25:00')
-ON CONFLICT DO NOTHING;
+(1, '9012345670', 'Bucaramanga', 'San Gil', DATE '2026-10-20', TIME '06:30', 42000, TRUE, 'Servicio intermunicipal con asistencia al abordar.', NULL, TIMESTAMP '2025-01-05 06:15:00'),
+(2, '9012345671', 'San Gil', 'Barichara', DATE '2026-10-24', TIME '08:00', 18000, TRUE, 'Ruta corta con espacio para ayudas de movilidad.', NULL, TIMESTAMP '2025-02-02 09:10:00'),
+(3, '9012345672', 'Piedecuesta', 'Bucaramanga', DATE '2026-10-28', TIME '07:15', 12000, TRUE, 'Ruta regional con paradas accesibles.', NULL, TIMESTAMP '2025-03-01 12:30:00'),
+(4, '9012345670', 'Bucaramanga', 'Barichara', DATE '2026-11-01', TIME '05:45', 56000, FALSE, 'Servicio directo de fin de semana.', NULL, TIMESTAMP '2025-04-08 08:00:00'),
+(5, '9012345671', 'San Gil', 'Socorro', DATE '2026-11-05', TIME '09:20', 16000, TRUE, 'Ruta regional con asistencia al pasajero.', NULL, TIMESTAMP '2025-05-11 10:45:00'),
+(6, '9012345672', 'Bucaramanga', 'Zapatoca', DATE '2026-11-09', TIME '06:00', 48000, TRUE, 'Servicio con espacio para equipaje y silla plegable.', NULL, TIMESTAMP '2025-06-04 14:05:00'),
+(7, '9012345670', 'Velez', 'Bucaramanga', DATE '2026-11-13', TIME '07:30', 52000, TRUE, 'Ruta intermunicipal con paradas programadas.', NULL, TIMESTAMP '2025-07-02 16:40:00'),
+(8, '9012345671', 'Bucaramanga', 'Piedecuesta', DATE '2026-11-17', TIME '10:00', 10000, TRUE, 'Servicio urbano regional de alta frecuencia.', NULL, TIMESTAMP '2025-08-10 07:50:00'),
+(9, '9012345672', 'San Gil', 'Bucaramanga', DATE '2026-11-21', TIME '14:15', 42000, FALSE, 'Ruta de regreso con asistencia en terminal.', NULL, TIMESTAMP '2025-09-01 11:20:00'),
+(10, '9012345670', 'Bucaramanga', 'Velez', DATE '2026-11-25', TIME '06:50', 58000, TRUE, 'Servicio expreso entre municipios.', NULL, TIMESTAMP '2025-10-12 13:30:00'),
+(11, '9012345671', 'Zapatoca', 'San Gil', DATE '2026-11-29', TIME '08:40', 39000, TRUE, 'Ruta turistica con paradas de descanso.', NULL, TIMESTAMP '2025-11-03 09:25:00'),
+(12, '9012345672', 'Piedecuesta', 'San Gil', DATE '2026-12-03', TIME '05:55', 36000, TRUE, 'Servicio temprano con apoyo de equipaje.', NULL, TIMESTAMP '2025-12-01 06:35:00'),
+(13, '9012345670', 'Bucaramanga', 'Socorro', DATE '2026-12-07', TIME '07:10', 45000, TRUE, 'Ruta con informacion anticipada de accesibilidad.', NULL, TIMESTAMP '2026-01-09 15:15:00'),
+(14, '9012345671', 'Socorro', 'Barichara', DATE '2026-12-11', TIME '09:35', 21000, TRUE, 'Conexion regional para visitantes.', NULL, TIMESTAMP '2026-02-03 08:20:00'),
+(15, '9012345672', 'Bucaramanga', 'San Gil', DATE '2026-12-15', TIME '06:25', 43000, FALSE, 'Servicio de temporada con cupos limitados.', NULL, TIMESTAMP '2026-03-13 12:10:00'),
+(16, '9012345670', 'Barichara', 'Bucaramanga', DATE '2026-12-19', TIME '15:00', 56000, TRUE, 'Retorno directo con asistencia en equipaje.', NULL, TIMESTAMP '2026-04-02 10:55:00'),
+(17, '9012345671', 'Bucaramanga', 'Zapatoca', DATE '2026-12-23', TIME '06:10', 49000, TRUE, 'Ruta rural con parada de descanso.', NULL, TIMESTAMP '2026-05-14 14:30:00'),
+(18, '9012345672', 'Velez', 'San Gil', DATE '2026-12-27', TIME '08:25', 31000, TRUE, 'Servicio regional con informacion de abordaje.', NULL, TIMESTAMP '2026-06-05 07:05:00'),
+(19, '9012345670', 'Piedecuesta', 'Barichara', DATE '2026-12-29', TIME '05:40', 51000, TRUE, 'Ruta turistica con asistencia bajo solicitud.', NULL, TIMESTAMP '2026-08-01 09:45:00'),
+(20, '9012345671', 'Bucaramanga', 'Velez', DATE '2026-12-31', TIME '07:55', 59000, TRUE, 'Servicio intermunicipal de temporada.', NULL, TIMESTAMP '2026-09-10 16:25:00')
+ON CONFLICT (ID_TRANSPORTE) DO NOTHING;
+
+SELECT setval(pg_get_serial_sequence('transporte', 'id_transporte'), (SELECT MAX(ID_TRANSPORTE)::BIGINT FROM TRANSPORTE));
 
 -- *******************************
 -- POBLADO TABLA TRANSPORTE_CLASE
@@ -1129,67 +1164,71 @@ INSERT INTO TRANSPORTE_CLASE (ID_TRANSPORTE, ID_CLASE) VALUES
 (6, 3), (7, 1), (8, 2), (9, 3), (10, 1),
 (11, 2), (12, 3), (13, 1), (14, 2), (15, 3),
 (16, 1), (17, 2), (18, 3), (19, 1), (20, 2)
-ON CONFLICT DO NOTHING;
+ON CONFLICT (ID_TRANSPORTE) DO NOTHING;
 
 -- ********************************
 -- POBLADO TABLA PLANES_TURISTICOS
 -- ********************************
 
 INSERT INTO PLANES_TURISTICOS (
-    NOM_PLAN_TURISTICO, DURACION, DESCRIPCION, INCLUYE, ID_TIPO_PLAN,
+    ID_PLAN_TURISTICO, NOM_PLAN_TURISTICO, DURACION, DESCRIPCION, INCLUYE, ID_TIPO_PLAN,
     PRECIO_PLAN, ACCESIBILIDAD, DISPONIBILIDAD, ID_EMPRESA, ID_CIUDAD,
     IMG_URL, FECHA_CREACION
 ) VALUES
-('Aventura accesible en San Gil', '2 dias', 'Recorrido de aventura con alternativas de baja exigencia.', 'Guia, transporte y actividad adaptada', 5, 380000, 'Ruta con asistencia de movilidad', TRUE, '9008763215', '68679', NULL, TIMESTAMP '2025-01-14 08:20:00'),
-('Sabores de Bucaramanga', '1 dia', 'Circuito gastronomico por cocinas tradicionales.', 'Degustaciones y guia local', 2, 145000, 'Material visual y zonas de descanso', TRUE, '9008763215', '68001', NULL, TIMESTAMP '2025-02-19 10:40:00'),
-('Patrimonio de Barichara', '1 dia', 'Visita guiada por calles y talleres del municipio.', 'Guia patrimonial y refrigerio', 6, 175000, 'Ruta accesible con pausas', TRUE, '9008763215', '68079', NULL, TIMESTAMP '2025-03-11 13:15:00'),
-('Naturaleza en Zapatoca', '2 dias', 'Experiencia de naturaleza con miradores accesibles.', 'Hospedaje y guia', 1, 420000, 'Rampa en puntos de encuentro', TRUE, '9008763215', '68872', NULL, TIMESTAMP '2025-04-25 09:05:00'),
-('Ruta comunera del Socorro', '1 dia', 'Recorrido historico por lugares de la insurreccion comunera.', 'Transporte local y guia', 6, 160000, 'Interpretacion visual disponible', TRUE, '9008763215', '68755', NULL, TIMESTAMP '2025-05-17 15:30:00'),
-('Bienestar en Piedecuesta', '2 dias', 'Jornada de descanso y bienestar cerca de la ciudad.', 'Hospedaje y actividad de bienestar', 7, 510000, 'Habitacion adaptada bajo solicitud', TRUE, '9008763215', '68547', NULL, TIMESTAMP '2025-06-12 11:50:00'),
-('Fincas y cafe santandereano', '2 dias', 'Visita a fincas productoras y degustacion de cafe.', 'Traslados y degustacion', 4, 335000, 'Senderos cortos y zona de descanso', TRUE, '9008763215', '68276', NULL, TIMESTAMP '2025-07-08 07:40:00'),
-('Caminos de Velez', '1 dia', 'Experiencia cultural entre talleres y plazas.', 'Guia y muestra artesanal', 6, 155000, 'Acompanamiento durante el recorrido', TRUE, '9008763215', '68855', NULL, TIMESTAMP '2025-08-29 12:00:00'),
-('Miradores del Chicamocha', '2 dias', 'Ruta panoramica con paradas de observacion.', 'Transporte y guia', 5, 465000, 'Paradas con acceso nivelado', TRUE, '9008763215', '68001', NULL, TIMESTAMP '2025-09-16 16:10:00'),
-('Escapada rural a San Gil', '3 dias', 'Estadia rural con actividades culturales opcionales.', 'Hospedaje y desayuno', 4, 620000, 'Opciones de actividades adaptadas', TRUE, '9008763215', '68679', NULL, TIMESTAMP '2025-10-21 09:35:00'),
-('Cultura y cacao de Barichara', '1 dia', 'Taller local sobre cacao y oficios tradicionales.', 'Taller y degustacion', 2, 185000, 'Taller con mesa accesible', TRUE, '9008763215', '68079', NULL, TIMESTAMP '2025-11-12 14:25:00'),
-('Naturaleza serena en Velez', '2 dias', 'Paseos rurales tranquilos y encuentro con productores.', 'Hospedaje y transporte local', 1, 390000, 'Ritmo flexible y asistencia', TRUE, '9008763215', '68855', NULL, TIMESTAMP '2025-12-09 08:55:00'),
-('Historia de Bucaramanga', '1 dia', 'Recorrido por arquitectura, plazas y museos.', 'Guia y entradas', 6, 135000, 'Guia visual y pausas programadas', TRUE, '9008763215', '68001', NULL, TIMESTAMP '2026-01-20 11:15:00'),
-('Aventura suave en Socorro', '2 dias', 'Actividades al aire libre con intensidad ajustable.', 'Hospedaje y guia', 5, 445000, 'Alternativas de baja exigencia', TRUE, '9008763215', '68755', NULL, TIMESTAMP '2026-02-16 13:45:00'),
-('Bienestar y termales regionales', '2 dias', 'Pausa de bienestar con acompanamiento local.', 'Transporte y jornada de bienestar', 7, 530000, 'Asistencia y zonas de descanso', TRUE, '9008763215', '68276', NULL, TIMESTAMP '2026-03-22 10:05:00'),
-('Sabores de San Gil', '1 dia', 'Degustacion de cocina local y productos campesinos.', 'Degustaciones y transporte local', 2, 170000, 'Informacion de alergenos disponible', TRUE, '9008763215', '68679', NULL, TIMESTAMP '2026-04-14 08:35:00'),
-('Pueblos patrimonio de Santander', '3 dias', 'Circuito cultural entre Barichara y San Gil.', 'Hospedaje, guia y traslados', 6, 780000, 'Hospedajes con opciones accesibles', TRUE, '9008763215', '68079', NULL, TIMESTAMP '2026-05-26 17:20:00'),
-('Paisajes de Zapatoca', '1 dia', 'Visita a miradores y espacios naturales del municipio.', 'Transporte y guia', 1, 205000, 'Recorrido con descansos', TRUE, '9008763215', '68872', NULL, TIMESTAMP '2026-06-19 12:50:00'),
-('Agroturismo en Piedecuesta', '2 dias', 'Encuentro con productores y cocina de origen.', 'Hospedaje y taller', 4, 360000, 'Actividad ajustable por participante', TRUE, '9008763215', '68547', NULL, TIMESTAMP '2026-08-07 09:15:00'),
-('Santander para todos', '4 dias', 'Circuito regional de naturaleza, cultura y gastronomia.', 'Hospedaje, transporte y guias locales', 1, 980000, 'Planificacion personalizada de accesibilidad', TRUE, '9008763215', '68001', NULL, TIMESTAMP '2026-09-28 16:45:00')
-ON CONFLICT DO NOTHING;
+(1, 'Aventura accesible en San Gil', '2 dias', 'Recorrido de aventura con alternativas de baja exigencia.', 'Guia, transporte y actividad adaptada', 5, 380000, 'Ruta con asistencia de movilidad', TRUE, '9008763215', '68679', NULL, TIMESTAMP '2025-01-14 08:20:00'),
+(2, 'Sabores de Bucaramanga', '1 dia', 'Circuito gastronomico por cocinas tradicionales.', 'Degustaciones y guia local', 2, 145000, 'Material visual y zonas de descanso', TRUE, '9008763215', '68001', NULL, TIMESTAMP '2025-02-19 10:40:00'),
+(3, 'Patrimonio de Barichara', '1 dia', 'Visita guiada por calles y talleres del municipio.', 'Guia patrimonial y refrigerio', 6, 175000, 'Ruta accesible con pausas', TRUE, '9008763215', '68079', NULL, TIMESTAMP '2025-03-11 13:15:00'),
+(4, 'Naturaleza en Zapatoca', '2 dias', 'Experiencia de naturaleza con miradores accesibles.', 'Hospedaje y guia', 1, 420000, 'Rampa en puntos de encuentro', TRUE, '9008763215', '68872', NULL, TIMESTAMP '2025-04-25 09:05:00'),
+(5, 'Ruta comunera del Socorro', '1 dia', 'Recorrido historico por lugares de la insurreccion comunera.', 'Transporte local y guia', 6, 160000, 'Interpretacion visual disponible', TRUE, '9008763215', '68755', NULL, TIMESTAMP '2025-05-17 15:30:00'),
+(6, 'Bienestar en Piedecuesta', '2 dias', 'Jornada de descanso y bienestar cerca de la ciudad.', 'Hospedaje y actividad de bienestar', 7, 510000, 'Habitacion adaptada bajo solicitud', TRUE, '9008763215', '68547', NULL, TIMESTAMP '2025-06-12 11:50:00'),
+(7, 'Fincas y cafe santandereano', '2 dias', 'Visita a fincas productoras y degustacion de cafe.', 'Traslados y degustacion', 4, 335000, 'Senderos cortos y zona de descanso', TRUE, '9008763215', '68276', NULL, TIMESTAMP '2025-07-08 07:40:00'),
+(8, 'Caminos de Velez', '1 dia', 'Experiencia cultural entre talleres y plazas.', 'Guia y muestra artesanal', 6, 155000, 'Acompanamiento durante el recorrido', TRUE, '9008763215', '68855', NULL, TIMESTAMP '2025-08-29 12:00:00'),
+(9, 'Miradores del Chicamocha', '2 dias', 'Ruta panoramica con paradas de observacion.', 'Transporte y guia', 5, 465000, 'Paradas con acceso nivelado', TRUE, '9008763215', '68001', NULL, TIMESTAMP '2025-09-16 16:10:00'),
+(10, 'Escapada rural a San Gil', '3 dias', 'Estadia rural con actividades culturales opcionales.', 'Hospedaje y desayuno', 4, 620000, 'Opciones de actividades adaptadas', TRUE, '9008763215', '68679', NULL, TIMESTAMP '2025-10-21 09:35:00'),
+(11, 'Cultura y cacao de Barichara', '1 dia', 'Taller local sobre cacao y oficios tradicionales.', 'Taller y degustacion', 2, 185000, 'Taller con mesa accesible', TRUE, '9008763215', '68079', NULL, TIMESTAMP '2025-11-12 14:25:00'),
+(12, 'Naturaleza serena en Velez', '2 dias', 'Paseos rurales tranquilos y encuentro con productores.', 'Hospedaje y transporte local', 1, 390000, 'Ritmo flexible y asistencia', TRUE, '9008763215', '68855', NULL, TIMESTAMP '2025-12-09 08:55:00'),
+(13, 'Historia de Bucaramanga', '1 dia', 'Recorrido por arquitectura, plazas y museos.', 'Guia y entradas', 6, 135000, 'Guia visual y pausas programadas', TRUE, '9008763215', '68001', NULL, TIMESTAMP '2026-01-20 11:15:00'),
+(14, 'Aventura suave en Socorro', '2 dias', 'Actividades al aire libre con intensidad ajustable.', 'Hospedaje y guia', 5, 445000, 'Alternativas de baja exigencia', TRUE, '9008763215', '68755', NULL, TIMESTAMP '2026-02-16 13:45:00'),
+(15, 'Bienestar y termales regionales', '2 dias', 'Pausa de bienestar con acompanamiento local.', 'Transporte y jornada de bienestar', 7, 530000, 'Asistencia y zonas de descanso', TRUE, '9008763215', '68276', NULL, TIMESTAMP '2026-03-22 10:05:00'),
+(16, 'Sabores de San Gil', '1 dia', 'Degustacion de cocina local y productos campesinos.', 'Degustaciones y transporte local', 2, 170000, 'Informacion de alergenos disponible', TRUE, '9008763215', '68679', NULL, TIMESTAMP '2026-04-14 08:35:00'),
+(17, 'Pueblos patrimonio de Santander', '3 dias', 'Circuito cultural entre Barichara y San Gil.', 'Hospedaje, guia y traslados', 6, 780000, 'Hospedajes con opciones accesibles', TRUE, '9008763215', '68079', NULL, TIMESTAMP '2026-05-26 17:20:00'),
+(18, 'Paisajes de Zapatoca', '1 dia', 'Visita a miradores y espacios naturales del municipio.', 'Transporte y guia', 1, 205000, 'Recorrido con descansos', TRUE, '9008763215', '68872', NULL, TIMESTAMP '2026-06-19 12:50:00'),
+(19, 'Agroturismo en Piedecuesta', '2 dias', 'Encuentro con productores y cocina de origen.', 'Hospedaje y taller', 4, 360000, 'Actividad ajustable por participante', TRUE, '9008763215', '68547', NULL, TIMESTAMP '2026-08-07 09:15:00'),
+(20, 'Santander para todos', '4 dias', 'Circuito regional de naturaleza, cultura y gastronomia.', 'Hospedaje, transporte y guias locales', 1, 980000, 'Planificacion personalizada de accesibilidad', TRUE, '9008763215', '68001', NULL, TIMESTAMP '2026-09-28 16:45:00')
+ON CONFLICT (ID_PLAN_TURISTICO) DO NOTHING;
+
+SELECT setval(pg_get_serial_sequence('planes_turisticos', 'id_plan_turistico'), (SELECT MAX(ID_PLAN_TURISTICO)::BIGINT FROM PLANES_TURISTICOS));
 
 -- ********************************
 -- POBLADO TABLA PLAN_COMPONENTES
 -- ********************************
 
 INSERT INTO PLAN_COMPONENTES (
-    ID_PLAN_TURISTICO, TIPO_COMPONENTE, ID_HOSPEDAJE, NOTAS
+    ID_PLAN_COMP, ID_PLAN_TURISTICO, TIPO_COMPONENTE, ID_HOSPEDAJE, NOTAS
 ) VALUES
-(1, 'HOSPEDAJE', 1, 'Hospedaje accesible para la primera noche'),
-(2, 'HOSPEDAJE', 2, 'Alojamiento urbano opcional'),
-(3, 'HOSPEDAJE', 5, 'Estadia patrimonial incluida'),
-(4, 'HOSPEDAJE', 8, 'Alojamiento con senalizacion visual'),
-(5, 'HOSPEDAJE', 13, 'Noche cerca del centro historico'),
-(6, 'HOSPEDAJE', 15, 'Hospedaje de bienestar'),
-(7, 'HOSPEDAJE', 7, 'Finca rural incluida'),
-(8, 'HOSPEDAJE', 19, 'Alojamiento rural opcional'),
-(9, 'HOSPEDAJE', 20, 'Estadia con habitacion adaptada'),
-(10, 'HOSPEDAJE', 3, 'Hotel base para el circuito'),
-(11, 'HOSPEDAJE', 6, 'Posada del circuito cultural'),
-(12, 'HOSPEDAJE', 12, 'Cabanas de la ruta rural'),
-(13, 'HOSPEDAJE', 9, 'Apartasuite de la ciudad'),
-(14, 'HOSPEDAJE', 11, 'Hotel con acompanamiento'),
-(15, 'HOSPEDAJE', 14, 'Alojamiento con ascensor adaptado'),
-(16, 'HOSPEDAJE', 4, 'Cabanas familiares'),
-(17, 'HOSPEDAJE', 5, 'Primera parada del circuito'),
-(18, 'HOSPEDAJE', 17, 'Alojamiento accesible bajo reserva'),
-(19, 'HOSPEDAJE', 10, 'Glamping del recorrido'),
-(20, 'HOSPEDAJE', 18, 'Apartamentos para el circuito regional')
-ON CONFLICT DO NOTHING;
+(1, 1, 'HOSPEDAJE', 1, 'Hospedaje accesible para la primera noche'),
+(2, 2, 'HOSPEDAJE', 2, 'Alojamiento urbano opcional'),
+(3, 3, 'HOSPEDAJE', 5, 'Estadia patrimonial incluida'),
+(4, 4, 'HOSPEDAJE', 8, 'Alojamiento con senalizacion visual'),
+(5, 5, 'HOSPEDAJE', 13, 'Noche cerca del centro historico'),
+(6, 6, 'HOSPEDAJE', 15, 'Hospedaje de bienestar'),
+(7, 7, 'HOSPEDAJE', 7, 'Finca rural incluida'),
+(8, 8, 'HOSPEDAJE', 19, 'Alojamiento rural opcional'),
+(9, 9, 'HOSPEDAJE', 20, 'Estadia con habitacion adaptada'),
+(10, 10, 'HOSPEDAJE', 3, 'Hotel base para el circuito'),
+(11, 11, 'HOSPEDAJE', 6, 'Posada del circuito cultural'),
+(12, 12, 'HOSPEDAJE', 12, 'Cabanas de la ruta rural'),
+(13, 13, 'HOSPEDAJE', 9, 'Apartasuite de la ciudad'),
+(14, 14, 'HOSPEDAJE', 11, 'Hotel con acompanamiento'),
+(15, 15, 'HOSPEDAJE', 14, 'Alojamiento con ascensor adaptado'),
+(16, 16, 'HOSPEDAJE', 4, 'Cabanas familiares'),
+(17, 17, 'HOSPEDAJE', 5, 'Primera parada del circuito'),
+(18, 18, 'HOSPEDAJE', 17, 'Alojamiento accesible bajo reserva'),
+(19, 19, 'HOSPEDAJE', 10, 'Glamping del recorrido'),
+(20, 20, 'HOSPEDAJE', 18, 'Apartamentos para el circuito regional')
+ON CONFLICT (ID_PLAN_COMP) DO NOTHING;
+
+SELECT setval(pg_get_serial_sequence('plan_componentes', 'id_plan_comp'), (SELECT MAX(ID_PLAN_COMP) FROM PLAN_COMPONENTES));
 
 -- ***********************************
 -- POBLADO TABLA HOSPEDAJE_SERVICIOS
@@ -1203,34 +1242,36 @@ INSERT INTO HOSPEDAJE_SERVICIOS (ID_HOSPEDAJE, ID_SERVICIO) VALUES
 (13, 4), (13, 6), (14, 5), (14, 1), (15, 7), (15, 3),
 (16, 1), (16, 5), (17, 6), (17, 3), (18, 1), (18, 5),
 (19, 4), (19, 6), (20, 8), (20, 5)
-ON CONFLICT DO NOTHING;
+ON CONFLICT (ID_HOSPEDAJE, ID_SERVICIO) DO NOTHING;
 
 -- *************************************
 -- POBLADO TABLA PRODUCTOS_ARTESANALES
 -- *************************************
 
 INSERT INTO PRODUCTOS_ARTESANALES (
-    NOM_PRODUCTO, PROVEEDOR, CATEGORIA, PRECIO_COP, ID_CIUDAD,
+    ID_PRODUCTO, NOM_PRODUCTO, PROVEEDOR, CATEGORIA, PRECIO_COP, ID_CIUDAD,
     NUM_CONTACTO, DESCRIPCION, IMG_URL, ID_PERSONA_ECOMMERCE, FECHA_REGISTRO
 ) VALUES
-('Taller de fique para principiantes', 'Manos de Santander', 'talleres', 85000, '68001', '300 555 0101', 'Taller practico de tejido en fique local.', NULL, NULL, TIMESTAMP '2025-01-09 08:10:00'),
-('Aretes de filigrana comunera', 'Filigrana del Socorro', 'bisuteria', 68000, '68755', '300 555 0102', 'Aretes hechos a mano con tecnica tradicional.', NULL, NULL, TIMESTAMP '2025-02-17 10:30:00'),
-('Vasija de barro de Guane', 'Taller Tierra Roja', 'alfareria', 95000, '68079', '300 555 0103', 'Pieza artesanal modelada y quemada localmente.', NULL, NULL, TIMESTAMP '2025-03-25 13:40:00'),
-('Taller de talla en piedra', 'Escuela Artesana Barichara', 'talleres', 120000, '68079', '300 555 0104', 'Introduccion guiada a la talla tradicional.', NULL, NULL, TIMESTAMP '2025-04-12 09:00:00'),
-('Collar de semillas nativas', 'Semillas y Arte', 'bisuteria', 42000, '68679', '300 555 0105', 'Collar liviano elaborado con semillas seleccionadas.', NULL, NULL, TIMESTAMP '2025-05-06 15:25:00'),
-('Jarra artesanal esmaltada', 'Ceramicas del Chicamocha', 'alfareria', 78000, '68001', '300 555 0106', 'Jarra decorativa elaborada en ceramica regional.', NULL, NULL, TIMESTAMP '2025-06-28 11:35:00'),
-('Taller de tejido en telar', 'Tejedoras de Velez', 'talleres', 90000, '68855', '300 555 0107', 'Sesion de tejido con fibras y tintes naturales.', NULL, NULL, TIMESTAMP '2025-07-16 07:55:00'),
-('Manilla de mostacilla comunera', 'Colores de Santander', 'bisuteria', 28000, '68755', '300 555 0108', 'Manilla tejida a mano con patrones regionales.', NULL, NULL, TIMESTAMP '2025-08-20 12:15:00'),
-('Maceta de barro pintada', 'Alfareria La Montanita', 'alfareria', 55000, '68872', '300 555 0109', 'Maceta decorativa pintada con motivos locales.', NULL, NULL, TIMESTAMP '2025-09-13 14:45:00'),
-('Taller de cesteria rural', 'Cesteria Viva', 'talleres', 75000, '68547', '300 555 0110', 'Experiencia de cesteria con materiales regionales.', NULL, NULL, TIMESTAMP '2025-10-30 09:20:00'),
-('Aretes de piedra natural', 'Piedras de San Gil', 'bisuteria', 46000, '68679', '300 555 0111', 'Aretes artesanales con piedras seleccionadas.', NULL, NULL, TIMESTAMP '2025-11-22 16:00:00'),
-('Plato decorativo santandereano', 'Barro y Tradicion', 'alfareria', 62000, '68079', '300 555 0112', 'Plato hecho a mano con acabado decorativo.', NULL, NULL, TIMESTAMP '2025-12-18 10:50:00'),
-('Taller de pintura sobre fique', 'Fique Creativo', 'talleres', 70000, '68001', '300 555 0113', 'Taller de color y composicion sobre fibra natural.', NULL, NULL, TIMESTAMP '2026-01-27 08:40:00'),
-('Pulsera de cobre martillado', 'Metal y Semilla', 'bisuteria', 52000, '68276', '300 555 0114', 'Pulsera ajustable trabajada manualmente.', NULL, NULL, TIMESTAMP '2026-02-08 13:05:00'),
-('Juego de tazas de barro', 'Ceramicas de Zapatoca', 'alfareria', 88000, '68872', '300 555 0115', 'Juego de tazas utilitarias de produccion artesanal.', NULL, NULL, TIMESTAMP '2026-03-19 11:25:00'),
-('Taller de nudos decorativos', 'Nudos y Caminos', 'talleres', 65000, '68679', '300 555 0116', 'Aprendizaje de nudos para objetos decorativos.', NULL, NULL, TIMESTAMP '2026-04-27 15:10:00'),
-('Collar tejido de colores', 'Hilando Historias', 'bisuteria', 39000, '68855', '300 555 0117', 'Collar tejido a mano inspirado en el paisaje regional.', NULL, NULL, TIMESTAMP '2026-05-18 09:45:00'),
-('Florero de ceramica esmaltada', 'Tierra y Fuego', 'alfareria', 105000, '68547', '300 555 0118', 'Florero de ceramica con esmalte de alta resistencia.', NULL, NULL, TIMESTAMP '2026-06-26 17:35:00'),
-('Taller de bisuteria artesanal', 'Laboratorio de Oficios', 'talleres', 110000, '68079', '300 555 0119', 'Taller introductorio con materiales incluidos.', NULL, NULL, TIMESTAMP '2026-08-12 10:15:00'),
-('Set de cuencos de barro', 'Manos Alfareras', 'alfareria', 73000, '68755', '300 555 0120', 'Set de cuencos elaborado en barro regional.', NULL, NULL, TIMESTAMP '2026-09-30 14:20:00')
-ON CONFLICT DO NOTHING;
+(1, 'Taller de fique para principiantes', 'Manos de Santander', 'talleres', 85000, '68001', '300 555 0101', 'Taller practico de tejido en fique local.', NULL, NULL, TIMESTAMP '2025-01-09 08:10:00'),
+(2, 'Aretes de filigrana comunera', 'Filigrana del Socorro', 'bisuteria', 68000, '68755', '300 555 0102', 'Aretes hechos a mano con tecnica tradicional.', NULL, NULL, TIMESTAMP '2025-02-17 10:30:00'),
+(3, 'Vasija de barro de Guane', 'Taller Tierra Roja', 'alfareria', 95000, '68079', '300 555 0103', 'Pieza artesanal modelada y quemada localmente.', NULL, NULL, TIMESTAMP '2025-03-25 13:40:00'),
+(4, 'Taller de talla en piedra', 'Escuela Artesana Barichara', 'talleres', 120000, '68079', '300 555 0104', 'Introduccion guiada a la talla tradicional.', NULL, NULL, TIMESTAMP '2025-04-12 09:00:00'),
+(5, 'Collar de semillas nativas', 'Semillas y Arte', 'bisuteria', 42000, '68679', '300 555 0105', 'Collar liviano elaborado con semillas seleccionadas.', NULL, NULL, TIMESTAMP '2025-05-06 15:25:00'),
+(6, 'Jarra artesanal esmaltada', 'Ceramicas del Chicamocha', 'alfareria', 78000, '68001', '300 555 0106', 'Jarra decorativa elaborada en ceramica regional.', NULL, NULL, TIMESTAMP '2025-06-28 11:35:00'),
+(7, 'Taller de tejido en telar', 'Tejedoras de Velez', 'talleres', 90000, '68855', '300 555 0107', 'Sesion de tejido con fibras y tintes naturales.', NULL, NULL, TIMESTAMP '2025-07-16 07:55:00'),
+(8, 'Manilla de mostacilla comunera', 'Colores de Santander', 'bisuteria', 28000, '68755', '300 555 0108', 'Manilla tejida a mano con patrones regionales.', NULL, NULL, TIMESTAMP '2025-08-20 12:15:00'),
+(9, 'Maceta de barro pintada', 'Alfareria La Montanita', 'alfareria', 55000, '68872', '300 555 0109', 'Maceta decorativa pintada con motivos locales.', NULL, NULL, TIMESTAMP '2025-09-13 14:45:00'),
+(10, 'Taller de cesteria rural', 'Cesteria Viva', 'talleres', 75000, '68547', '300 555 0110', 'Experiencia de cesteria con materiales regionales.', NULL, NULL, TIMESTAMP '2025-10-30 09:20:00'),
+(11, 'Aretes de piedra natural', 'Piedras de San Gil', 'bisuteria', 46000, '68679', '300 555 0111', 'Aretes artesanales con piedras seleccionadas.', NULL, NULL, TIMESTAMP '2025-11-22 16:00:00'),
+(12, 'Plato decorativo santandereano', 'Barro y Tradicion', 'alfareria', 62000, '68079', '300 555 0112', 'Plato hecho a mano con acabado decorativo.', NULL, NULL, TIMESTAMP '2025-12-18 10:50:00'),
+(13, 'Taller de pintura sobre fique', 'Fique Creativo', 'talleres', 70000, '68001', '300 555 0113', 'Taller de color y composicion sobre fibra natural.', NULL, NULL, TIMESTAMP '2026-01-27 08:40:00'),
+(14, 'Pulsera de cobre martillado', 'Metal y Semilla', 'bisuteria', 52000, '68276', '300 555 0114', 'Pulsera ajustable trabajada manualmente.', NULL, NULL, TIMESTAMP '2026-02-08 13:05:00'),
+(15, 'Juego de tazas de barro', 'Ceramicas de Zapatoca', 'alfareria', 88000, '68872', '300 555 0115', 'Juego de tazas utilitarias de produccion artesanal.', NULL, NULL, TIMESTAMP '2026-03-19 11:25:00'),
+(16, 'Taller de nudos decorativos', 'Nudos y Caminos', 'talleres', 65000, '68679', '300 555 0116', 'Aprendizaje de nudos para objetos decorativos.', NULL, NULL, TIMESTAMP '2026-04-27 15:10:00'),
+(17, 'Collar tejido de colores', 'Hilando Historias', 'bisuteria', 39000, '68855', '300 555 0117', 'Collar tejido a mano inspirado en el paisaje regional.', NULL, NULL, TIMESTAMP '2026-05-18 09:45:00'),
+(18, 'Florero de ceramica esmaltada', 'Tierra y Fuego', 'alfareria', 105000, '68547', '300 555 0118', 'Florero de ceramica con esmalte de alta resistencia.', NULL, NULL, TIMESTAMP '2026-06-26 17:35:00'),
+(19, 'Taller de bisuteria artesanal', 'Laboratorio de Oficios', 'talleres', 110000, '68079', '300 555 0119', 'Taller introductorio con materiales incluidos.', NULL, NULL, TIMESTAMP '2026-08-12 10:15:00'),
+(20, 'Set de cuencos de barro', 'Manos Alfareras', 'alfareria', 73000, '68755', '300 555 0120', 'Set de cuencos elaborado en barro regional.', NULL, NULL, TIMESTAMP '2026-09-30 14:20:00')
+ON CONFLICT (ID_PRODUCTO) DO NOTHING;
+
+SELECT setval(pg_get_serial_sequence('productos_artesanales', 'id_producto'), (SELECT MAX(ID_PRODUCTO) FROM PRODUCTOS_ARTESANALES));

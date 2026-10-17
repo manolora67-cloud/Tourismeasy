@@ -10,13 +10,13 @@ CREATE OR REPLACE FUNCTION fn_editar_hospedaje(
     h_descripcion    HOSPEDAJE.DESCRIPCION%TYPE DEFAULT NULL,
     h_img_url        HOSPEDAJE.IMG_URL%TYPE DEFAULT NULL,
     h_disponibilidad HOSPEDAJE.DISPONIBILIDAD%TYPE DEFAULT TRUE,
-    h_servicios_ids  INTEGER[] DEFAULT '{}'
+    h_servicios_ids  NUMERIC[] DEFAULT '{}'
 )
 RETURNS BOOLEAN AS
 $$
 DECLARE
     v_id_empresa_db HOSPEDAJE.ID_EMPRESA%TYPE;
-    v_sid           INTEGER;
+    v_sid           SERVICIOS_HOSPEDAJE.ID_SERVICIO%TYPE;
 BEGIN
     SELECT ID_EMPRESA INTO v_id_empresa_db
     FROM HOSPEDAJE
@@ -68,7 +68,7 @@ BEGIN
     END IF;
 
     IF EXISTS (
-        SELECT 1 FROM UNNEST(COALESCE(h_servicios_ids, '{}'::INTEGER[])) AS s(id)
+        SELECT 1 FROM UNNEST(COALESCE(h_servicios_ids, '{}'::NUMERIC[])) AS s(id)
         LEFT JOIN SERVICIOS_HOSPEDAJE sh ON sh.ID_SERVICIO = s.id
         WHERE sh.ID_SERVICIO IS NULL OR sh.ACTIVO = FALSE
     ) THEN

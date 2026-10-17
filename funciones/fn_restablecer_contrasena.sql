@@ -10,9 +10,10 @@ $$
 DECLARE
     v_id_usuario TOKENS_RECUPERACION.ID_USUARIO%TYPE;
     v_id_empresa TOKENS_RECUPERACION.ID_EMPRESA%TYPE;
+    v_id_persona_ecommerce TOKENS_RECUPERACION.ID_PERSONA_ECOMMERCE%TYPE;
 BEGIN
-    SELECT ID_USUARIO, ID_EMPRESA
-    INTO v_id_usuario, v_id_empresa
+    SELECT ID_USUARIO, ID_EMPRESA, ID_PERSONA_ECOMMERCE
+    INTO v_id_usuario, v_id_empresa, v_id_persona_ecommerce
     FROM TOKENS_RECUPERACION
     WHERE TOKEN = p_token AND USADO = FALSE AND FECHA_EXPIRA > NOW();
 
@@ -25,6 +26,10 @@ BEGIN
         UPDATE USUARIOS SET CONTRASENA = p_hash WHERE ID_PERSONA = v_id_usuario;
     ELSIF v_id_empresa IS NOT NULL THEN
         UPDATE USUARIOS_EMPRESA SET CONTRASENA = p_hash WHERE ID_EMPRESA = v_id_empresa;
+    ELSIF v_id_persona_ecommerce IS NOT NULL THEN
+        UPDATE USUARIOS_ECOMMERCE
+        SET CONTRASENA = p_hash
+        WHERE ID_PERSONA_ECOMMERCE = v_id_persona_ecommerce;
     END IF;
 
     UPDATE TOKENS_RECUPERACION SET USADO = TRUE WHERE TOKEN = p_token;

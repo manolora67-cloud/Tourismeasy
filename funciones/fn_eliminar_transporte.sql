@@ -1,8 +1,3 @@
-DROP FUNCTION IF EXISTS fn_eliminar_transporte(
-    VARCHAR,
-    VARCHAR
-);
-
 CREATE OR REPLACE FUNCTION fn_eliminar_transporte(
     t_id_transporte TRANSPORTE.ID_TRANSPORTE%TYPE,
     t_id_empresa    TRANSPORTE.ID_EMPRESA%TYPE

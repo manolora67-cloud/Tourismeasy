@@ -8,13 +8,13 @@ CREATE OR REPLACE FUNCTION fn_agregar_hospedaje(
     h_capacidad_max  HOSPEDAJE.CAPACIDAD_MAX%TYPE,
     h_descripcion    HOSPEDAJE.DESCRIPCION%TYPE DEFAULT NULL,
     h_img_url        HOSPEDAJE.IMG_URL%TYPE DEFAULT NULL,
-    h_servicios_ids  INTEGER[] DEFAULT '{}'
+    h_servicios_ids  NUMERIC[] DEFAULT '{}'
 )
-RETURNS INTEGER AS
+RETURNS HOSPEDAJE.ID_HOSPEDAJE%TYPE AS
 $$
 DECLARE
     v_nuevo_id HOSPEDAJE.ID_HOSPEDAJE%TYPE;
-    v_sid      INTEGER;
+    v_sid      SERVICIOS_HOSPEDAJE.ID_SERVICIO%TYPE;
 BEGIN
     -- La empresa debe existir y prestar servicio de HOSPEDAJE
     IF NOT EXISTS (SELECT 1 FROM EMPRESAS WHERE ID_EMPRESA = h_id_empresa AND TIPO_SERVICIO = 'HOSPEDAJE') THEN
@@ -55,7 +55,7 @@ BEGIN
     END IF;
 
     IF EXISTS (
-        SELECT 1 FROM UNNEST(COALESCE(h_servicios_ids, '{}'::INTEGER[])) AS s(id)
+        SELECT 1 FROM UNNEST(COALESCE(h_servicios_ids, '{}'::NUMERIC[])) AS s(id)
         LEFT JOIN SERVICIOS_HOSPEDAJE sh ON sh.ID_SERVICIO = s.id
         WHERE sh.ID_SERVICIO IS NULL OR sh.ACTIVO = FALSE
     ) THEN

@@ -1,5 +1,3 @@
-DROP FUNCTION IF EXISTS fn_listar_transporte_publico();
-
 CREATE OR REPLACE FUNCTION fn_listar_transporte_publico()
 RETURNS TABLE (
     id              TRANSPORTE.ID_TRANSPORTE%TYPE,

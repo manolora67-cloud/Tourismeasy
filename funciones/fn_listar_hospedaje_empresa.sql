@@ -1,5 +1,3 @@
-DROP FUNCTION IF EXISTS fn_listar_hospedaje_empresa(VARCHAR);
-
 CREATE OR REPLACE FUNCTION fn_listar_hospedaje_empresa(
     h_id_empresa HOSPEDAJE.ID_EMPRESA%TYPE
 )

@@ -1,5 +1,3 @@
-DROP FUNCTION IF EXISTS fn_listar_hospedaje_publico();
-
 CREATE OR REPLACE FUNCTION fn_listar_hospedaje_publico()
 RETURNS JSONB AS
 $$
