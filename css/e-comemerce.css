@@ -37,7 +37,6 @@
     /* Radio de bordes de tarjetas */
     --shadow: 0 4px 24px rgba(124, 58, 237, 0.1);
     --shadow-card: 0 2px 16px rgba(0, 0, 0, 0.08);
-
     /* Alias hacia los nombres --purple* que usan componentes compartidos con
        TourismEasy (por ejemplo captcha.css). Los valores son los mismos que
        --primary*, solo cambia el nombre. */
@@ -1021,7 +1020,6 @@ body.dark-mode .pm-contact-box {
         opacity: 0;
         transform: translateY(16px);
     }
-
     to {
         opacity: 1;
         transform: translateY(0);
@@ -1131,16 +1129,16 @@ input[type="number"] {
 /* ── Responsive móvil ── */
 
 @media (max-width: 1100px) {
-
     /* Navbar: ocultar links de escritorio, mostrar hamburguesa */
     .nav-links {
         display: none !important;
     }
-
     .hamburger {
         display: block;
     }
-
+    #btnAcceder {
+        display: none !important;
+    }
     /* Footer: 2 columnas */
     .footer-grid {
         grid-template-columns: repeat(2, 1fr);
@@ -1153,11 +1151,9 @@ input[type="number"] {
         height: 44px;
         width: 44px;
     }
-
     .logo-text {
         font-size: 0.95rem;
     }
-
     .btn-acceder {
         font-size: 0.78rem;
         padding: 8px 14px;
@@ -1165,18 +1161,15 @@ input[type="number"] {
 }
 
 @media (max-width: 768px) {
-
     /* Tarjetas más pequeñas en móvil */
     .product-grid {
         grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
         gap: 0.9rem;
         padding: 1.5rem 4%;
     }
-
     .hero h2 {
         font-size: 1.6rem;
     }
-
     /* Footer: 1 columna */
     .footer-grid {
         grid-template-columns: 1fr;

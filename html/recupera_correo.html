@@ -7,9 +7,7 @@
     <title>Nueva Contraseña - TourismEasy</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Open+Sans:wght@400;600&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="../css/recuperacion.css">
     <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
@@ -62,7 +60,7 @@
 
         <!-- Pie -->
         <div class="rec-footer">
-            <a href="login.html"><i class="fa-solid fa-arrow-left"></i> Volver al inicio de sesión</a>
+            <a href="login.html" id="linkVolverLogin"><i class="fa-solid fa-arrow-left"></i> Volver al inicio de sesión</a>
             <button class="btn-dark-mode" id="darkModeToggle" aria-label="Cambiar tema">
                 <i class="fa-solid fa-moon"></i>
             </button>
@@ -89,6 +87,8 @@
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         const token = urlParams.get('token');
+        const loginHref = urlParams.get('origen') === 'ecommerce' ? 'login_ecommerce.html' : 'login.html';
+        document.getElementById('linkVolverLogin').href = loginHref;
 
         // ── Toggle mostrar/ocultar contraseña ──
         document.getElementById('togglePass').addEventListener('click', () => {
@@ -116,9 +116,9 @@
         }, {
             label: 'Fuerte',
             cls: 'strong'
-        },];
+        }, ];
 
-        document.getElementById('password').addEventListener('input', function () {
+        document.getElementById('password').addEventListener('input', function() {
             const v = this.value;
             let score = 0;
             if (v.length >= 8) score++;
@@ -134,7 +134,7 @@
         });
 
         // ── Envío ──
-        document.getElementById('formRestablecer').addEventListener('submit', async (e) => {
+        document.getElementById('formRestablecer').addEventListener('submit', async(e) => {
             e.preventDefault();
             const password = document.getElementById('password').value;
             const btn = document.getElementById('btnActualizar');
@@ -172,7 +172,7 @@
                 mensajeDiv.classList.add('show', res.success ? 'ok' : 'error');
 
                 if (res.success) {
-                    setTimeout(() => window.location.href = 'login.html', 2500);
+                    setTimeout(() => window.location.href = loginHref, 2500);
                 }
             } catch (err) {
                 mensajeTexto.textContent = 'Error de conexión. Intenta de nuevo.';

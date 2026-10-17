@@ -13,6 +13,7 @@ require_once __DIR__ . '/../cors.php';
 
 $input = json_decode(file_get_contents('php://input'), true);
 $email = trim($input['email'] ?? '');
+$origenEcommerce = ($input['origen'] ?? '') === 'ecommerce';
 
 if (!$email || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
     http_response_code(400);
@@ -38,7 +39,8 @@ try {
 
     // Respuesta genérica siempre — no revelamos si el correo existe o no
     if ($row['ok'] && $row['existe']) {
-        $enlace = "web.adsoserver.site/Tourismeasy/html/recupera_correo.html?token={$token}";
+        $enlace = "web.adsoserver.site/Tourismeasy/html/recupera_correo.html?token={$token}"
+            . ($origenEcommerce ? '&origen=ecommerce' : '');
         enviarCorreoRecuperacion($email, $enlace);
     }
 

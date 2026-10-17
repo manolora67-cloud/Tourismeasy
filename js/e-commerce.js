@@ -1,36 +1,36 @@
 const defaultProducts = [{
-    id: "def-1",
-    name: "Taller de Cerámica Guane",
-    provider: "Artesanías Barichara",
-    description: "Aprende la técnica ancestral de moldeado en tierra de color con maestros locales de Barichara. El taller ofrece sesiones grupales e individuales donde podrás crear tu propia pieza y llevártela a casa.",
-    category: "talleres",
-    price: 85000,
-    ubicacion: "Barichara, Santander",
-    contacto: "+57 310 234 5678",
-    img: "../img/taller_cera_guane.avif",
-},
-{
-    id: "def-2",
-    name: "Collar de Cuarzo Rosa",
-    provider: "Joyas del Chicamocha",
-    description: "Bisutería artesanal con piedras semipreciosas extraídas de la región del Chicamocha. Cada pieza es única, trabajada a mano con técnicas de joyería tradicional transmitidas por generaciones.",
-    category: "bisuteria",
-    price: 45000,
-    ubicacion: "San Gil, Santander",
-    contacto: "+57 311 456 7890",
-    img: "../img/collar_cuarzo_rosa.jpeg",
-},
-{
-    id: "def-3",
-    name: "Vasija en Arcilla Roja",
-    provider: "Taller Girón Ancestral",
-    description: "Piezas únicas de alfarería tradicional elaboradas con arcilla roja del municipio de Girón. Cada vasija refleja siglos de tradición cerámica santandereana, con formas y texturas inspiradas en la cultura guane.",
-    category: "alfareria",
-    price: 120000,
-    ubicacion: "Girón, Santander",
-    contacto: "+57 312 678 9012",
-    img: "../img/vasija_arcilla_roja.webp",
-},
+        id: "def-1",
+        name: "Taller de Cerámica Guane",
+        provider: "Artesanías Barichara",
+        description: "Aprende la técnica ancestral de moldeado en tierra de color con maestros locales de Barichara. El taller ofrece sesiones grupales e individuales donde podrás crear tu propia pieza y llevártela a casa.",
+        category: "talleres",
+        price: 85000,
+        ubicacion: "Barichara, Santander",
+        contacto: "+57 310 234 5678",
+        img: "../img/taller_cera_guane.avif",
+    },
+    {
+        id: "def-2",
+        name: "Collar de Cuarzo Rosa",
+        provider: "Joyas del Chicamocha",
+        description: "Bisutería artesanal con piedras semipreciosas extraídas de la región del Chicamocha. Cada pieza es única, trabajada a mano con técnicas de joyería tradicional transmitidas por generaciones.",
+        category: "bisuteria",
+        price: 45000,
+        ubicacion: "San Gil, Santander",
+        contacto: "+57 311 456 7890",
+        img: "../img/collar_cuarzo_rosa.jpeg",
+    },
+    {
+        id: "def-3",
+        name: "Vasija en Arcilla Roja",
+        provider: "Taller Girón Ancestral",
+        description: "Piezas únicas de alfarería tradicional elaboradas con arcilla roja del municipio de Girón. Cada vasija refleja siglos de tradición cerámica santandereana, con formas y texturas inspiradas en la cultura guane.",
+        category: "alfareria",
+        price: 120000,
+        ubicacion: "Girón, Santander",
+        contacto: "+57 312 678 9012",
+        img: "../img/vasija_arcilla_roja.webp",
+    },
 ];
 
 // Categoría seleccionada. "all" significa mostrar todas.
@@ -295,7 +295,7 @@ document.addEventListener("DOMContentLoaded", () => {
 var hamburgerBtn = document.getElementById('hamburger');
 var navMobileMenu = document.getElementById('navMobile');
 if (hamburgerBtn && navMobileMenu) {
-    hamburgerBtn.addEventListener('click', function () {
+    hamburgerBtn.addEventListener('click', function() {
         navMobileMenu.classList.toggle('open');
     });
 }
@@ -438,19 +438,19 @@ tlOverlay.addEventListener("click", (e) => {
 // que cerrar sesión desde admin.php. También queda protegido contra los
 // botones atrás/adelante del navegador (ver bfcache más abajo).
 // ============================================================
-(function () {
+(function() {
     // Truco para desactivar el caché de "atrás/adelante" (bfcache):
     // con un listener de "unload" la mayoría de navegadores dejan de
     // guardar esta página en ese caché y la vuelven a cargar de cero
     // (ejecutando este script otra vez) cada vez que se navega hacia
     // ella, incluso con los botones atrás/adelante.
-    window.addEventListener('unload', function () { });
+    window.addEventListener('unload', function() {});
 
     function haySesionArtesano() {
         var sess = null;
         try {
             sess = JSON.parse(sessionStorage.getItem('te_ecommerce_session') || 'null');
-        } catch (e) { }
+        } catch (e) {}
         return sess && sess.tipo === 'artesano' && sess.estado === 'ACTIVO';
     }
 
@@ -467,13 +467,11 @@ tlOverlay.addEventListener("click", (e) => {
     if (redirigirSiHaySesion()) return;
 
     var navAdmin = document.getElementById('navPanelAdmin');
-    var btnAcceder = document.getElementById('btnAcceder');
     if (navAdmin) navAdmin.style.display = 'none';
-    if (btnAcceder) btnAcceder.style.display = 'flex';
 
     // Si el navegador restaura esta página desde el caché de
     // atrás/adelante (bfcache), volvemos a revisar la sesión.
-    window.addEventListener('pageshow', function (e) {
+    window.addEventListener('pageshow', function(e) {
         if (e.persisted) redirigirSiHaySesion();
     });
 })();

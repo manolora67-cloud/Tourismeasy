@@ -7,9 +7,7 @@
     <title>Recuperar Contraseña - TourismEasy</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Open+Sans:wght@400;600&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="../css/recuperacion.css">
     <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
@@ -52,7 +50,7 @@
 
         <!-- Pie -->
         <div class="rec-footer">
-            <a href="login.html"><i class="fa-solid fa-arrow-left"></i> Volver al inicio de sesión</a>
+            <a href="login.html" id="linkVolverLogin"><i class="fa-solid fa-arrow-left"></i> Volver al inicio de sesión</a>
             <button class="btn-dark-mode" id="darkModeToggle" aria-label="Cambiar tema">
                 <i class="fa-solid fa-moon"></i>
             </button>
@@ -80,9 +78,13 @@
         // Prellenar email si viene desde el modal de login
         const _p = new URLSearchParams(window.location.search);
         const _em = _p.get('email');
+        const recoveryOrigin = _p.get('origen') === 'ecommerce' ? 'ecommerce' : 'general';
+        document.getElementById('linkVolverLogin').href = recoveryOrigin === 'ecommerce' ?
+            'login_ecommerce.html' :
+            'login.html';
         if (_em) document.getElementById('email').value = _em;
 
-        document.getElementById('formSolicitud').addEventListener('submit', async (e) => {
+        document.getElementById('formSolicitud').addEventListener('submit', async(e) => {
             e.preventDefault();
             const email = document.getElementById('email').value.trim();
             const btn = document.getElementById('btnEnviar');
@@ -100,7 +102,8 @@
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        email
+                        email,
+                        origen: recoveryOrigin
                     })
                 });
                 const res = await response.json();

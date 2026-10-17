@@ -190,6 +190,7 @@ body.dark-mode .lec-field select {
     color: #fff;
 }
 
+
 /* ── Toggle mostrar/ocultar contraseña ── */
 
 .lec-password-wrap {
@@ -223,6 +224,27 @@ body.dark-mode .lec-field select {
     color: #a855f7;
 }
 
+.lec-forgot-link {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: -8px;
+}
+
+.lec-forgot-link a {
+    color: #7c3aed;
+    font-size: .82rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.lec-forgot-link a:hover {
+    text-decoration: underline;
+}
+
+body.dark-mode .lec-forgot-link a {
+    color: #c4b5fd;
+}
+
 body.dark-mode .lec-toggle-pass {
     color: rgba(255, 255, 255, .5);
 }
@@ -230,6 +252,7 @@ body.dark-mode .lec-toggle-pass {
 body.dark-mode .lec-toggle-pass:hover {
     color: #c4b5fd;
 }
+
 
 /* Fila de dos columnas — apiladas en móvil */
 
