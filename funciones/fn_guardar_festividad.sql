@@ -25,7 +25,7 @@ BEGIN
         RETURN JSONB_BUILD_OBJECT('ok', FALSE, 'status', 400, 'error', 'Acción o datos de festividad no válidos.');
     END IF;
 
-    v_id := LOWER(BTRIM(p_festividad->>'id'));
+    v_id := BTRIM(p_festividad->>'id');
     v_fecha := BTRIM(p_festividad->>'fecha_clave');
     v_subtitulo := BTRIM(p_festividad->>'subtitulo');
     v_titulo := BTRIM(p_festividad->>'titulo');
@@ -38,7 +38,8 @@ BEGIN
     v_tipo := UPPER(BTRIM(p_festividad->>'tipo'));
     v_id_ciudad := NULLIF(BTRIM(p_festividad->>'id_ciudad'), '');
 
-    IF v_id IS NULL OR v_id !~ '^[a-z0-9_-]{3,40}$'
+     IF v_id IS NULL OR v_id !~ '^[a-z0-9]+(_[a-z0-9]+)*$'
+         OR CHAR_LENGTH(v_id) NOT BETWEEN 3 AND 40
        OR v_subtitulo IS NULL OR CHAR_LENGTH(v_subtitulo) NOT BETWEEN 3 AND 80
        OR v_titulo IS NULL OR CHAR_LENGTH(v_titulo) NOT BETWEEN 3 AND 120
        OR v_frase IS NULL OR CHAR_LENGTH(v_frase) NOT BETWEEN 5 AND 200
@@ -69,7 +70,8 @@ BEGIN
     END IF;
 
     IF p_accion = 'update' THEN
-        IF p_id_actual IS NULL OR p_id_actual !~ '^[a-z0-9_-]{3,40}$' OR p_id_actual <> v_id THEN
+          IF p_id_actual IS NULL OR p_id_actual !~ '^[a-z0-9]+(_[a-z0-9]+)*$'
+              OR CHAR_LENGTH(p_id_actual) NOT BETWEEN 3 AND 40 OR p_id_actual <> v_id THEN
             RETURN JSONB_BUILD_OBJECT('ok', FALSE, 'status', 422, 'error', 'No se puede cambiar el identificador de una festividad existente.');
         END IF;
         IF NOT EXISTS (

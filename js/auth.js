@@ -37,12 +37,13 @@
         </div>
         <div class="field-group">
           <label for="loginPass">Contraseña</label>
-          <div class="field-wrap"><i class="fa-solid fa-lock field-icon"></i><input type="password" id="loginPass" autocomplete="current-password" required></div>
+                    <div class="field-wrap has-toggle"><i class="fa-solid fa-lock field-icon"></i><input type="password" id="loginPass" autocomplete="current-password" required><button type="button" class="toggle-pass" data-target="loginPass" aria-label="Mostrar contraseña"><i class="fa-solid fa-eye"></i></button></div>
           <span class="field-msg" id="loginPassMsg"></span>
         </div>
         <div class="forgot-link"><a href="${pageBase}restablecer_contrasena.html" id="forgotLink">¿Olvidaste tu contraseña?</a></div>
         <button type="submit" class="btn-auth" id="btnLogin"><span class="btn-text">Iniciar sesión</span><div class="btn-spinner"></div></button>
         <p class="field-msg" id="loginStatus" role="status"></p>
+        <button type="button" class="btn-auth" id="btnReplaceSession" style="display:none">Cerrar la otra sesión e iniciar aquí</button>
       </form>
       <form class="auth-form" id="formRegister" novalidate>
                 <div class="register-intro">
@@ -95,7 +96,7 @@
         </div>
                 <div class="field-group register-field-wide">
           <label for="ePass">Contraseña (mínimo 8 caracteres)</label>
-          <input type="password" id="ePass" autocomplete="new-password" minlength="8" required>
+                  <div class="field-wrap has-toggle"><i class="fa-solid fa-lock field-icon"></i><input type="password" id="ePass" autocomplete="new-password" minlength="8" required><button type="button" class="toggle-pass" data-target="ePass" aria-label="Mostrar contraseña"><i class="fa-solid fa-eye"></i></button></div>
           <span class="field-msg" id="ePassMsg"></span>
         </div>
                 </div>
@@ -123,6 +124,19 @@
         const tabRegister = document.getElementById("tabRegister");
         const loginStatus = document.getElementById("loginStatus");
         const registerStatus = document.getElementById("registerStatus");
+        const replaceSessionButton = document.getElementById("btnReplaceSession");
+
+        document.querySelectorAll(".toggle-pass[data-target]").forEach((button) => {
+            button.addEventListener("click", () => {
+                const input = document.getElementById(button.dataset.target);
+                const icon = button.querySelector("i");
+                const visible = input.type === "password";
+                input.type = visible ? "text" : "password";
+                icon.classList.toggle("fa-eye", !visible);
+                icon.classList.toggle("fa-eye-slash", visible);
+                button.setAttribute("aria-label", visible ? "Ocultar contraseña" : "Mostrar contraseña");
+            });
+        });
 
         function switchTab(register) {
             tabLogin.classList.toggle("active", !register);
@@ -165,8 +179,7 @@
                 document.getElementById("eUbicacionMsg").classList.add("error");
             });
 
-        loginForm.addEventListener("submit", async(event) => {
-            event.preventDefault();
+        async function iniciarSesion(reemplazarSesion) {
             loginStatus.textContent = "";
             loginStatus.classList.remove("error", "ok");
             if (!loginForm.reportValidity()) return;
@@ -178,6 +191,7 @@
 
             const button = document.getElementById("btnLogin");
             button.disabled = true;
+            replaceSessionButton.disabled = true;
             button.classList.add("loading");
             try {
                 const response = await fetch(apiBase + "login/login.php", {
@@ -187,11 +201,19 @@
                     body: JSON.stringify({
                         email: document.getElementById("loginEmail").value.trim(),
                         password: document.getElementById("loginPass").value,
-                        tipo: document.getElementById("loginType").value
+                        tipo: document.getElementById("loginType").value,
+                        reemplazar_sesion: reemplazarSesion
                     })
                 });
                 const result = await response.json();
+                if (response.status === 409 && result.code === "SESION_ACTIVA") {
+                    loginStatus.textContent = result.error + " Puedes cerrar la sesión anterior e iniciar aquí.";
+                    loginStatus.classList.add("error");
+                    replaceSessionButton.style.display = "flex";
+                    return;
+                }
                 if (!response.ok || !result.ok) throw new Error(result.error || "No se pudo iniciar sesión.");
+                replaceSessionButton.style.display = "none";
                 sessionStorage.setItem("te_session", JSON.stringify(result.session));
                 const destino = result.session.tipo === "admin" ?
                     "panel_admin.html" :
@@ -204,9 +226,16 @@
                 if (window.TeCaptcha) window.TeCaptcha.invalidateOnFailedLogin();
             } finally {
                 button.disabled = false;
+                replaceSessionButton.disabled = false;
                 button.classList.remove("loading");
             }
+        }
+
+        loginForm.addEventListener("submit", (event) => {
+            event.preventDefault();
+            iniciarSesion(false);
         });
+        replaceSessionButton.addEventListener("click", () => iniciarSesion(true));
 
         registerForm.addEventListener("submit", async(event) => {
             event.preventDefault();

@@ -25,3 +25,6 @@ try {
     echo "ERROR: " . $e->getMessage();
     exit;
 }
+
+require_once __DIR__ . '/seguridad_login.php';
+validarSesionActivaEnBD($pdo);

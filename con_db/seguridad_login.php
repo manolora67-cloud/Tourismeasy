@@ -129,6 +129,38 @@ function borrarCookieDispositivo(): void
     unset($_COOKIE['te_device']);
 }
 
+function validarSesionActivaEnBD($pdo): void
+{
+    if (session_status() !== PHP_SESSION_ACTIVE) {
+        return;
+    }
+
+    $tipo = $_SESSION['tipo'] ?? null;
+    if ($tipo === 'admin' && !empty($_SESSION['id_persona'])) {
+        $id = $_SESSION['id_persona'];
+    } elseif ($tipo === 'empresa' && !empty($_SESSION['id_empresa'])) {
+        $id = $_SESSION['id_empresa'];
+    } elseif (!empty($_SESSION['artesano_id'])) {
+        $tipo = 'artesano';
+        $id = $_SESSION['artesano_id'];
+    } else {
+        return;
+    }
+
+    $stmt = $pdo->prepare(
+        'SELECT EXISTS (SELECT 1 FROM SESIONES_ACTIVAS WHERE TIPO_CUENTA = :tipo AND ID_CUENTA = :id AND ID_SESION_HASH = :sesion)'
+    );
+    $stmt->execute([
+        ':tipo' => $tipo,
+        ':id' => $id,
+        ':sesion' => hash('sha256', session_id()),
+    ]);
+
+    if (!in_array($stmt->fetchColumn(), [true, 't', 'true', '1', 1], true)) {
+        destruirSesionActual();
+    }
+}
+
 function cerrarSesionActiva($pdo): bool
 {
     $tipo = $_SESSION['tipo'] ?? null;

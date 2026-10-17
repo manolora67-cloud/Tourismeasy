@@ -28,6 +28,8 @@ El usuario `postgres` del ejemplo es el usuario local de PostgreSQL; reemplázal
 
 El esquema nuevo crea 34 tablas y carga datos iniciales, incluyendo el departamento de Santander, sus municipios y registros de ejemplo. `USUARIOS` guarda directamente el perfil y las credenciales de administración; no existe una tabla genérica `PERSONAS` ni cuentas para viajeros. Las reseñas son públicas y se guardan con el nombre proporcionado por quien las publica; los likes se identifican por visitante. `TIPOS_DOCUMENTOS` se conserva porque las cuentas de artesanos/e-commerce todavía la utilizan. `CONTENIDO_PORTADA` y `ESTADO_INICIAL_PORTADA` almacenan las tarjetas administrables y el estado de carga inicial.
 
+Para una base existente, vuelve a ejecutar [`fn_guardar_festividad.sql`](../funciones/fn_guardar_festividad.sql). Usa `CREATE OR REPLACE FUNCTION`, así que reemplaza la función anterior sin borrarla manualmente. No ejecutes todo `DB_TOURISMEASY.sql` sobre una base con datos.
+
 `SESIONES_ACTIVAS` mantiene una reserva por cuenta para admin, empresa y artesano. Cerrar el navegador no libera esa reserva; el endpoint de logout la elimina. El navegador conserva el token de dispositivo en una cookie `HttpOnly` por hasta 400 días. Si la cookie desaparece antes de cerrar sesión, la reserva debe eliminarse manualmente en PostgreSQL para recuperar el acceso.
 
 Este archivo representa una instalación nueva. Importa el esquema en una base vacía; no lo ejecutes sobre una base anterior para intentar actualizarla. Si tienes datos que conservar, haz un respaldo y conserva esa base por separado.

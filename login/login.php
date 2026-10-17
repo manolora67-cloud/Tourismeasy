@@ -16,6 +16,7 @@ $input = json_decode(file_get_contents('php://input'), true);
 $email = trim($input['email'] ?? '');
 $password = trim($input['password'] ?? '');
 $tipo = trim($input['tipo'] ?? '');
+$reemplazarSesion = ($input['reemplazar_sesion'] ?? false) === true;
 
 if (!$email || !$password || !in_array($tipo, ['admin', 'empresa'], true)) {
     http_response_code(400);
@@ -37,7 +38,7 @@ try {
     }
 
     $stmt = $pdo->prepare(
-        'SELECT * FROM fn_procesar_login(:email, :hash, :tipo, :ip, :dispositivo, :sesion)'
+        'SELECT * FROM fn_procesar_login(:email, :hash, :tipo, :ip, :dispositivo, :sesion, :reemplazar)'
     );
     $stmt->execute([
         ':email' => $email,
@@ -46,6 +47,7 @@ try {
         ':ip' => obtenerIpCliente(),
         ':dispositivo' => $hashDispositivo,
         ':sesion' => $hashSesion,
+        ':reemplazar' => $reemplazarSesion ? 'true' : 'false',
     ]);
     $row = $stmt->fetch();
 
@@ -69,7 +71,11 @@ try {
 
     if ($row['codigo'] === 'SESION_ACTIVA') {
         http_response_code(409);
-        echo json_encode(["ok" => false, "error" => $row['mensaje']]);
+        echo json_encode([
+            "ok" => false,
+            "code" => "SESION_ACTIVA",
+            "error" => $row['mensaje'],
+        ]);
         exit;
     }
 

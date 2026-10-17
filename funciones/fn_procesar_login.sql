@@ -4,7 +4,8 @@ CREATE OR REPLACE FUNCTION fn_procesar_login(
     p_tipo  VARCHAR(10),
     p_ip    INTENTOS_LOGIN.IP_ORIGEN%TYPE,
     p_token_dispositivo_hash CHAR(64),
-    p_id_sesion_hash CHAR(64)
+    p_id_sesion_hash CHAR(64),
+    p_reemplazar_sesion BOOLEAN
 )
 RETURNS TABLE (
     codigo           VARCHAR(20),
@@ -125,10 +126,19 @@ BEGIN
     v_sesion_reservada := fn_reservar_sesion_activa(
         p_tipo, v_id, p_token_dispositivo_hash, p_id_sesion_hash
     );
+    IF NOT COALESCE(v_sesion_reservada, FALSE) AND COALESCE(p_reemplazar_sesion, FALSE) THEN
+        DELETE FROM SESIONES_ACTIVAS
+        WHERE TIPO_CUENTA = p_tipo
+          AND ID_CUENTA = v_id;
+
+        v_sesion_reservada := fn_reservar_sesion_activa(
+            p_tipo, v_id, p_token_dispositivo_hash, p_id_sesion_hash
+        );
+    END IF;
     IF NOT COALESCE(v_sesion_reservada, FALSE) THEN
         RETURN QUERY SELECT
             'SESION_ACTIVA'::VARCHAR(20), FALSE,
-            'Esta cuenta ya tiene una sesión abierta en otro navegador. Cierra esa sesión para continuar.'::TEXT,
+            'Esta cuenta tiene una sesión abierta en otro navegador.'::TEXT,
             FALSE, 0, NULL::VARCHAR(10), NULL::VARCHAR, NULL::TEXT,
             NULL::TEXT, NULL::VARCHAR(10), NULL::VARCHAR(20), NULL::VARCHAR(10);
         RETURN;

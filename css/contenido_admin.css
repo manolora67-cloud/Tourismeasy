@@ -179,6 +179,34 @@
     background: #e2e8f0
 }
 
+.portada-video-preview {
+    display: block;
+    width: min(100%, 420px);
+    max-height: 236px;
+    margin-top: 10px;
+    border-radius: 9px;
+    background: #0f172a
+}
+
+.portada-video-remove {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin-top: 8px;
+    padding: 8px 11px;
+    border: 1px solid #fecaca;
+    border-radius: 7px;
+    background: #fff;
+    color: #b91c1c;
+    font: 600 .8rem var(--font-body);
+    cursor: pointer
+}
+
+.portada-video-preview[hidden],
+.portada-video-remove[hidden] {
+    display: none
+}
+
 .portada-check {
     display: flex;
     align-items: center;

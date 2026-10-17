@@ -1,6 +1,7 @@
 <?php
 
 session_start();
+require_once __DIR__ . '/../con_db/db.php';
 
 // Evita que el navegador guarde una "foto" cacheada de esta página.
 // Sin esto, el botón "atrás" puede mostrar una versión vieja de admin.php

@@ -1,5 +1,5 @@
-(function () {
-    var API_BASE = window.location.origin + '/Tourismeasy/e-commerce';
+(function() {
+    var API_BASE = new URL('../e-commerce', window.location.href).href;
 
     // El modo oscuro ahora lo maneja el componente compartido dark-mode-toggle.js
     // (mismo botón #darkModeToggle, misma llave 'theme' en localStorage que el resto del sitio).
@@ -22,14 +22,14 @@
             window.location.href = '../e-commerce/admin.php';
             return;
         }
-    } catch (e) { }
+    } catch (e) {}
 
     // Cargar tipos de documento desde el inicio
     cargarTiposDoc();
 
     // ── Toggle mostrar/ocultar contraseña ──
-    document.querySelectorAll('.lec-toggle-pass').forEach(function (btn) {
-        btn.addEventListener('click', function () {
+    document.querySelectorAll('.lec-toggle-pass').forEach(function(btn) {
+        btn.addEventListener('click', function() {
             var input = document.getElementById(btn.getAttribute('data-target'));
             var icon = btn.querySelector('i');
             if (!input) return;
@@ -53,13 +53,13 @@
     var formLogin = document.getElementById('formLogin');
     var formRegister = document.getElementById('formRegister');
 
-    tabLogin.addEventListener('click', function () {
+    tabLogin.addEventListener('click', function() {
         tabLogin.classList.add('active');
         tabRegister.classList.remove('active');
         formLogin.classList.add('active');
         formRegister.classList.remove('active');
     });
-    tabRegister.addEventListener('click', function () {
+    tabRegister.addEventListener('click', function() {
         tabRegister.classList.add('active');
         tabLogin.classList.remove('active');
         formRegister.classList.add('active');
@@ -89,9 +89,9 @@
         }, {
             id: 2,
             nombre: 'CEDULA DE EXTRANJERIA'
-        },];
+        }, ];
         var sel = document.getElementById('regTipoDoc');
-        tipos.forEach(function (t) {
+        tipos.forEach(function(t) {
             var opt = document.createElement('option');
             opt.value = t.id;
             opt.textContent = t.nombre;
@@ -101,50 +101,72 @@
     }
 
     // ── LOGIN ──
-    formLogin.addEventListener('submit', function (e) {
-        e.preventDefault();
+    var replaceSessionButton = document.getElementById('btnReplaceSession');
+
+    function iniciarSesion(reemplazarSesion) {
         hideMsg('loginMsg');
+        if (!formLogin.reportValidity()) return;
         var btn = document.getElementById('btnLogin');
         btn.disabled = true;
+        replaceSessionButton.disabled = true;
         btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verificando...';
 
         fetch(API_BASE + '/login_artesano.php', {
-            method: 'POST',
-            credentials: 'include',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                email: document.getElementById('loginEmail').value.trim(),
-                password: document.getElementById('loginPassword').value,
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email: document.getElementById('loginEmail').value.trim(),
+                    password: document.getElementById('loginPassword').value,
+                    reemplazar_sesion: reemplazarSesion
+                })
             })
-        })
-            .then(function (r) {
-                return r.json();
+            .then(function(response) {
+                return response.json().then(function(data) {
+                    return { response: response, data: data };
+                });
             })
-            .then(function (data) {
+            .then(function(result) {
+                var data = result.data;
+                if (result.response.status === 409 && data.code === 'SESION_ACTIVA') {
+                    showMsg('loginMsg', data.error + ' Puedes cerrar la sesión anterior e iniciar aquí.', 'error');
+                    replaceSessionButton.style.display = 'block';
+                    return;
+                }
                 if (!data.ok) {
                     showMsg('loginMsg', data.error || 'Error al iniciar sesión.', 'error');
-                    btn.disabled = false;
-                    btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Ingresar';
                     // El login falló: aunque el CAPTCHA ya estuviera resuelto, obligamos a
                     // resolverlo de nuevo antes de permitir otro intento.
                     if (window.TeCaptcha) window.TeCaptcha.invalidateOnFailedLogin();
                     return;
                 }
+                replaceSessionButton.style.display = 'none';
                 // Guardar sesión artesano
                 sessionStorage.setItem('te_ecommerce_session', JSON.stringify(data.session));
                 window.location.href = '../e-commerce/admin.php';
             })
-            .catch(function () {
+            .catch(function() {
                 showMsg('loginMsg', 'No se pudo conectar con el servidor.', 'error');
+            })
+            .finally(function() {
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Ingresar';
+                replaceSessionButton.disabled = false;
             });
+    }
+
+    formLogin.addEventListener('submit', function(e) {
+        e.preventDefault();
+        iniciarSesion(false);
+    });
+    replaceSessionButton.addEventListener('click', function() {
+        iniciarSesion(true);
     });
 
     // ── REGISTRO ──
-    formRegister.addEventListener('submit', function (e) {
+    formRegister.addEventListener('submit', function(e) {
         e.preventDefault();
         hideMsg('registerMsg');
 
@@ -161,24 +183,24 @@
         btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enviando...';
 
         fetch(API_BASE + '/registro_artesano.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                documento: document.getElementById('regDocumento').value.trim(),
-                tipo_doc: parseInt(document.getElementById('regTipoDoc').value),
-                nombre: document.getElementById('regNombre').value.trim(),
-                apellido: document.getElementById('regApellido').value.trim(),
-                celular: document.getElementById('regCelular').value.trim(),
-                email: document.getElementById('regEmail').value.trim(),
-                password: pass,
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    documento: document.getElementById('regDocumento').value.trim(),
+                    tipo_doc: parseInt(document.getElementById('regTipoDoc').value),
+                    nombre: document.getElementById('regNombre').value.trim(),
+                    apellido: document.getElementById('regApellido').value.trim(),
+                    celular: document.getElementById('regCelular').value.trim(),
+                    email: document.getElementById('regEmail').value.trim(),
+                    password: pass,
+                })
             })
-        })
-            .then(function (r) {
+            .then(function(r) {
                 return r.json();
             })
-            .then(function (data) {
+            .then(function(data) {
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fa-solid fa-user-plus"></i> Enviar solicitud';
                 if (!data.ok) {
@@ -188,7 +210,7 @@
                 showMsg('registerMsg', '✅ ' + data.mensaje, 'success');
                 formRegister.reset();
             })
-            .catch(function () {
+            .catch(function() {
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fa-solid fa-user-plus"></i> Enviar solicitud';
                 showMsg('registerMsg', 'No se pudo conectar con el servidor.', 'error');

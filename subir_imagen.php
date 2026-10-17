@@ -39,32 +39,64 @@ if ($esAdmin) {
     }
 }
 
-if (empty($_FILES['imagen']) || $_FILES['imagen']['error'] !== UPLOAD_ERR_OK) {
-    http_response_code(400);
-    echo json_encode(["ok" => false, "error" => "No se recibió ninguna imagen o hubo un error al subirla."]);
+$esVideo = !empty($_FILES['video']);
+if ($esVideo && !$esAdmin) {
+    http_response_code(403);
+    echo json_encode(["ok" => false, "error" => "Solo administración puede subir videos de portada."]);
     exit;
 }
 
-$file = $_FILES['imagen'];
+$campoArchivo = $esVideo ? 'video' : 'imagen';
+if (empty($_FILES[$campoArchivo]) || $_FILES[$campoArchivo]['error'] !== UPLOAD_ERR_OK) {
+    http_response_code(400);
+    echo json_encode(["ok" => false, "error" => $esVideo ? "No se recibió el video o hubo un error al subirlo." : "No se recibió ninguna imagen o hubo un error al subirla."]);
+    exit;
+}
+
+$file = $_FILES[$campoArchivo];
 $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-$extsPermitidas = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
+$extsPermitidas = $esVideo ? ['mp4', 'mov', 'webm'] : ['jpg', 'jpeg', 'png', 'webp', 'gif'];
 
 if (!in_array($ext, $extsPermitidas)) {
-    echo json_encode(["ok" => false, "error" => "Tipo de archivo no permitido. Solo JPG, PNG, WEBP o GIF."]);
+    http_response_code(415);
+    echo json_encode(["ok" => false, "error" => $esVideo ? "Tipo de archivo no permitido. Solo MP4, MOV o WEBM." : "Tipo de archivo no permitido. Solo JPG, PNG, WEBP o GIF."]);
     exit;
 }
 
-if (function_exists('mime_content_type')) {
-    $mime = mime_content_type($file['tmp_name']);
-    $mimesPermitidos = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-    if (!in_array($mime, $mimesPermitidos)) {
-        echo json_encode(["ok" => false, "error" => "El archivo no es una imagen válida."]);
-        exit;
+$mime = function_exists('mime_content_type') ? mime_content_type($file['tmp_name']) : null;
+if (!$mime || $mime === 'application/octet-stream') {
+    $header = file_get_contents($file['tmp_name'], false, null, 0, 16);
+    if ($esVideo) {
+        if ($ext === 'webm' && substr($header, 0, 4) === "\x1A\x45\xDF\xA3") {
+            $mime = 'video/webm';
+        } elseif (in_array($ext, ['mp4', 'mov'], true) && substr($header, 4, 4) === 'ftyp') {
+            $mime = $ext === 'mov' ? 'video/quicktime' : 'video/mp4';
+        }
+    } else {
+        if (substr($header, 0, 3) === "\xFF\xD8\xFF") {
+            $mime = 'image/jpeg';
+        } elseif (substr($header, 0, 8) === "\x89PNG\r\n\x1A\n") {
+            $mime = 'image/png';
+        } elseif (substr($header, 0, 6) === 'GIF87a' || substr($header, 0, 6) === 'GIF89a') {
+            $mime = 'image/gif';
+        } elseif (substr($header, 0, 4) === 'RIFF' && substr($header, 8, 4) === 'WEBP') {
+            $mime = 'image/webp';
+        }
     }
 }
+$mimesPermitidos = $esVideo
+    ? ['video/mp4', 'video/quicktime', 'video/webm', 'video/x-m4v']
+    : ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+if (!in_array($mime, $mimesPermitidos, true)) {
+    http_response_code(415);
+    echo json_encode(["ok" => false, "error" => $esVideo ? "El archivo no es un video MP4, MOV o WEBM válido." : "El archivo no es una imagen válida."]);
+    exit;
+}
 
-if ($file['size'] > 5 * 1024 * 1024) {
-    echo json_encode(["ok" => false, "error" => "La imagen no puede superar 5MB."]);
+$maxSize = $esVideo ? 10 * 1024 * 1024 : 5 * 1024 * 1024;
+if ($file['size'] > $maxSize) {
+    http_response_code(413);
+    echo json_encode(["ok" => false, "error" => $esVideo ? "El video no puede superar 10 MB." : "La imagen no puede superar 5 MB."]);
     exit;
 }
 
@@ -75,11 +107,14 @@ $identificador = $esAdmin ? 'admin_' . $_SESSION['id_persona'] : $_SESSION['id_e
 $publicId = $identificador . '_' . time() . '_' . bin2hex(random_bytes(4));
 
 $timestamp = time();
+$folder = $esVideo
+    ? CLOUDINARY_FOLDER_PORTADA_VIDEOS
+    : ($esAdmin ? CLOUDINARY_FOLDER_PORTADA_IMAGENES : CLOUDINARY_FOLDER);
 
 // Los parámetros que se firman deben ir en orden alfabético, separados por &,
 // sin incluir archivo, api_key, ni la propia firma.
 $paramsAFirmar = [
-    'folder'    => CLOUDINARY_FOLDER,
+    'folder'    => $folder,
     'public_id' => $publicId,
     'timestamp' => $timestamp,
 ];
@@ -97,11 +132,12 @@ $postFields = [
     'api_key'    => CLOUDINARY_API_KEY,
     'timestamp'  => $timestamp,
     'signature'  => $signature,
-    'folder'     => CLOUDINARY_FOLDER,
+    'folder'     => $folder,
     'public_id'  => $publicId,
 ];
 
-$url = 'https://api.cloudinary.com/v1_1/' . CLOUDINARY_CLOUD_NAME . '/image/upload';
+$resourceType = $esVideo ? 'video' : 'image';
+$url = 'https://api.cloudinary.com/v1_1/' . CLOUDINARY_CLOUD_NAME . '/' . $resourceType . '/upload';
 
 $ch = curl_init($url);
 curl_setopt($ch, CURLOPT_POST, true);
@@ -112,7 +148,6 @@ curl_setopt($ch, CURLOPT_TIMEOUT, 30);
 $respuesta = curl_exec($ch);
 $curlError = curl_error($ch);
 $httpCode  = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-curl_close($ch);
 
 if ($respuesta === false) {
     http_response_code(500);
@@ -139,7 +174,43 @@ if ($httpCode !== 200 || empty($data['secure_url'])) {
     exit;
 }
 
+$duration = $esVideo ? ($data['duration'] ?? null) : null;
+if ($esVideo && (!is_numeric($duration) || (float)$duration > 10)) {
+    $timestampEliminar = time();
+    $parametrosEliminar = [
+        'public_id' => $data['public_id'] ?? $publicId,
+        'timestamp' => $timestampEliminar,
+    ];
+    ksort($parametrosEliminar);
+    $cadenaEliminar = '';
+    foreach ($parametrosEliminar as $key => $value) {
+        $cadenaEliminar .= ($cadenaEliminar === '' ? '' : '&') . $key . '=' . $value;
+    }
+    $firmaEliminar = sha1($cadenaEliminar . CLOUDINARY_API_SECRET);
+    $chEliminar = curl_init('https://api.cloudinary.com/v1_1/' . CLOUDINARY_CLOUD_NAME . '/video/destroy');
+    curl_setopt($chEliminar, CURLOPT_POST, true);
+    curl_setopt($chEliminar, CURLOPT_POSTFIELDS, [
+        'public_id' => $parametrosEliminar['public_id'],
+        'timestamp' => $timestampEliminar,
+        'api_key' => CLOUDINARY_API_KEY,
+        'signature' => $firmaEliminar,
+    ]);
+    curl_setopt($chEliminar, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($chEliminar, CURLOPT_TIMEOUT, 15);
+    curl_exec($chEliminar);
+
+    if ((float)($duration ?? 0) > 10) {
+        http_response_code(422);
+        echo json_encode(["ok" => false, "error" => "El video debe durar máximo 10 segundos."]);
+    } else {
+        http_response_code(502);
+        echo json_encode(["ok" => false, "error" => "Cloudinary no devolvió la duración del video para validarlo."]);
+    }
+    exit;
+}
+
 echo json_encode([
     "ok"  => true,
     "url" => $data['secure_url'],
+    "duration" => $duration,
 ]);

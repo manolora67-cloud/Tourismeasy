@@ -9,6 +9,7 @@
     let destinos = [];
     let csrf = '';
     let cargando = false;
+    let uploadsEnCurso = 0;
 
     const escapeHtml = (value) => String(value == null ? '' : value).replace(/[&<>"']/g, (char) => ({
         '&': '&amp;',
@@ -116,17 +117,17 @@
                     <div class="portada-field full"><label for="pdDesc">Descripción de la tarjeta</label><textarea id="pdDesc" required maxlength="3000"></textarea></div>
                     <div class="portada-field"><label for="pdBadge">Insignia de la tarjeta (opcional)</label><input id="pdBadge" maxlength="80" placeholder="Popular"></div>
                     <div class="portada-field"><label for="pdAlt">Texto alternativo de la foto</label><input id="pdAlt" required maxlength="200"></div>
-                    <div class="portada-field full"><label for="pdImage">Ruta/URL de la foto</label><input id="pdImage" required placeholder="img/destino.png"><small>También puedes elegir una imagen y subirla a Cloudinary.</small><input id="pdFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif"></div>
+                    <div class="portada-field full"><label for="pdFile">Foto de la tarjeta</label><input id="pdImage" type="hidden"><input id="pdFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif"><small>Selecciona una imagen JPG, PNG, WEBP o GIF (máximo 5 MB). Se subirá a Cloudinary.</small></div>
                     <div class="portada-field full"><div class="portada-image-preview"><img id="pdPreview" alt="Vista previa"><span id="pdUploadStatus"></span></div></div>
                     <div class="portada-field"><label for="pdOrder">Orden en la portada</label><input id="pdOrder" type="number" min="0" max="10000" required></div>
                     <label class="portada-check"><input id="pdPublished" type="checkbox"> Publicado en la portada</label>
                     <div class="portada-field"><label for="paTitle">Título del artículo</label><input id="paTitle" maxlength="150"></div>
                     <div class="portada-field"><label for="paSubtitle">Subtítulo</label><input id="paSubtitle" maxlength="250"></div>
                     <div class="portada-field"><label for="paBadge">Insignia del artículo</label><input id="paBadge" maxlength="80"></div>
-                    <div class="portada-field"><label for="paVideo">Video de cabecera (opcional)</label><input id="paVideo" placeholder="audio-video/destino.mp4"><small>URL HTTPS o ruta dentro de audio-video/.</small></div>
-                    <div class="portada-field full"><label for="paFacts">Datos rápidos</label><textarea id="paFacts" placeholder="Altitud | 959 m.s.n.m.&#10;Clima | 24 °C promedio"></textarea><small>Una fila por línea: etiqueta | valor</small></div>
+                    <div class="portada-field full"><label for="paVideoFile">Video de cabecera (opcional)</label><input id="paVideo" type="hidden"><input id="paVideoFile" type="file" accept="video/mp4,video/quicktime,video/webm,.mp4,.mov,.webm"><small>Selecciona un video MP4, MOV o WEBM de máximo 10 segundos y 10 MB. Se subirá a Cloudinary.</small><span id="paVideoUploadStatus" role="status"></span><video id="paVideoPreview" class="portada-video-preview" controls muted playsinline hidden></video><button type="button" class="portada-video-remove" id="paVideoRemove" hidden><i class="fa-solid fa-trash"></i> Quitar video</button></div>
+                    <div class="portada-field full"><label for="paFacts">Datos rápidos</label><textarea id="paFacts" placeholder="Altitud - 959 m.s.n.m.&#10;Clima - 24 °C promedio"></textarea><small>Una fila por línea: etiqueta - valor</small></div>
                     <div class="portada-field full"><label for="paIntro">Introducción del artículo</label><textarea id="paIntro"></textarea></div>
-                    <div class="portada-field full"><label for="paSections">Secciones del artículo</label><textarea id="paSections" placeholder="Cómo moverte | Texto de la sección...&#10;Dónde alojarte | Texto de la sección..."></textarea><small>Una sección por línea: título | texto. Puedes usar emojis en el título.</small></div>
+                    <div class="portada-field full"><label for="paSections">Secciones del artículo</label><textarea id="paSections" placeholder="Cómo moverte - Texto de la sección...&#10;Dónde alojarte - Texto de la sección..."></textarea><small>Una sección por línea: título - texto. Puedes usar emojis en el título.</small></div>
                     <div class="portada-field full"><label for="paCta">Texto final del artículo</label><input id="paCta" maxlength="250"></div>
                 </div>
                 <div class="portada-form-actions">
@@ -137,21 +138,33 @@
     }
 
     function linesFromFacts(facts) {
-        return (facts || []).map((item) => `${item.label || ''} | ${item.val || ''}`).join('\n');
+        return (facts || []).map((item) => `${item.label || ''} - ${item.val || ''}`).join('\n');
     }
 
     function linesFromSections(sections) {
-        return (sections || []).map((item) => `${item.titulo || ''} | ${item.texto || ''}`).join('\n');
+        return (sections || []).map((item) => `${item.titulo || ''} - ${item.texto || ''}`).join('\n');
     }
 
     function parseLines(value, firstKey, secondKey) {
         return value.split('\n').map((line) => {
-            const divider = line.indexOf('|');
+            const modernDivider = line.indexOf(' - ');
+            const divider = modernDivider >= 0 ? modernDivider : line.indexOf('|');
+            const separatorLength = modernDivider >= 0 ? 3 : 1;
             return divider < 0 ? null : {
                 [firstKey]: line.slice(0, divider).trim(),
-                [secondKey]: line.slice(divider + 1).trim()
+                [secondKey]: line.slice(divider + separatorLength).trim()
             };
         }).filter((item) => item && item[firstKey] && item[secondKey]);
+    }
+
+    function parseFacts(value) {
+        return value.split('\n').map((line) => {
+            const divider = line.includes(' - ') ? line.indexOf(' - ') : line.indexOf('|');
+            return divider < 0 ? null : {
+                label: line.slice(0, divider).trim(),
+                val: line.slice(divider + (line.startsWith(' - ', divider) ? 3 : 1)).trim()
+            };
+        }).filter((item) => item && item.label && item.val);
     }
 
     function openEditor(destination) {
@@ -182,41 +195,136 @@
         document.getElementById('pdKey').readOnly = !isNew;
         document.getElementById('pdPublished').checked = item.publicado !== false;
         const preview = document.getElementById('pdPreview');
-        preview.src = adminAsset(item.img || '');
+        preview.src = item.img ? adminAsset(item.img) : '';
+        const videoPreview = document.getElementById('paVideoPreview');
+        const videoRemove = document.getElementById('paVideoRemove');
+        if (article.video) {
+            videoPreview.src = adminAsset(article.video);
+            videoPreview.hidden = false;
+            videoRemove.hidden = false;
+        } else {
+            videoPreview.removeAttribute('src');
+            videoPreview.hidden = true;
+            videoRemove.hidden = true;
+        }
         document.getElementById('pdCancel').addEventListener('click', () => { editor.hidden = true; });
         document.getElementById('pdFile').addEventListener('change', uploadImage);
+        document.getElementById('paVideoFile').addEventListener('change', uploadVideo);
+        videoRemove.addEventListener('click', () => {
+            document.getElementById('paVideo').value = '';
+            document.getElementById('paVideoFile').value = '';
+            videoPreview.pause();
+            videoPreview.removeAttribute('src');
+            videoPreview.hidden = true;
+            videoRemove.hidden = true;
+            document.getElementById('paVideoUploadStatus').textContent = 'Video quitado. Guarda el destino para aplicar el cambio.';
+        });
         document.getElementById('portadaForm').addEventListener('submit', (event) => save(event, item));
         editor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    async function subirArchivo(file, field) {
+        const body = new FormData();
+        body.append(field, file);
+        return request('../subir_imagen.php', {
+            method: 'POST',
+            headers: { 'X-CSRF-Token': csrf },
+            body
+        });
     }
 
     async function uploadImage(event) {
         const file = event.target.files && event.target.files[0];
         if (!file) return;
         const message = document.getElementById('pdUploadStatus');
+        if (file.size > 5 * 1024 * 1024) {
+            message.textContent = 'La imagen no puede superar 5 MB.';
+            event.target.value = '';
+            return;
+        }
         message.textContent = 'Subiendo imagen…';
-        const body = new FormData();
-        body.append('imagen', file);
+        uploadsEnCurso++;
         try {
-            const response = await fetch('../subir_imagen.php', {
-                method: 'POST',
-                credentials: 'include',
-                headers: { 'X-CSRF-Token': csrf },
-                body
-            });
-            const result = await response.json();
-            if (!response.ok || !result.ok) throw new Error(result.error || 'No se pudo subir la imagen.');
+            const result = await subirArchivo(file, 'imagen');
             document.getElementById('pdImage').value = result.url;
             document.getElementById('pdPreview').src = result.url;
             message.textContent = 'Imagen subida correctamente.';
         } catch (error) {
             message.textContent = error.message;
             showStatus(error.message, true);
+        } finally {
+            uploadsEnCurso--;
+        }
+    }
+
+    function obtenerDuracionVideo(file) {
+        return new Promise((resolve, reject) => {
+            const video = document.createElement('video');
+            const objectUrl = URL.createObjectURL(file);
+            video.preload = 'metadata';
+            video.onloadedmetadata = () => {
+                URL.revokeObjectURL(objectUrl);
+                resolve(video.duration);
+            };
+            video.onerror = () => {
+                URL.revokeObjectURL(objectUrl);
+                reject(new Error('No se pudo leer la duración del video. Usa MP4, MOV o WEBM.'));
+            };
+            video.src = objectUrl;
+        });
+    }
+
+    async function uploadVideo(event) {
+        const file = event.target.files && event.target.files[0];
+        if (!file) return;
+        const message = document.getElementById('paVideoUploadStatus');
+        if (file.size > 10 * 1024 * 1024) {
+            message.textContent = 'El video no puede superar 10 MB.';
+            event.target.value = '';
+            return;
+        }
+
+        try {
+            const duration = await obtenerDuracionVideo(file);
+            if (!Number.isFinite(duration) || duration > 10) {
+                throw new Error('El video debe durar máximo 10 segundos.');
+            }
+        } catch (error) {
+            message.textContent = error.message;
+            event.target.value = '';
+            return;
+        }
+
+        message.textContent = 'Subiendo video…';
+        uploadsEnCurso++;
+        try {
+            const result = await subirArchivo(file, 'video');
+            document.getElementById('paVideo').value = result.url;
+            const preview = document.getElementById('paVideoPreview');
+            preview.src = result.url;
+            preview.hidden = false;
+            document.getElementById('paVideoRemove').hidden = false;
+            message.textContent = 'Video subido correctamente.';
+        } catch (error) {
+            message.textContent = error.message;
+            showStatus(error.message, true);
+            event.target.value = '';
+        } finally {
+            uploadsEnCurso--;
         }
     }
 
     async function save(event, original) {
         event.preventDefault();
         const button = document.getElementById('pdSave');
+        if (uploadsEnCurso > 0) {
+            showStatus('Espera a que termine la subida de los archivos.', true);
+            return;
+        }
+        if (!document.getElementById('pdImage').value) {
+            showStatus('Selecciona una foto de la tarjeta y espera a que termine la subida.', true);
+            return;
+        }
         button.disabled = true;
         showStatus('Guardando destino…');
         const value = (id) => document.getElementById(id).value.trim();
@@ -234,7 +342,7 @@
                 badge: value('paBadge'),
                 titulo: value('paTitle') || value('pdTitle'),
                 subtitulo: value('paSubtitle'),
-                datos: parseLines(value('paFacts'), 'label', 'val'),
+                datos: parseFacts(value('paFacts')),
                 intro: value('paIntro'),
                 secciones: parseLines(value('paSections'), 'titulo', 'texto'),
                 ctaTexto: value('paCta')

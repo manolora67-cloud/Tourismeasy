@@ -8,9 +8,7 @@
     <link rel="stylesheet" href="../css/index.css" />
     <link rel="stylesheet" href="../css/login.css" />
     <link rel="stylesheet" href="../css/panel_admin.css" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;500&display=swap"
-        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;500&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
 </head>
@@ -146,8 +144,7 @@
                         </h3>
                         <div class="pu-field-list">
                             <div class="pu-field">
-                                <span class="pu-field-label">Nombre</span><span class="pu-field-val"
-                                    id="infoNombre">Administrador
+                                <span class="pu-field-label">Nombre</span><span class="pu-field-val" id="infoNombre">Administrador
                                     TourismEasy</span>
                             </div>
                             <div class="pu-field">
@@ -155,20 +152,17 @@
                                     principal</span>
                             </div>
                             <div class="pu-field">
-                                <span class="pu-field-label">Correo</span><span class="pu-field-val"
-                                    id="infoEmail">admin@tourismeasy.com</span>
+                                <span class="pu-field-label">Correo</span><span class="pu-field-val" id="infoEmail">admin@tourismeasy.com</span>
                             </div>
                             <div class="pu-field">
-                                <span class="pu-field-label">Teléfono</span><span class="pu-field-val"
-                                    id="infoTelefono">+57 317 461 3395</span>
+                                <span class="pu-field-label">Teléfono</span><span class="pu-field-val" id="infoTelefono">+57 317 461 3395</span>
                             </div>
                             <div class="pu-field">
                                 <span class="pu-field-label">Ciudad</span><span class="pu-field-val">Bucaramanga,
                                     Santander</span>
                             </div>
                             <div class="pu-field">
-                                <span class="pu-field-label">Activo desde</span><span class="pu-field-val"
-                                    id="infoActivoDesde">Abril 2026</span>
+                                <span class="pu-field-label">Activo desde</span><span class="pu-field-val" id="infoActivoDesde">Abril 2026</span>
                             </div>
                         </div>
                     </div>
@@ -203,16 +197,13 @@
                     </h3>
                     <div class="pu-stats-row">
                         <div class="pu-stat">
-                            <span class="pu-stat-num" id="adminStatEmpresas">—</span><span
-                                class="pu-stat-label">Empresas registradas</span>
+                            <span class="pu-stat-num" id="adminStatEmpresas">—</span><span class="pu-stat-label">Empresas registradas</span>
                         </div>
                         <div class="pu-stat">
-                            <span class="pu-stat-num" id="adminStatCalif">—</span><span
-                                class="pu-stat-label">Calificación promedio</span>
+                            <span class="pu-stat-num" id="adminStatCalif">—</span><span class="pu-stat-label">Calificación promedio</span>
                         </div>
                         <div class="pu-stat">
-                            <span class="pu-stat-num" id="adminStatServicios">—</span><span
-                                class="pu-stat-label">Servicios activos</span>
+                            <span class="pu-stat-num" id="adminStatServicios">—</span><span class="pu-stat-label">Servicios activos</span>
                         </div>
                     </div>
                 </div>
@@ -224,7 +215,7 @@
     <div id="site-footer"></div>
     <script src="../componentes/footer.js"></script>
     <script>
-        (function () {
+        (function() {
             var sess = sessionStorage.getItem("te_session");
             if (!sess) {
                 window.location.href = "../index.html";
@@ -248,14 +239,14 @@
         })();
 
         // SESSION WIDGET
-        (function () {
+        (function() {
             var user = JSON.parse(sessionStorage.getItem("te_session") || "null");
             var slot = document.getElementById("sessionWidgetSlot");
             if (!user || !slot) return;
             var w = document.createElement("div");
             w.id = "sessionWidget";
             w.className = "session-widget";
-            var ini = user.avatar || ((user.nombre || "AD").trim().split(/\s+/).map(function (x) {
+            var ini = user.avatar || ((user.nombre || "AD").trim().split(/\s+/).map(function(x) {
                 return x[0] || "";
             }).join("").toUpperCase().slice(0, 2) || "AD");
             w.innerHTML = '<button class="session-trigger" id="sessionTrigger"><div class="session-avatar">' + ini + '</div><div class="session-info"><span class="session-name">' + (user.nombre || "Administrador") + '</span><span class="session-tipo">Administrador</span></div><i class="fa-solid fa-chevron-down session-chevron" id="sessionChevron"></i></button><div class="session-dropdown" id="sessionDropdown"><a class="session-menu-item session-menu-highlight" href="panel_admin.html"><i class="fa-solid fa-shield-halved"></i> Panel Administrador</a><a class="session-menu-item" href="perfil_admin.html"><i class="fa-solid fa-user"></i> Mi Perfil</a><a class="session-menu-item" href="config_admin.html"><i class="fa-solid fa-gear"></i> Configuracion</a><a class="session-menu-item" href="festividades_admin.html"><i class="fa-solid fa-calendar-days"></i> Festividades</a><a class="session-menu-item session-menu-danger" id="btnLogout" href="#"><i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesion</a></div>';
@@ -263,16 +254,16 @@
             var trig = w.querySelector("#sessionTrigger"),
                 drop = w.querySelector("#sessionDropdown"),
                 chev = w.querySelector("#sessionChevron");
-            trig.addEventListener("click", function (e) {
+            trig.addEventListener("click", function(e) {
                 e.stopPropagation();
                 var o = drop.classList.toggle("open");
                 chev.style.transform = o ? "rotate(180deg)" : "rotate(0deg)";
             });
-            document.addEventListener("click", function () {
+            document.addEventListener("click", function() {
                 drop.classList.remove("open");
                 chev.style.transform = "rotate(0deg)";
             });
-            w.querySelector("#btnLogout").addEventListener("click", function (e) {
+            w.querySelector("#btnLogout").addEventListener("click", function(e) {
                 e.preventDefault();
                 e.stopPropagation();
                 sessionStorage.removeItem("te_session");
@@ -291,16 +282,16 @@
         var savedTheme = localStorage.getItem("theme");
         applyTheme(
             savedTheme ?
-                savedTheme === "dark" :
-                window.matchMedia("(prefers-color-scheme: dark)").matches,
+            savedTheme === "dark" :
+            window.matchMedia("(prefers-color-scheme: dark)").matches,
         );
-        darkModeBtn.addEventListener("click", function () {
+        darkModeBtn.addEventListener("click", function() {
             applyTheme(!document.body.classList.contains("dark-mode"));
         });
 
         var logoutBtn = document.getElementById("sidebarLogout");
         if (logoutBtn) {
-            logoutBtn.addEventListener("click", function (e) {
+            logoutBtn.addEventListener("click", function(e) {
                 e.preventDefault();
                 sessionStorage.removeItem("te_session");
                 window.location.href = "../index.html";
@@ -311,13 +302,13 @@
     <script src="../js/santanderianidad.js"></script>
     <script>
         // Perfil de administrador - 100% desde la BD, sin localStorage
-        (function () {
+        (function() {
             var sesion = {};
             try {
                 sesion = JSON.parse(sessionStorage.getItem("te_session") || "{}");
-            } catch (e) { }
+            } catch (e) {}
 
-            var API_BASE = window.location.origin + '/Tourismeasy/login/';
+            var API_BASE = new URL("../login/", window.location.href).href;
             var adminActual = {};
 
             var MESES_ES = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
@@ -337,7 +328,7 @@
             function aplicarDatos(d) {
                 var nombreCompleto = ((d.nombre || "") + " " + (d.apellido || "")).trim() || sesion.nombre || "Administrador TourismEasy";
                 var email = d.email_login || sesion.email || "admin@tourismeasy.com";
-                var initials = nombreCompleto.split(/\s+/).map(function (w) {
+                var initials = nombreCompleto.split(/\s+/).map(function(w) {
                     return w[0] || "";
                 }).join("").substring(0, 2).toUpperCase() || "AD";
 
@@ -358,16 +349,16 @@
             function cargarPerfil() {
                 if (!sesion.id) return;
                 fetch(API_BASE + 'get_perfil_admin.php?id=' + encodeURIComponent(sesion.id))
-                    .then(function (r) {
+                    .then(function(r) {
                         return r.json();
                     })
-                    .then(function (data) {
+                    .then(function(data) {
                         if (data.ok && data.admin) {
                             adminActual = data.admin;
                             aplicarDatos(adminActual);
                         }
                     })
-                    .catch(function (err) {
+                    .catch(function(err) {
                         console.error("No se pudo cargar el perfil del administrador:", err);
                     });
             }
@@ -385,7 +376,10 @@
                 var diffH = Math.floor(diffMin / 60);
                 var esHoy = f.toDateString() === ahora.toDateString();
                 if (esHoy) {
-                    return "Hoy, " + f.toLocaleTimeString("es-CO", { hour: "numeric", minute: "2-digit" });
+                    return "Hoy, " + f.toLocaleTimeString("es-CO", {
+                        hour: "numeric",
+                        minute: "2-digit"
+                    });
                 }
                 if (diffH < 24) return "Hace " + diffH + (diffH === 1 ? " hora" : " horas");
 
@@ -399,17 +393,20 @@
                 var cont = document.getElementById("ultimaActividadList");
                 if (!cont) return;
 
-                fetch(window.location.origin + '/Tourismeasy/soli_empresas/get_auditoria.php', { credentials: 'include' })
-                    .then(function (r) {
+                var activityUrl = new URL("../soli_empresas/get_auditoria.php", window.location.href);
+                fetch(activityUrl, {
+                        credentials: 'include'
+                    })
+                    .then(function(r) {
                         return r.json();
                     })
-                    .then(function (data) {
+                    .then(function(data) {
                         if (!data.ok || !data.data || !data.data.length) {
                             cont.innerHTML = '<div class="pe-actividad-item"><div><p class="pe-actividad-titulo">Sin actividad reciente</p></div></div>';
                             return;
                         }
 
-                        cont.innerHTML = data.data.slice(0, 3).map(function (ev) {
+                        cont.innerHTML = data.data.slice(0, 3).map(function(ev) {
                             return '<div class="pe-actividad-item">' +
                                 '<div class="pe-actividad-icon pe-actividad-icon--purple"><i class="fa-solid fa-circle-dot"></i></div>' +
                                 '<div>' +
@@ -419,7 +416,7 @@
                                 '</div>';
                         }).join('');
                     })
-                    .catch(function (err) {
+                    .catch(function(err) {
                         console.error("No se pudo cargar la última actividad:", err);
                         cont.innerHTML = '<div class="pe-actividad-item"><div><p class="pe-actividad-titulo">No se pudo cargar</p></div></div>';
                     });
@@ -428,17 +425,18 @@
 
             function cargarEstadisticas() {
                 fetch(API_BASE + 'get_estadisticas_admin.php')
-                    .then(function (r) {
+                    .then(function(r) {
+                        if (!r.ok) throw new Error("HTTP " + r.status);
                         return r.json();
                     })
-                    .then(function (data) {
+                    .then(function(data) {
                         if (!data.ok || !data.estadisticas) return;
                         var st = data.estadisticas;
                         set("adminStatEmpresas", (st.empresas_registradas !== null && st.empresas_registradas !== undefined) ? st.empresas_registradas : "—");
                         set("adminStatCalif", st.calificacion_promedio !== null ? st.calificacion_promedio.toFixed(1) : "—");
                         set("adminStatServicios", (st.servicios_activos !== null && st.servicios_activos !== undefined) ? st.servicios_activos : "—");
                     })
-                    .catch(function (err) {
+                    .catch(function(err) {
                         console.error("No se pudieron cargar las estadísticas:", err);
                     });
             }
@@ -471,11 +469,11 @@
             btnAbrir.addEventListener("click", abrirModal);
             btnCerrar.addEventListener("click", cerrarModal);
             btnCancelar.addEventListener("click", cerrarModal);
-            modal.addEventListener("click", function (e) {
+            modal.addEventListener("click", function(e) {
                 if (e.target === modal) cerrarModal();
             });
 
-            btnGuardar.addEventListener("click", function () {
+            btnGuardar.addEventListener("click", function() {
                 var nombreCompleto = document.getElementById("editNombreAdmin").value.trim();
                 var email = document.getElementById("editEmailAdmin").value.trim();
                 var tel = document.getElementById("editTelAdmin").value.trim();
@@ -496,22 +494,22 @@
                 btnGuardar.disabled = true;
 
                 fetch(API_BASE + 'actualizar_perfil_admin.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        id: sesion.id,
-                        nombre: nombre,
-                        apellido: apellido,
-                        email: email,
-                        tel: tel,
-                    }),
-                })
-                    .then(function (r) {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            id: sesion.id,
+                            nombre: nombre,
+                            apellido: apellido,
+                            email: email,
+                            tel: tel,
+                        }),
+                    })
+                    .then(function(r) {
                         return r.json();
                     })
-                    .then(function (data) {
+                    .then(function(data) {
                         btnGuardar.disabled = false;
                         if (!data.ok) {
                             alert(data.error || "No se pudo actualizar el perfil.");
@@ -529,22 +527,22 @@
                         sessionStorage.setItem("te_session", JSON.stringify(sesion));
 
                         toast.style.display = "block";
-                        setTimeout(function () {
+                        setTimeout(function() {
                             cerrarModal();
                         }, 1400);
                     })
-                    .catch(function (err) {
+                    .catch(function(err) {
                         btnGuardar.disabled = false;
                         console.error("Error al actualizar el perfil:", err);
                         alert("No se pudo actualizar el perfil. Intenta de nuevo.");
                     });
             });
 
-            document.querySelectorAll("#modalEditarAdmin .pu-modal-input").forEach(function (inp) {
-                inp.addEventListener("focus", function () {
+            document.querySelectorAll("#modalEditarAdmin .pu-modal-input").forEach(function(inp) {
+                inp.addEventListener("focus", function() {
                     this.style.borderColor = "var(--purple)";
                 });
-                inp.addEventListener("blur", function () {
+                inp.addEventListener("blur", function() {
                     this.style.borderColor = "var(--gray-200)";
                 });
             });
