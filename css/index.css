@@ -495,25 +495,46 @@ ul {
     gap: 12px;
 }
 
-.destinos-track.cards-grid {
-    display: flex;
+.destinos-viewport {
     flex: 1;
     min-width: 0;
-    overflow-x: auto;
-    gap: 24px;
+    overflow: hidden;
+}
+
+.destinos-track {
+    display: flex;
+    transition: transform .45s ease;
+}
+
+.destinos-page {
+    display: grid;
+    flex: 0 0 100%;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    gap: 18px;
     padding: 8px 4px 18px;
-    scroll-behavior: smooth;
-    scroll-snap-type: x mandatory;
-    scrollbar-width: none;
 }
 
-.destinos-track.cards-grid::-webkit-scrollbar {
-    display: none;
+.destinos-page .card {
+    min-width: 0;
+    min-height: 0;
+    padding: 0;
 }
 
-.destinos-track .card {
-    flex: 0 0 calc(33.333% - 16px);
-    scroll-snap-align: start;
+.destinos-page .card-img {
+    height: 150px;
+}
+
+.destinos-page .card-body {
+    padding: 16px 14px 18px;
+}
+
+.destinos-page .card-body h3 {
+    font-size: .98rem;
+}
+
+.destinos-page .card-body p {
+    font-size: .8rem;
 }
 
 .destinos-arrow {
@@ -1523,8 +1544,14 @@ body.dark-mode .btn-volver:hover {
         grid-template-columns: repeat(2, 1fr);
         gap: 20px;
     }
-    .destinos-track .card {
-        flex-basis: calc(50% - 12px);
+    .destinos-page {
+        gap: 14px;
+    }
+    .destinos-page .card-img {
+        height: 135px;
+    }
+    .destinos-page .card-body {
+        padding: 13px 11px 15px;
     }
     /* Testimonios: 2 tarjetas visibles */
     .testimonial-card {
@@ -1621,11 +1648,22 @@ body.dark-mode .btn-volver:hover {
         grid-template-columns: repeat(2, 1fr);
         gap: 16px;
     }
-    .destinos-track.cards-grid {
-        gap: 16px;
+    .destinos-page {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-rows: repeat(4, minmax(0, 1fr));
+        gap: 12px;
     }
-    .destinos-track .card {
-        flex-basis: calc(50% - 8px);
+    .destinos-page .card-img {
+        height: 120px;
+    }
+    .destinos-page .card-body {
+        padding: 12px 10px 14px;
+    }
+    .destinos-page .card-body h3 {
+        font-size: .9rem;
+    }
+    .destinos-page .card-body p {
+        font-size: .75rem;
     }
     .card-img {
         height: 170px;
@@ -1732,11 +1770,18 @@ body.dark-mode .btn-volver:hover {
         width: 34px;
         height: 34px;
     }
-    .destinos-track.cards-grid {
-        gap: 12px;
+    .destinos-page {
+        gap: 9px;
+        padding: 8px 2px 14px;
     }
-    .destinos-track .card {
-        flex-basis: 100%;
+    .destinos-page .card-img {
+        height: 100px;
+    }
+    .destinos-page .card-body {
+        padding: 10px 8px 12px;
+    }
+    .destinos-page .card-body p {
+        line-height: 1.4;
     }
     .card-img {
         height: 200px;

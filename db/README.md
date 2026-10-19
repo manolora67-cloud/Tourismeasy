@@ -40,7 +40,7 @@ La instalación nueva carga las 48 fechas iniciales en `FESTIVIDADES_SANTANDER`.
 
 ### Contenido administrable de la portada
 
-El esquema base ya incluye las tablas necesarias para administrar tarjetas y artículos. Al abrir por primera vez el panel de administración sobre una base nueva, se copian automáticamente a PostgreSQL los ocho destinos y artículos iniciales del sitio. No ejecutes este archivo sobre una base existente para actualizarla: está pensado para instalar el proyecto en una base vacía.
+El esquema base incluye las tablas necesarias para guardar contenido de portada y la lista de municipios de Santander. Los 87 nombres se consultan desde `CIUDADES`; las descripciones de las tarjetas se mantienen en `componentes/destinos.js`, y las imágenes y videos que se actualizan desde el panel se guardan como contenido de portada. El carrusel muestra ocho municipios por página. El panel permite actualizar los medios, pero no cambiar los nombres ni las descripciones. Al abrir por primera vez el panel de administración sobre una base nueva, se copian automáticamente a PostgreSQL los ocho destinos y artículos iniciales del sitio. No ejecutes este archivo sobre una base existente para actualizarla: está pensado para instalar el proyecto en una base vacía.
 
 ### Instalar las funciones SQL
 
