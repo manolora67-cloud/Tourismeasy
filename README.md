@@ -6,7 +6,7 @@ TourismEasy es una plataforma web de turismo inclusivo enfocada en Santander, Co
 
 - Exploración de destinos, planes turísticos, hospedajes y transporte.
 - Acceso para administración y empresas, con solicitud de registro empresarial.
-- Carrusel de los 87 municipios de Santander en la portada, con ocho tarjetas por página y navegación con flechas. Los nombres se consultan de la tabla `CIUDADES`; las descripciones turísticas están en [componentes/destinos.js](componentes/destinos.js), y desde el panel se pueden actualizar las imágenes y los videos.
+- Carrusel de los 87 municipios de Santander en la portada, con ocho tarjetas por página y navegación con flechas. Los nombres se consultan de la tabla `CIUDADES`; cada municipio tiene una tarjeta descrita en [componentes/destinos.js](componentes/destinos.js) y una ficha de destino propia en `ARTICULOS` de [componentes/articulos.js](componentes/articulos.js). Desde el panel se pueden actualizar las imágenes y los videos.
 - Atención y contacto de viajeros por WhatsApp; no se crean cuentas de viajeros.
 - Gestión de servicios y productos artesanales.
 - Reseñas y reacciones de viajeros.
