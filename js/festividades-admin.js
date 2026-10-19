@@ -258,6 +258,13 @@
             link.append(icon, document.createTextNode(" " + item[2]));
             dropdown.appendChild(link);
         });
+        var logoutLink = document.createElement("a");
+        logoutLink.className = "session-menu-item session-menu-danger";
+        logoutLink.href = "#";
+        var logoutIcon = document.createElement("i");
+        logoutIcon.className = "fa-solid fa-right-from-bracket";
+        logoutLink.append(logoutIcon, document.createTextNode(" Cerrar Sesión"));
+        dropdown.appendChild(logoutLink);
         widget.append(trigger, dropdown);
         slot.appendChild(widget);
         trigger.addEventListener("click", function(event) {
@@ -269,9 +276,11 @@
             dropdown.classList.remove("open");
             chevron.style.transform = "rotate(0deg)";
         });
+
+        logoutLink.addEventListener("click", cerrarSesion);
     })();
 
-    document.getElementById("btnLogout").addEventListener("click", async function(event) {
+    async function cerrarSesion(event) {
         event.preventDefault();
         try {
             const response = await fetch("../login/logout_admin.php", {
@@ -288,7 +297,9 @@
             console.warn("No se pudo confirmar el cierre de sesión en el servidor.", error);
             alert(error.message || "No se pudo cerrar la sesión. Intenta de nuevo.");
         }
-    });
+    }
+
+    document.getElementById("btnLogout").addEventListener("click", cerrarSesion);
 
     cargarFestividades().catch(function(error) {
         mostrarError(error.message);
