@@ -506,9 +506,11 @@ ul {
     transition: transform .45s ease;
 }
 
-.destinos-page {
+#site-destinos .destinos-page {
     display: grid;
+    box-sizing: border-box;
     flex: 0 0 100%;
+    width: 100%;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     grid-template-rows: repeat(2, minmax(270px, auto));
     grid-auto-flow: row;
@@ -516,7 +518,8 @@ ul {
     padding: 8px 4px 18px;
 }
 
-.destinos-page .card {
+#site-destinos .destinos-page .card {
+    width: 100%;
     min-width: 0;
     min-height: 0;
     padding: 0;
@@ -1649,7 +1652,7 @@ body.dark-mode .btn-volver:hover {
         grid-template-columns: repeat(2, 1fr);
         gap: 16px;
     }
-    .destinos-page {
+    #site-destinos .destinos-page {
         grid-template-columns: repeat(2, minmax(0, 1fr));
         grid-template-rows: repeat(4, minmax(0, 1fr));
         gap: 12px;
