@@ -11,6 +11,7 @@ TourismEasy es una plataforma web de turismo inclusivo enfocada en Santander, Co
 - Gestión de servicios y productos artesanales.
 - Reseñas y reacciones de viajeros.
 - Perfiles y preferencias de administración y empresas.
+- Sesiones de administración, empresas y artesanos que se recuerdan hasta 30 días desde el último uso, salvo que se cierre sesión manualmente.
 - Recuperación de contraseña por correo electrónico para administración, empresas y artesanos del e-commerce.
 - Asistente virtual Sue para preguntas sobre turismo en Santander. Sin una clave de Groq configurada, dispone de respuestas locales limitadas.
 - Carga de imágenes mediante Cloudinary.
@@ -74,6 +75,7 @@ El servidor integrado de PHP es para desarrollo local, no para producción. Para
 
 - No guardes claves API, contraseñas SMTP, credenciales de Cloudinary ni contraseñas de la base de datos en Git. **La configuración actual del proyecto todavía contiene credenciales en archivos versionados**: no las reutilices en un despliegue compartido. Rótalas si siguen activas y migra la configuración a variables de entorno o archivos locales ignorados por Git.
 - `GROQ_API_KEY` es la variable de entorno que utiliza el asistente. En esta versión, la conexión PostgreSQL, Cloudinary y SMTP siguen configurados directamente en [con_db/db.php](con_db/db.php), [api/cloudinary_config.php](api/cloudinary_config.php) y [recuperacion/servicio_correo.php](recuperacion/servicio_correo.php), respectivamente.
+- La duración de la sesión persistente se configura en [con_db/sesion_persistente.php](con_db/sesion_persistente.php): cambia `$dias` para ajustar el número de días. Cerrar la ventana del navegador no cierra sesión; para terminarla, usa **Cerrar sesión**. La cookie de sesión es `HttpOnly` y la sesión requiere la cookie del servidor; el dato guardado en el almacenamiento del navegador solo sirve para restaurar la interfaz.
 - Los registros insertados por el esquema son datos iniciales/de demostración; reemplázalos y revisa las cuentas antes de usar la plataforma en producción.
 
 ## Base de datos
