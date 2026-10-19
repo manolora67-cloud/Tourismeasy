@@ -510,7 +510,8 @@ ul {
     display: grid;
     flex: 0 0 100%;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    grid-template-rows: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(2, minmax(270px, auto));
+    grid-auto-flow: row;
     gap: 18px;
     padding: 8px 4px 18px;
 }
