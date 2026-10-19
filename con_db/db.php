@@ -9,7 +9,7 @@ $DB_HOST = "localhost";
 $DB_PORT = "5432";
 $DB_NAME = "TOURISMEASY";
 $DB_USER = "postgres";
-$DB_PASS = "hola123";
+$DB_PASS = "postgres123";
 
 // ── Cadena de conexión (DSN) para PostgreSQL ──
 $dsn = "pgsql:host={$DB_HOST};port={$DB_PORT};dbname={$DB_NAME}";
