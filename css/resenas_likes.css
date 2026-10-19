@@ -16,6 +16,34 @@
     margin-top: 10px;
 }
 
+.resena-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.resena-btn-delete {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    border: 1px solid #dc2626;
+    border-radius: 20px;
+    padding: 4px 12px;
+    background: transparent;
+    color: #b91c1c;
+    font-size: 0.82rem;
+    cursor: pointer;
+}
+
+.resena-btn-delete:hover:not(:disabled) {
+    background: #fef2f2;
+}
+
+.resena-btn-delete:disabled {
+    cursor: wait;
+    opacity: 0.65;
+}
+
 
 /* ── Estado base: siempre rojo, con o sin sesión ── */
 

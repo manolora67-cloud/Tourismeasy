@@ -4,7 +4,8 @@
  * Devuelve las empresas con estado PENDIENTE para el panel admin, vía fn_listar_solicitudes_empresas().
  */
 
-session_start();
+require_once __DIR__ . '/../con_db/sesion_persistente.php';
+iniciarSesionPersistente();
 require_once __DIR__ . '/../con_db/db.php';
 
 header('Content-Type: application/json');

@@ -19,6 +19,12 @@
         "'": '&#39;'
     }[char]));
     const adminAsset = (value) => /^(img|audio-video)\//.test(value || '') ? `../${value}` : value;
+    const slugify = (value) => String(value || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '');
     const parseArticle = (value) => {
         if (value && typeof value === 'object') return value;
         if (typeof value === 'string') {
@@ -64,8 +70,29 @@
                     destinos = normalizeRows(initialized.data || []);
                 }
             }
+            const municipios = await (window.TE_MUNICIPIOS_PROMISE || Promise.resolve([]));
+            if (!municipios.length) {
+                throw new Error('No se pudo obtener la lista de municipios de Santander.');
+            }
+            const guardados = destinos;
+            destinos = municipios.map((municipio) => {
+                const aliases = [municipio.key, slugify(municipio.titulo)];
+                const guardado = guardados.find((item) =>
+                    aliases.includes(item.key) || slugify(item.titulo) === slugify(municipio.titulo)
+                );
+                return {
+                    ...municipio,
+                    ...(guardado || {}),
+                    key: guardado ? guardado.key : municipio.key,
+                    titulo: municipio.titulo,
+                    img: (guardado && guardado.img) || municipio.img,
+                    publicado: true,
+                    municipio: true
+                };
+            }).sort((a, b) => a.titulo.localeCompare(b.titulo, 'es'));
+            newButton.hidden = true;
             render();
-            showStatus(`${destinos.length} destino${destinos.length === 1 ? '' : 's'} en el catálogo.`);
+            showStatus(`${destinos.length} municipios. Edita cada uno para cambiar su imagen o video.`);
         } catch (error) {
             showStatus(error.message + ' Verifica que importaste las funciones de contenido de portada indicadas en db/README.md.', true);
             list.innerHTML = '';
@@ -88,7 +115,6 @@
                     <p>${escapeHtml(destino.desc)}</p>
                     <div class="portada-card-actions">
                         <button type="button" class="portada-action edit" data-edit="${escapeHtml(destino.key)}"><i class="fa-solid fa-pen"></i> Editar</button>
-                        <button type="button" class="portada-action delete" data-delete="${escapeHtml(destino.key)}"><i class="fa-solid fa-trash"></i> Eliminar</button>
                     </div>
                 </div>
             </article>`).join('');
@@ -174,6 +200,9 @@
         editorMarkup();
         editor.hidden = false;
         document.getElementById('portadaFormTitle').textContent = isNew ? 'Crear destino' : `Editar ${item.titulo}`;
+        editor.querySelector('.portada-editor-intro').textContent = item.municipio
+            ? 'El nombre y la información del municipio son fijos. Desde aquí puedes actualizar su imagen y video.'
+            : 'Completa la tarjeta de la portada y el artículo asociado. Para los datos y secciones usa una entrada por línea con el formato indicado.';
         const values = {
             pdKey: item.key,
             pdTitle: item.titulo,
@@ -194,6 +223,12 @@
         Object.entries(values).forEach(([id, value]) => { document.getElementById(id).value = value == null ? '' : value; });
         document.getElementById('pdKey').readOnly = !isNew;
         document.getElementById('pdPublished').checked = item.publicado !== false;
+        if (item.municipio) {
+            editor.querySelectorAll('.portada-field').forEach((field) => { field.hidden = true; });
+            document.getElementById('pdFile').closest('.portada-field').hidden = false;
+            document.getElementById('pdPreview').closest('.portada-field').hidden = false;
+            document.getElementById('paVideoFile').closest('.portada-field').hidden = false;
+        }
         const preview = document.getElementById('pdPreview');
         preview.src = item.img ? adminAsset(item.img) : '';
         const videoPreview = document.getElementById('paVideoPreview');
@@ -328,26 +363,33 @@
         button.disabled = true;
         showStatus('Guardando destino…');
         const value = (id) => document.getElementById(id).value.trim();
-        const record = {
-            key: value('pdKey'),
-            img: value('pdImage'),
-            alt: value('pdAlt'),
-            badge: value('pdBadge'),
-            titulo: value('pdTitle'),
-            desc: value('pdDesc'),
-            orden: Number(value('pdOrder')) || 0,
-            publicado: document.getElementById('pdPublished').checked,
-            article: {
-                video: value('paVideo'),
-                badge: value('paBadge'),
-                titulo: value('paTitle') || value('pdTitle'),
-                subtitulo: value('paSubtitle'),
-                datos: parseFacts(value('paFacts')),
-                intro: value('paIntro'),
-                secciones: parseLines(value('paSections'), 'titulo', 'texto'),
-                ctaTexto: value('paCta')
+        const record = original.municipio
+            ? {
+                ...original,
+                img: value('pdImage'),
+                publicado: true,
+                article: { ...original.article, video: value('paVideo') }
             }
-        };
+            : {
+                key: value('pdKey'),
+                img: value('pdImage'),
+                alt: value('pdAlt'),
+                badge: value('pdBadge'),
+                titulo: value('pdTitle'),
+                desc: value('pdDesc'),
+                orden: Number(value('pdOrder')) || 0,
+                publicado: document.getElementById('pdPublished').checked,
+                article: {
+                    video: value('paVideo'),
+                    badge: value('paBadge'),
+                    titulo: value('paTitle') || value('pdTitle'),
+                    subtitulo: value('paSubtitle'),
+                    datos: parseFacts(value('paFacts')),
+                    intro: value('paIntro'),
+                    secciones: parseLines(value('paSections'), 'titulo', 'texto'),
+                    ctaTexto: value('paCta')
+                }
+            };
         if (original.key && original.key !== record.key) {
             showStatus('La clave de un destino existente no se puede cambiar.', true);
             button.disabled = false;
@@ -361,7 +403,7 @@
             });
             const index = destinos.findIndex((destination) => destination.key === record.key);
             if (index < 0) destinos.push(result.data);
-            else destinos[index] = result.data;
+            else destinos[index] = { ...result.data, municipio: original.municipio };
             destinos.sort((a, b) => a.orden - b.orden || a.titulo.localeCompare(b.titulo));
             render();
             editor.hidden = true;

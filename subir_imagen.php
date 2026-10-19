@@ -1,5 +1,6 @@
 <?php
-session_start();
+require_once __DIR__ . '/con_db/sesion_persistente.php';
+iniciarSesionPersistente();
 
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 $ALLOWED_ORIGINS = [

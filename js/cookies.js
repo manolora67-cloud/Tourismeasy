@@ -242,7 +242,7 @@
                 '<h3>4. Derechos del titular</h3>' +
                 '<p>Tienes derecho a conocer, actualizar, rectificar y suprimir tus datos, así como a revocar la autorización otorgada, conforme a la Ley 1581 de 2012 y el Decreto 1377 de 2013.</p>' +
                 '<h3>5. Contacto</h3>' +
-                '<p>Para ejercer tus derechos escríbenos a <strong>privacidad@tourismeasy.com</strong>.</p>'
+                '<p>Para ejercer tus derechos escríbenos a <strong>tourismeasyadso@gmail.com</strong>.</p>'
         },
         cookies: {
             title: 'Política de Cookies',
@@ -256,7 +256,7 @@
                 '<h3>3. Control de cookies</h3>' +
                 '<p>Puedes cambiar tus preferencias de cookies en cualquier momento desde el pie de página. También puedes configurarlas desde tu navegador, aunque esto puede afectar el funcionamiento del sitio.</p>' +
                 '<h3>4. Contacto</h3>' +
-                '<p>Para más información escríbenos a <strong>privacidad@tourismeasy.com</strong>.</p>'
+                '<p>Para más información escríbenos a <strong>tourismeasyadso@gmail.com</strong>.</p>'
         }
     };
 

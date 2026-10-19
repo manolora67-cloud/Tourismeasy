@@ -111,7 +111,7 @@ function openDetailModal(product) {
         product.ubicacion || "Santander, Colombia";
     overlay.querySelector(".pm-desc").textContent = product.description;
     overlay.querySelector(".pm-contacto").textContent =
-        product.contacto || "contacto@tourismlocal.com";
+        product.contacto || "tourismeasyadso@gmail.com";
 
     // Formateamos el precio en pesos colombianos (ej: 85000 → $85.000)
     const priceFormatted = product.price ?
@@ -357,7 +357,7 @@ const tlModalData = {
             </ul>
             <h3>¿Cómo registrarse?</h3>
             <p>El registro es gratuito. Escríbenos con tu información y fotos de tu trabajo:</p>
-            <p>📧 <strong>registro@tourismlocal.com</strong><br>💬 <strong>+57 317 461 3395</strong></p>
+            <p>📧 <strong>tourismeasyadso@gmail.com</strong><br>💬 <strong>+57 317 461 3395</strong></p>
           `,
     },
     contacto: {
@@ -365,7 +365,7 @@ const tlModalData = {
         content: `
             <p>¿Tienes preguntas sobre algún artesano, quieres registrar tu taller o simplemente quieres saber más sobre la artesanía santandereana? Escríbenos.</p>
             <ul>
-              <li>📧 <strong>Email:</strong> contacto@tourismlocal.com</li>
+              <li>📧 <strong>Email:</strong> tourismeasyadso@gmail.com</li>
               <li>📞 <strong>Teléfono:</strong> +57 317 461 3395</li>
               <li>💬 <strong>WhatsApp:</strong> +57 317 461 3395</li>
               <li>📍 <strong>Ubicación:</strong> Bucaramanga, Santander, Colombia</li>
@@ -379,7 +379,7 @@ const tlModalData = {
             <details><summary>¿TourismLocal vende productos?</summary><p>No. TourismLocal es una plataforma informativa. Mostramos los productos y talleres de artesanos santandereanos para que puedas conocerlos y contactarlos directamente.</p></details>
             <details><summary>¿Cómo contacto a un artesano?</summary><p>Cada artesano registrado tiene sus datos de contacto visibles en su perfil. Puedes escribirles directamente para preguntar por sus productos o visitar su taller.</p></details>
             <details><summary>¿Puedo visitar los talleres?</summary><p>Sí, la mayoría de los artesanos reciben visitas. Te recomendamos contactarlos previamente para confirmar horarios y disponibilidad.</p></details>
-            <details><summary>¿Cómo registro mi taller?</summary><p>El registro es gratuito. Escríbenos a registro@tourismlocal.com con información y fotos de tu trabajo y te agregaremos al directorio.</p></details>
+            <details><summary>¿Cómo registro mi taller?</summary><p>El registro es gratuito. Escríbenos a tourismeasyadso@gmail.com con información y fotos de tu trabajo y te agregaremos al directorio.</p></details>
             <details><summary>¿La información es actualizada?</summary><p>Sí, revisamos y actualizamos los perfiles periódicamente. Si eres artesano registrado y quieres actualizar tu información, contáctanos.</p></details>
           `,
     },
@@ -394,7 +394,7 @@ const tlModalData = {
             <h3>3. Cookies</h3>
             <p>Usamos cookies únicamente para recordar tu preferencia de tema (claro/oscuro). No usamos cookies de rastreo ni publicidad.</p>
             <h3>4. Tus derechos</h3>
-            <p>Si eres artesano registrado y quieres actualizar o eliminar tu información, escríbenos a privacidad@tourismlocal.com</p>
+            <p>Si eres artesano registrado y quieres actualizar o eliminar tu información, escríbenos a tourismeasyadso@gmail.com</p>
           `,
     },
 };
@@ -449,7 +449,7 @@ tlOverlay.addEventListener("click", (e) => {
     function haySesionArtesano() {
         var sess = null;
         try {
-            sess = JSON.parse(sessionStorage.getItem('te_ecommerce_session') || 'null');
+            sess = JSON.parse(localStorage.getItem('te_ecommerce_session') || sessionStorage.getItem('te_ecommerce_session') || 'null');
         } catch (e) {}
         return sess && sess.tipo === 'artesano' && sess.estado === 'ACTIVO';
     }

@@ -1,5 +1,6 @@
 <?php
-session_start();
+require_once __DIR__ . '/../con_db/sesion_persistente.php';
+iniciarSesionPersistente();
 header('Content-Type: application/json; charset=utf-8');
 require_once __DIR__ . '/../con_db/db.php';
 require_once __DIR__ . '/../con_db/seguridad_login.php';

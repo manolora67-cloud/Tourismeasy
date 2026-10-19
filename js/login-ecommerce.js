@@ -11,14 +11,18 @@
     // redirecciones entre esta página y admin.php.
     if (new URLSearchParams(window.location.search).get('sesion_expirada') === '1') {
         sessionStorage.removeItem('te_ecommerce_session');
+        localStorage.removeItem('te_ecommerce_session');
         // Limpiamos el parámetro de la URL para que no quede ahí si el usuario recarga
         window.history.replaceState({}, '', window.location.pathname);
     }
 
     // ── Si ya hay sesión activa redirigir ──
     try {
-        var sess = JSON.parse(sessionStorage.getItem('te_ecommerce_session') || 'null');
+        var storedSession = localStorage.getItem('te_ecommerce_session') || sessionStorage.getItem('te_ecommerce_session');
+        var sess = JSON.parse(storedSession || 'null');
         if (sess && sess.tipo === 'artesano' && sess.estado === 'ACTIVO') {
+            localStorage.setItem('te_ecommerce_session', JSON.stringify(sess));
+            sessionStorage.removeItem('te_ecommerce_session');
             window.location.href = '../e-commerce/admin.php';
             return;
         }
@@ -144,7 +148,7 @@
                 }
                 replaceSessionButton.style.display = 'none';
                 // Guardar sesión artesano
-                sessionStorage.setItem('te_ecommerce_session', JSON.stringify(data.session));
+                localStorage.setItem('te_ecommerce_session', JSON.stringify(data.session));
                 window.location.href = '../e-commerce/admin.php';
             })
             .catch(function() {

@@ -212,11 +212,14 @@
     darkModeButton.querySelector("i").className = dark ? "fa-solid fa-sun" : "fa-solid fa-moon";
 
     (function configurarSesion() {
-        var session = JSON.parse(sessionStorage.getItem("te_session") || "null");
+        var storedSession = localStorage.getItem("te_session") || sessionStorage.getItem("te_session");
+        var session = JSON.parse(storedSession || "null");
         if (!session || session.tipo !== "admin") {
             window.location.href = "../index.html";
             return;
         }
+        localStorage.setItem("te_session", JSON.stringify(session));
+        sessionStorage.removeItem("te_session");
         document.getElementById("sidebarAvatar").textContent = session.avatar || "AD";
         document.getElementById("sidebarNombre").textContent = session.nombre || "Administrador";
 
@@ -292,6 +295,7 @@
                 throw new Error(result.error || "No se pudo cerrar la sesión.");
             }
             sessionStorage.removeItem("te_session");
+            localStorage.removeItem("te_session");
             window.location.href = "../index.html";
         } catch (error) {
             console.warn("No se pudo confirmar el cierre de sesión en el servidor.", error);

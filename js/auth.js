@@ -214,7 +214,7 @@
                 }
                 if (!response.ok || !result.ok) throw new Error(result.error || "No se pudo iniciar sesión.");
                 replaceSessionButton.style.display = "none";
-                sessionStorage.setItem("te_session", JSON.stringify(result.session));
+                localStorage.setItem("te_session", JSON.stringify(result.session));
                 const destino = result.session.tipo === "admin" ?
                     "panel_admin.html" :
                     ({ transporte: "panel_transporte.html", hospedaje: "panel_hospedaje.html", planes: "panel_planes.html" }[String(result.session.tipoServicio || "").toLowerCase()] || "panel_transporte.html");
@@ -287,7 +287,12 @@
 
     function getSession() {
         try {
-            const session = JSON.parse(sessionStorage.getItem("te_session") || "null");
+            const storedSession = localStorage.getItem("te_session") || sessionStorage.getItem("te_session");
+            const session = JSON.parse(storedSession || "null");
+            if (session) {
+                localStorage.setItem("te_session", JSON.stringify(session));
+                sessionStorage.removeItem("te_session");
+            }
             if (session && ["admin", "empresa"].includes(session.tipo)) return session;
         } catch (error) {
             console.error("No se pudo leer la sesión:", error);

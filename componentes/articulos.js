@@ -236,22 +236,37 @@
     }
 
     renderArticulos(ARTICULOS);
-    fetch("admin/contenido_portada.php")
-        .then((response) => response.ok ? response.json() : null)
-        .then((result) => {
-            if (!result || !result.ok || !Array.isArray(result.data) || (!result.data.length && !result.initialized)) return;
-            const articulos = result.data
-                .filter((destino) => destino.article)
-                .map((destino) => {
-                    let article = destino.article;
-                    if (typeof article === "string") {
-                        try { article = JSON.parse(article); } catch (error) { article = {}; }
-                    }
-                    return {...article, key: destino.key, poster: destino.img };
-                });
-            renderArticulos(articulos);
-        })
-        .catch(() => {});
+    const municipiosPromise = window.TE_MUNICIPIOS_PROMISE || Promise.resolve([]);
+    municipiosPromise.then((municipios) => {
+        if (!Array.isArray(municipios) || !municipios.length) return;
+        const articulosBase = new Map(ARTICULOS.map((article) => [article.key, article]));
+        const articulos = municipios.map((municipio) => {
+            const base = articulosBase.get(municipio.key) || {
+                badge: "",
+                subtitulo: `Descubre ${municipio.titulo}`,
+                datos: [],
+                intro: `Conoce ${municipio.titulo}, uno de los municipios de Santander. Próximamente encontrarás más información sobre este destino.`,
+                secciones: [],
+                ctaTexto: `¿Listo para explorar ${municipio.titulo}?`
+            };
+            const custom = municipio.article || {};
+            return {
+                ...base,
+                ...custom,
+                key: municipio.key,
+                poster: municipio.img,
+                titulo: municipio.titulo,
+                subtitulo: custom.subtitulo || base.subtitulo,
+                datos: Array.isArray(custom.datos) ? custom.datos : base.datos,
+                intro: custom.intro || base.intro,
+                secciones: Array.isArray(custom.secciones) ? custom.secciones : base.secciones,
+                ctaTexto: custom.ctaTexto || base.ctaTexto
+            };
+        });
+        renderArticulos(articulos);
+    }).catch((error) => {
+        console.error("[TourismEasy] No se pudieron cargar los artículos de los municipios.", error);
+    });
 
     // ---- Abrir / cerrar artículos (delegación de eventos) ----
     function pauseArtVideo(overlay) {

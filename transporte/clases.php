@@ -5,7 +5,8 @@
  * para armar el selector de clase en crear/editar transporte.
  */
 
-session_start();
+require_once __DIR__ . '/../con_db/sesion_persistente.php';
+iniciarSesionPersistente();
 require_once __DIR__ . '/../con_db/db.php';
 
 require_once __DIR__ . '/../cors.php';

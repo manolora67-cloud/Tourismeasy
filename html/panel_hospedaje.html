@@ -256,7 +256,7 @@
     <script>
         // SESION
         (function() {
-            var sess = sessionStorage.getItem("te_session");
+            var sess = (localStorage.getItem("te_session") || sessionStorage.getItem("te_session"));
             if (!sess) {
                 window.location.href = "../index.html";
                 return;
@@ -289,7 +289,7 @@
 
         // SESSION WIDGET
         (function() {
-            var user = JSON.parse(sessionStorage.getItem("te_session") || "null");
+            var user = JSON.parse((localStorage.getItem("te_session") || sessionStorage.getItem("te_session")) || "null");
             var slot = document.getElementById("sessionWidgetSlot");
             if (!user || !slot) return;
             var w = document.createElement("div");
@@ -333,6 +333,7 @@
                 e.preventDefault();
                 e.stopPropagation();
                 sessionStorage.removeItem("te_session");
+                localStorage.removeItem("te_session");
                 window.location.href = "../index.html";
             });
         })();

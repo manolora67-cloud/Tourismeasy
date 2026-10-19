@@ -79,14 +79,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ── Sesión del artesano logueado ──
     // Coincide con lo que login_ecommerce.html guarda tras un login exitoso:
-    // sessionStorage.setItem('te_ecommerce_session', JSON.stringify(data.session))
+    // localStorage.setItem('te_ecommerce_session', JSON.stringify(data.session))
     const SESSION_KEY = 'te_ecommerce_session';
 
     function getSesionArtesano() {
         try {
-            const raw = sessionStorage.getItem(SESSION_KEY);
+            const raw = localStorage.getItem(SESSION_KEY) || sessionStorage.getItem(SESSION_KEY);
             if (!raw) return null;
             const data = JSON.parse(raw);
+            localStorage.setItem(SESSION_KEY, JSON.stringify(data));
+            sessionStorage.removeItem(SESSION_KEY);
             return data && data.id ? data : null;
         } catch (e) {
             return null;
@@ -137,6 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     throw new Error(result.error || 'No se pudo cerrar la sesión.');
                 }
                 sessionStorage.removeItem(SESSION_KEY);
+                localStorage.removeItem(SESSION_KEY);
                 window.location.replace('../html/e-commerce.html');
             } catch (e) {
                 console.error('Error cerrando sesión en el servidor:', e);

@@ -17,6 +17,15 @@
     var BASE = _enHtml ? "../resenas/" : "resenas/";
     var URL_GET = BASE + "get_resenas.php";
     var URL_ACCION = BASE + "accion_resena.php";
+    var adminSession = null;
+    try {
+        adminSession = JSON.parse(localStorage.getItem("te_session") || sessionStorage.getItem("te_session") || "null");
+    } catch (error) {
+        console.warn("[TourismEasy] No se pudo leer la sesión del administrador.", error);
+    }
+    var mostrarModeracion = window.location.pathname.split("/").pop() === "panel_admin.html"
+        && adminSession
+        && adminSession.tipo === "admin";
 
     // ── Identificador de visitante (para dar like sin cuenta) ──
     // Se genera una sola vez por navegador y se guarda en localStorage,
@@ -214,8 +223,20 @@
             '<p class="testimonial-text">' + (r.texto || r.comentario || "").replace(/</g, "&lt;") + '</p>' +
             '<div class="resena-footer">' +
             '<div class="resena-stars-display">' + buildStarsHtml(r.rating || r.puntuacion) + '</div>' +
+            '<div class="resena-actions">' +
             likeHtml +
+            (mostrarModeracion
+                ? '<button class="resena-btn-delete" type="button" title="Eliminar reseña" aria-label="Eliminar reseña" data-id="' + r.id + '"><i class="fa-solid fa-trash"></i> Eliminar</button>'
+                : '') +
+            '</div>' +
             '</div>';
+
+        var btnDelete = card.querySelector(".resena-btn-delete");
+        if (btnDelete) {
+            btnDelete.addEventListener("click", function () {
+                borrarResena(r.id, btnDelete);
+            });
+        }
 
         // ── Evento: Like / Unlike ──
         var btnLike = card.querySelector(".resena-btn-like");
@@ -254,6 +275,30 @@
         }
 
         return card;
+    }
+
+    async function borrarResena(id, button) {
+        if (!window.confirm("¿Eliminar esta reseña? Esta acción no se puede deshacer.")) return;
+
+        button.disabled = true;
+        try {
+            var response = await fetch(URL_ACCION, {
+                method: "POST",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ accion: "BORRAR", id_resena: id })
+            });
+            var result = await response.json();
+            if (!response.ok || !result.ok) {
+                throw new Error(result.error || "No se pudo eliminar la reseña.");
+            }
+
+            cargarResenas();
+            window.dispatchEvent(new Event("teResenasActualizadas"));
+        } catch (error) {
+            button.disabled = false;
+            window.alert(error.message || "No se pudo eliminar la reseña. Intenta de nuevo.");
+        }
     }
 
     // ── Cargar reseñas desde la BD ────────────────────────────────────────

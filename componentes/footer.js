@@ -96,20 +96,20 @@
           <li>✅ Verificación y sello TourismEasy</li>
           <li>📊 Panel de gestión de tu perfil y clientes</li>
         </ul>
-        <p>Escríbenos a <strong>aliados@tourismeasy.com</strong> o llámanos al <strong>+57 317 461 3395</strong></p>`,
+        <p>Escríbenos a <strong>tourismeasyadso@gmail.com</strong> o llámanos al <strong>+57 317 461 3395</strong></p>`,
         },
         prensa: {
             title: "Prensa",
             content: `<p>Tourismeasy está posicionándose como el referente del turismo en Santander, conectando el sector empresarial con miles de viajeros interesados en el departamento.</p>
         <h3>Contacto de prensa</h3>
         <p>Para entrevistas, notas de prensa o información sobre nuestra plataforma:</p>
-        <p><strong>prensa@tourismeasy.com</strong><br>+57 317 461 3395</p>`,
+        <p><strong>tourismeasyadso@gmail.com</strong><br>+57 317 461 3395</p>`,
         },
         contacto: {
             title: "Contacto",
             content: `<p>Estamos aquí para ayudarte. Puedes contactarnos por cualquiera de estos medios:</p>
         <ul>
-          <li>📧 <strong>Email:</strong> hola@tourismeasy.com</li>
+          <li>📧 <strong>Email:</strong> tourismeasyadso@gmail.com</li>
           <li>📞 <strong>Teléfono:</strong> +57 317 461 3395</li>
           <li>💬 <strong>WhatsApp:</strong> <a href="https://wa.me/573174613395" target="_blank" rel="noopener noreferrer">+57 317 461 3395</a></li>
           <li>📍 <strong>Ubicación:</strong> Bucaramanga, Santander, Colombia</li>
@@ -144,7 +144,7 @@
         <h3>3. Compartir información</h3>
         <p>No vendemos tu información personal a terceros. Solo compartimos datos con empresas aliadas cuando realizas una solicitud de servicio.</p>
         <h3>4. Tus derechos</h3>
-        <p>Tienes derecho a acceder, corregir o eliminar tus datos personales contactándonos a privacidad@tourismeasy.com</p>`,
+        <p>Tienes derecho a acceder, corregir o eliminar tus datos personales contactándonos a tourismeasyadso@gmail.com</p>`,
         },
         terminos: {
             title: "Términos de Servicio",

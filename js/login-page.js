@@ -1,7 +1,10 @@
 (function () {
     try {
-        const session = JSON.parse(sessionStorage.getItem("te_session") || "null");
+        const storedSession = localStorage.getItem("te_session") || sessionStorage.getItem("te_session");
+        const session = JSON.parse(storedSession || "null");
         if (session && ["admin", "empresa"].includes(session.tipo)) {
+            localStorage.setItem("te_session", JSON.stringify(session));
+            sessionStorage.removeItem("te_session");
             const panel = session.tipo === "admin"
                 ? "panel_admin.html"
                 : ({
@@ -14,6 +17,7 @@
         }
     } catch (error) {
         sessionStorage.removeItem("te_session");
+        localStorage.removeItem("te_session");
     }
 
     const darkBtn = document.getElementById("darkModeToggle");

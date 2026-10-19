@@ -489,6 +489,66 @@ ul {
     gap: 24px;
 }
 
+.destinos-carousel {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.destinos-track.cards-grid {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    overflow-x: auto;
+    gap: 24px;
+    padding: 8px 4px 18px;
+    scroll-behavior: smooth;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+}
+
+.destinos-track.cards-grid::-webkit-scrollbar {
+    display: none;
+}
+
+.destinos-track .card {
+    flex: 0 0 calc(33.333% - 16px);
+    scroll-snap-align: start;
+}
+
+.destinos-arrow {
+    display: inline-grid;
+    place-items: center;
+    flex: 0 0 44px;
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--gray-200);
+    border-radius: 50%;
+    background: var(--white);
+    color: var(--purple-dark);
+    box-shadow: var(--shadow-card);
+    cursor: pointer;
+    transition: background .2s, color .2s, opacity .2s;
+}
+
+.destinos-arrow:hover:not(:disabled) {
+    background: var(--purple);
+    color: var(--white);
+}
+
+.destinos-arrow:disabled {
+    cursor: default;
+    opacity: .4;
+}
+
+.destinos-error {
+    padding: 24px;
+    border-radius: var(--radius);
+    background: var(--gray-100);
+    color: var(--gray-700);
+    text-align: center;
+}
+
 
 /* Tarjeta de destino */
 
@@ -1463,6 +1523,9 @@ body.dark-mode .btn-volver:hover {
         grid-template-columns: repeat(2, 1fr);
         gap: 20px;
     }
+    .destinos-track .card {
+        flex-basis: calc(50% - 12px);
+    }
     /* Testimonios: 2 tarjetas visibles */
     .testimonial-card {
         flex: 0 0 calc(50% - 12px);
@@ -1557,6 +1620,12 @@ body.dark-mode .btn-volver:hover {
     .cards-grid {
         grid-template-columns: repeat(2, 1fr);
         gap: 16px;
+    }
+    .destinos-track.cards-grid {
+        gap: 16px;
+    }
+    .destinos-track .card {
+        flex-basis: calc(50% - 8px);
     }
     .card-img {
         height: 170px;
@@ -1654,6 +1723,20 @@ body.dark-mode .btn-volver:hover {
     .cards-grid {
         grid-template-columns: 1fr;
         gap: 16px;
+    }
+    .destinos-carousel {
+        gap: 6px;
+    }
+    .destinos-arrow {
+        flex-basis: 34px;
+        width: 34px;
+        height: 34px;
+    }
+    .destinos-track.cards-grid {
+        gap: 12px;
+    }
+    .destinos-track .card {
+        flex-basis: 100%;
     }
     .card-img {
         height: 200px;

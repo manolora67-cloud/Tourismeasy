@@ -130,6 +130,10 @@
     gap: 6px
 }
 
+.portada-field[hidden] {
+    display: none
+}
+
 .portada-field.full {
     grid-column: 1/-1
 }

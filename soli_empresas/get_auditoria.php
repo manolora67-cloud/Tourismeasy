@@ -4,7 +4,8 @@
  * Lista los últimos eventos de auditoría para el panel admin, vía fn_listar_auditoria().
  */
 
-session_start();
+require_once __DIR__ . '/../con_db/sesion_persistente.php';
+iniciarSesionPersistente();
 require_once __DIR__ . '/../con_db/db.php';
 
 header('Content-Type: application/json');

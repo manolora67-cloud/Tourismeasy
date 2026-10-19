@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="../css/login.css" />
     <link rel="stylesheet" href="../css/panel_admin.css" />
     <link rel="stylesheet" href="../css/contenido_admin.css" />
+    <link rel="stylesheet" href="../css/resenas_likes.css" />
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;500&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
@@ -380,7 +381,7 @@
         var adminUser = "admin@tourismeasy.com";
         // ── VERIFICAR SESION ─────────────────────────────────────────────────
         (function() {
-            var sess = sessionStorage.getItem("te_session");
+            var sess = (localStorage.getItem("te_session") || sessionStorage.getItem("te_session"));
             if (!sess) {
                 // window.location.href = "../index.html"; // comentado para demo
                 return;
@@ -416,7 +417,7 @@
 
         // SESSION WIDGET
         (function() {
-            var user = JSON.parse(sessionStorage.getItem("te_session") || "null");
+            var user = JSON.parse((localStorage.getItem("te_session") || sessionStorage.getItem("te_session")) || "null");
             if (!user) return;
             var navContainer = document.querySelector(".nav-container");
             var insertBefore = document.getElementById("darkModeToggle");
@@ -471,6 +472,7 @@
                         console.warn("No se pudo confirmar el cierre de sesión en el servidor.", error);
                     } finally {
                         sessionStorage.removeItem("te_session");
+                        localStorage.removeItem("te_session");
                         window.location.href = "../index.html";
                     }
                 });
@@ -1119,6 +1121,7 @@
             window.addEventListener("storage", function(e) {
                 if (e.key === "te_resenas") buildAdminSummary();
             });
+            window.addEventListener("teResenasActualizadas", buildAdminSummary);
         })();
     </script>
 
