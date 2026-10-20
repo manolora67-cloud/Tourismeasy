@@ -83,10 +83,7 @@
     }
 
     // ── Cargar tipos de documento (hardcodeados de la BD) ──
-    var tiposDocCargados = false;
-
     function cargarTiposDoc() {
-        if (tiposDocCargados) return;
         var tipos = [{
             id: 1,
             nombre: 'CEDULA DE CIUDADANIA'
@@ -95,13 +92,16 @@
             nombre: 'CEDULA DE EXTRANJERIA'
         }, ];
         var sel = document.getElementById('regTipoDoc');
+        sel.replaceChildren(new Option('Selecciona', ''));
+        var idsAgregados = new Set();
         tipos.forEach(function(t) {
+            if (idsAgregados.has(String(t.id))) return;
+            idsAgregados.add(String(t.id));
             var opt = document.createElement('option');
             opt.value = t.id;
             opt.textContent = t.nombre;
             sel.appendChild(opt);
         });
-        tiposDocCargados = true;
     }
 
     // ── LOGIN ──

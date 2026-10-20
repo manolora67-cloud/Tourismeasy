@@ -63,113 +63,168 @@ function actualizarBotonWhatsApp(btn) {
     });
 })();
 
-// ── BUSCADOR DE HOSPEDAJE ──────────────────────────────────
-(function() {
-    var inputDestino = document.getElementById('input-destino');
-    var inputAcces = document.getElementById('input-accesibilidad');
-    var btnBuscar = document.getElementById('btn-buscar-hotel');
-    var grid = document.getElementById('results-grid');
-    var noResults = document.getElementById('no-results');
-    var noResultsQuery = document.getElementById('no-results-query');
-
-    // Mapa de palabras clave → municipio (normalizado sin tildes)
-    var municipios = {
-        'bucaramanga': 'bucaramanga',
-        'bga': 'bucaramanga',
-        'barichara': 'barichara',
-        'giron': 'girón',
-        'girón': 'girón',
-        'socorro': 'socorro',
-    };
-
-    // Mapa de accesibilidad clave → texto que debe aparecer en data-accesibilidad
-    var accesKeys = {
-        'rampa': 'rampa',
-        'habitacion': 'adaptada',
-        'ascensor': 'ascensor',
-    };
-
-    function normalize(str) {
-        return str.toLowerCase()
-            .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-            .trim();
-    }
-
-    function filtrar() {
-        var query = normalize(inputDestino.value);
-        var accesVal = inputAcces.value;
-        var cards = grid.querySelectorAll('.card-item');
-        var visible = 0;
-
-        cards.forEach(function(card) {
-            var municipio = normalize(card.getAttribute('data-municipio') || '');
-            var accesText = normalize(
-                card.querySelector('.btn-ver-detalles') ?
-                card.querySelector('.btn-ver-detalles').getAttribute('data-accesibilidad') || '' :
-                ''
-            );
-
-            // Coincidencia de destino
-            var matchDestino = true;
-            if (query !== '') {
-                // Buscar si alguna clave del mapa está contenida en el query
-                var municipioTarget = null;
-                for (var k in municipios) {
-                    if (query.indexOf(normalize(k)) !== -1) {
-                        municipioTarget = municipios[k];
-                        break;
-                    }
-                }
-                if (municipioTarget) {
-                    matchDestino = normalize(municipioTarget) === municipio;
-                } else {
-                    // Búsqueda libre: ver si coincide con el municipio de la tarjeta
-                    matchDestino = municipio.indexOf(query) !== -1;
-                }
-            }
-
-            // Coincidencia de accesibilidad
-            var matchAcces = true;
-            if (accesVal !== '') {
-                var keyword = accesKeys[accesVal] || accesVal;
-                matchAcces = accesText.indexOf(normalize(keyword)) !== -1;
-            }
-
-            if (matchDestino && matchAcces) {
-                card.style.display = '';
-                visible++;
-            } else {
-                card.style.display = 'none';
-            }
-        });
-
-        if (visible === 0) {
-            noResults.style.display = 'block';
-            noResultsQuery.textContent = inputDestino.value || 'este destino';
-        } else {
-            noResults.style.display = 'none';
-        }
-    }
-
-    // Buscar al hacer clic en el botón
-    btnBuscar.addEventListener('click', filtrar);
-
-    // Buscar en tiempo real mientras escribe
-    inputDestino.addEventListener('input', filtrar);
-
-    // Filtrar también al cambiar accesibilidad
-    inputAcces.addEventListener('change', filtrar);
-
-    // Buscar al presionar Enter en el input
-    inputDestino.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') filtrar();
-    });
-})();
-
 // ── HOSPEDAJES DINÁMICOS DESDE PANEL EMPRESA ─────────────────────────
 (function() {
     var grid = document.getElementById("results-grid");
     if (!grid) return;
+    var inputDestino = document.getElementById("input-destino");
+    var inputAccesibilidad = document.getElementById("input-accesibilidad");
+    var inputAdultos = document.getElementById("input-adultos");
+    var inputNinos = document.getElementById("input-ninos");
+    var noResults = document.getElementById("no-results");
+    var noResultsQuery = document.getElementById("no-results-query");
+    var searchStatus = document.getElementById("hosp-search-status");
+    var pagination = document.getElementById("hosp-pagination");
+    var pageSummary = document.getElementById("hosp-page-summary");
+    var previousPage = document.getElementById("hosp-previous-page");
+    var nextPage = document.getElementById("hosp-next-page");
+    var currentPage = 1;
+    var pageSize = 6;
+    var requestId = 0;
+
+    function normalize(value) {
+        return String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+    }
+
+    function setSearchStatus(message, error) {
+        searchStatus.textContent = message;
+        searchStatus.classList.toggle("error", Boolean(error));
+    }
+
+    function populateFilterOptions(items) {
+        var destinations = new Map();
+        items.forEach(function(item) {
+            var id = String(item.id_ciudad || "").trim();
+            var name = String(item.ciudad || "").trim();
+            if (id && name) destinations.set(id, name);
+        });
+        Array.from(destinations.entries()).sort(function(a, b) {
+            return a[1].localeCompare(b[1], "es");
+        }).forEach(function(entry) {
+            var option = document.createElement("option");
+            option.value = entry[0];
+            option.textContent = entry[1];
+            inputDestino.appendChild(option);
+        });
+
+        var accessibilityOptions = Array.from(new Set(items.map(function(item) {
+            return String(item.accesibilidad || "").trim();
+        }).filter(Boolean))).sort(function(a, b) {
+            return a.localeCompare(b, "es");
+        });
+        accessibilityOptions.forEach(function(accessibility) {
+            var option = document.createElement("option");
+            option.value = accessibility;
+            option.textContent = accessibility;
+            inputAccesibilidad.appendChild(option);
+        });
+    }
+
+    function renderPage(matches) {
+        var cards = Array.from(grid.querySelectorAll(".card-item"));
+        var pageCount = Math.ceil(matches.length / pageSize);
+        currentPage = Math.max(1, Math.min(currentPage, pageCount || 1));
+        if (!matches.length) {
+            cards.forEach(function(card) {
+                card.hidden = true;
+            });
+            pagination.hidden = true;
+            return;
+        }
+
+        var start = (currentPage - 1) * pageSize;
+        var end = Math.min(start + pageSize, matches.length);
+        var visibleCards = new Set(matches.slice(start, end));
+        cards.forEach(function(card) {
+            card.hidden = !visibleCards.has(card);
+        });
+
+        pageSummary.textContent = "Mostrando " + (start + 1) + "–" + end + " de " + matches.length +
+            " hospedajes · Página " + currentPage + " de " + pageCount;
+        previousPage.disabled = currentPage === 1;
+        nextPage.disabled = currentPage === pageCount;
+        pagination.hidden = matches.length <= pageSize;
+    }
+
+    function filterHospedajes() {
+        var adults = inputAdultos.valueAsNumber;
+        var children = inputNinos.valueAsNumber;
+        if (!inputAdultos.validity.valid || !inputNinos.validity.valid ||
+            !Number.isInteger(adults) || !Number.isInteger(children)) {
+            setSearchStatus("Indica una cantidad válida de adultos y niños.", true);
+            return;
+        }
+
+        var params = new URLSearchParams();
+        if (inputDestino.value) params.set("id_ciudad", inputDestino.value);
+        if (inputAccesibilidad.value) params.set("accesibilidad", inputAccesibilidad.value);
+        params.set("capacidad", String(adults + children));
+        var currentRequest = ++requestId;
+        pagination.hidden = true;
+        noResults.style.display = "none";
+        setSearchStatus("Buscando hospedajes…");
+        grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:48px;color:#94a3b8"><i class="fa-solid fa-spinner fa-spin fa-2x"></i><p style="margin-top:12px">Buscando hospedajes…</p></div>';
+
+        fetch("../hospedaje/buscar.php?" + params.toString(), { credentials: "include" })
+            .then(function(response) {
+                if (!response.ok) throw new Error("No se pudo buscar hospedajes.");
+                return response.json();
+            })
+            .then(function(result) {
+                if (currentRequest !== requestId) return;
+                if (!result.ok || !Array.isArray(result.data)) {
+                    throw new Error(result.error || "El servidor devolvió una respuesta inválida.");
+                }
+                grid.innerHTML = "";
+                result.data.forEach(renderCard);
+                var matches = Array.from(grid.querySelectorAll(".card-item"));
+                currentPage = 1;
+                noResults.style.display = matches.length ? "none" : "block";
+                noResultsQuery.textContent = inputDestino.value
+                    ? inputDestino.selectedOptions[0].textContent
+                    : "los filtros seleccionados";
+                renderPage(matches);
+                setSearchStatus(matches.length + (matches.length === 1 ? " hospedaje coincide." : " hospedajes coinciden."));
+            })
+            .catch(function(error) {
+                if (currentRequest !== requestId) return;
+                grid.replaceChildren();
+                pagination.hidden = true;
+                noResults.style.display = "none";
+                setSearchStatus(error.message || "Error al buscar hospedajes.", true);
+            });
+    }
+
+    inputDestino.addEventListener("change", filterHospedajes);
+    inputAccesibilidad.addEventListener("change", filterHospedajes);
+    inputAdultos.addEventListener("input", filterHospedajes);
+    inputNinos.addEventListener("input", filterHospedajes);
+    document.getElementById("btn-buscar-hotel").addEventListener("click", filterHospedajes);
+    document.getElementById("btn-limpiar-hospedaje").addEventListener("click", function() {
+        inputDestino.value = "";
+        inputAccesibilidad.value = "";
+        inputAdultos.value = "1";
+        inputNinos.value = "0";
+        filterHospedajes();
+    });
+    previousPage.addEventListener("click", function() {
+        if (currentPage > 1) {
+            currentPage--;
+            renderPage(Array.from(grid.querySelectorAll(".card-item")));
+        }
+    });
+    nextPage.addEventListener("click", function() {
+        currentPage++;
+        renderPage(Array.from(grid.querySelectorAll(".card-item")));
+    });
+    document.querySelectorAll(".search-container input, .search-container select").forEach(function(control) {
+        control.addEventListener("keydown", function(event) {
+            if (event.key === "Enter" && control.type !== "number") {
+                event.preventDefault();
+                filterHospedajes();
+            }
+        });
+    });
 
     function escapeHtml(value) {
         return String(value == null ? "" : value).replace(/[&<>\"']/g, function(char) {
@@ -201,7 +256,10 @@ function actualizarBotonWhatsApp(btn) {
             '<div class="card-banner" style="background:linear-gradient(135deg,#1e1b4b,#4c1d95);display:flex;align-items:center;justify-content:center;height:200px;"><i class="fa-solid fa-hotel" style="font-size:3rem;color:#a855f7;"></i></div>';
         var card = document.createElement("article");
         card.className = "card-item card-item--empresa";
-        card.setAttribute("data-municipio", ciudadTexto.toLowerCase());
+        card.dataset.idCiudad = item.id_ciudad || "";
+        card.dataset.nombre = item.nombre || "";
+        card.dataset.accesibilidad = accesibilidadTexto;
+        card.dataset.capacidad = String(Number(item.capacidad_max) || 0);
         card.innerHTML = imgHtml +
             '<div class="card-body">' +
             '<span class="card-tag" style="background:rgba(168,85,247,0.18);color:#a855f7;">' + tipo + '</span>' +
@@ -237,24 +295,33 @@ function actualizarBotonWhatsApp(btn) {
         grid.appendChild(card);
     }
 
-    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:48px;color:#94a3b8"><i class="fa-solid fa-spinner fa-spin fa-2x"></i><p style="margin-top:12px">Cargando hospedajes disponibles...</p></div>';
-    fetch("../hospedaje/listar.php", {
-            credentials: "include"
-        })
-        .then(function(r) {
-            return r.json();
-        })
-        .then(function(res) {
-            grid.innerHTML = "";
-            if (!res.ok || !res.data || !res.data.length) {
-                grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:48px;color:#94a3b8"><i class="fa-solid fa-hotel fa-2x"></i><p style="margin-top:12px">No hay hospedajes disponibles por el momento.</p></div>';
-                return;
-            }
-            res.data.forEach(function(item) {
-                renderCard(item);
+    function cargarHospedajes() {
+        var currentRequest = ++requestId;
+        grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:48px;color:#94a3b8"><i class="fa-solid fa-spinner fa-spin fa-2x"></i><p style="margin-top:12px">Cargando hospedajes disponibles...</p></div>';
+        fetch("../hospedaje/buscar.php", { credentials: "include" })
+            .then(function(response) {
+                if (!response.ok) throw new Error("No se pudieron cargar los hospedajes.");
+                return response.json();
+            })
+            .then(function(result) {
+                if (currentRequest !== requestId) return;
+                if (!result.ok || !Array.isArray(result.data)) {
+                    throw new Error(result.error || "El servidor devolvió una respuesta inválida.");
+                }
+                grid.innerHTML = "";
+                populateFilterOptions(result.data);
+                result.data.forEach(renderCard);
+                var cards = Array.from(grid.querySelectorAll(".card-item"));
+                renderPage(cards);
+                noResults.style.display = cards.length ? "none" : "block";
+                setSearchStatus(cards.length + (cards.length === 1 ? " hospedaje publicado." : " hospedajes publicados."));
+            })
+            .catch(function(error) {
+                if (currentRequest !== requestId) return;
+                grid.replaceChildren();
+                setSearchStatus(error.message || "Error al cargar hospedajes.", true);
             });
-        })
-        .catch(function() {
-            grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:48px;color:#ef4444">Error al cargar. Intenta recargar la página.</div>';
-        });
+    }
+
+    cargarHospedajes();
 })();

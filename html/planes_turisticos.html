@@ -32,44 +32,34 @@
                 <label>Lugar</label>
                 <select id="filtro-lugar">
                     <option value="">Todos los destinos</option>
-                    <option value="Barichara">Barichara</option>
-                    <option value="Bucaramanga">Bucaramanga</option>
-                    <option value="Cañón del Chicamocha">Cañón del Chicamocha</option>
-                    <option value="Girón">Girón</option>
-                    <option value="Mesa de los Santos">Mesa de los Santos</option>
-                    <option value="Mompox">Mompox</option>
-                    <option value="Rionegro">Rionegro</option>
-                    <option value="San Gil">San Gil</option>
-                    <option value="Socorro">Socorro</option>
-                    <option value="Vélez">Vélez</option>
                 </select>
-            </div>
-            <div class="search-group">
-                <label>Adultos</label>
-                <input type="number" id="filtro-adultos" min="1" max="10" value="1">
-            </div>
-            <div class="search-group">
-                <label>Niños</label>
-                <input type="number" id="filtro-ninos" min="0" max="10" value="0">
             </div>
             <div class="search-group">
                 <label>Tipo de Plan</label>
                 <select id="filtro-tipo">
                     <option value="">Todos los tipos</option>
-                    <option value="Aventura">Aventura</option>
-                    <option value="Cultural">Cultural</option>
-                    <option value="Gastronómico">Gastronómico</option>
-                    <option value="Relajación">Relajación</option>
-                    <option value="Familiar">Familiar</option>
-                    <option value="Ecoturismo">Ecoturismo</option>
-                    <option value="Turismo Accesible">Turismo Accesible</option>
                 </select>
             </div>
-            <button class="btn-buscar" id="btn-explorar">Explorar Planes</button>
+            <div class="search-group">
+                <label>Accesibilidad</label>
+                <select id="filtro-accesibilidad">
+                    <option value="">Todas las opciones publicadas</option>
+                </select>
+            </div>
+            <div class="plan-search-actions">
+                <button class="btn-buscar" id="btn-explorar" type="button">Explorar Planes</button>
+                <button class="btn-limpiar-planes" id="btn-limpiar-planes" type="button">Limpiar filtros</button>
+            </div>
         </div>
 
-        <div class="results-grid">
+        <p class="plan-search-status" id="plan-search-status" role="status" aria-live="polite"></p>
+        <div class="results-grid" id="planes-results-grid">
         </div>
+        <nav class="plan-pagination" id="plan-pagination" aria-label="Paginación de planes turísticos" hidden>
+            <button type="button" id="plan-previous-page" aria-label="Página anterior">Anterior</button>
+            <span id="plan-page-summary" aria-live="polite"></span>
+            <button type="button" id="plan-next-page" aria-label="Página siguiente">Siguiente</button>
+        </nav>
     </main>
 
     <!-- ================================================

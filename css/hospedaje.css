@@ -129,6 +129,57 @@
     transform: translateY(-1px);
 }
 
+.hosp-search-actions {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 12px;
+}
+
+.hosp-search-actions .btn-buscar,
+.btn-limpiar-hospedaje {
+    width: auto;
+    flex: 1;
+}
+
+.btn-limpiar-hospedaje {
+    padding: 14px 20px;
+    color: var(--purple-dark);
+    background: transparent;
+    border: 1px solid var(--purple);
+    border-radius: 10px;
+    font-family: var(--font-head);
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.btn-limpiar-hospedaje:hover {
+    color: white;
+    background: var(--purple-dark);
+}
+
+.hosp-search-note {
+    grid-column: 1 / -1;
+    margin: -8px 0 0;
+    color: var(--gray-600);
+    font-size: 0.85rem;
+}
+
+.hosp-search-status {
+    max-width: 1160px;
+    margin: -36px auto 24px;
+    padding: 0 20px;
+    color: var(--gray-600);
+}
+
+.hosp-search-status:empty {
+    display: none;
+}
+
+.hosp-search-status.error {
+    color: #b91c1c;
+}
+
 
 /* ===========================
    GRID DE RESULTADOS — 3 columnas en desktop
@@ -141,6 +192,46 @@
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 28px;
+}
+
+.card-item[hidden] {
+    display: none;
+}
+
+.hosp-pagination {
+    max-width: 1200px;
+    margin: -48px auto 80px;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    color: var(--gray-800);
+    font-size: 0.9rem;
+}
+
+.hosp-pagination[hidden] {
+    display: none;
+}
+
+.hosp-pagination button {
+    padding: 10px 16px;
+    color: white;
+    background: var(--purple);
+    border: 0;
+    border-radius: 8px;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.hosp-pagination button:hover:not(:disabled) {
+    background: var(--purple-dark);
+}
+
+.hosp-pagination button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 
@@ -333,6 +424,10 @@ body.dark-mode .card-footer {
         grid-column: 1 / -1;
     }
 
+    .hosp-search-actions {
+        grid-column: 1 / -1;
+    }
+
     /* Resultados: 2 columnas */
     .results-grid {
         grid-template-columns: repeat(2, 1fr);
@@ -364,6 +459,10 @@ body.dark-mode .card-footer {
     .btn-buscar {
         padding: 14px;
         font-size: 1rem;
+    }
+
+    .hosp-search-actions {
+        flex-direction: column;
     }
 
     /* Resultados: 1 columna */

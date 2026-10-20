@@ -28,7 +28,6 @@ function subirImagenCloudinary(string $imagen): ?string
     $respuesta = curl_exec($ch);
     $curlError = curl_error($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
 
     if ($respuesta === false) {
         error_log('[TourismEasy] Cloudinary cURL error: ' . $curlError);

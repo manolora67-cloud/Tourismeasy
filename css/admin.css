@@ -301,6 +301,14 @@
     .admin-grid {
         grid-template-columns: 1fr;
     }
+
+    .table-container {
+        order: -1;
+    }
+
+    .form-container {
+        position: static;
+    }
 }
 
 .form-container {

@@ -127,7 +127,7 @@
         badge: '',
         titulo: '',
         desc: '',
-        orden: destinos.length + 1,
+        orden: destinos.reduce((maximum, destino) => Math.max(maximum, Number(destino.orden) || 0), 0) + 1,
         publicado: true,
         article: { video: '', badge: '', titulo: '', subtitulo: '', datos: [], intro: '', secciones: [], ctaTexto: '' }
     });
@@ -145,7 +145,7 @@
                     <div class="portada-field"><label for="pdAlt">Texto alternativo de la foto</label><input id="pdAlt" required maxlength="200"></div>
                     <div class="portada-field full"><label for="pdFile">Foto de la tarjeta</label><input id="pdImage" type="hidden"><input id="pdFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif"><small>Selecciona una imagen JPG, PNG, WEBP o GIF (máximo 5 MB). Se subirá a Cloudinary.</small></div>
                     <div class="portada-field full"><div class="portada-image-preview"><img id="pdPreview" alt="Vista previa"><span id="pdUploadStatus"></span></div></div>
-                    <div class="portada-field"><label for="pdOrder">Orden en la portada</label><input id="pdOrder" type="number" min="0" max="10000" required></div>
+                    <div class="portada-field"><label for="pdOrder">Orden en la portada</label><input id="pdOrder" type="text" inputmode="numeric" readonly required aria-describedby="pdOrderHelp"><small id="pdOrderHelp">Asignado automáticamente. No se puede editar.</small></div>
                     <label class="portada-check"><input id="pdPublished" type="checkbox"> Publicado en la portada</label>
                     <div class="portada-field"><label for="paTitle">Título del artículo</label><input id="paTitle" maxlength="150"></div>
                     <div class="portada-field"><label for="paSubtitle">Subtítulo</label><input id="paSubtitle" maxlength="250"></div>
@@ -377,7 +377,7 @@
                 badge: value('pdBadge'),
                 titulo: value('pdTitle'),
                 desc: value('pdDesc'),
-                orden: Number(value('pdOrder')) || 0,
+                orden: Number(original.orden) || Number(value('pdOrder')) || 0,
                 publicado: document.getElementById('pdPublished').checked,
                 article: {
                     video: value('paVideo'),

@@ -149,6 +149,37 @@
     /* Efecto de elevación sutil */
 }
 
+.search-actions {
+    display: flex;
+    align-self: flex-end;
+    gap: 10px;
+}
+
+.search-actions .btn-buscar,
+.btn-limpiar {
+    width: auto;
+    flex: 1;
+    min-height: 44px;
+}
+
+.btn-limpiar {
+    padding: 12px 16px;
+    color: var(--purple-dark);
+    background: transparent;
+    border: 1px solid var(--purple);
+    border-radius: 10px;
+    font-family: var(--font-head);
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+.btn-limpiar:hover {
+    color: white;
+    background: var(--purple-dark);
+}
+
 
 /* ===========================
    GRID DE RESULTADOS — Cuadrícula de tarjetas de transporte
@@ -162,6 +193,42 @@
     /* Columnas de mínimo 320px, máximo las que quepan */
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     gap: 30px;
+}
+
+.transporte-pagination {
+    max-width: 1200px;
+    margin: -48px auto 80px;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    color: var(--gray-800);
+    font-size: 0.9rem;
+}
+
+.transporte-pagination[hidden] {
+    display: none;
+}
+
+.transporte-pagination button {
+    padding: 10px 16px;
+    color: white;
+    background: var(--purple);
+    border: 0;
+    border-radius: 8px;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.transporte-pagination button:hover:not(:disabled) {
+    background: var(--purple-dark);
+}
+
+.transporte-pagination button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 
@@ -180,6 +247,10 @@
     display: flex;
     flex-direction: column;
     /* Columna para que el footer quede abajo */
+}
+
+.card-item[hidden] {
+    display: none;
 }
 
 
@@ -473,6 +544,10 @@ body.dark-mode .transporte-empty-box i {
         grid-column: 1 / -1;
     }
 
+    .search-actions {
+        grid-column: 1 / -1;
+    }
+
     /* Resultados en 2 columnas */
     .results-grid {
         grid-template-columns: repeat(2, 1fr);
@@ -501,9 +576,13 @@ body.dark-mode .transporte-empty-box i {
     }
 
     .btn-buscar {
-        grid-column: 1 / -1;
         padding: 14px;
         font-size: 1rem;
+    }
+
+    .search-actions {
+        width: 100%;
+        flex-direction: column;
     }
 
     /* Resultados en 1 columna */

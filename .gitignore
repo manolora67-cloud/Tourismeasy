@@ -4,3 +4,4 @@
 !.env.example
 /api/config.php
 /api/cloudinary_config.php
+/con_db/db.php

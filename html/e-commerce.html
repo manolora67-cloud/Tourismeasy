@@ -62,17 +62,26 @@
             </button>
         </div>
 
-        <div class="filter-tags">
-            <button class="filter-tag active" data-cat="all">Todos</button>
-            <button class="filter-tag" data-cat="talleres">Talleres</button>
-            <button class="filter-tag" data-cat="bisuteria">Bisutería</button>
-            <button class="filter-tag" data-cat="alfareria">Alfarería</button>
+        <div class="store-filters">
+            <label for="locationFilter">Municipio</label>
+            <select id="locationFilter">
+                <option value="">Todos los municipios</option>
+            </select>
+        </div>
+        <div class="filter-tags" id="categoryFilters">
+            <button class="filter-tag active" data-cat="all" type="button">Todos</button>
         </div>
 
         <div class="product-grid" id="product-list"></div>
         <p class="no-results" id="noResults" style="display: none">
             No se encontraron resultados para tu búsqueda.
         </p>
+        <p class="store-status" id="storeStatus" role="status" aria-live="polite"></p>
+        <nav class="product-pagination" id="productPagination" aria-label="Paginación de productos" hidden>
+            <button type="button" id="productPreviousPage" aria-label="Página anterior">Anterior</button>
+            <span id="productPageSummary" aria-live="polite"></span>
+            <button type="button" id="productNextPage" aria-label="Página siguiente">Siguiente</button>
+        </nav>
     </main>
 
     <footer class="main-footer">

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Configuración - Avianca S.A. - TourismEasy</title>
+    <title>Configuración de Empresa - TourismEasy</title>
     <link rel="stylesheet" href="../css/index.css" />
     <link rel="stylesheet" href="../css/login.css" />
     <link rel="stylesheet" href="../css/panel_empresa.css" />
@@ -36,8 +36,8 @@
         <div class="pu-container">
             <!-- ── SIDEBAR ── -->
             <aside class="pu-sidebar">
-                <div class="pu-sidebar-avatar" id="sidebarAvatar">AV</div>
-                <div class="pu-sidebar-nombre" id="sidebarNombre">Avianca S.A.</div>
+                <div class="pu-sidebar-avatar" id="sidebarAvatar">EM</div>
+                <div class="pu-sidebar-nombre" id="sidebarNombre">Empresa</div>
                 <div class="pu-sidebar-tipo" id="sidebarTipo">
                     <i class="fa-solid fa-plane"></i> Empresa aliada
                 </div>
@@ -157,6 +157,7 @@
                 <div class="pu-page-header">
                     <h1><i class="fa-solid fa-gear"></i> Configuración de Empresa</h1>
                 </div>
+                <div class="pu-card" id="empresaDatosError" role="alert" hidden></div>
 
                 <!-- Seguridad -->
                 <div class="pu-card">
@@ -173,7 +174,7 @@
                     <div class="pu-config-item">
                         <div>
                             <strong>Correo de contacto</strong>
-                            <p id="configEmail">notificaciones@avianca.com</p>
+                            <p id="configEmail">Cargando...</p>
                         </div>
                         <button class="pu-btn-secondary">Cambiar correo</button>
                     </div>
@@ -257,9 +258,7 @@
             var w = document.createElement("div");
             w.id = "sessionWidget";
             w.className = "session-widget";
-            var ini = ((user.nombre || user.avatar || "AV").trim().split(/\s+/).map(function (x) {
-                return x[0] || "";
-            }).join("").toUpperCase().slice(0, 2) || "AV");
+            var ini = "EM";
             var _srv = (user.tipoServicio || user.servicio || "TRANSPORTE").toUpperCase();
             var _panelLinks = {
                 TRANSPORTE: "panel_transporte.html",
@@ -277,7 +276,7 @@
             };
             var _panelHref = _panelLinks[_srv] || "panel_transporte.html";
             var _panelIcon = _panelIcons[_srv] || "fa-bus";
-            w.innerHTML = '<button class="session-trigger" id="sessionTrigger"><div class="session-avatar">' + ini + '</div><div class="session-info"><span class="session-name">' + (user.nombre || "Empresa") + '</span><span class="session-tipo">Empresa</span></div><i class="fa-solid fa-chevron-down session-chevron" id="sessionChevron"></i></button><div class="session-dropdown" id="sessionDropdown"><a class="session-menu-item session-menu-highlight" href="' + _panelHref + '"><i class="fa-solid ' + _panelIcon + '"></i> Panel Empresa</a><a class="session-menu-item" href="perfil_empresa.html"><i class="fa-solid fa-user"></i> Mi Perfil</a><a class="session-menu-item" href="config_empresa.html"><i class="fa-solid fa-gear"></i> Configuracion</a><a class="session-menu-item session-menu-danger" id="btnLogout" href="#"><i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesion</a></div>';
+            w.innerHTML = '<button class="session-trigger" id="sessionTrigger"><div class="session-avatar">' + ini + '</div><div class="session-info"><span class="session-name">Empresa</span><span class="session-tipo">Empresa</span></div><i class="fa-solid fa-chevron-down session-chevron" id="sessionChevron"></i></button><div class="session-dropdown" id="sessionDropdown"><a class="session-menu-item session-menu-highlight" href="' + _panelHref + '"><i class="fa-solid ' + _panelIcon + '"></i> Panel Empresa</a><a class="session-menu-item" href="perfil_empresa.html"><i class="fa-solid fa-user"></i> Mi Perfil</a><a class="session-menu-item" href="config_empresa.html"><i class="fa-solid fa-gear"></i> Configuracion</a><a class="session-menu-item session-menu-danger" id="btnLogout" href="#"><i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesion</a></div>';
             slot.appendChild(w);
             var trig = w.querySelector("#sessionTrigger"),
                 drop = w.querySelector("#sessionDropdown"),
@@ -372,43 +371,14 @@
                 "todo": "Servicio publicado"
             };
 
-            // Buscar datos en te_empresas_pendientes, fallback a te_solicitudes
-            var sol = null;
-            try {
-                var pend = JSON.parse(localStorage.getItem("te_empresas_pendientes") || "[]");
-                sol = pend.find(function (s) {
-                    return s.email && s.email.toLowerCase() === u.email.toLowerCase();
-                });
-            } catch (e) { }
-            if (!sol) {
-                try {
-                    var viejas = JSON.parse(localStorage.getItem("te_solicitudes") || "[]");
-                    var sv = viejas.find(function (s) {
-                        return s.contacto && s.contacto.toLowerCase() === u.email.toLowerCase();
-                    });
-                    if (sv) sol = {
-                        nombre: sv.empresa,
-                        nit: sv.nit,
-                        ciudad: sv.sede,
-                        servicio: sv.servicio,
-                        email: u.email
-                    };
-                } catch (e) { }
-            }
-
-            var servicioRaw = (sol && sol.servicio) || u.tipoServicio || "transporte";
+            var servicioRaw = u.tipoServicio || "transporte";
             var servicio = NORM[(servicioRaw || "").toLowerCase()] || "transporte";
             var icono = ICONO[servicio] || "fa-bus";
 
-            // Avatar y nombre
             var av = document.getElementById("sidebarAvatar");
             var nm = document.getElementById("sidebarNombre");
-            var _nomCfg = u.nombre || u.avatar || "AV";
-            var _inisCfg = _nomCfg.trim().split(/\s+/).map(function (w) {
-                return w[0] || '';
-            }).join('').toUpperCase().slice(0, 2) || "AV";
-            if (av) av.textContent = _inisCfg;
-            if (nm) nm.textContent = u.nombre || "";
+            if (av) av.textContent = "EM";
+            if (nm) nm.textContent = "Empresa";
 
             // Tipo de empresa en sidebar
             var st = document.getElementById("sidebarTipo");
@@ -418,18 +388,12 @@
             var nl = document.getElementById("navbarLabel");
             if (nl) nl.innerHTML = '<i class="fa-solid ' + icono + '"></i> Panel Empresa';
 
-            // Correo
             var em = document.getElementById("configEmail");
-            if (em) em.textContent = u.email || "";
+            if (em) em.textContent = "Cargando...";
 
-            // Título de página
-            document.title = "Configuración - " + (u.nombre || "Empresa") + " - TourismEasy";
-
-            // Miembro desde: mes y año actuales
-            var meses = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
-            var hoy = new Date();
+            document.title = "Configuración - TourismEasy";
             var md = document.getElementById("miembroDesde");
-            if (md) md.textContent = meses[hoy.getMonth()] + " " + hoy.getFullYear();
+            if (md) md.textContent = "Cargando...";
 
             // Acceso rápido según tipo
             var ap = document.getElementById("accesoPanel");
@@ -440,6 +404,80 @@
             var actT = document.getElementById("actividadTitulo");
             if (actI) actI.className = "fa-solid " + icono;
             if (actT) actT.textContent = ACT_LABEL[servicio] || "Servicio publicado";
+
+            fetch(new URL("../soli_empresas/get_perfil_empresa.php", window.location.href))
+                .then(function (response) {
+                    if (!response.ok) throw new Error("El servidor respondió con HTTP " + response.status);
+                    return response.json();
+                })
+                .then(function (data) {
+                    if (!data.ok || !data.empresa) {
+                        throw new Error(data.error || "No se recibieron los datos de la empresa.");
+                    }
+                    var empresa = data.empresa;
+                    if (String(empresa.nit) !== String(u.id)) {
+                        throw new Error("La sesión del navegador no coincide con la empresa autenticada en el servidor.");
+                    }
+                    var errorElement = document.getElementById("empresaDatosError");
+                    if (errorElement) errorElement.hidden = true;
+
+                    var nombre = empresa.nombre || "Empresa";
+                    var iniciales = nombre.trim().split(/\s+/).map(function (palabra) {
+                        return palabra[0] || "";
+                    }).join("").toUpperCase().slice(0, 2) || "EM";
+                    u.nombre = nombre;
+                    u.tipoServicio = empresa.servicio || u.tipoServicio;
+                    localStorage.setItem("te_session", JSON.stringify(u));
+
+                    if (av) av.textContent = iniciales;
+                    if (nm) nm.textContent = nombre;
+                    var widgetName = document.querySelector("#sessionWidget .session-name");
+                    var widgetAvatar = document.querySelector("#sessionWidget .session-avatar");
+                    if (widgetName) widgetName.textContent = nombre;
+                    if (widgetAvatar) widgetAvatar.textContent = iniciales;
+                    if (em) em.textContent = empresa.email_inst || "No registrado";
+                    document.title = "Configuración - " + nombre + " - TourismEasy";
+
+                    var fecha = String(empresa.fecha_registro || "").slice(0, 10).split("-");
+                    if (md && fecha.length === 3) {
+                        var fechaRegistro = new Date(Number(fecha[0]), Number(fecha[1]) - 1, Number(fecha[2]));
+                        md.textContent = Number.isNaN(fechaRegistro.getTime())
+                            ? "No registrada"
+                            : new Intl.DateTimeFormat("es-CO", { month: "short", year: "numeric" }).format(fechaRegistro);
+                    } else if (md) {
+                        md.textContent = "No registrada";
+                    }
+
+                    servicioRaw = empresa.servicio || servicioRaw;
+                    servicio = NORM[servicioRaw.toLowerCase()] || "transporte";
+                    icono = ICONO[servicio] || "fa-bus";
+                    if (st) st.innerHTML = '<i class="fa-solid ' + icono + '"></i> Empresa aliada';
+                    if (nl) nl.innerHTML = '<i class="fa-solid ' + icono + '"></i> Panel Empresa';
+                    if (ap) ap.innerHTML = '<i class="fa-solid ' + icono + '"></i> ' + (ACCESO_LABEL[servicio] || "Ver mis servicios");
+                    if (actI) actI.className = "fa-solid " + icono;
+                    if (actT) actT.textContent = ACT_LABEL[servicio] || "Servicio publicado";
+                    var paneles = {
+                        transporte: "panel_transporte.html",
+                        hospedaje: "panel_hospedaje.html",
+                        planes: "panel_planes.html",
+                        auxiliar: "panel_auxiliar.html"
+                    };
+                    var panelHref = paneles[servicio] || "panel_transporte.html";
+                    var menuPanel = document.querySelector("#sessionWidget .session-menu-highlight");
+                    var sidebarPanel = document.getElementById("sidebarMiPanel");
+                    if (menuPanel) menuPanel.href = panelHref;
+                    if (sidebarPanel) sidebarPanel.href = panelHref;
+                })
+                .catch(function (error) {
+                    console.error("No se pudieron cargar los datos de la empresa:", error);
+                    var errorElement = document.getElementById("empresaDatosError");
+                    if (errorElement) {
+                        errorElement.textContent = "No se pudieron cargar los datos de la empresa. " + error.message;
+                        errorElement.hidden = false;
+                    }
+                    if (em) em.textContent = "No disponible";
+                    if (md) md.textContent = "No disponible";
+                });
 
             // Notificaciones activas: contar toggles encendidos
             var toggles = document.querySelectorAll(".pu-toggle input[type=checkbox]");

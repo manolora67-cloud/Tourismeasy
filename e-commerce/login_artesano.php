@@ -91,6 +91,10 @@ try {
         exit;
     }
 
+    if (empty($row['id'])) {
+        throw new RuntimeException('La función de login no devolvió el identificador del artesano.');
+    }
+
     $nombre = $row['nombre'] . ' ' . $row['apellido'];
     $avatar = strtoupper(substr($row['nombre'], 0, 1) . substr($row['apellido'], 0, 1));
 
@@ -98,14 +102,14 @@ try {
     // evita session fixation) y guardamos los datos que admin.php necesita
     // para saber que hay una sesión válida de artesano.
     guardarCookieDispositivo($tokenDispositivo);
-    $_SESSION['artesano_id']     = $row['id_persona'];
+    $_SESSION['artesano_id']     = $row['id'];
     $_SESSION['artesano_nombre'] = $nombre;
 
     echo json_encode([
         "ok" => true,
         "session" => [
             "tipo"   => "artesano",
-            "id"     => $row['id_persona'],
+            "id"     => $row['id'],
             "email"  => $row['email_login'],
             "nombre" => $nombre,
             "avatar" => $avatar,

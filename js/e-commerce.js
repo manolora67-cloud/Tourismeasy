@@ -1,54 +1,22 @@
-const defaultProducts = [{
-        id: "def-1",
-        name: "Taller de Cerámica Guane",
-        provider: "Artesanías Barichara",
-        description: "Aprende la técnica ancestral de moldeado en tierra de color con maestros locales de Barichara. El taller ofrece sesiones grupales e individuales donde podrás crear tu propia pieza y llevártela a casa.",
-        category: "talleres",
-        price: 85000,
-        ubicacion: "Barichara, Santander",
-        contacto: "+57 310 234 5678",
-        img: "../img/taller_cera_guane.avif",
-    },
-    {
-        id: "def-2",
-        name: "Collar de Cuarzo Rosa",
-        provider: "Joyas del Chicamocha",
-        description: "Bisutería artesanal con piedras semipreciosas extraídas de la región del Chicamocha. Cada pieza es única, trabajada a mano con técnicas de joyería tradicional transmitidas por generaciones.",
-        category: "bisuteria",
-        price: 45000,
-        ubicacion: "San Gil, Santander",
-        contacto: "+57 311 456 7890",
-        img: "../img/collar_cuarzo_rosa.jpeg",
-    },
-    {
-        id: "def-3",
-        name: "Vasija en Arcilla Roja",
-        provider: "Taller Girón Ancestral",
-        description: "Piezas únicas de alfarería tradicional elaboradas con arcilla roja del municipio de Girón. Cada vasija refleja siglos de tradición cerámica santandereana, con formas y texturas inspiradas en la cultura guane.",
-        category: "alfareria",
-        price: 120000,
-        ubicacion: "Girón, Santander",
-        contacto: "+57 312 678 9012",
-        img: "../img/vasija_arcilla_roja.webp",
-    },
-];
-
 // Categoría seleccionada. "all" significa mostrar todas.
 let currentCategory = "all";
 
 // Texto que el usuario escribió en el buscador.
 let currentSearch = "";
 
-// Lista combinada de todos los productos (defecto + admin).
-// Se rellena cada vez que se llama a renderProducts().
-let allProducts = [];
+let currentLocation = "";
+let currentPage = 1;
+const productsPerPage = 6;
+let productsLoading = true;
+let productsLoadError = false;
+let productSearchTimer = null;
 
-// Productos creados desde el panel admin, traídos de la base de datos.
-// Se llenan una vez al cargar la página (loadDbProducts) y luego se
-// combinan con defaultProducts en cada renderProducts().
+// Productos publicados en la base de datos.
 let dbProducts = [];
 
 const PRODUCTOS_API_URL = "../e-commerce/listar.php?ajax=1";
+const PRODUCTOS_BUSCAR_API_URL = "../e-commerce/buscar.php";
+let productSearchRequestId = 0;
 
 /**
  * Convierte una fila tal como la devuelve la base de datos
@@ -63,29 +31,130 @@ function mapDbProduct(row) {
         description: row.descripcion,
         category: row.categoria,
         price: Number(row.precio_cop),
+        cityId: String(row.id_ciudad || ""),
+        cityName: row.nom_ciudad || "",
         ubicacion: row.nom_ciudad ? `${row.nom_ciudad}, ${row.nom_dpto}` : "Santander, Colombia",
         contacto: row.num_contacto,
-        img: row.img_url,
+        img: typeof row.img_url === "string" ? row.img_url.trim() : "",
     };
 }
 
+function productImageUrl(image) {
+    if (!image) return "";
+    if (/^https?:\/\//i.test(image)) return image;
+    if (image.startsWith("//")) return "";
+    return image.startsWith("../") ? image : `../${image}`;
+}
+
 /**
- * Trae los productos publicados desde el panel admin (base de datos)
- * y vuelve a pintar la tienda cuando llegan.
- * Los productos "de fábrica" (defaultProducts) se muestran de inmediato
- * sin esperar a esta petición, para que la página no se sienta lenta.
+ * Trae los productos publicados desde la base de datos.
  */
 async function loadDbProducts() {
     try {
         const response = await fetch(PRODUCTOS_API_URL);
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const result = await response.json();
-        dbProducts = (result.data || []).map(mapDbProduct);
+        if (!result.ok || !Array.isArray(result.data)) {
+            throw new Error(result.error || "El servidor devolvió una respuesta inválida.");
+        }
+        dbProducts = result.data.map(mapDbProduct);
+        populateProductFilters();
+        await searchProducts();
     } catch (error) {
         console.error("Error cargando productos desde el servidor:", error);
-        dbProducts = []; // si falla, la tienda igual muestra los productos de fábrica
+        productsLoadError = true;
+        dbProducts = [];
+        productsLoading = false;
+        renderProducts();
     }
+}
+
+async function searchProducts() {
+    const requestId = ++productSearchRequestId;
+    const params = new URLSearchParams();
+    const query = currentSearch.trim();
+    if (query) params.set("q", query);
+    if (currentCategory !== "all") params.set("categoria", currentCategory);
+    if (currentLocation) params.set("id_ciudad", currentLocation);
+
+    productsLoading = true;
+    productsLoadError = false;
     renderProducts();
+
+    try {
+        const response = await fetch(`${PRODUCTOS_BUSCAR_API_URL}?${params.toString()}`);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const result = await response.json();
+        if (requestId !== productSearchRequestId) return;
+        if (!result.ok || !Array.isArray(result.data)) {
+            throw new Error(result.error || "El servidor devolvió una respuesta inválida.");
+        }
+        dbProducts = result.data.map(mapDbProduct);
+        productsLoading = false;
+        renderProducts();
+    } catch (error) {
+        if (requestId !== productSearchRequestId) return;
+        console.error("Error buscando productos en el servidor:", error);
+        productsLoadError = true;
+        productsLoading = false;
+        dbProducts = [];
+        renderProducts();
+    }
+}
+
+function populateProductFilters() {
+    const locationFilter = document.getElementById("locationFilter");
+    const categoryFilters = document.getElementById("categoryFilters");
+    if (!locationFilter || !categoryFilters) return;
+
+    const locations = new Map();
+    const categories = new Set();
+    dbProducts.forEach((product) => {
+        if (product.cityId && product.cityName) locations.set(product.cityId, product.cityName);
+        if (product.category) categories.add(product.category);
+    });
+
+    locations.forEach((name, id) => {
+        const option = document.createElement("option");
+        option.value = id;
+        option.textContent = name;
+        locationFilter.appendChild(option);
+    });
+    Array.from(locationFilter.options).slice(1).sort((a, b) =>
+        a.textContent.localeCompare(b.textContent, "es")
+    ).forEach((option) => locationFilter.appendChild(option));
+
+    const categoryLabels = {
+        talleres: "Talleres",
+        bisuteria: "Bisutería",
+        alfareria: "Alfarería",
+    };
+    categoryFilters.replaceChildren();
+    const allButton = document.createElement("button");
+    allButton.className = "filter-tag active";
+    allButton.dataset.cat = "all";
+    allButton.type = "button";
+    allButton.textContent = "Todos";
+    categoryFilters.appendChild(allButton);
+
+    Array.from(categories).sort((a, b) => a.localeCompare(b, "es")).forEach((category) => {
+        const button = document.createElement("button");
+        button.className = "filter-tag";
+        button.dataset.cat = category;
+        button.type = "button";
+        button.textContent = categoryLabels[category] || category;
+        categoryFilters.appendChild(button);
+    });
+
+    categoryFilters.querySelectorAll(".filter-tag").forEach((button) => {
+        button.addEventListener("click", () => {
+            categoryFilters.querySelectorAll(".filter-tag").forEach((tag) => tag.classList.remove("active"));
+            button.classList.add("active");
+            currentCategory = button.dataset.cat;
+            currentPage = 1;
+            searchProducts();
+        });
+    });
 }
 
 function openDetailModal(product) {
@@ -101,8 +170,12 @@ function openDetailModal(product) {
     };
 
     // Rellenamos cada elemento del modal con los datos del producto
-    overlay.querySelector(".pm-img").src = product.img;
-    overlay.querySelector(".pm-img").alt = product.name;
+    const modalImage = overlay.querySelector(".pm-img");
+    const imageUrl = productImageUrl(product.img);
+    modalImage.alt = product.name;
+    modalImage.hidden = !imageUrl;
+    if (imageUrl) modalImage.src = imageUrl;
+    else modalImage.removeAttribute("src");
     overlay.querySelector(".pm-cat").textContent =
         catLabel[product.category] || product.category;
     overlay.querySelector(".pm-name").textContent = product.name;
@@ -143,56 +216,55 @@ function closeDetailModal() {
 }
 
 function renderProducts() {
-    // Buscamos el contenedor de tarjetas y el mensaje de "sin resultados"
     const productList = document.getElementById("product-list");
     const noResults = document.getElementById("noResults");
-
-    // Si no existe el contenedor, salimos sin hacer nada
-    // (este JS se carga en varias páginas, no todas tienen tienda)
+    const storeStatus = document.getElementById("storeStatus");
+    const pagination = document.getElementById("productPagination");
+    const pageSummary = document.getElementById("productPageSummary");
+    const previousPage = document.getElementById("productPreviousPage");
+    const nextPage = document.getElementById("productNextPage");
     if (!productList) return;
 
-    // Combinamos: primero los por defecto (fijos en este archivo), luego
-    // los que el admin registró desde el panel (traídos de la base de datos)
-    // El operador ... (spread) "desempaqueta" cada arreglo
-    allProducts = [...defaultProducts, ...dbProducts];
-
-    // Convertimos el texto de búsqueda a minúsculas para comparar sin importar mayúsculas
-    const query = currentSearch.toLowerCase().trim();
-
-    // Filtramos: un producto pasa si cumple AMBAS condiciones:
-    //   - matchCat:    su categoría coincide con el filtro activo (o es "all")
-    //   - matchSearch: contiene el texto buscado en algún campo
-    const filtered = allProducts.filter((p) => {
-        const matchCat =
-            currentCategory === "all" || p.category === currentCategory;
-        const matchSearch = !query ||
-            p.name.toLowerCase().includes(query) ||
-            p.provider.toLowerCase().includes(query) ||
-            p.description.toLowerCase().includes(query) ||
-            p.category.toLowerCase().includes(query);
-        return matchCat && matchSearch;
-    });
-
-    // Limpiamos el contenedor antes de volver a pintarlo
     productList.innerHTML = "";
-
-    // Si no hay resultados, mostramos el mensaje y salimos
-    if (filtered.length === 0) {
-        if (noResults) noResults.style.display = "block";
+    pagination.hidden = true;
+    if (productsLoading) {
+        noResults.style.display = "none";
+        storeStatus.textContent = "Cargando productos publicados…";
+        storeStatus.classList.remove("error");
+        return;
+    }
+    if (productsLoadError) {
+        noResults.style.display = "none";
+        storeStatus.textContent = "No se pudieron cargar los productos. Intenta recargar la página.";
+        storeStatus.classList.add("error");
         return;
     }
 
-    // Si hay resultados, ocultamos el mensaje de "sin resultados"
-    if (noResults) noResults.style.display = "none";
+    if (dbProducts.length === 0) {
+        noResults.textContent = "No se encontraron productos para los filtros seleccionados.";
+        noResults.style.display = "block";
+        storeStatus.textContent = "";
+        storeStatus.classList.remove("error");
+        return;
+    }
 
-    // Creamos una tarjeta HTML por cada producto filtrado
-    filtered.forEach((product) => {
-        // Creamos un div vacío y le añadimos la clase "card"
+    noResults.style.display = "none";
+    storeStatus.classList.remove("error");
+
+    const totalPages = Math.ceil(dbProducts.length / productsPerPage);
+    currentPage = Math.max(1, Math.min(currentPage, totalPages));
+    const start = (currentPage - 1) * productsPerPage;
+    const pageProducts = dbProducts.slice(start, start + productsPerPage);
+    const categoryLabels = {
+        talleres: "Talleres",
+        bisuteria: "Bisutería",
+        alfareria: "Alfarería",
+    };
+
+    pageProducts.forEach((product) => {
         const card = document.createElement("div");
         card.classList.add("card");
 
-        // Rellenamos el HTML interno de la tarjeta con los datos del producto
-        // Las llaves ${} dentro del template literal insertan valores de variables
         const priceFormatted = product.price ?
             new Intl.NumberFormat("es-CO", {
                 style: "currency",
@@ -201,10 +273,14 @@ function renderProducts() {
             }).format(product.price) :
             "Consultar precio";
 
+        const imageUrl = productImageUrl(product.img);
+        const imageMarkup = imageUrl
+            ? `<img src="${imageUrl}" alt="${product.name}">`
+            : '<div class="product-image-placeholder" aria-label="Producto sin imagen"><i class="fa-solid fa-image" aria-hidden="true"></i></div>';
         card.innerHTML = `
-      <img src="${product.img}" alt="${product.name}">
+      ${imageMarkup}
       <div class="card-info">
-        <span class="category-tag">${product.category}</span>
+        <span class="category-tag">${categoryLabels[product.category] || product.category}</span>
         <h3>${product.name}</h3>
         <p class="provider">${product.provider}</p>
         <p class="description">${product.description}</p>
@@ -213,23 +289,21 @@ function renderProducts() {
       </div>
     `;
 
-        // Al hacer clic en "Ver más info", abrimos el modal con este producto
         card.querySelector(".btn-add").addEventListener("click", () => {
             openDetailModal(product);
         });
-
-        // Añadimos la tarjeta al contenedor
         productList.appendChild(card);
     });
+
+    pageSummary.textContent = `Mostrando ${start + 1}–${start + pageProducts.length} de ${dbProducts.length} productos · Página ${currentPage} de ${totalPages}`;
+    previousPage.disabled = currentPage === 1;
+    nextPage.disabled = currentPage === totalPages;
+    pagination.hidden = totalPages <= 1;
+    storeStatus.textContent = `${dbProducts.length} ${dbProducts.length === 1 ? "producto encontrado." : "productos encontrados."}`;
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    //se espera a que el HTML esté cargado antes de ejecutar el código
-
-    // ── Pintamos los productos al cargar la página ──
-    // Primero mostramos los de fábrica al instante (sin esperar red)...
     renderProducts();
-    // ...y luego traemos los del panel admin y volvemos a pintar cuando lleguen.
     loadDbProducts();
 
     // ── Modal de detalle: cerrar ──
@@ -253,10 +327,11 @@ document.addEventListener("DOMContentLoaded", () => {
         // Cada vez que el usuario escribe algo, actualizamos la búsqueda y re-pintamos
         searchInput.addEventListener("input", () => {
             currentSearch = searchInput.value;
-            // Mostramos u ocultamos el botón X según si hay texto
+            currentPage = 1;
             if (searchClear)
                 searchClear.style.display = currentSearch ? "flex" : "none";
-            renderProducts();
+            window.clearTimeout(productSearchTimer);
+            productSearchTimer = window.setTimeout(searchProducts, 250);
         });
     }
 
@@ -265,25 +340,30 @@ document.addEventListener("DOMContentLoaded", () => {
         searchClear.addEventListener("click", () => {
             searchInput.value = "";
             currentSearch = "";
+            currentPage = 1;
             searchClear.style.display = "none";
-            searchInput.focus(); // Devolvemos el foco al input para seguir escribiendo
-            renderProducts();
+            searchInput.focus();
+            window.clearTimeout(productSearchTimer);
+            searchProducts();
         });
     }
 
-    // ── Filtros por categoría ──
-    document.querySelectorAll(".filter-tag").forEach((btn) => {
-        btn.addEventListener("click", () => {
-            // Quitamos la clase "active" de todos los botones
-            document
-                .querySelectorAll(".filter-tag")
-                .forEach((b) => b.classList.remove("active"));
-            // Se la ponemos solo al botón que se acaba de hacer clic
-            btn.classList.add("active");
-            // Guardamos la categoría elegida y re-pintamos
-            currentCategory = btn.dataset.cat; // data-cat="talleres" etc.
+    const locationFilter = document.getElementById("locationFilter");
+    locationFilter.addEventListener("change", () => {
+        currentLocation = locationFilter.value;
+        currentPage = 1;
+        searchProducts();
+    });
+
+    document.getElementById("productPreviousPage").addEventListener("click", () => {
+        if (currentPage > 1) {
+            currentPage--;
             renderProducts();
-        });
+        }
+    });
+    document.getElementById("productNextPage").addEventListener("click", () => {
+        currentPage++;
+        renderProducts();
     });
 
     // El modo oscuro ahora lo maneja el componente compartido dark-mode-toggle.js

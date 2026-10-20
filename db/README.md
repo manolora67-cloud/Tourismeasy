@@ -46,6 +46,8 @@ El esquema base incluye las tablas necesarias para guardar contenido de portada 
 
 Los endpoints PHP invocan las funciones definidas en `funciones/`; hay que instalarlas todas para disponer del proyecto completo. Ejecuta el bloque siguiente en PowerShell **desde la raíz del repositorio**, después de importar el esquema. Instala primero auditoría, luego los scripts restantes y, al final, los wrappers que dependen de otras funciones y el inicializador de portada. Los triggers se instalan después de todas las funciones. `ON_ERROR_STOP` hace que el proceso se detenga si un archivo falla.
 
+Las empresas pueden actualizar razón social, correo institucional, correo de acceso, teléfono y municipio una vez por mes calendario. El correo de acceso se guarda en `USUARIOS_EMPRESA.EMAIL_LOGIN` y se usa para iniciar sesión. El NIT y el sector no se pueden cambiar desde el perfil.
+
 ```powershell
 $db = 'tourismeasy'
 $user = 'postgres' # Sustituye por tu usuario local de PostgreSQL
@@ -83,11 +85,11 @@ Get-ChildItem $dirTriggers -Filter '*.sql' |
 	}
 ```
 
-El procedimiento incluye los 79 scripts SQL de `funciones/` y luego instala los archivos de `triggers/`. Entre las dependencias ordenadas al final están eliminación de transporte empresa, guardado unificado de hospedaje y productos, inicialización de portada y coordinación del login. Los triggers actualizan `FECHA_MODIFICACION` y guardan snapshots históricos automáticamente.
+El procedimiento incluye los scripts SQL de `funciones/` y luego instala los archivos de `triggers/`. `fn_buscar_hospedaje_publico.sql` instala la búsqueda pública de hospedajes por municipio, accesibilidad y capacidad; `fn_buscar_planes_publicos.sql`, la búsqueda de planes por municipio, tipo y accesibilidad; y `fn_buscar_productos_publicos.sql`, la búsqueda de productos artesanales por texto, categoría y municipio. En una base existente, ejecuta manualmente el script SQL de búsqueda correspondiente antes de usar esa página; no ejecutes todo `DB_TOURISMEASY.sql` sobre una base con datos. Entre las dependencias ordenadas al final están eliminación de transporte empresa, guardado unificado de hospedaje y productos, inicialización de portada y coordinación del login. Los triggers actualizan `FECHA_MODIFICACION` y guardan snapshots históricos automáticamente.
 
 El bloque inicia `psql` una vez por archivo; para evitar que solicite la contraseña repetidamente, configura el archivo `pgpass.conf` de PostgreSQL para tu usuario local o ejecuta cada script desde pgAdmin.
 
-Este procedimiento está destinado a una base vacía recién creada; no lo uses como migración sobre una base con datos o funciones en uso. Para actualizar una instalación existente, prepara y prueba una migración compatible por separado.
+Este procedimiento está destinado a una base vacía recién creada; no lo uses sobre una base con datos o funciones en uso. El límite mensual del perfil forma parte del esquema inicial de `USUARIOS_EMPRESA` en `DB_TOURISMEASY.sql`, y la lógica de edición se instala desde `funciones/fn_actualizar_perfil_empresa.sql`. Solo las cuentas con estado `ACTIVO` pueden editar su perfil; las solicitudes pendientes no pueden hacerlo.
 
 
 ## Configurar el backend

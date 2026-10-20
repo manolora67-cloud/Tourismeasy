@@ -29,31 +29,35 @@
 
         <div class="search-container">
             <div class="search-group">
-                <label>Origen</label>
+                <label for="tOrigen">Origen</label>
                 <select id="tOrigen">
                     <option value="">Cualquier origen</option>
                 </select>
             </div>
             <div class="search-group">
-                <label>Destino</label>
+                <label for="tDestino">Destino</label>
                 <select id="tDestino">
                     <option value="">Cualquier destino</option>
                 </select>
             </div>
             <div class="search-group">
-                <label>Fecha</label>
+                <label for="tFecha">Fecha</label>
                 <input type="date" id="tFecha">
             </div>
             <div class="search-group">
-                <label>Clase de servicio</label>
+                <label for="tClase">Clase de servicio</label>
                 <select id="tClase">
                     <option value="">Todas las clases</option>
                 </select>
             </div>
-            <button class="btn-buscar" id="btnBuscarTransporte">Buscar Transporte</button>
+            <div class="search-actions">
+                <button class="btn-buscar" id="btnBuscarTransporte" type="button">Buscar Transporte</button>
+                <button class="btn-limpiar" id="btnLimpiarTransporte" type="button">Limpiar filtros</button>
+            </div>
         </div>
 
         <div class="transporte-status" id="transporteStatus"
+            role="status" aria-live="polite"
             style="display:none; max-width:1200px; margin:0 auto 16px; padding:0 24px;">
             <p class="transporte-status-text" id="transporteStatusText"></p>
         </div>
@@ -69,6 +73,11 @@
 
         <div class="results-grid" id="resultsGrid">
         </div>
+        <nav class="transporte-pagination" id="transportePagination" aria-label="Paginación de rutas" hidden>
+            <button type="button" id="transportePreviousPage" aria-label="Página anterior">Anterior</button>
+            <span id="transportePageSummary" aria-live="polite"></span>
+            <button type="button" id="transporteNextPage" aria-label="Página siguiente">Siguiente</button>
+        </nav>
     </main>
 
     <!-- ================================================

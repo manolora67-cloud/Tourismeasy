@@ -19,7 +19,9 @@ BEGIN
         RETURN;
     END IF;
 
-    IF EXISTS (SELECT 1 FROM USUARIOS_EMPRESA WHERE EMAIL_LOGIN = p_email_login) THEN
+    PERFORM pg_advisory_xact_lock(HASHTEXT(LOWER(BTRIM(p_email_login))));
+
+    IF EXISTS (SELECT 1 FROM USUARIOS_EMPRESA WHERE LOWER(EMAIL_LOGIN) = LOWER(BTRIM(p_email_login))) THEN
         RETURN QUERY SELECT FALSE, 'Este correo ya está registrado.'::TEXT;
         RETURN;
     END IF;

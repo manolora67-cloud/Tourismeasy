@@ -37,7 +37,7 @@
             <!-- ── SIDEBAR ── -->
             <aside class="pu-sidebar">
                 <div class="pu-sidebar-avatar" id="sidebarAvatar">AV</div>
-                <div class="pu-sidebar-nombre" id="sidebarNombre">Cargando...</div>
+                <div class="pu-sidebar-nombre" id="sidebarNombre">Empresa</div>
                 <div class="pu-sidebar-tipo">
                     <i class="fa-solid fa-bus"></i> Empresa aliada
                 </div>
@@ -57,13 +57,8 @@
                     </p>
                     <ul class="pe-sidebar-checks">
                         <li class="pe-sidebar-check">
-                            <i class="fa-solid fa-circle-check" style="color: #22c55e"></i> Empresa verificada
-                        </li>
-                        <li class="pe-sidebar-check">
-                            <i class="fa-solid fa-circle-check" style="color: #22c55e"></i> NIT validado
-                        </li>
-                        <li class="pe-sidebar-check">
-                            <i class="fa-solid fa-circle-check" style="color: #22c55e"></i> Servicios activos
+                            <i class="fa-solid fa-circle-info" id="empresaEstadoIcono"></i>
+                            Estado de la cuenta: <span id="empresaEstado">Consultando...</span>
                         </li>
                     </ul>
                 </div>
@@ -110,21 +105,66 @@
                         <i class="fa-solid fa-pen"></i> Editar perfil
                     </button>
                 </div>
+                <div class="pu-card" id="perfilError" role="alert" hidden></div>
+                <dialog class="pe-profile-dialog" id="modalEditarPerfilEmpresa" aria-labelledby="tituloEditarPerfilEmpresa">
+                    <div class="pe-profile-dialog__header">
+                        <div>
+                            <h2 id="tituloEditarPerfilEmpresa">Editar perfil de empresa</h2>
+                            <p>NIT: <strong id="editarPerfilNit">Cargando...</strong> (no se puede cambiar)</p>
+                        </div>
+                        <button class="pe-profile-dialog__close" id="btnCerrarEditarPerfil" type="button"
+                            aria-label="Cerrar">&times;</button>
+                    </div>
+                    <p class="pe-profile-dialog__notice" id="limiteEdicionPerfil"></p>
+                    <form id="formEditarPerfilEmpresa">
+                        <label>
+                            Razón social
+                            <input id="editarPerfilNombre" name="nombre" type="text" minlength="2" maxlength="50"
+                                autocomplete="organization" required>
+                        </label>
+                        <label>
+                            Correo institucional
+                            <input id="editarPerfilEmailInstitucional" name="email_institucional" type="email"
+                                maxlength="254" autocomplete="email" required>
+                        </label>
+                        <label>
+                            Correo de acceso
+                            <input id="editarPerfilEmailAcceso" name="email_acceso" type="email" maxlength="254"
+                                autocomplete="username" required>
+                        </label>
+                        <label>
+                            Teléfono de contacto
+                            <input id="editarPerfilContacto" name="contacto" type="tel" maxlength="16"
+                                pattern="\+?[0-9]{7,15}" autocomplete="tel" required>
+                        </label>
+                        <label>
+                            Municipio
+                            <select id="editarPerfilCiudad" name="id_ciudad" required>
+                                <option value="">Selecciona un municipio</option>
+                            </select>
+                        </label>
+                        <div class="pe-profile-dialog__status" id="estadoFormularioPerfil" role="status" hidden></div>
+                        <div class="pe-profile-dialog__actions">
+                            <button class="pu-btn-secondary" id="btnCancelarEditarPerfil" type="button">Cancelar</button>
+                            <button class="pu-btn-primary" id="btnGuardarEditarPerfil" type="submit">Guardar cambios</button>
+                        </div>
+                    </form>
+                </dialog>
 
                 <!-- Datos rápidos -->
                 <div class="pu-card">
                     <div class="pu-perfil-datos-grid">
                         <div class="pu-field pu-field--col">
                             <span class="pu-field-label">Empresa</span>
-                            <span class="pu-field-val">Cargando...</span>
+                            <span class="pu-field-val" id="perfilNombreResumen">Cargando...</span>
                         </div>
                         <div class="pu-field pu-field--col">
                             <span class="pu-field-label">NIT</span>
-                            <span class="pu-field-val">—</span>
+                            <span class="pu-field-val" id="perfilNitResumen">Cargando...</span>
                         </div>
                         <div class="pu-field pu-field--col">
                             <span class="pu-field-label">Ciudad</span>
-                            <span class="pu-field-val" id="perfilCiudad">Lebrija, Santander</span>
+                            <span class="pu-field-val" id="perfilCiudad">Cargando...</span>
                         </div>
                     </div>
                 </div>
@@ -137,25 +177,39 @@
                     <div class="pu-field-list">
                         <div class="pu-field">
                             <span class="pu-field-label">Razón social</span><span
-                                class="pu-field-val">Cargando...</span>
+                                class="pu-field-val" id="perfilNombre">Cargando...</span>
                         </div>
                         <div class="pu-field">
-                            <span class="pu-field-label">NIT</span><span class="pu-field-val">—</span>
+                            <span class="pu-field-label">NIT</span><span class="pu-field-val"
+                                id="perfilNit">Cargando...</span>
                         </div>
                         <div class="pu-field">
-                            <span class="pu-field-label">Correo</span><span class="pu-field-val">Cargando...</span>
+                            <span class="pu-field-label">Correo institucional</span><span class="pu-field-val"
+                                id="perfilCorreoInstitucional">Cargando...</span>
+                        </div>
+                        <div class="pu-field">
+                            <span class="pu-field-label">Correo de acceso</span><span class="pu-field-val"
+                                id="perfilCorreoAcceso">Cargando...</span>
+                        </div>
+                        <div class="pu-field">
+                            <span class="pu-field-label">Teléfono de contacto</span><span class="pu-field-val"
+                                id="perfilContacto">Cargando...</span>
                         </div>
                         <div class="pu-field">
                             <span class="pu-field-label">Ciudad</span><span class="pu-field-val"
-                                id="infoCiudad">Lebrija,
-                                Santander</span>
+                                id="infoCiudad">Cargando...</span>
                         </div>
                         <div class="pu-field">
-                            <span class="pu-field-label">Sector</span><span class="pu-field-val">Aerolínea</span>
+                            <span class="pu-field-label">Sector</span><span class="pu-field-val"
+                                id="perfilSector">Cargando...</span>
                         </div>
                         <div class="pu-field">
-                            <span class="pu-field-label">Aliada desde</span><span class="pu-field-val">Abril
-                                2026</span>
+                            <span class="pu-field-label">Aliada desde</span><span class="pu-field-val"
+                                id="perfilFechaRegistro">Cargando...</span>
+                        </div>
+                        <div class="pu-field">
+                            <span class="pu-field-label">Estado de la cuenta</span><span class="pu-field-val"
+                                id="perfilEstado">Cargando...</span>
                         </div>
                     </div>
                 </div>
@@ -195,13 +249,7 @@
             // ── 2. AVATAR Y NOMBRE EN SIDEBAR ────────────────────────────────────
             var av = document.getElementById("sidebarAvatar");
             var nm = document.getElementById("sidebarNombre");
-            // Avatar: iniciales del nombre empresa
-            var _nomEmpP = u.nombre || u.avatar || "AV";
-            var _inisEmpP = _nomEmpP.trim().split(/\s+/).map(function (w) {
-                return w[0] || "";
-            }).join("").toUpperCase().slice(0, 2) || "AV";
-            if (av) av.textContent = _inisEmpP;
-            if (nm) nm.textContent = u.nombre || "Empresa";
+            if (av) av.textContent = "EM";
 
             // ── 3. MAPAS POR TIPO DE SERVICIO ────────────────────────────────────
             var NORM_SERVICIO = {
@@ -242,33 +290,245 @@
                 "planes": "fa-map-location-dot",
                 "todo": "fa-star"
             };
+            var empresaActual = null;
+            var perfilEditable = false;
 
             // ── 4. CARGAR DATOS DESDE LA BD ──────────────────────────────────────
-            var sol = null;
-
-            fetch(window.location.origin + '/Tourismeasy/soli_empresas/get_perfil_empresa.php?id=' + encodeURIComponent(u.id))
+            var perfilUrl = new URL("../soli_empresas/get_perfil_empresa.php", window.location.href);
+            fetch(perfilUrl)
                 .then(function (r) {
+                    if (!r.ok) throw new Error("El servidor respondió con HTTP " + r.status);
                     return r.json();
                 })
                 .then(function (data) {
-                    if (data.ok && data.empresa) {
-                        sol = {
-                            nit: data.empresa.nit,
-                            nombre: data.empresa.nombre,
-                            ciudad: data.empresa.ciudad,
-                            servicio: data.empresa.servicio,
-                            email: data.empresa.email_login,
-                        };
+                    if (!data.ok || !data.empresa) {
+                        throw new Error(data.error || "No se recibieron los datos de la empresa.");
                     }
-                    rellenarPerfil(sol);
+                    if (String(data.empresa.nit) !== String(u.id)) {
+                        throw new Error("La sesión del navegador no coincide con la empresa autenticada en el servidor.");
+                    }
+                    rellenarPerfil(data.empresa);
                 })
-                .catch(function () {
-                    rellenarPerfil(null);
+                .catch(function (error) {
+                    console.error("No se pudo cargar el perfil de la empresa:", error);
+                    mostrarPerfilNoDisponible(error);
                 });
 
+            function mostrarValor(id, valor) {
+                var elemento = document.getElementById(id);
+                if (elemento) elemento.textContent = valor || "No registrado";
+            }
+
+            function actualizarNombreSesion(nombre, servicioRaw) {
+                var iniciales = nombre.trim().split(/\s+/).map(function (palabra) {
+                    return palabra[0] || "";
+                }).join("").toUpperCase().slice(0, 2) || "EM";
+
+                u.nombre = nombre;
+                u.tipoServicio = servicioRaw;
+                localStorage.setItem("te_session", JSON.stringify(u));
+                if (av) av.textContent = iniciales;
+                if (nm) nm.textContent = nombre;
+
+                var sessionName = document.querySelector("#sessionWidget .session-name");
+                var sessionAvatar = document.querySelector("#sessionWidget .session-avatar");
+                if (sessionName) sessionName.textContent = nombre;
+                if (sessionAvatar) sessionAvatar.textContent = iniciales;
+
+                var paneles = {
+                    transporte: "panel_transporte.html",
+                    hospedaje: "panel_hospedaje.html",
+                    planes: "panel_planes.html",
+                    auxiliar: "panel_auxiliar.html"
+                };
+                var panelHref = paneles[NORM_SERVICIO[servicioRaw.toLowerCase()] || "transporte"] ||
+                    "panel_transporte.html";
+                var menuPanel = document.querySelector("#sessionWidget .session-menu-highlight");
+                var sidebarPanel = document.getElementById("sidebarMiPanel");
+                if (menuPanel) menuPanel.href = panelHref;
+                if (sidebarPanel) sidebarPanel.href = panelHref;
+            }
+
+            function mostrarPerfilNoDisponible(error) {
+                var errorElement = document.getElementById("perfilError");
+                if (errorElement) {
+                    errorElement.textContent = "No se pudo cargar el perfil de la empresa. " + error.message;
+                    errorElement.hidden = false;
+                }
+                [
+                    "perfilNombreResumen", "perfilNombre", "perfilNitResumen", "perfilNit",
+                    "perfilCiudad", "infoCiudad", "perfilCorreoInstitucional",
+                    "perfilCorreoAcceso", "perfilContacto", "perfilSector",
+                    "perfilFechaRegistro", "perfilEstado"
+                ].forEach(function (id) {
+                    mostrarValor(id, "No disponible");
+                });
+                mostrarValor("empresaEstado", "No disponible");
+                document.querySelectorAll(".pu-stat-num").forEach(function (numEl) {
+                    numEl.textContent = "—";
+                });
+            }
+
+            function formatearFechaRegistro(fecha) {
+                if (!fecha) return "No registrada";
+                var partes = String(fecha).slice(0, 10).split("-");
+                if (partes.length !== 3) return "No registrada";
+                var date = new Date(Number(partes[0]), Number(partes[1]) - 1, Number(partes[2]));
+                if (Number.isNaN(date.getTime())) return "No registrada";
+                return new Intl.DateTimeFormat("es-CO", {
+                    month: "long",
+                    year: "numeric"
+                }).format(date);
+            }
+
+            function formatearProximaEdicion(fecha) {
+                if (!fecha) return "";
+                var partes = String(fecha).slice(0, 10).split("-");
+                if (partes.length !== 3) return "";
+                var date = new Date(Number(partes[0]), Number(partes[1]) - 1, Number(partes[2]));
+                if (Number.isNaN(date.getTime())) return "";
+                return new Intl.DateTimeFormat("es-CO", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric"
+                }).format(date);
+            }
+
+            function cargarCiudadesPerfil() {
+                var url = new URL("../datos_referencia.php?tipo=ciudades", window.location.href);
+                return fetch(url)
+                    .then(function (response) {
+                        if (!response.ok) throw new Error("No se pudieron cargar los municipios.");
+                        return response.json();
+                    })
+                    .then(function (data) {
+                        if (!data.ok || !data.data || !Array.isArray(data.data.ciudades)) {
+                            throw new Error(data.error || "La lista de municipios no tiene un formato válido.");
+                        }
+
+                        var select = document.getElementById("editarPerfilCiudad");
+                        select.replaceChildren(new Option("Selecciona un municipio", ""));
+                        data.data.ciudades.forEach(function (ciudad) {
+                            var option = new Option(ciudad.nombre, ciudad.id);
+                            select.appendChild(option);
+                        });
+                        return select;
+                    });
+            }
+
+            var modalEditarPerfil = document.getElementById("modalEditarPerfilEmpresa");
+            var formEditarPerfil = document.getElementById("formEditarPerfilEmpresa");
+            var btnGuardarPerfil = document.getElementById("btnGuardarEditarPerfil");
+            var estadoFormularioPerfil = document.getElementById("estadoFormularioPerfil");
+            var limiteEdicionPerfil = document.getElementById("limiteEdicionPerfil");
+
+            function mostrarEstadoFormulario(mensaje) {
+                estadoFormularioPerfil.textContent = mensaje;
+                estadoFormularioPerfil.hidden = false;
+            }
+
+            document.getElementById("btnEditPerfil").addEventListener("click", function () {
+                if (!empresaActual) return;
+
+                document.getElementById("editarPerfilNit").textContent = empresaActual.nit;
+                document.getElementById("editarPerfilNombre").value = empresaActual.nombre || "";
+                document.getElementById("editarPerfilEmailInstitucional").value = empresaActual.email_inst || "";
+                document.getElementById("editarPerfilEmailAcceso").value = empresaActual.email_login || "";
+                document.getElementById("editarPerfilContacto").value = empresaActual.contacto || "";
+                estadoFormularioPerfil.hidden = true;
+                estadoFormularioPerfil.textContent = "";
+                var proximaFecha = formatearProximaEdicion(empresaActual.proxima_edicion);
+                limiteEdicionPerfil.textContent = perfilEditable
+                    ? "Puedes guardar cambios una vez por mes calendario. Cambiar el correo de acceso actualiza el correo que usas para iniciar sesión."
+                    : "Ya actualizaste el perfil este mes." +
+                        (proximaFecha ? " Podrás volver a cambiarlo a partir del " + proximaFecha + "." : "");
+                btnGuardarPerfil.disabled = true;
+                modalEditarPerfil.showModal();
+
+                cargarCiudadesPerfil()
+                    .then(function (select) {
+                        select.value = empresaActual.id_ciudad || "";
+                        btnGuardarPerfil.disabled = !perfilEditable;
+                    })
+                    .catch(function (error) {
+                        console.error("No se pudo cargar la lista de municipios:", error);
+                        mostrarEstadoFormulario(error.message);
+                    });
+            });
+
+            document.getElementById("btnCerrarEditarPerfil").addEventListener("click", function () {
+                modalEditarPerfil.close();
+            });
+            document.getElementById("btnCancelarEditarPerfil").addEventListener("click", function () {
+                modalEditarPerfil.close();
+            });
+
+            formEditarPerfil.addEventListener("submit", function (event) {
+                event.preventDefault();
+                if (!perfilEditable) {
+                    mostrarEstadoFormulario("Ya usaste la actualización mensual de tu perfil.");
+                    return;
+                }
+                if (!formEditarPerfil.reportValidity()) return;
+
+                btnGuardarPerfil.disabled = true;
+                estadoFormularioPerfil.hidden = true;
+                var datos = {
+                    nombre: document.getElementById("editarPerfilNombre").value.trim(),
+                    email_institucional: document.getElementById("editarPerfilEmailInstitucional").value.trim(),
+                    email_acceso: document.getElementById("editarPerfilEmailAcceso").value.trim(),
+                    contacto: document.getElementById("editarPerfilContacto").value.trim(),
+                    id_ciudad: document.getElementById("editarPerfilCiudad").value
+                };
+                var url = new URL("../soli_empresas/actualizar_perfil_empresa.php", window.location.href);
+
+                fetch(url, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: "same-origin",
+                    body: JSON.stringify(datos)
+                })
+                    .then(function (response) {
+                        return response.json().then(function (data) {
+                            if (!response.ok || !data.ok) {
+                                var error = new Error(data.error || "No se pudo actualizar el perfil.");
+                                error.code = data.code;
+                                error.proximaEdicion = data.proxima_edicion;
+                                throw error;
+                            }
+                            return data;
+                        });
+                    })
+                    .then(function (data) {
+                        u.nombre = datos.nombre;
+                        u.email = datos.email_acceso;
+                        localStorage.setItem("te_session", JSON.stringify(u));
+                        mostrarEstadoFormulario(data.mensaje || "Perfil actualizado.");
+                        setTimeout(function () {
+                            window.location.reload();
+                        }, 700);
+                    })
+                    .catch(function (error) {
+                        console.error("No se pudo actualizar el perfil:", error);
+                        if (error.code === "MONTHLY_LIMIT") {
+                            perfilEditable = false;
+                            limiteEdicionPerfil.textContent = error.message + (error.proximaEdicion
+                                ? " Podrás volver a cambiarlo a partir del " +
+                                    formatearProximaEdicion(error.proximaEdicion) + "."
+                                : "");
+                            btnGuardarPerfil.disabled = true;
+                        } else {
+                            btnGuardarPerfil.disabled = false;
+                        }
+                        mostrarEstadoFormulario(error.message);
+                    });
+            });
+
             function rellenarPerfil(sol) {
+                empresaActual = sol;
+                perfilEditable = sol.puede_editar_perfil === true;
                 // ── 5. NORMALIZAR SERVICIO ───────────────────────────────────────
-                var servicioRaw = (sol && sol.servicio) || u.tipoServicio || "transporte";
+                var servicioRaw = sol.servicio || "";
                 var servicio = NORM_SERVICIO[(servicioRaw || "").toLowerCase()] || "transporte";
 
                 // ── 6. ACTUALIZAR SIDEBAR TIPO ───────────────────────────────────
@@ -278,28 +538,37 @@
                 }
 
                 // ── 7. RELLENAR DATOS DEL PERFIL ─────────────────────────────────
-                var today = new Date();
-                var meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
-                var aliadaDesde = meses[today.getMonth()] + " " + today.getFullYear();
-
-                var ciudad = (sol && (sol.ciudad || sol.sede)) || "";
-                var nit = (sol && sol.nit) || "";
-                var nombre = u.nombre || (sol && sol.nombre) || "";
+                var ciudad = [sol.ciudad, sol.departamento].filter(Boolean).join(", ");
+                var nombre = sol.nombre || "";
                 var sector = SECTOR_LABEL[servicio] || servicioRaw;
+                var estado = String(sol.estado || "").toUpperCase();
+                var estadoLabel = {
+                    ACTIVO: "Activa",
+                    INACTIVO: "Inactiva",
+                    PENDIENTE: "Pendiente"
+                }[estado] || "No registrado";
 
-                document.querySelectorAll(".pu-field-val").forEach(function (el) {
-                    var label = el.previousElementSibling ? el.previousElementSibling.textContent.trim().toLowerCase() : "";
-                    if (label === "empresa" || label === "razón social") el.textContent = nombre;
-                    if (label === "nit") el.textContent = nit;
-                    if (label === "correo") el.textContent = u.email || "";
-                    if (label === "sector") el.textContent = sector;
-                    if (label === "aliada desde") el.textContent = aliadaDesde;
-                });
-
-                var pc = document.getElementById("perfilCiudad");
-                var ic = document.getElementById("infoCiudad");
-                if (pc) pc.textContent = ciudad;
-                if (ic) ic.textContent = ciudad;
+                actualizarNombreSesion(nombre || "Empresa", servicioRaw);
+                mostrarValor("perfilNombreResumen", nombre);
+                mostrarValor("perfilNombre", nombre);
+                mostrarValor("perfilNitResumen", sol.nit);
+                mostrarValor("perfilNit", sol.nit);
+                mostrarValor("perfilCiudad", ciudad);
+                mostrarValor("infoCiudad", ciudad);
+                mostrarValor("perfilCorreoInstitucional", sol.email_inst);
+                mostrarValor("perfilCorreoAcceso", sol.email_login);
+                mostrarValor("perfilContacto", sol.contacto);
+                mostrarValor("perfilSector", sector);
+                mostrarValor("perfilFechaRegistro", formatearFechaRegistro(sol.fecha_registro));
+                mostrarValor("perfilEstado", estadoLabel);
+                mostrarValor("empresaEstado", estadoLabel);
+                var estadoIcono = document.getElementById("empresaEstadoIcono");
+                if (estadoIcono) {
+                    estadoIcono.className = estado === "ACTIVO"
+                        ? "fa-solid fa-circle-check"
+                        : "fa-solid fa-circle-info";
+                    estadoIcono.style.color = estado === "ACTIVO" ? "#22c55e" : "#f59e0b";
+                }
 
                 // ── 8. ESTADÍSTICAS: label correcto de inmediato según el tipo de empresa ──
                 document.querySelectorAll(".pu-stat").forEach(function (stat) {
@@ -308,27 +577,30 @@
                 });
 
                 // ── 8b. ESTADÍSTICAS: número real desde la BD ────────────────────────
-                fetch(window.location.origin + '/Tourismeasy/login/get_estadisticas_empresa.php?id=' + encodeURIComponent(u.id))
+                var estadisticasUrl = new URL("../login/get_estadisticas_empresa.php", window.location.href);
+                fetch(estadisticasUrl)
                     .then(function (r) {
+                        if (!r.ok) throw new Error("El servidor respondió con HTTP " + r.status);
                         return r.json();
                     })
                     .then(function (data) {
+                        if (!data.ok || !data.estadisticas) {
+                            throw new Error(data.error || "No se recibieron las estadísticas.");
+                        }
                         document.querySelectorAll(".pu-stat").forEach(function (stat) {
                             var numEl = stat.querySelector(".pu-stat-num");
                             var labelEl = stat.querySelector(".pu-stat-label");
                             if (!numEl) return;
-                            if (data.ok && data.estadisticas && typeof data.estadisticas.servicios_publicados !== "undefined") {
+                            if (typeof data.estadisticas.servicios_publicados !== "undefined") {
                                 numEl.textContent = data.estadisticas.servicios_publicados;
                                 if (labelEl && data.estadisticas.servicios_label) labelEl.textContent = data.estadisticas.servicios_label;
-                            } else {
-                                numEl.textContent = "0";
                             }
                         });
                     })
                     .catch(function (err) {
                         console.error("No se pudieron cargar las estadísticas de la empresa:", err);
                         document.querySelectorAll(".pu-stat-num").forEach(function (numEl) {
-                            numEl.textContent = "0";
+                            numEl.textContent = "—";
                         });
                     });
 
@@ -356,7 +628,7 @@
                 }
 
                 // ── 11. TÍTULO DE PÁGINA ─────────────────────────────────────────
-                document.title = "Perfil - " + (u.nombre || "Empresa") + " - TourismEasy";
+                document.title = "Perfil - " + (nombre || "Empresa") + " - TourismEasy";
             } // fin rellenarPerfil
         })();
 
@@ -368,9 +640,7 @@
             var w = document.createElement("div");
             w.id = "sessionWidget";
             w.className = "session-widget";
-            var ini = ((user.nombre || user.avatar || "AV").trim().split(/\s+/).map(function (x) {
-                return x[0] || "";
-            }).join("").toUpperCase().slice(0, 2) || "AV");
+            var ini = "EM";
             var _srv = (user.tipoServicio || user.servicio || "TRANSPORTE").toUpperCase();
             var _panelLinks = {
                 TRANSPORTE: "panel_transporte.html",
@@ -388,7 +658,7 @@
             };
             var _panelHref = _panelLinks[_srv] || "panel_transporte.html";
             var _panelIcon = _panelIcons[_srv] || "fa-bus";
-            w.innerHTML = '<button class="session-trigger" id="sessionTrigger"><div class="session-avatar">' + ini + '</div><div class="session-info"><span class="session-name">' + (user.nombre || "Empresa") + '</span><span class="session-tipo">Empresa</span></div><i class="fa-solid fa-chevron-down session-chevron" id="sessionChevron"></i></button><div class="session-dropdown" id="sessionDropdown"><a class="session-menu-item session-menu-highlight" href="' + _panelHref + '"><i class="fa-solid ' + _panelIcon + '"></i> Panel Empresa</a><a class="session-menu-item" href="perfil_empresa.html"><i class="fa-solid fa-user"></i> Mi Perfil</a><a class="session-menu-item" href="config_empresa.html"><i class="fa-solid fa-gear"></i> Configuracion</a><a class="session-menu-item session-menu-danger" id="btnLogout" href="#"><i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesion</a></div>';
+            w.innerHTML = '<button class="session-trigger" id="sessionTrigger"><div class="session-avatar">' + ini + '</div><div class="session-info"><span class="session-name">Empresa</span><span class="session-tipo">Empresa</span></div><i class="fa-solid fa-chevron-down session-chevron" id="sessionChevron"></i></button><div class="session-dropdown" id="sessionDropdown"><a class="session-menu-item session-menu-highlight" href="' + _panelHref + '"><i class="fa-solid ' + _panelIcon + '"></i> Panel Empresa</a><a class="session-menu-item" href="perfil_empresa.html"><i class="fa-solid fa-user"></i> Mi Perfil</a><a class="session-menu-item" href="config_empresa.html"><i class="fa-solid fa-gear"></i> Configuracion</a><a class="session-menu-item session-menu-danger" id="btnLogout" href="#"><i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesion</a></div>';
             slot.appendChild(w);
             var trig = w.querySelector("#sessionTrigger"),
                 drop = w.querySelector("#sessionDropdown"),

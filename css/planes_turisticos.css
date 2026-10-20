@@ -53,7 +53,7 @@
 
 
 /* ===========================
-   BUSCADOR — 4 campos (destino, tipo, fecha, personas) + botón
+   BUSCADOR — filtros de destino, tipo y accesibilidad
 =========================== */
 
 .search-container {
@@ -64,8 +64,7 @@
     border-radius: 20px;
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    /* 4 columnas en desktop */
+    grid-template-columns: repeat(3, 1fr);
     gap: 20px;
     position: relative;
     z-index: 10;
@@ -105,7 +104,7 @@
 }
 
 
-/* El botón buscar ocupa las 4 columnas completas */
+/* Las acciones ocupan las columnas completas */
 
 .btn-buscar {
     grid-column: 1 / -1;
@@ -127,6 +126,82 @@
     transform: translateY(-1px);
 }
 
+.plan-search-actions {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 12px;
+}
+
+.plan-search-actions .btn-buscar {
+    grid-column: auto;
+}
+
+.btn-limpiar-planes {
+    padding: 14px 20px;
+    border: 1px solid var(--gray-200);
+    border-radius: 10px;
+    background: white;
+    color: var(--gray-800);
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.btn-limpiar-planes:hover {
+    background: var(--gray-100);
+}
+
+.plan-search-status {
+    max-width: 1160px;
+    margin: -36px auto 24px;
+    padding: 0 20px;
+    color: var(--gray-600);
+}
+
+.plan-search-status:empty {
+    display: none;
+}
+
+.plan-search-status.error {
+    color: #b91c1c;
+}
+
+.plan-pagination {
+    max-width: 1200px;
+    margin: -48px auto 80px;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    color: var(--gray-800);
+    font-size: 0.9rem;
+}
+
+.plan-pagination[hidden] {
+    display: none;
+}
+
+.plan-pagination button {
+    padding: 10px 16px;
+    color: white;
+    background: var(--purple);
+    border: 0;
+    border-radius: 8px;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.plan-pagination button:hover:not(:disabled) {
+    background: var(--purple-dark);
+}
+
+.plan-pagination button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 
 /* ===========================
    GRID DE RESULTADOS — 3 columnas en desktop
@@ -139,6 +214,10 @@
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 30px;
+}
+
+.card-item[hidden] {
+    display: none;
 }
 
 

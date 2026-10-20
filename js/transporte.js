@@ -263,6 +263,58 @@ cargarClasesTransporte();
 // llama a transporte/buscar.php
 // → fn_buscar_transporte
 
+var busquedaTransporteId = 0;
+var transportePaginaActual = 1;
+var transporteResultadosPorPagina = 6;
+
+function ocultarPaginacionTransporte() {
+    var paginacion = document.getElementById('transportePagination');
+    if (paginacion) paginacion.hidden = true;
+}
+
+function actualizarPaginacionTransporte() {
+    var grid = document.getElementById('resultsGrid');
+    var paginacion = document.getElementById('transportePagination');
+    var resumen = document.getElementById('transportePageSummary');
+    var anterior = document.getElementById('transportePreviousPage');
+    var siguiente = document.getElementById('transporteNextPage');
+    if (!grid || !paginacion || !resumen || !anterior || !siguiente) return;
+
+    var tarjetas = Array.from(grid.querySelectorAll('.card-item'));
+    var total = tarjetas.length;
+    var totalPaginas = Math.ceil(total / transporteResultadosPorPagina);
+
+    if (!total) {
+        paginacion.hidden = true;
+        return;
+    }
+
+    transportePaginaActual = Math.max(1, Math.min(transportePaginaActual, totalPaginas));
+    var inicio = (transportePaginaActual - 1) * transporteResultadosPorPagina;
+    var fin = Math.min(inicio + transporteResultadosPorPagina, total);
+    tarjetas.forEach(function (tarjeta, indice) {
+        tarjeta.hidden = indice < inicio || indice >= fin;
+    });
+
+    resumen.textContent = 'Mostrando ' + (inicio + 1) + '–' + fin + ' de ' + total +
+        ' rutas · Página ' + transportePaginaActual + ' de ' + totalPaginas;
+    anterior.disabled = transportePaginaActual === 1;
+    siguiente.disabled = transportePaginaActual === totalPaginas;
+    paginacion.hidden = totalPaginas <= 1;
+}
+
+document.getElementById('transportePreviousPage').addEventListener('click', function () {
+    if (transportePaginaActual > 1) {
+        transportePaginaActual--;
+        actualizarPaginacionTransporte();
+    }
+});
+
+document.getElementById('transporteNextPage').addEventListener('click', function () {
+    transportePaginaActual++;
+    actualizarPaginacionTransporte();
+});
+
 function buscarTransporte() {
 
     var selOrigen =
@@ -332,7 +384,8 @@ function buscarTransporte() {
         );
 
 
-    // Si no hay ningún filtro
+    var solicitudId = ++busquedaTransporteId;
+
     if (
         !origenTexto &&
         !destinoTexto &&
@@ -355,7 +408,7 @@ function buscarTransporte() {
 
     statusBox.style.display = 'none';
 
-    emptyBox.style.display = 'none';
+    ocultarPaginacionTransporte();
 
 
     grid.innerHTML =
@@ -411,23 +464,23 @@ function buscarTransporte() {
     )
 
         .then(function (r) {
+            if (!r.ok) {
+                throw new Error('No se pudo buscar el transporte. Intenta de nuevo.');
+            }
             return r.json();
         })
 
         .then(function (res) {
+            if (solicitudId !== busquedaTransporteId) return;
+            if (!res.ok || !Array.isArray(res.data)) {
+                throw new Error(res.error || 'El servidor devolvió una respuesta inválida.');
+            }
 
             grid.innerHTML = '';
+            transportePaginaActual = 1;
 
-
-            if (
-                !res.ok ||
-                !res.data ||
-                !res.data.length
-            ) {
-
-                emptyBox.style.display =
-                    'block';
-
+            if (!res.data.length) {
+                emptyBox.style.display = 'block';
                 return;
             }
 
@@ -445,64 +498,52 @@ function buscarTransporte() {
                 }
 
             });
+            actualizarPaginacionTransporte();
 
 
             var msg =
-                'Se encontraron <strong>' +
+                'Se encontraron ' +
                 res.data.length +
                 ' ruta' +
                 (
                     res.data.length > 1
                         ? 's'
                         : ''
-                ) +
-                '</strong>';
-
+                );
 
             if (origenTexto) {
-
-                msg +=
-                    ' desde <strong>' +
-                    origenTexto +
-                    '</strong>';
-
+                msg += ' desde ' + origenTexto;
             }
 
 
             if (destinoTexto) {
-
-                msg +=
-                    ' hacia <strong>' +
-                    destinoTexto +
-                    '</strong>';
-
+                msg += ' hacia ' + destinoTexto;
             }
 
-
-            // NUEVO: mostrar filtro de clase
             if (claseTexto) {
-
-                msg +=
-                    ' · clase <strong>' +
-                    claseTexto +
-                    '</strong>';
-
+                msg += ' · clase ' + claseTexto;
             }
 
+            if (fecha) {
+                msg += ' · fecha ' + formatDateLong(fecha);
+            }
 
-            statusText.innerHTML = msg;
+            statusText.textContent = msg;
 
             statusBox.style.display =
                 'block';
-
         })
 
-        .catch(function () {
+        .catch(function (error) {
+            if (solicitudId !== busquedaTransporteId) return;
 
-            grid.innerHTML =
-                '<div style="grid-column:1/-1;text-align:center;padding:48px;color:#ef4444">' +
-                'Error al buscar. Intenta de nuevo.' +
-                '</div>';
+            statusBox.style.display = 'none';
+            emptyBox.style.display = 'none';
+            ocultarPaginacionTransporte();
+            var errorMessage = document.createElement('p');
+            errorMessage.textContent = error.message || 'Error al buscar. Intenta de nuevo.';
+            errorMessage.style.cssText = 'grid-column:1/-1;text-align:center;padding:48px;color:#ef4444';
+            grid.replaceChildren(errorMessage);
 
         });
 
@@ -512,6 +553,7 @@ function buscarTransporte() {
 // ── RESET BUSQUEDA ───────────────────────────────────────────────
 
 function resetBusqueda() {
+    busquedaTransporteId++;
 
     document.getElementById(
         'tOrigen'
@@ -553,6 +595,9 @@ function resetBusqueda() {
 
 }
 
+document
+    .getElementById('btnLimpiarTransporte')
+    .addEventListener('click', resetBusqueda);
 
 document
     .getElementById(
@@ -565,17 +610,15 @@ document
 
 
 document
-    .getElementById('tFecha')
-    .addEventListener(
-        'keydown',
-        function (e) {
-
-            if (e.key === 'Enter') {
+    .querySelectorAll('.search-container select, .search-container input')
+    .forEach(function (control) {
+        control.addEventListener('keydown', function (event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
                 buscarTransporte();
             }
-
-        }
-    );
+        });
+    });
 
 
 // ══════════════════════════════════════════════════════════════════
@@ -1073,6 +1116,10 @@ document
 
     function cargarTodo() {
 
+        var solicitudId = ++busquedaTransporteId;
+        transportePaginaActual = 1;
+        ocultarPaginacionTransporte();
+
         fetch(
             "../transporte/listar.php",
             {
@@ -1085,6 +1132,7 @@ document
             })
 
             .then(function (res) {
+                if (solicitudId !== busquedaTransporteId) return;
 
                 grid.innerHTML = "";
 
@@ -1113,9 +1161,12 @@ document
                     }
                 );
 
+                actualizarPaginacionTransporte();
             })
 
             .catch(function () {
+                if (solicitudId !== busquedaTransporteId) return;
+                ocultarPaginacionTransporte();
 
                 grid.innerHTML =
                     '<div style="grid-column:1/-1;text-align:center;padding:48px;color:#ef4444">' +

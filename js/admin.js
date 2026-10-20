@@ -397,17 +397,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // GET: Obtener todos los productos (solo los del artesano logueado)
     async function fetchProducts() {
-        try {
-            const url = sesion ? `${API_URL}&id_persona=${encodeURIComponent(sesion.id)}` : API_URL;
-            const response = await fetch(url, { credentials: 'include' });
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            const result = await response.json();
-            return result.data || [];
-        } catch (error) {
-            console.error('Error fetching products:', error);
-            showToast('Error al cargar los productos', 'error');
-            return [];
+        const url = sesion ? `${API_URL}&id_persona=${encodeURIComponent(sesion.id)}` : API_URL;
+        const response = await fetch(url, { credentials: 'include' });
+        const result = await response.json();
+        if (!response.ok || !result.ok || !Array.isArray(result.data)) {
+            throw new Error(result.error || `No se pudieron cargar los productos (HTTP ${response.status}).`);
         }
+        return result.data;
     }
 
     // GET: Obtener un producto por ID
@@ -582,14 +578,13 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             loadingIndicator.style.display = 'none';
             console.error('Error rendering table:', error);
-            tableBody.innerHTML = `
-                <tr>
-                    <td colspan="6" style="text-align: center; padding: 30px; color: var(--gray-400);">
-                        <i class="fa-solid fa-circle-exclamation" style="font-size: 1.5rem; display: block; margin-bottom: 10px; color: #ef4444;"></i>
-                        Error al cargar los productos. Verifica la conexión con el servidor.
-                    </td>
-                </tr>
-            `;
+            const row = document.createElement('tr');
+            const cell = document.createElement('td');
+            cell.colSpan = 6;
+            cell.style.cssText = 'text-align:center;padding:30px;color:#ef4444;';
+            cell.textContent = error.message || 'Error al cargar los productos. Verifica la conexión con el servidor.';
+            row.appendChild(cell);
+            tableBody.replaceChildren(row);
         }
     }
 

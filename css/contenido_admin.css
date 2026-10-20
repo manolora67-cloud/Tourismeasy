@@ -156,6 +156,12 @@
     box-sizing: border-box
 }
 
+.portada-field input[readonly] {
+    background: var(--gray-100);
+    color: var(--gray-600);
+    cursor: default
+}
+
 .portada-field textarea {
     min-height: 92px;
     resize: vertical;
@@ -272,6 +278,11 @@ body.dark-mode .portada-field textarea {
     background: #0f172a;
     color: #f1f5f9;
     border-color: #475569
+}
+
+body.dark-mode .portada-field input[readonly] {
+    background: #1e293b;
+    color: #cbd5e1
 }
 
 @media(max-width:640px) {
