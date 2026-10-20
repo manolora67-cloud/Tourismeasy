@@ -66,7 +66,7 @@ if (empty($_FILES[$campoArchivo])) {
         echo json_encode([
             "ok" => false,
             "error" => $esVideo
-                ? "PHP rechazó el video antes de recibirlo porque post_max_size es " . ini_get('post_max_size') . ". Configura upload_max_filesize en al menos 12M y post_max_size en al menos 16M, y reinicia el servidor PHP."
+                ? "El servidor PHP del alojamiento rechazó el video antes de recibirlo (post_max_size: " . ini_get('post_max_size') . "). Debe permitir upload_max_filesize de al menos 12M y post_max_size de al menos 16M; revisa la configuración PHP del servidor o consulta al administrador del alojamiento."
                 : "PHP rechazó la imagen antes de recibirla porque supera post_max_size (" . ini_get('post_max_size') . ").",
         ]);
         exit;
