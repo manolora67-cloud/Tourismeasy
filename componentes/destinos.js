@@ -655,7 +655,7 @@
         return {};
     }
 
-    function createMunicipalities(cities, content) {
+    function createMunicipalities(cities, content, initialized) {
         return cities.map((city, index) => {
             const slug = slugify(city.nombre);
             const nombre = titleCase(city.nombre);
@@ -671,11 +671,13 @@
                 key: saved ? saved.key : base.key,
                 img: (saved && saved.img) || base.img,
                 alt: (saved && saved.alt) || base.alt,
-                badge: (saved && saved.badge) || base.badge || "",
-                titulo: base.titulo,
-                desc: base.desc,
-                orden: index + 1,
-                publicado: true,
+                badge: saved ? saved.badge || "" : base.badge || "",
+                titulo: saved ? saved.titulo : base.titulo,
+                desc: saved ? saved.desc : base.desc,
+                orden: saved ? Number(saved.orden) || index + 1 : index + 1,
+                publicado: saved
+                    ? saved.publicado === true || ["1", "t", "true"].includes(String(saved.publicado).toLowerCase())
+                    : !initialized,
                 municipio: true,
                 article: saved ? parseArticle(saved.article) : {}
             };
@@ -718,6 +720,12 @@
 
     function renderDestinos(destinations) {
         if (!mount) return;
+        const publicDestinations = destinations.filter((destination) => destination.publicado);
+        const previewKey = new URLSearchParams(window.location.search).get("previewDestino");
+        if (!publicDestinations.length) {
+            mount.innerHTML = '<section class="destinos" id="destinos"><div class="section-container"><p class="destinos-error">Próximamente encontrarás nuevos destinos de Santander.</p></div></section>';
+            return;
+        }
         mount.innerHTML = `
     <section class="destinos" id="destinos">
       <div class="section-container">
@@ -735,8 +743,8 @@
           </button>
           <div class="destinos-viewport" aria-label="Carrusel de municipios">
             <div class="destinos-track">
-              ${renderPages(destinations).map((page, index) => `
-                <div class="destinos-page" role="group" aria-label="Municipios ${index * 8 + 1} a ${Math.min((index + 1) * 8, destinations.length)}">
+              ${renderPages(publicDestinations).map((page, index) => `
+                <div class="destinos-page" role="group" aria-label="Municipios ${index * 8 + 1} a ${Math.min((index + 1) * 8, publicDestinations.length)}">
                   ${page.map(cardTemplate).join("")}
                 </div>
               `).join("")}
@@ -753,7 +761,8 @@
         const previous = mount.querySelector(".destinos-arrow-prev");
         const next = mount.querySelector(".destinos-arrow-next");
         const pageCount = track.children.length;
-        let pageIndex = 0;
+        const destinationIndex = publicDestinations.findIndex((destination) => destination.key === previewKey);
+        let pageIndex = destinationIndex < 0 ? 0 : Math.floor(destinationIndex / 8);
         const update = () => updateCarousel(track, previous, next, pageIndex, pageCount);
         const changePage = (direction) => {
             pageIndex = Math.max(0, Math.min(pageCount - 1, pageIndex + direction));
@@ -763,6 +772,7 @@
         previous.addEventListener("click", () => changePage(-1));
         next.addEventListener("click", () => changePage(1));
         update();
+        if (previewKey && destinationIndex >= 0) mount.scrollIntoView({ block: "start" });
     }
 
     const citiesPromise = fetch(`${basePath}datos_referencia.php?tipo=ciudades`)
@@ -778,17 +788,25 @@
         });
 
     const contentPromise = fetch(`${basePath}admin/contenido_portada.php`)
-        .then((response) => response.ok ? response.json() : null)
-        .then((result) => result && result.ok && Array.isArray(result.data) ? result.data : [])
+        .then((response) => {
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            return response.json();
+        })
+        .then((result) => {
+            if (!result.ok || !Array.isArray(result.data)) {
+                throw new Error(result.error || "La respuesta de contenido no tiene el formato esperado.");
+            }
+            return { data: result.data, initialized: result.initialized === true };
+        })
         .catch((error) => {
             console.warn("[TourismEasy] No se pudo cargar la personalización de destinos.", error);
-            return [];
+            return { data: [], initialized: false };
         });
 
     window.TE_DESTINOS = DESTINOS;
     window.TE_MUNICIPIOS_PROMISE = Promise.all([citiesPromise, contentPromise])
         .then(([cities, content]) => {
-            const municipalities = createMunicipalities(cities, content);
+            const municipalities = createMunicipalities(cities, content.data, content.initialized);
             window.TE_MUNICIPIOS = municipalities;
             renderDestinos(municipalities);
             return municipalities;

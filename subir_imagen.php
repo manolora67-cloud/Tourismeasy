@@ -12,7 +12,7 @@ $allowed = in_array($origin, $ALLOWED_ORIGINS) ? $origin : $ALLOWED_ORIGINS[0];
 header("Access-Control-Allow-Origin: $allowed");
 header('Access-Control-Allow-Credentials: true');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, X-CSRF-Token');
+header('Access-Control-Allow-Headers: Content-Type, X-CSRF-Token, X-Upload-Type');
 header('Content-Type: application/json');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -40,7 +40,17 @@ if ($esAdmin) {
     }
 }
 
-$esVideo = !empty($_FILES['video']);
+function bytesDesdeConfiguracionPHP($valor)
+{
+    if (!preg_match('/^\s*(\d+)\s*([KMG]?)B?\s*$/i', (string)$valor, $coincidencias)) {
+        return 0;
+    }
+    $unidades = ['' => 1, 'K' => 1024, 'M' => 1048576, 'G' => 1073741824];
+    return (int)$coincidencias[1] * $unidades[strtoupper($coincidencias[2])];
+}
+
+$tipoCarga = strtolower($_SERVER['HTTP_X_UPLOAD_TYPE'] ?? '');
+$esVideo = $tipoCarga === 'video' || !empty($_FILES['video']);
 if ($esVideo && !$esAdmin) {
     http_response_code(403);
     echo json_encode(["ok" => false, "error" => "Solo administración puede subir videos de portada."]);
@@ -48,9 +58,37 @@ if ($esVideo && !$esAdmin) {
 }
 
 $campoArchivo = $esVideo ? 'video' : 'imagen';
-if (empty($_FILES[$campoArchivo]) || $_FILES[$campoArchivo]['error'] !== UPLOAD_ERR_OK) {
+if (empty($_FILES[$campoArchivo])) {
+    $limitePost = bytesDesdeConfiguracionPHP(ini_get('post_max_size'));
+    $longitudSolicitud = (int)($_SERVER['CONTENT_LENGTH'] ?? 0);
+    if ($longitudSolicitud > 0 && $limitePost > 0 && $longitudSolicitud > $limitePost) {
+        http_response_code(413);
+        echo json_encode([
+            "ok" => false,
+            "error" => $esVideo
+                ? "PHP rechazó el video antes de recibirlo porque post_max_size es " . ini_get('post_max_size') . ". Configura upload_max_filesize en al menos 12M y post_max_size en al menos 16M, y reinicia el servidor PHP."
+                : "PHP rechazó la imagen antes de recibirla porque supera post_max_size (" . ini_get('post_max_size') . ").",
+        ]);
+        exit;
+    }
     http_response_code(400);
-    echo json_encode(["ok" => false, "error" => $esVideo ? "No se recibió el video o hubo un error al subirlo." : "No se recibió ninguna imagen o hubo un error al subirla."]);
+    echo json_encode(["ok" => false, "error" => $esVideo ? "No se recibió el video. Selecciona el archivo de nuevo." : "No se recibió ninguna imagen. Selecciona el archivo de nuevo."]);
+    exit;
+}
+
+if ($_FILES[$campoArchivo]['error'] !== UPLOAD_ERR_OK) {
+    $errorCarga = $_FILES[$campoArchivo]['error'];
+    $mensajeCarga = match ($errorCarga) {
+        UPLOAD_ERR_INI_SIZE => "El archivo supera upload_max_filesize (" . ini_get('upload_max_filesize') . "). Aumenta el límite de PHP y reinicia el servidor.",
+        UPLOAD_ERR_FORM_SIZE => "El archivo supera el tamaño máximo permitido por el formulario.",
+        UPLOAD_ERR_PARTIAL => "El archivo solo se recibió parcialmente. Intenta subirlo de nuevo.",
+        UPLOAD_ERR_NO_TMP_DIR => "PHP no tiene disponible una carpeta temporal para recibir archivos.",
+        UPLOAD_ERR_CANT_WRITE => "PHP no pudo guardar el archivo temporalmente.",
+        UPLOAD_ERR_EXTENSION => "Una extensión de PHP detuvo la subida del archivo.",
+        default => "No se pudo recibir el archivo. Intenta subirlo de nuevo.",
+    };
+    http_response_code($errorCarga === UPLOAD_ERR_INI_SIZE || $errorCarga === UPLOAD_ERR_FORM_SIZE ? 413 : 400);
+    echo json_encode(["ok" => false, "error" => $mensajeCarga]);
     exit;
 }
 

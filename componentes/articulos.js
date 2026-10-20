@@ -1858,7 +1858,7 @@
 
     const videoHTML = (a) => a.video ? `
           <video class="art-video-bg" poster="${escapeHtml(a.poster || "")}" muted loop playsinline preload="metadata">
-            <source src="${escapeHtml(a.video)}" type="video/mp4" />
+            <source src="${escapeHtml(a.video)}" />
           </video>
           <button class="art-btn-sound" onclick="toggleArtSound(this)">🔇</button>` : "";
 
@@ -1915,15 +1915,26 @@
                 ...custom,
                 key: municipio.key,
                 poster: municipio.img,
-                titulo: municipio.titulo,
-                subtitulo: custom.subtitulo || base.subtitulo,
-                datos: Array.isArray(custom.datos) && custom.datos.length ? custom.datos : base.datos,
-                intro: custom.intro || base.intro,
-                secciones: Array.isArray(custom.secciones) && custom.secciones.length ? custom.secciones : base.secciones,
-                ctaTexto: custom.ctaTexto || base.ctaTexto
+                titulo: custom.titulo || municipio.titulo,
+                subtitulo: custom.subtitulo !== undefined ? custom.subtitulo : base.subtitulo,
+                datos: Array.isArray(custom.datos) ? custom.datos : base.datos,
+                intro: custom.intro !== undefined ? custom.intro : base.intro,
+                secciones: Array.isArray(custom.secciones) ? custom.secciones : base.secciones,
+                ctaTexto: custom.ctaTexto !== undefined ? custom.ctaTexto : base.ctaTexto
             };
         });
         renderArticulos(articulos);
+
+        const previewKey = new URLSearchParams(window.location.search).get("previewDestino");
+        if (previewKey) {
+            const overlay = document.getElementById("art-" + previewKey);
+            if (overlay) {
+                overlay.classList.add("open");
+                document.body.style.overflow = "hidden";
+                const video = overlay.querySelector(".art-video-bg");
+                if (video) video.play().catch(() => {});
+            }
+        }
     }).catch((error) => {
         console.error("[TourismEasy] No se pudieron cargar los artículos de los municipios.", error);
     });
