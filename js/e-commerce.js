@@ -6,7 +6,7 @@ let currentSearch = "";
 
 let currentLocation = "";
 let currentPage = 1;
-const productsPerPage = 6;
+const productsPerPage = 10;
 let productsLoading = true;
 let productsLoadError = false;
 let productSearchTimer = null;
