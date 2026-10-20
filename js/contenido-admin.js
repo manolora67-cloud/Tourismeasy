@@ -4,7 +4,9 @@
     const editor = document.getElementById('portadaEditor');
     const status = document.getElementById('portadaEstado');
     const newButton = document.getElementById('btnNuevoDestino');
-    if (!list || !editor || !status || !newButton) return;
+    const previewDialog = document.getElementById('portadaPreviewDialog');
+    const previewFrame = document.getElementById('portadaPreviewFrame');
+    if (!list || !editor || !status || !newButton || !previewDialog || !previewFrame) return;
 
     let destinos = [];
     let csrf = '';
@@ -118,12 +120,24 @@
                     <h3>${escapeHtml(destino.titulo)}</h3>
                     <p>${escapeHtml(destino.desc)}</p>
                     <div class="portada-card-actions">
-                        ${destino.publicado ? `<a class="portada-action preview" href="../index.html?previewDestino=${encodeURIComponent(destino.key)}#destinos" target="_blank" rel="noopener"><i class="fa-solid fa-eye"></i> Vista previa</a>` : ''}
+                        ${destino.publicado ? `<button type="button" class="portada-action preview" data-preview="${escapeHtml(destino.key)}"><i class="fa-solid fa-eye"></i> Vista previa</button>` : ''}
                         <button type="button" class="portada-action edit" data-edit="${escapeHtml(destino.key)}"><i class="fa-solid fa-pen"></i> Editar</button>
                         ${destino.persistido ? `<button type="button" class="portada-action delete" data-delete="${escapeHtml(destino.key)}"><i class="fa-solid fa-trash"></i> Eliminar</button>` : ''}
                     </div>
                 </div>
             </article>`).join('');
+    }
+
+    function closePreview() {
+        if (previewDialog.open) previewDialog.close();
+        previewFrame.src = 'about:blank';
+    }
+
+    function openPreview(key) {
+        const destination = destinos.find((item) => item.key === key);
+        if (!destination) return;
+        previewFrame.src = `../index.html?previewDestino=${encodeURIComponent(key)}#destinos`;
+        previewDialog.showModal();
     }
 
     const blankDestination = () => ({
@@ -432,11 +446,21 @@
     list.addEventListener('click', (event) => {
         const editButton = event.target.closest('[data-edit]');
         const deleteButton = event.target.closest('[data-delete]');
+        const previewButton = event.target.closest('[data-preview]');
         if (editButton) {
             const item = destinos.find((destination) => destination.key === editButton.dataset.edit);
             if (item) openEditor(item);
         }
         if (deleteButton) deleteDestination(deleteButton.dataset.delete);
+        if (previewButton) openPreview(previewButton.dataset.preview);
+    });
+    previewDialog.addEventListener('click', (event) => {
+        if (event.target === previewDialog) closePreview();
+    });
+    previewDialog.addEventListener('close', () => { previewFrame.src = 'about:blank'; });
+    previewDialog.querySelector('[data-preview-close]').addEventListener('click', closePreview);
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && previewDialog.open) closePreview();
     });
 
     cargar();

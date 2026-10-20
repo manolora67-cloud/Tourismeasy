@@ -323,6 +323,13 @@
             <p id="portadaEstado" class="portada-status" role="status"></p>
             <div id="portadaDestinos" class="portada-grid"></div>
             <div id="portadaEditor" class="portada-editor" hidden></div>
+            <dialog id="portadaPreviewDialog" class="portada-preview-dialog" aria-label="Vista previa del destino">
+                <div class="portada-preview-header">
+                    <h2>Vista previa</h2>
+                    <button type="button" class="portada-preview-close" data-preview-close aria-label="Cerrar vista previa">&times;</button>
+                </div>
+                <iframe id="portadaPreviewFrame" title="Vista previa del destino en la portada" src="about:blank"></iframe>
+            </dialog>
         </section>
 
         <section class="panel-content" id="tab-festividades">
