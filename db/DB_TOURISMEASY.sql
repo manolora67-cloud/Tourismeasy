@@ -1263,34 +1263,4 @@ INSERT INTO HOSPEDAJE_SERVICIOS (ID_HOSPEDAJE, ID_SERVICIO) VALUES
 (19, 4), (19, 6), (20, 8), (20, 5)
 ON CONFLICT (ID_HOSPEDAJE, ID_SERVICIO) DO NOTHING;
 
--- *************************************
--- POBLADO TABLA PRODUCTOS_ARTESANALES
--- *************************************
-
-INSERT INTO PRODUCTOS_ARTESANALES (
-    ID_PRODUCTO, NOM_PRODUCTO, PROVEEDOR, CATEGORIA, PRECIO_COP, ID_CIUDAD,
-    NUM_CONTACTO, DESCRIPCION, IMG_URL, ID_PERSONA_ECOMMERCE, FECHA_REGISTRO
-) VALUES
-(1, 'Taller de fique para principiantes', 'Manos de Santander', 'talleres', 85000, '68001', '300 555 0101', 'Taller practico de tejido en fique local.', NULL, NULL, TIMESTAMP '2025-01-09 08:10:00'),
-(2, 'Aretes de filigrana comunera', 'Filigrana del Socorro', 'bisuteria', 68000, '68755', '300 555 0102', 'Aretes hechos a mano con tecnica tradicional.', NULL, NULL, TIMESTAMP '2025-02-17 10:30:00'),
-(3, 'Vasija de barro de Guane', 'Taller Tierra Roja', 'alfareria', 95000, '68079', '300 555 0103', 'Pieza artesanal modelada y quemada localmente.', NULL, NULL, TIMESTAMP '2025-03-25 13:40:00'),
-(4, 'Taller de talla en piedra', 'Escuela Artesana Barichara', 'talleres', 120000, '68079', '300 555 0104', 'Introduccion guiada a la talla tradicional.', NULL, NULL, TIMESTAMP '2025-04-12 09:00:00'),
-(5, 'Collar de semillas nativas', 'Semillas y Arte', 'bisuteria', 42000, '68679', '300 555 0105', 'Collar liviano elaborado con semillas seleccionadas.', NULL, NULL, TIMESTAMP '2025-05-06 15:25:00'),
-(6, 'Jarra artesanal esmaltada', 'Ceramicas del Chicamocha', 'alfareria', 78000, '68001', '300 555 0106', 'Jarra decorativa elaborada en ceramica regional.', NULL, NULL, TIMESTAMP '2025-06-28 11:35:00'),
-(7, 'Taller de tejido en telar', 'Tejedoras de Velez', 'talleres', 90000, '68855', '300 555 0107', 'Sesion de tejido con fibras y tintes naturales.', NULL, NULL, TIMESTAMP '2025-07-16 07:55:00'),
-(8, 'Manilla de mostacilla comunera', 'Colores de Santander', 'bisuteria', 28000, '68755', '300 555 0108', 'Manilla tejida a mano con patrones regionales.', NULL, NULL, TIMESTAMP '2025-08-20 12:15:00'),
-(9, 'Maceta de barro pintada', 'Alfareria La Montanita', 'alfareria', 55000, '68872', '300 555 0109', 'Maceta decorativa pintada con motivos locales.', NULL, NULL, TIMESTAMP '2025-09-13 14:45:00'),
-(10, 'Taller de cesteria rural', 'Cesteria Viva', 'talleres', 75000, '68547', '300 555 0110', 'Experiencia de cesteria con materiales regionales.', NULL, NULL, TIMESTAMP '2025-10-30 09:20:00'),
-(11, 'Aretes de piedra natural', 'Piedras de San Gil', 'bisuteria', 46000, '68679', '300 555 0111', 'Aretes artesanales con piedras seleccionadas.', NULL, NULL, TIMESTAMP '2025-11-22 16:00:00'),
-(12, 'Plato decorativo santandereano', 'Barro y Tradicion', 'alfareria', 62000, '68079', '300 555 0112', 'Plato hecho a mano con acabado decorativo.', NULL, NULL, TIMESTAMP '2025-12-18 10:50:00'),
-(13, 'Taller de pintura sobre fique', 'Fique Creativo', 'talleres', 70000, '68001', '300 555 0113', 'Taller de color y composicion sobre fibra natural.', NULL, NULL, TIMESTAMP '2026-01-27 08:40:00'),
-(14, 'Pulsera de cobre martillado', 'Metal y Semilla', 'bisuteria', 52000, '68276', '300 555 0114', 'Pulsera ajustable trabajada manualmente.', NULL, NULL, TIMESTAMP '2026-02-08 13:05:00'),
-(15, 'Juego de tazas de barro', 'Ceramicas de Zapatoca', 'alfareria', 88000, '68872', '300 555 0115', 'Juego de tazas utilitarias de produccion artesanal.', NULL, NULL, TIMESTAMP '2026-03-19 11:25:00'),
-(16, 'Taller de nudos decorativos', 'Nudos y Caminos', 'talleres', 65000, '68679', '300 555 0116', 'Aprendizaje de nudos para objetos decorativos.', NULL, NULL, TIMESTAMP '2026-04-27 15:10:00'),
-(17, 'Collar tejido de colores', 'Hilando Historias', 'bisuteria', 39000, '68855', '300 555 0117', 'Collar tejido a mano inspirado en el paisaje regional.', NULL, NULL, TIMESTAMP '2026-05-18 09:45:00'),
-(18, 'Florero de ceramica esmaltada', 'Tierra y Fuego', 'alfareria', 105000, '68547', '300 555 0118', 'Florero de ceramica con esmalte de alta resistencia.', NULL, NULL, TIMESTAMP '2026-06-26 17:35:00'),
-(19, 'Taller de bisuteria artesanal', 'Laboratorio de Oficios', 'talleres', 110000, '68079', '300 555 0119', 'Taller introductorio con materiales incluidos.', NULL, NULL, TIMESTAMP '2026-08-12 10:15:00'),
-(20, 'Set de cuencos de barro', 'Manos Alfareras', 'alfareria', 73000, '68755', '300 555 0120', 'Set de cuencos elaborado en barro regional.', NULL, NULL, TIMESTAMP '2026-09-30 14:20:00')
-ON CONFLICT (ID_PRODUCTO) DO NOTHING;
-
 SELECT setval(pg_get_serial_sequence('productos_artesanales', 'id_producto'), (SELECT MAX(ID_PRODUCTO) FROM PRODUCTOS_ARTESANALES));
