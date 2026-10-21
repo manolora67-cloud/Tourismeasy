@@ -413,8 +413,7 @@ body.dark-mode .hero {
 
 .product-grid {
     display: grid;
-    /* auto-fill: crea tantas columnas como quepan; minmax: mínimo 210px */
-    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 1.2rem;
     padding: 2rem 5%;
 }
