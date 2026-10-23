@@ -1,0 +1,19 @@
+CREATE OR REPLACE FUNCTION fn_historico_producto_artesanal()
+RETURNS TRIGGER AS
+$$
+BEGIN
+    INSERT INTO HISTORICO_PRODUCTO_ARTESANAL (
+        ID_PRODUCTO_ORIGINAL,
+        DATOS_SNAPSHOT,
+        ACCION
+    )
+    VALUES (
+        OLD.ID_PRODUCTO,
+        TO_JSONB(OLD),
+        TG_OP
+    );
+
+    RETURN NULL;
+END;
+$$
+LANGUAGE plpgsql;

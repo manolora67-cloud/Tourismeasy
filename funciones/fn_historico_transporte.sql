@@ -1,0 +1,19 @@
+CREATE OR REPLACE FUNCTION fn_historico_transporte()
+RETURNS TRIGGER AS
+$$
+BEGIN
+    INSERT INTO HISTORICO_TRANSPORTE (
+        ID_TRANSPORTE_ORIGINAL,
+        DATOS_SNAPSHOT,
+        ACCION
+    )
+    VALUES (
+        OLD.ID_TRANSPORTE,
+        TO_JSONB(OLD),
+        TG_OP
+    );
+
+    RETURN NULL;
+END;
+$$
+LANGUAGE plpgsql;

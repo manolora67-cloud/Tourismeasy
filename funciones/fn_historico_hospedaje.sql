@@ -1,0 +1,19 @@
+CREATE OR REPLACE FUNCTION fn_historico_hospedaje()
+RETURNS TRIGGER AS
+$$
+BEGIN
+    INSERT INTO HISTORICO_HOSPEDAJE (
+        ID_HOSPEDAJE_ORIGINAL,
+        DATOS_SNAPSHOT,
+        ACCION
+    )
+    VALUES (
+        OLD.ID_HOSPEDAJE,
+        TO_JSONB(OLD),
+        TG_OP
+    );
+
+    RETURN NULL;
+END;
+$$
+LANGUAGE plpgsql;
