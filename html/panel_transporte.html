@@ -125,10 +125,14 @@
             </div>
             <div class="vm-body">
                 <div class="vm-grid">
-                    <div class="vm-field"><label class="vm-label">Origen</label><input class="vm-input" id="vm-origen"
-                            type="text" placeholder="Ej: Bucaramanga" /></div>
-                    <div class="vm-field"><label class="vm-label">Destino</label><input class="vm-input" id="vm-destino"
-                            type="text" placeholder="Ej: San Gil" /></div>
+                    <div class="vm-field"><label class="vm-label" for="vm-origen">Origen</label><select
+                            class="vm-input" id="vm-origen">
+                            <option value="">Selecciona un municipio...</option>
+                        </select></div>
+                    <div class="vm-field"><label class="vm-label" for="vm-destino">Destino</label><select
+                            class="vm-input" id="vm-destino">
+                            <option value="">Selecciona un municipio...</option>
+                        </select></div>
                     <div class="vm-field"><label class="vm-label">Fecha de salida</label><input class="vm-input"
                             id="vm-fecha" type="date" /></div>
                     <div class="vm-field">
@@ -490,6 +494,40 @@
 
         cargarClasesTransporte();
 
+        function cargarCiudadesTransporte() {
+            return fetch("../datos_referencia.php?tipo=ciudades", {
+                credentials: "include"
+            })
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (result) {
+                    if (!result.ok || !result.data || !Array.isArray(result.data.ciudades)) {
+                        throw new Error("No se pudieron cargar los municipios.");
+                    }
+
+                    ["vm-origen", "vm-destino"].forEach(function (id) {
+                        var select = document.getElementById(id);
+                        select.innerHTML = '<option value="">Selecciona un municipio...</option>';
+                        result.data.ciudades.forEach(function (ciudad) {
+                            var option = document.createElement("option");
+                            option.value = ciudad.id;
+                            option.textContent = ciudad.nombre;
+                            select.appendChild(option);
+                        });
+                    });
+                })
+                .catch(function (error) {
+                    console.error("Error cargando municipios de transporte:", error);
+                    ["vm-origen", "vm-destino"].forEach(function (id) {
+                        document.getElementById(id).innerHTML =
+                            '<option value="">No se pudieron cargar los municipios</option>';
+                    });
+                });
+        }
+
+        cargarCiudadesTransporte();
+
         // Cierra cualquier modal de transporte que haya quedado abierto
         // antes de mostrar uno nuevo (evita que se apilen unos encima de otros)
         function closeAllVM() {
@@ -523,9 +561,8 @@
             document.getElementById("vModal-title").textContent = row ? "Editar transporte" : "Nuevo transporte";
             if (row) {
                 var cells = row.querySelectorAll("td");
-                var ruta = cells[0].textContent.trim().split(" -> ");
-                document.getElementById("vm-origen").value = (ruta[0] || "").trim();
-                document.getElementById("vm-destino").value = (ruta[1] || "").trim();
+                document.getElementById("vm-origen").value = row.dataset.idCiudadOrigen || "";
+                document.getElementById("vm-destino").value = row.dataset.idCiudadDestino || "";
                 document.getElementById("vm-fecha").value = row.dataset.fechaSalida || "";
                 // Cargar hora en selects AM/PM
                 (function () {
@@ -556,9 +593,11 @@
                     _foto64 = "";
                 }
             } else {
-                ["vm-origen", "vm-destino", "vm-precio", "vm-descripcion"].forEach(function (id) {
+                ["vm-precio", "vm-descripcion"].forEach(function (id) {
                     document.getElementById(id).value = "";
                 });
+                document.getElementById("vm-origen").value = "";
+                document.getElementById("vm-destino").value = "";
                 document.getElementById("vm-fecha").value = "";
                 document.getElementById("vm-clase").value = "";
                 document.getElementById("vm-hora-h").value = "08";
@@ -605,8 +644,8 @@
         document.getElementById("vModal-cancel").addEventListener("click", closeModal);
 
         document.getElementById("vModal-save").addEventListener("click", function () {
-            var origen = document.getElementById("vm-origen").value.trim();
-            var destino = document.getElementById("vm-destino").value.trim();
+            var idCiudadOrigen = document.getElementById("vm-origen").value;
+            var idCiudadDestino = document.getElementById("vm-destino").value;
             var precioRaw = document.getElementById("vm-precio").value.trim().replace(/[^0-9]/g, "");
             var fecha = document.getElementById("vm-fecha").value;
             // Construir hora en 24h desde los selects AM/PM
@@ -616,8 +655,9 @@
             if (horaAmpm === "PM" && horaH !== 12) horaH += 12;
             if (horaAmpm === "AM" && horaH === 12) horaH = 0;
             var hora = (horaH < 10 ? "0" + horaH : "" + horaH) + ":" + horaM;
-            if (!origen || !destino || !precioRaw || !fecha || !hora) {
-                alert("Completa Origen, Destino, Fecha, Hora y Precio.");
+            if (!idCiudadOrigen || !idCiudadDestino || idCiudadOrigen === idCiudadDestino
+                || !precioRaw || !fecha || !hora) {
+                alert("Selecciona municipios distintos para origen y destino, y completa fecha, hora y precio.");
                 return;
             }
             var accVal = document.getElementById("vm-acc").value;
@@ -631,8 +671,8 @@
             }
 
             var payload = {
-                origen: origen,
-                destino: destino,
+                id_ciudad_origen: idCiudadOrigen,
+                id_ciudad_destino: idCiudadDestino,
                 fecha_salida: fecha,
                 hora_salida: hora,
                 precio: parseInt(precioRaw, 10),
@@ -905,6 +945,8 @@
             tr.dataset.imgUrl = item.img_url || "";
             tr.dataset.idClase = item.id_clase || "";
             tr.dataset.nombreClase = item.nombre_clase || "";
+            tr.dataset.idCiudadOrigen = item.id_ciudad_origen || "";
+            tr.dataset.idCiudadDestino = item.id_ciudad_destino || "";
             var dispHtml = item.disponible ? '<span class="estado-activo">Activo</span>' : '<span class="estado-cancelado">Inactivo</span>';
             tr.innerHTML = "<td><strong>" + (item.origen || "") + " &rarr; " + (item.destino || "") + "</strong></td>" +
                 "<td>" + (fmtDate(item.fecha_salida) || "--") + "</td>" +

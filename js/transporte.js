@@ -200,6 +200,43 @@ function actualizarBotonWhatsApp(btn) {
 
 // ── CARGAR CLASES DE TRANSPORTE DESDE LA BD ───────────────────────
 
+function cargarCiudadesTransporte() {
+    var origen = document.getElementById('tOrigen');
+    var destino = document.getElementById('tDestino');
+    if (!origen || !destino) return;
+
+    fetch('../datos_referencia.php?tipo=ciudades', {
+        credentials: 'include'
+    })
+        .then(function (response) {
+            if (!response.ok) throw new Error('No se pudieron cargar los municipios.');
+            return response.json();
+        })
+        .then(function (result) {
+            if (!result.ok || !result.data || !Array.isArray(result.data.ciudades)) {
+                throw new Error(result.error || 'Respuesta inválida al cargar municipios.');
+            }
+
+            [
+                { select: origen, placeholder: 'Cualquier origen' },
+                { select: destino, placeholder: 'Cualquier destino' }
+            ].forEach(function (item) {
+                item.select.innerHTML = '<option value="">' + item.placeholder + '</option>';
+                result.data.ciudades.forEach(function (ciudad) {
+                    var option = document.createElement('option');
+                    option.value = ciudad.id;
+                    option.textContent = ciudad.nombre;
+                    item.select.appendChild(option);
+                });
+            });
+        })
+        .catch(function (error) {
+            console.error('Error cargando municipios de transporte:', error);
+        });
+}
+
+cargarCiudadesTransporte();
+
 function cargarClasesTransporte() {
 
     var select =
@@ -324,6 +361,12 @@ function buscarTransporte() {
         document.getElementById('tDestino');
 
 
+    var idCiudadOrigen =
+        selOrigen.value;
+
+    var idCiudadDestino =
+        selDestino.value;
+
     var origenTexto =
         selOrigen.value
             ? selOrigen.options[
@@ -422,18 +465,18 @@ function buscarTransporte() {
         new URLSearchParams();
 
 
-    if (origenTexto) {
+    if (idCiudadOrigen) {
         params.set(
-            'origen',
-            origenTexto
+            'id_ciudad_origen',
+            idCiudadOrigen
         );
     }
 
 
-    if (destinoTexto) {
+    if (idCiudadDestino) {
         params.set(
-            'destino',
-            destinoTexto
+            'id_ciudad_destino',
+            idCiudadDestino
         );
     }
 
@@ -665,47 +708,6 @@ document
     }
 
 
-    function addOption(
-        selectEl,
-        value,
-        label
-    ) {
-
-        if (!selectEl) return;
-
-
-        for (
-            var i = 0;
-            i < selectEl.options.length;
-            i++
-        ) {
-
-            if (
-                selectEl.options[i].value ===
-                value
-            ) {
-
-                return;
-            }
-
-        }
-
-
-        var opt =
-            document.createElement(
-                "option"
-            );
-
-
-        opt.value = value;
-
-        opt.textContent = label;
-
-        selectEl.appendChild(opt);
-
-    }
-
-
     function renderCard(item) {
 
         var origenSlug =
@@ -714,55 +716,6 @@ document
 
         var destinoSlug =
             slugify(item.destino);
-
-
-        var selOrigen =
-            document.getElementById(
-                "tOrigen"
-            );
-
-
-        var selDestino =
-            document.getElementById(
-                "tDestino"
-            );
-
-
-        addOption(
-            selOrigen,
-            origenSlug,
-            item.origen
-        );
-
-
-        addOption(
-            selDestino,
-            destinoSlug,
-            item.destino
-        );
-
-
-        // Mantener disponibles las clases
-        // que vienen desde la DB.
-        var selClase =
-            document.getElementById(
-                "tClase"
-            );
-
-
-        if (
-            selClase &&
-            item.id_clase &&
-            item.nombre_clase
-        ) {
-
-            addOption(
-                selClase,
-                String(item.id_clase),
-                item.nombre_clase
-            );
-
-        }
 
 
         var precioDisplay =

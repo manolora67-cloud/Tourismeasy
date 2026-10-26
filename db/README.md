@@ -34,6 +34,10 @@ Para una base existente, vuelve a ejecutar [`fn_guardar_festividad.sql`](../func
 
 Este archivo representa una instalación nueva. Importa el esquema en una base vacía; no lo ejecutes sobre una base anterior para intentar actualizarla. Si tienes datos que conservar, haz un respaldo y conserva esa base por separado.
 
+### Claves de municipio en rutas de transporte
+
+Las instalaciones nuevas guardan `ID_CIUDAD_ORIGEN` y `ID_CIUDAD_DESTINO` en `TRANSPORTE`, con claves foráneas a `CIUDADES`. Para usar este modelo, crea una base vacía e importa `DB_TOURISMEASY.sql`; no se ofrecen migraciones para actualizar bases existentes.
+
 ### Calendario administrable de festividades
 
 La instalación nueva carga las 48 fechas iniciales en `FESTIVIDADES_SANTANDER`. El administrador puede gestionarlas desde el apartado **Festividades** del panel. Las funciones SQL para listar, guardar y eliminar festividades están en `funciones/` y se instalan junto con el resto de funciones.

@@ -1,7 +1,16 @@
 CREATE OR REPLACE FUNCTION fn_historico_transporte()
 RETURNS TRIGGER AS
 $$
+DECLARE
+    v_id_clase CLASE_SERVICIO_TRANSPORTE.ID_CLASE%TYPE;
+    v_nombre_clase CLASE_SERVICIO_TRANSPORTE.NOMBRE_CLASE%TYPE;
 BEGIN
+    SELECT C.ID_CLASE, C.NOMBRE_CLASE
+    INTO v_id_clase, v_nombre_clase
+    FROM TRANSPORTE_CLASE TC
+    JOIN CLASE_SERVICIO_TRANSPORTE C ON C.ID_CLASE = TC.ID_CLASE
+    WHERE TC.ID_TRANSPORTE = OLD.ID_TRANSPORTE;
+
     INSERT INTO HISTORICO_TRANSPORTE (
         ID_TRANSPORTE_ORIGINAL,
         DATOS_SNAPSHOT,
@@ -9,11 +18,14 @@ BEGIN
     )
     VALUES (
         OLD.ID_TRANSPORTE,
-        TO_JSONB(OLD),
+        TO_JSONB(OLD) || JSONB_BUILD_OBJECT(
+            'id_clase', v_id_clase,
+            'nombre_clase', v_nombre_clase
+        ),
         TG_OP
     );
 
-    RETURN NULL;
+    RETURN OLD;
 END;
 $$
 LANGUAGE plpgsql;

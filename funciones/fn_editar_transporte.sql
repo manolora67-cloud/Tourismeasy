@@ -15,6 +15,8 @@ RETURNS BOOLEAN AS
 $$
 DECLARE
     v_id_empresa_db TRANSPORTE.ID_EMPRESA%TYPE;
+    v_origen TRANSPORTE.ORIGEN%TYPE;
+    v_destino TRANSPORTE.DESTINO%TYPE;
 BEGIN
     -- Verificar que el transporte exista
     SELECT ID_EMPRESA
@@ -41,20 +43,22 @@ BEGIN
         RETURN FALSE;
     END IF;
 
-    -- Validar origen
     IF t_origen IS NULL OR LENGTH(TRIM(t_origen)) < 3 THEN
         RETURN FALSE;
     END IF;
 
-    -- Validar destino
     IF t_destino IS NULL OR LENGTH(TRIM(t_destino)) < 3 THEN
         RETURN FALSE;
     END IF;
 
-    -- Origen y destino no pueden ser iguales
-    IF UPPER(TRIM(t_origen)) = UPPER(TRIM(t_destino)) THEN
+    IF t_origen = t_destino
+       OR NOT EXISTS (SELECT 1 FROM CIUDADES WHERE ID_CIUDAD = t_origen)
+       OR NOT EXISTS (SELECT 1 FROM CIUDADES WHERE ID_CIUDAD = t_destino) THEN
         RETURN FALSE;
     END IF;
+
+    SELECT NOM_CIUDAD INTO v_origen FROM CIUDADES WHERE ID_CIUDAD = t_origen;
+    SELECT NOM_CIUDAD INTO v_destino FROM CIUDADES WHERE ID_CIUDAD = t_destino;
 
     -- La fecha no puede ser anterior a hoy
     IF t_fecha_salida < CURRENT_DATE THEN
@@ -74,8 +78,10 @@ BEGIN
     -- Actualizar los datos del transporte
     UPDATE TRANSPORTE
     SET
-        ORIGEN = TRIM(t_origen),
-        DESTINO = TRIM(t_destino),
+        ORIGEN = v_origen,
+        DESTINO = v_destino,
+        ID_CIUDAD_ORIGEN = t_origen,
+        ID_CIUDAD_DESTINO = t_destino,
         FECHA_SALIDA = t_fecha_salida,
         HORA_SALIDA = t_hora_salida,
         PRECIO = t_precio,

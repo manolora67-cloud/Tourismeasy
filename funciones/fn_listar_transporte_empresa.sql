@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION fn_listar_transporte_empresa(
+CREATE FUNCTION fn_listar_transporte_empresa(
     t_id_empresa TRANSPORTE.ID_EMPRESA%TYPE
 )
 RETURNS TABLE (
@@ -13,47 +13,35 @@ RETURNS TABLE (
     img_url         TRANSPORTE.IMG_URL%TYPE,
     fecha_creacion  TRANSPORTE.FECHA_CREACION%TYPE,
     id_clase        CLASE_SERVICIO_TRANSPORTE.ID_CLASE%TYPE,
-    nombre_clase    CLASE_SERVICIO_TRANSPORTE.NOMBRE_CLASE%TYPE
+    nombre_clase    CLASE_SERVICIO_TRANSPORTE.NOMBRE_CLASE%TYPE,
+    id_ciudad_origen TRANSPORTE.ID_CIUDAD_ORIGEN%TYPE,
+    id_ciudad_destino TRANSPORTE.ID_CIUDAD_DESTINO%TYPE
 ) AS
 $$
 BEGIN
     RETURN QUERY
     SELECT
-        T.ID_TRANSPORTE,
-        T.ORIGEN,
-        T.DESTINO,
-        T.FECHA_SALIDA,
-        T.HORA_SALIDA,
-        T.PRECIO,
-        T.DISPONIBILIDAD,
-        T.DESCRIPCION,
-        T.IMG_URL,
-        T.FECHA_CREACION,
-        CST.ID_CLASE,
-        CST.NOMBRE_CLASE
-    FROM TRANSPORTE T
-    LEFT JOIN TRANSPORTE_CLASE TC
-        ON TC.ID_TRANSPORTE = T.ID_TRANSPORTE
-    LEFT JOIN CLASE_SERVICIO_TRANSPORTE CST
-        ON CST.ID_CLASE = TC.ID_CLASE
-    WHERE T.ID_EMPRESA = t_id_empresa
-    ORDER BY
-        T.FECHA_SALIDA ASC,
-        T.HORA_SALIDA ASC;
-
-EXCEPTION
-    WHEN FOREIGN_KEY_VIOLATION THEN
-        RAISE NOTICE 'fn_listar_transporte_empresa - FK inválida: %', SQLERRM;
-        RETURN;
-    WHEN CHECK_VIOLATION THEN
-        RAISE NOTICE 'fn_listar_transporte_empresa - Check violado: %', SQLERRM;
-        RETURN;
-    WHEN LOCK_NOT_AVAILABLE THEN
-        RAISE NOTICE 'fn_listar_transporte_empresa - Tabla bloqueada: %', SQLERRM;
-        RETURN;
-    WHEN OTHERS THEN
-        RAISE NOTICE 'fn_listar_transporte_empresa: %', SQLERRM;
-        RETURN;
+        t.ID_TRANSPORTE,
+        COALESCE(co.NOM_CIUDAD, t.ORIGEN),
+        COALESCE(cd.NOM_CIUDAD, t.DESTINO),
+        t.FECHA_SALIDA,
+        t.HORA_SALIDA,
+        t.PRECIO,
+        t.DISPONIBILIDAD,
+        t.DESCRIPCION,
+        t.IMG_URL,
+        t.FECHA_CREACION,
+        cst.ID_CLASE,
+        cst.NOMBRE_CLASE,
+        t.ID_CIUDAD_ORIGEN,
+        t.ID_CIUDAD_DESTINO
+    FROM TRANSPORTE t
+    LEFT JOIN CIUDADES co ON co.ID_CIUDAD = t.ID_CIUDAD_ORIGEN
+    LEFT JOIN CIUDADES cd ON cd.ID_CIUDAD = t.ID_CIUDAD_DESTINO
+    LEFT JOIN TRANSPORTE_CLASE tc ON tc.ID_TRANSPORTE = t.ID_TRANSPORTE
+    LEFT JOIN CLASE_SERVICIO_TRANSPORTE cst ON cst.ID_CLASE = tc.ID_CLASE
+    WHERE t.ID_EMPRESA = t_id_empresa
+    ORDER BY t.FECHA_SALIDA, t.HORA_SALIDA;
 END;
 $$
 LANGUAGE plpgsql;

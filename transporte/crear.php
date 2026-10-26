@@ -21,9 +21,20 @@ if (empty($_SESSION['id_empresa']) || ($_SESSION['tipo'] ?? '') !== 'empresa') {
 
 $id_empresa = $_SESSION['id_empresa'];
 $input = json_decode(file_get_contents('php://input'), true);
+if (!is_array($input)) {
+    http_response_code(400);
+    echo json_encode(["ok" => false, "error" => "El cuerpo de la solicitud no es válido."]);
+    exit;
+}
 
-$origen      = trim($input['origen']       ?? '');
-$destino     = trim($input['destino']      ?? '');
+$origen_entrada = $input['id_ciudad_origen'] ?? null;
+$destino_entrada = $input['id_ciudad_destino'] ?? null;
+$origen = (is_string($origen_entrada) || is_int($origen_entrada))
+    ? trim((string)$origen_entrada)
+    : '';
+$destino = (is_string($destino_entrada) || is_int($destino_entrada))
+    ? trim((string)$destino_entrada)
+    : '';
 $fecha       = trim($input['fecha_salida'] ?? '');
 $hora        = trim($input['hora_salida']  ?? '');
 $precio      = intval($input['precio']     ?? 0);
@@ -52,12 +63,14 @@ if (isset($input['id'])) {
    VALIDACIONES
    ========================================================= */
 
-if (!$origen || !$destino || !$fecha || !$hora || $precio <= 0
+if (!preg_match('/^[A-Za-z0-9]{5,6}$/D', $origen)
+    || !preg_match('/^[A-Za-z0-9]{5,6}$/D', $destino)
+    || !$fecha || !$hora || $precio <= 0
     || !preg_match('/^[1-9][0-9]{0,9}$/D', $id_clase)) {
     http_response_code(400);
     echo json_encode([
         "ok" => false,
-        "error" => "Faltan campos obligatorios (origen, destino, fecha, hora, precio y clase)."
+        "error" => "Selecciona los municipios de origen y destino, la fecha, la hora, el precio y la clase."
     ]);
     exit;
 }

@@ -13,6 +13,8 @@ RETURNS TRANSPORTE.ID_TRANSPORTE%TYPE AS
 $$
 DECLARE
     v_nuevo_id TRANSPORTE.ID_TRANSPORTE%TYPE;
+    v_origen TRANSPORTE.ORIGEN%TYPE;
+    v_destino TRANSPORTE.DESTINO%TYPE;
 BEGIN
     -- La empresa debe existir y prestar servicio de TRANSPORTE
     IF NOT EXISTS (SELECT 1 FROM EMPRESAS WHERE ID_EMPRESA = t_id_empresa AND TIPO_SERVICIO = 'TRANSPORTE') THEN
@@ -24,20 +26,23 @@ BEGIN
         RETURN NULL;
     END IF;
 
-    -- Validar origen
+    -- Los parámetros origen/destino son identificadores de CIUDADES.
     IF t_origen IS NULL OR LENGTH(TRIM(t_origen)) < 3 THEN
         RETURN NULL;
     END IF;
 
-    -- Validar destino
     IF t_destino IS NULL OR LENGTH(TRIM(t_destino)) < 3 THEN
         RETURN NULL;
     END IF;
 
-    -- Origen y destino no pueden ser iguales
-    IF UPPER(TRIM(t_origen)) = UPPER(TRIM(t_destino)) THEN
+    IF t_origen = t_destino
+       OR NOT EXISTS (SELECT 1 FROM CIUDADES WHERE ID_CIUDAD = t_origen)
+       OR NOT EXISTS (SELECT 1 FROM CIUDADES WHERE ID_CIUDAD = t_destino) THEN
         RETURN NULL;
     END IF;
+
+    SELECT NOM_CIUDAD INTO v_origen FROM CIUDADES WHERE ID_CIUDAD = t_origen;
+    SELECT NOM_CIUDAD INTO v_destino FROM CIUDADES WHERE ID_CIUDAD = t_destino;
 
     -- La fecha no puede ser anterior a hoy
     IF t_fecha_salida < CURRENT_DATE THEN
@@ -59,6 +64,8 @@ BEGIN
         ID_EMPRESA,
         ORIGEN,
         DESTINO,
+        ID_CIUDAD_ORIGEN,
+        ID_CIUDAD_DESTINO,
         FECHA_SALIDA,
         HORA_SALIDA,
         PRECIO,
@@ -69,8 +76,10 @@ BEGIN
     )
     VALUES (
         t_id_empresa,
-        TRIM(t_origen),
-        TRIM(t_destino),
+        v_origen,
+        v_destino,
+        t_origen,
+        t_destino,
         t_fecha_salida,
         t_hora_salida,
         t_precio,
