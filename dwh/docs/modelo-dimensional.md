@@ -2,6 +2,8 @@
 
 El DWH conserva las jerarquías normalizadas en dimensiones separadas. Todas las capas están en la base PostgreSQL de TourismEasy, en los esquemas `bronce`, `plata` y `oro`.
 
+En palabras sencillas, oro prepara tablas para analizar: las **dimensiones** dicen quién, qué, dónde y cuándo; los **hechos** guardan qué ocurrió y sus medidas. `SK` significa clave interna (surrogate key) creada para relacionar las tablas del DWH.
+
 ## Hechos y granularidad
 
 | Hecho | Granularidad | Medidas |
@@ -11,6 +13,8 @@ El DWH conserva las jerarquías normalizadas en dimensiones separadas. Todas las
 | `oro.hecho_resenas` | Una reseña publicada. | Puntuación 1–5, likes observados en la carga y cantidad de reseñas (=1). |
 
 Las fotografías actuales se generan con la fecha de carga. Los snapshots de `HISTORICO_*` agregan cambios anteriores que realmente existen en OLTP. Varias modificaciones de una entidad el mismo día se consolidan según la granularidad diaria. El catálogo artesanal no representa ventas o pedidos.
+
+Para leer la tabla: por ejemplo, la granularidad de `hecho_oferta_turistica` dice qué representa exactamente cada fila. Su clave evita guardar dos veces el mismo servicio en la misma fecha.
 
 ## Dimensiones y jerarquías
 
@@ -26,6 +30,8 @@ Las fotografías actuales se generan con la fecha de carga. Los snapshots de `HI
 | `oro.dim_servicio` | Servicio, atributos descriptivos y municipios de origen/destino cuando es transporte. |
 | `oro.dim_categoria_producto` | Categoría de producto. |
 | `oro.dim_producto` | Producto → categoría; SCD tipo 2 para nombre, proveedor y categoría. |
+
+En el copo de nieve, algunas dimensiones se separan en niveles relacionados; por ejemplo, `dim_ciudad` apunta a `dim_departamento`. Eso evita repetir el nombre del departamento en cada ciudad, aunque requiere más relaciones al consultar.
 
 Los extremos de una ruta son dos referencias de rol a `dim_ciudad`: `dim_servicio.sk_ciudad_origen` y `sk_ciudad_destino`. Para hospedaje/planes, ambos usan la fila desconocida. El `sk_ciudad` del hecho de oferta sigue representando la ubicación comercial; para transporte corresponde al municipio de destino.
 
@@ -43,10 +49,12 @@ Los extremos de una ruta son dos referencias de rol a `dim_ciudad`: `dim_servici
 
 ## Reglas
 
+- Bronce conserva todas las tablas públicas originales, incluidos los datos sensibles. Las transformaciones de plata filtran los atributos que pasan a las capas analíticas.
+
 - Las dimensiones usan claves sustitutas; `-1` representa el registro desconocido.
 - El precio y la disponibilidad se miden en el hecho, no se suman atributos descriptivos.
 - `dim_empresa` crea una versión cuando cambia su nombre o tipo; sus intervalos son semiabiertos (`FECHA_INICIO` incluida, `FECHA_FIN` excluida) y la versión vigente termina en `9999-12-31`.
 - `dim_producto` crea una versión cuando cambia el nombre, proveedor o categoría; usa intervalos semiabiertos y cada hecho se relaciona con la versión vigente en la fecha de su fotografía.
 - Plata refresca la fotografía del día actual y conserva las fotografías anteriores; también vuelve a cargar las filas históricas disponibles en OLTP. Los hechos de oro se reconstruyen desde esas fotografías acumuladas, lo que sincroniza eliminaciones actuales sin borrar la tendencia diaria.
 - Los campos de origen/destino de servicios conservan etiquetas de texto y claves a ciudad cuando existen.
-- Se omiten contraseñas, sesiones, tokens, correo, teléfono, comentarios y `VISITOR_ID`.
+- Contraseñas, sesiones, tokens, correos, teléfonos, comentarios y `VISITOR_ID` no se copian a las tablas analíticas de plata y oro.

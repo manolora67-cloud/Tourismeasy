@@ -1,7 +1,8 @@
 -- Ejecutar después de plata/02_transformar.sql.
--- La transacción hace que dimensiones y hechos se publiquen juntos.
+-- La transaccion hace que dimensiones y hechos se actualicen juntos.
 BEGIN;
 
+-- Los hechos se pueden reconstruir desde plata en cada carga.
 TRUNCATE TABLE
     ORO.HECHO_OFERTA_TURISTICA,
     ORO.HECHO_PRODUCTO_ARTESANAL,
@@ -10,7 +11,8 @@ TRUNCATE TABLE
 DELETE FROM ORO.DIM_SERVICIO WHERE SK_SERVICIO <> -1;
 DELETE FROM ORO.DIM_SUBTIPO_SERVICIO WHERE SK_SUBTIPO <> -1;
 
--- Filas desconocidas para mantener FKs válidas sin valores nulos.
+-- La clave -1 representa "Desconocido". Asi las relaciones no quedan vacias
+-- si una fuente no tiene una ciudad, fecha, empresa o categoria reconocida.
 INSERT INTO ORO.DIM_MES (SK_MES, MES, NOMBRE_MES, TRIMESTRE, ANIO)
 VALUES (-1, 0, 'Desconocido', 0, 0)
 ON CONFLICT (SK_MES) DO NOTHING;
@@ -64,7 +66,7 @@ VALUES (
 )
 ON CONFLICT (SK_PRODUCTO) DO NOTHING;
 
--- Jerarquía ciudad -> departamento.
+-- 1. Dimensiones de ubicacion: primero departamentos, luego ciudades.
 INSERT INTO ORO.DIM_DEPARTAMENTO (ID_DPTO, NOM_DPTO)
 SELECT DISTINCT D.ID_DPTO, COALESCE(NULLIF(BTRIM(D.NOM_DPTO), ''), 'Desconocido')
 FROM BRONCE.DEPARTAMENTOS D
@@ -84,7 +86,7 @@ ON CONFLICT (ID_CIUDAD) DO UPDATE
 SET NOM_CIUDAD = EXCLUDED.NOM_CIUDAD,
     SK_DEPARTAMENTO = EXCLUDED.SK_DEPARTAMENTO;
 
--- Dimensiones compartidas de tipo y subtipo.
+-- 2. Tipos y subtipos comunes a las tres clases de oferta.
 INSERT INTO ORO.DIM_TIPO_SERVICIO (NOM_TIPO_SERVICIO)
 VALUES ('Hospedaje'), ('Plan'), ('Transporte')
 ON CONFLICT (NOM_TIPO_SERVICIO) DO NOTHING;
@@ -98,7 +100,9 @@ JOIN ORO.DIM_TIPO_SERVICIO T
   ON T.NOM_TIPO_SERVICIO = O.TIPO_SERVICIO
 ON CONFLICT (SK_TIPO_SERVICIO, NOM_SUBTIPO) DO NOTHING;
 
--- SCD tipo 2: cerrar solo versiones cuyo nombre o tipo cambió.
+-- 3. SCD tipo 2 de empresa.
+-- Si cambia el nombre o tipo, se cierra la version anterior y se agrega otra.
+-- DISTINCT ON conserva el registro mas reciente de cada empresa.
 WITH EMPRESAS_FUENTE AS (
     SELECT DISTINCT ON (E.ID_EMPRESA)
         E.ID_EMPRESA,
@@ -119,6 +123,7 @@ EMPRESAS_TIPADAS AS (
     FROM EMPRESAS_FUENTE F
     JOIN ORO.DIM_TIPO_SERVICIO T ON T.NOM_TIPO_SERVICIO = F.TIPO_NOMBRE
 )
+-- Si cambio el nombre o tipo, cerrar la version anterior.
 UPDATE ORO.DIM_EMPRESA D
 SET FECHA_FIN = GREATEST(
         E.FECHA_MODIFICACION,
@@ -178,6 +183,7 @@ WHERE NOT EXISTS (
       AND ACTUAL.SK_TIPO_SERVICIO = E.SK_TIPO_SERVICIO
 );
 
+-- Si una empresa ya no esta en plata, cerrar su ultima version vigente.
 UPDATE ORO.DIM_EMPRESA D
 SET FECHA_FIN = GREATEST(CURRENT_TIMESTAMP, D.FECHA_INICIO + INTERVAL '1 second'),
     ES_VIGENTE = FALSE
@@ -187,7 +193,8 @@ WHERE D.ES_VIGENTE
       SELECT 1 FROM PLATA.EMPRESA E WHERE E.ID_EMPRESA = D.ID_EMPRESA
   );
 
--- Servicio: atributos descriptivos de la versión más reciente, precios en los hechos.
+-- 4. Servicios: se guardan sus descripciones mas recientes.
+-- Los precios y la disponibilidad cambian por fecha y van en el hecho.
 WITH SERVICIOS_ACTUALES AS (
     SELECT DISTINCT ON (O.TIPO_SERVICIO, O.ID_SERVICIO_ORIGEN, O.SUBTIPO)
         O.*
@@ -235,7 +242,7 @@ SET NOMBRE = EXCLUDED.NOMBRE,
     SK_CIUDAD_ORIGEN = EXCLUDED.SK_CIUDAD_ORIGEN,
     SK_CIUDAD_DESTINO = EXCLUDED.SK_CIUDAD_DESTINO;
 
--- Categoría -> producto.
+-- 5. Productos: crear primero las categorias utilizadas.
 INSERT INTO ORO.DIM_CATEGORIA_PRODUCTO (NOM_CATEGORIA)
 SELECT DISTINCT
     CASE
@@ -246,6 +253,8 @@ SELECT DISTINCT
 FROM PLATA.PRODUCTO_SNAPSHOT P
 ON CONFLICT (NOM_CATEGORIA) DO NOTHING;
 
+-- Esta tabla temporal reune las fechas en que cambio cada producto.
+-- PostgreSQL la elimina al confirmar la transaccion (COMMIT).
 CREATE TEMP TABLE PRODUCTOS_VERSIONES_CARGA ON COMMIT DROP AS
 WITH PRODUCTOS_NORMALIZADOS AS (
     SELECT
@@ -307,6 +316,7 @@ SELECT
     V.ES_VIGENTE
 FROM VERSIONES_PRODUCTO V;
 
+-- Se quitan versiones que ya no aparecen en las fotografias disponibles.
 DELETE FROM ORO.DIM_PRODUCTO D
 WHERE D.SK_PRODUCTO <> -1
   AND NOT EXISTS (
@@ -316,6 +326,7 @@ WHERE D.SK_PRODUCTO <> -1
         AND V.FECHA_SNAPSHOT = D.FECHA_INICIO
   );
 
+-- Antes de recalcularlas, se marcan como no vigentes las versiones anteriores.
 UPDATE ORO.DIM_PRODUCTO
 SET ES_VIGENTE = FALSE
 WHERE SK_PRODUCTO <> -1;
@@ -341,7 +352,8 @@ SET NOM_PRODUCTO = EXCLUDED.NOM_PRODUCTO,
     FECHA_FIN = EXCLUDED.FECHA_FIN,
     ES_VIGENTE = EXCLUDED.ES_VIGENTE;
 
--- Jerarquía año -> trimestre -> mes -> día.
+-- 6. Calendario: crear meses y dias desde las fechas de los datos.
+-- GENERATE_SERIES produce un dia tras otro entre el inicio y el fin.
 WITH FECHAS_FUENTE AS (
     SELECT FECHA_SNAPSHOT AS FECHA FROM PLATA.OFERTA_SNAPSHOT
     UNION ALL
@@ -436,7 +448,8 @@ SET FECHA = EXCLUDED.FECHA,
     ES_FIN_DE_SEMANA = EXCLUDED.ES_FIN_DE_SEMANA,
     SK_MES = EXCLUDED.SK_MES;
 
--- Hecho de oferta: una fila por servicio/tipo y día.
+-- 7. Hecho de oferta: una fila por servicio, tipo y dia.
+-- Los JOIN buscan las claves internas de las dimensiones.
 WITH OFERTA_DIA AS (
     SELECT DISTINCT ON (O.TIPO_SERVICIO, O.ID_SERVICIO_ORIGEN, O.FECHA_SNAPSHOT)
         O.*
@@ -463,6 +476,7 @@ RESUELTA AS (
     LEFT JOIN ORO.DIM_SERVICIO SE
       ON SE.SK_SUBTIPO = ST.SK_SUBTIPO
      AND SE.ID_SERVICIO_ORIGEN = O.ID_SERVICIO_ORIGEN
+    -- LATERAL permite buscar la version de empresa que correspondia a esa fecha.
     LEFT JOIN LATERAL (
         SELECT E.SK_EMPRESA
         FROM ORO.DIM_EMPRESA E
@@ -491,7 +505,7 @@ SET SK_EMPRESA = EXCLUDED.SK_EMPRESA,
     DISPONIBLE = EXCLUDED.DISPONIBLE,
     CANTIDAD_SERVICIOS = 1;
 
--- Hecho de producto: una fila por producto y fecha de fotografía.
+-- 8. Hecho de producto: enlazar cada fotografia con su version historica.
 INSERT INTO ORO.HECHO_PRODUCTO_ARTESANAL (
     SK_TIEMPO, SK_CIUDAD, SK_PRODUCTO, ID_PRODUCTO_ORIGEN,
     PRECIO_COP, CANTIDAD_PRODUCTOS
@@ -516,7 +530,7 @@ SET SK_CIUDAD = EXCLUDED.SK_CIUDAD,
     PRECIO_COP = EXCLUDED.PRECIO_COP,
     CANTIDAD_PRODUCTOS = 1;
 
--- Reseñas: una fila por reseña; likes es el conteo actual de la carga.
+-- 9. Hecho de resenas: una fila por resena publicada.
 INSERT INTO ORO.HECHO_RESENAS (
     ID_RESENA_ORIGEN, SK_TIEMPO, PUNTUACION, TOTAL_LIKES, CANTIDAD_RESENAS
 )

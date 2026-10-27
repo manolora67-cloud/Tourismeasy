@@ -4,7 +4,9 @@
 
 La carga se realiza con consultas y DDL nativos de PostgreSQL dentro de la base `tourismeasy`. Las capas `bronce`, `plata` y `oro` son esquemas de esa misma base. No se usa PHP para extraer, PowerShell para orquestar, otra base de datos ni una herramienta ETL de terceros.
 
-`bronce` se reemplaza dentro de una transacción con `INSERT ... SELECT` sobre las tablas operativas de `public`. Plata reemplaza la fotografía correspondiente al día actual y conserva las anteriores; oro reconstruye los hechos desde el historial acumulado. De esta manera un servicio eliminado no aparece como oferta actual, pero sus fotografías previas no se pierden. Ejecuta los scripts desde el cliente SQL de PostgreSQL ya disponible en el curso.
+`bronce` refleja las 37 tablas base de `public` definidas en el esquema del proyecto y copia todas sus filas y columnas sin filtrar ni transformar, dentro de una transacción con sentencias `INSERT ... SELECT` explícitas. `CREATE TABLE ... AS SELECT * ... WITH NO DATA` crea cada espejo vacío a partir de las columnas y tipos de su tabla fuente; no copia claves, restricciones, valores predeterminados ni índices. Los archivos enumeran cada tabla para que el mapeo se pueda leer directamente; no requieren bloques `DO`, ciclos ni consultas al catálogo de PostgreSQL. Tampoco duplica funciones, triggers ni secuencias. Plata selecciona y limpia las columnas analíticas, reemplaza la fotografía correspondiente al día actual y conserva las anteriores; oro reconstruye los hechos desde el historial acumulado. De esta manera un servicio eliminado no aparece como oferta actual, pero sus fotografías previas no se pierden. Ejecuta los scripts desde el cliente SQL de PostgreSQL ya disponible en el curso.
+
+Como el espejo crudo incluye todas las tablas, también conserva datos de cuentas y seguridad —por ejemplo hashes, sesiones, tokens, auditoría y contactos—. No compartas la base con personas que no deban consultar esa información.
 
 ## Transporte y ciudades
 
@@ -22,6 +24,6 @@ El trigger PostgreSQL guarda la clase de transporte anterior dentro del snapshot
 - La dimensión de producto conserva versiones SCD tipo 2 según las fotografías disponibles en plata; modificaciones múltiples dentro del mismo día se consolidan a la granularidad diaria.
 - Los snapshots diarios consolidan modificaciones intradía.
 
-## Datos minimizados
+## Datos minimizados en plata y oro
 
-El aterrizaje selecciona únicamente atributos analíticos. No copia credenciales, cuentas, datos de contacto, textos de reseñas, comentarios ni el identificador del visitante. Los snapshots JSONB se proyectan a una lista permitida de claves antes de insertarse en bronce.
+Las transformaciones de plata y oro seleccionan únicamente atributos analíticos. No llevan credenciales, cuentas, datos de contacto, textos de reseñas, comentarios ni el identificador del visitante a los hechos analíticos. Los snapshots JSONB se proyectan a una lista permitida de claves en plata; bronce conserva el JSONB original como parte de la copia cruda completa.

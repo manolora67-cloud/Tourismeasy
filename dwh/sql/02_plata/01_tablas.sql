@@ -1,3 +1,7 @@
+-- PLATA guarda los datos ya seleccionados y organizados para el analisis.
+-- A diferencia de bronce, aqui no se copian todas las tablas del sistema.
+
+-- Una fila por empresa. Sirve para relacionar sus ofertas con su tipo de servicio.
 CREATE TABLE IF NOT EXISTS PLATA.EMPRESA (
     ID_EMPRESA VARCHAR(10) PRIMARY KEY,
     NOM_EMPRESA VARCHAR(50) NOT NULL,
@@ -5,6 +9,8 @@ CREATE TABLE IF NOT EXISTS PLATA.EMPRESA (
     FECHA_MODIFICACION TIMESTAMP NOT NULL
 );
 
+-- Una fila por servicio y dia. Asi se conserva el precio y disponibilidad
+-- que tenia cada hospedaje, plan o transporte en cada fotografia diaria.
 CREATE TABLE IF NOT EXISTS PLATA.OFERTA_SNAPSHOT (
     TIPO_SERVICIO VARCHAR(20) NOT NULL
         CHECK (TIPO_SERVICIO IN ('Hospedaje', 'Plan', 'Transporte')),
@@ -26,6 +32,8 @@ CREATE TABLE IF NOT EXISTS PLATA.OFERTA_SNAPSHOT (
     PRIMARY KEY (TIPO_SERVICIO, ID_SERVICIO_ORIGEN, FECHA_SNAPSHOT)
 );
 
+-- Una fila por producto y dia. Conserva los cambios de precio y descripcion
+-- del catalogo artesanal a traves de las fotografias diarias.
 CREATE TABLE IF NOT EXISTS PLATA.PRODUCTO_SNAPSHOT (
     ID_PRODUCTO_ORIGEN INTEGER NOT NULL,
     FECHA_SNAPSHOT DATE NOT NULL,
@@ -37,6 +45,7 @@ CREATE TABLE IF NOT EXISTS PLATA.PRODUCTO_SNAPSHOT (
     PRIMARY KEY (ID_PRODUCTO_ORIGEN, FECHA_SNAPSHOT)
 );
 
+-- Una fila por resena. El total de likes se calcula al momento de la carga.
 CREATE TABLE IF NOT EXISTS PLATA.RESENA (
     ID_RESENA_ORIGEN NUMERIC(10,0) PRIMARY KEY,
     FECHA_CREACION TIMESTAMP NOT NULL,
@@ -44,5 +53,6 @@ CREATE TABLE IF NOT EXISTS PLATA.RESENA (
     TOTAL_LIKES INTEGER NOT NULL CHECK (TOTAL_LIKES >= 0)
 );
 
+-- Indices para encontrar mas rapido las fotografias por fecha.
 CREATE INDEX IF NOT EXISTS IX_OFERTA_SNAPSHOT_FECHA ON PLATA.OFERTA_SNAPSHOT (FECHA_SNAPSHOT, TIPO_SERVICIO);
 CREATE INDEX IF NOT EXISTS IX_PRODUCTO_SNAPSHOT_FECHA ON PLATA.PRODUCTO_SNAPSHOT (FECHA_SNAPSHOT);
