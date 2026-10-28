@@ -40,42 +40,26 @@ if (!preg_match('/^[1-9][0-9]{0,9}$/D', $idProductoTexto)) {
     responderClickWhatsApp(400, ['ok' => false, 'error' => 'El producto no es válido.']);
 }
 
-$consultasProducto = [
-    'Hospedaje' => 'SELECT ID_EMPRESA, ID_CIUDAD FROM HOSPEDAJE WHERE ID_HOSPEDAJE = :id AND DISPONIBILIDAD = TRUE',
-    'Plan' => 'SELECT ID_EMPRESA, ID_CIUDAD FROM PLANES_TURISTICOS WHERE ID_PLAN_TURISTICO = :id AND DISPONIBILIDAD = TRUE',
-    'Transporte' => 'SELECT ID_EMPRESA, ID_CIUDAD_DESTINO AS ID_CIUDAD FROM TRANSPORTE WHERE ID_TRANSPORTE = :id AND DISPONIBILIDAD = TRUE',
-    'Artesanía' => 'SELECT NULL::VARCHAR(10) AS ID_EMPRESA, ID_CIUDAD FROM PRODUCTOS_ARTESANALES WHERE ID_PRODUCTO = :id',
-];
-
 try {
-    $productoStmt = $pdo->prepare($consultasProducto[$categoria]);
-    $productoStmt->execute([':id' => $idProductoTexto]);
-    $producto = $productoStmt->fetch();
-    if (!$producto) {
+    $userAgent = trim((string)($_SERVER['HTTP_USER_AGENT'] ?? ''));
+    $stmt = $pdo->prepare(
+        'SELECT fn_registrar_click_whatsapp(
+            CAST(:categoria AS VARCHAR(50)),
+            CAST(:producto AS VARCHAR(10)),
+            CAST(:user_agent AS TEXT)
+        )'
+    );
+    $stmt->execute([
+        ':categoria' => $categoria,
+        ':producto' => $idProductoTexto,
+        ':user_agent' => $userAgent !== '' ? $userAgent : 'Desconocido',
+    ]);
+    $idClick = $stmt->fetchColumn();
+    if ($idClick === false || $idClick === null) {
         responderClickWhatsApp(404, ['ok' => false, 'error' => 'El producto ya no está disponible.']);
     }
 
-    $userAgent = trim((string)($_SERVER['HTTP_USER_AGENT'] ?? ''));
-    if ($userAgent === '') {
-        $userAgent = 'Desconocido';
-    }
-
-    $insertar = $pdo->prepare(
-        'INSERT INTO LOGS_CLICS_WEB_EXTERNOS
-            (FECHA_HORA, ID_EMPRESA, ID_PRODUCTO, TIPO_CATEGORIA, ID_CIUDAD, USER_AGENT)
-         VALUES
-            (CURRENT_TIMESTAMP, :empresa, :producto, :categoria, :ciudad, :user_agent)
-         RETURNING ID_CLICK'
-    );
-    $insertar->execute([
-        ':empresa' => $producto['id_empresa'],
-        ':producto' => $idProductoTexto,
-        ':categoria' => $categoria,
-        ':ciudad' => $producto['id_ciudad'],
-        ':user_agent' => substr($userAgent, 0, 255),
-    ]);
-
-    responderClickWhatsApp(201, ['ok' => true, 'id_click' => $insertar->fetchColumn()]);
+    responderClickWhatsApp(201, ['ok' => true, 'id_click' => (int)$idClick]);
 } catch (Throwable $e) {
     error_log('[TourismEasy] api/registrar_click_whatsapp.php - ' . $e->getMessage());
     responderClickWhatsApp(500, ['ok' => false, 'error' => 'No se pudo registrar el clic.']);

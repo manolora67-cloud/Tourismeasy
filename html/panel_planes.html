@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="../css/index.css" />
     <link rel="stylesheet" href="../css/login.css" />
     <link rel="stylesheet" href="../css/panel_planes.css" />
+    <link rel="stylesheet" href="../css/click_metrics.css" />
     <link
         href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;500&display=swap"
         rel="stylesheet" />
@@ -79,6 +80,33 @@
                         id="statUltimoLabel">Último publicado</span></div>
             </div>
         </div>
+
+        <section class="click-metrics" data-clicks-dashboard aria-labelledby="planesClicksTitle">
+            <div class="click-metrics__heading">
+                <div>
+                    <h2 id="planesClicksTitle"><i class="fa-brands fa-whatsapp"></i> Contactos por WhatsApp</h2>
+                    <p>Solo se muestran los clics de los servicios de tu empresa.</p>
+                </div>
+                <button class="btn-panel-add" type="button" data-clicks-reload>Actualizar</button>
+            </div>
+            <div class="click-metrics__summary">
+                <div class="click-metrics__card"><span>Clics registrados</span><strong data-clicks-total>—</strong></div>
+                <div class="click-metrics__card"><span>Últimos 30 días</span><strong data-clicks-30-days>—</strong></div>
+            </div>
+            <p class="click-metrics__status" data-clicks-status aria-live="polite">Cargando estadísticas…</p>
+            <div class="click-metrics__block">
+                <h3>Clics por categoría</h3>
+                <div class="panel-table-wrap">
+                    <table class="panel-table"><thead><tr><th>Categoría</th><th>Clics</th></tr></thead><tbody data-clicks-categories></tbody></table>
+                </div>
+            </div>
+            <div class="click-metrics__block">
+                <h3>Últimos clics</h3>
+                <div class="panel-table-wrap">
+                    <table class="panel-table"><thead><tr><th>Fecha</th><th>Empresa</th><th>Categoría</th><th>Producto</th><th>Ciudad</th><th>Dispositivo</th></tr></thead><tbody data-clicks-recent></tbody></table>
+                </div>
+            </div>
+        </section>
 
         <!-- TAB: MIS PLANES -->
         <div class="panel-content active" id="tab-servicios">
@@ -781,6 +809,7 @@
         }
         cargarPlanes();
     </script>
+    <script src="../js/click_metrics.js"></script>
 </body>
 
 </html>

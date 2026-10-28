@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="../css/index.css" />
     <link rel="stylesheet" href="../css/login.css" />
     <link rel="stylesheet" href="../css/panel_admin.css" />
+    <link rel="stylesheet" href="../css/click_metrics.css" />
     <link rel="stylesheet" href="../css/contenido_admin.css" />
     <link rel="stylesheet" href="../css/resenas_likes.css" />
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;500&display=swap" rel="stylesheet" />
@@ -145,6 +146,44 @@
             <button class="panel-tab" data-tab="resenas">
                 <i class="fa-solid fa-star"></i> <span>Reseñas</span>
             </button>
+            <button class="panel-tab" data-tab="clics">
+                <i class="fa-brands fa-whatsapp"></i> <span>Clics WhatsApp</span>
+            </button>
+        </div>
+
+        <div class="panel-content" id="tab-clics">
+            <section class="click-metrics" data-clicks-dashboard aria-labelledby="adminClicksTitle">
+                <div class="click-metrics__heading">
+                    <div>
+                        <h2 id="adminClicksTitle"><i class="fa-brands fa-whatsapp"></i> Estadísticas de contactos</h2>
+                        <p>Vista global de los clics de WhatsApp de empresas y artesanos.</p>
+                    </div>
+                    <button class="panel-filter-btn" type="button" data-clicks-reload>Actualizar</button>
+                </div>
+                <div class="click-metrics__summary">
+                    <div class="click-metrics__card"><span>Clics registrados</span><strong data-clicks-total>—</strong></div>
+                    <div class="click-metrics__card"><span>Últimos 30 días</span><strong data-clicks-30-days>—</strong></div>
+                </div>
+                <p class="click-metrics__status" data-clicks-status aria-live="polite">Cargando estadísticas…</p>
+                <div class="click-metrics__block">
+                    <h3>Clics por categoría</h3>
+                    <div class="panel-table-wrap">
+                        <table class="panel-table"><thead><tr><th>Categoría</th><th>Clics</th></tr></thead><tbody data-clicks-categories></tbody></table>
+                    </div>
+                </div>
+                <div class="click-metrics__block" data-clicks-business-section hidden>
+                    <h3>Clics por empresa</h3>
+                    <div class="panel-table-wrap">
+                        <table class="panel-table"><thead><tr><th>Empresa</th><th>Clics</th></tr></thead><tbody data-clicks-business></tbody></table>
+                    </div>
+                </div>
+                <div class="click-metrics__block">
+                    <h3>Últimos clics registrados</h3>
+                    <div class="panel-table-wrap">
+                        <table class="panel-table"><thead><tr><th>Fecha</th><th>Empresa / contacto</th><th>Categoría</th><th>Producto</th><th>Ciudad</th><th>Dispositivo</th></tr></thead><tbody data-clicks-recent></tbody></table>
+                    </div>
+                </div>
+            </section>
         </div>
 
         <!-- TAB: EMPRESAS -->
@@ -1033,6 +1072,7 @@
     <script src="../componentes/destinos.js"></script>
     <script src="../componentes/articulos.js"></script>
     <script src="../js/contenido-admin.js"></script>
+    <script src="../js/click_metrics.js"></script>
 
     <!-- Reseñas de la plataforma: carga resenas.js solo cuando el tab está activo -->
     <script>
