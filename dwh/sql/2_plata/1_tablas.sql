@@ -2,8 +2,6 @@
 -- ESTRATEGIA PLATA SENCILLA: TABLAS SEPARADAS EN MODO FOTO DIARIA
 -- =====================================================================
 
-CREATE SCHEMA IF NOT EXISTS PLATA;
-
 -- Tabla limpia para Empresas
 CREATE TABLE IF NOT EXISTS PLATA.DIM_EMPRESAS 
 (

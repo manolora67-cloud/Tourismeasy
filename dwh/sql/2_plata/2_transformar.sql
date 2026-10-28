@@ -97,5 +97,5 @@ SELECT
     tipo_categoria,
     id_ciudad,
     user_agent
-FROM BRONCE.LOGS_CLICS_WEB_EXTERNOS; -- Tu archivo plano cargado del día
+FROM BRONCE.LOGS_CLICS_WEB_EXTERNOS; -- El archivo plano cargado del día
 COMMIT;
