@@ -60,7 +60,7 @@ Por ejemplo, para `CIUDADES`, vacia `BRONCE.CIUDADES` y luego copia sus registro
 
 Archivo: `sql/2_plata/1_tablas.sql`
 
-Este archivo crea el esquema `PLATA` y las tablas `DIM_EMPRESAS`, `HIST_HOSPEDAJES`, `HIST_PLANES`, `HIST_TRANSPORTES`, `HIST_ARTESANIAS` y `FACT_EVENTOS_WHATSAPP`. Las tablas historicas guardan una foto diaria por entidad.
+Este archivo crea el esquema `PLATA` y las tablas `DIM_EMPRESAS`, `HIST_HOSPEDAJES`, `HIST_PLANES`, `HIST_TRANSPORTES`, `HIST_ARTESANIAS` y `FACT_EVENTOS_WHATSAPP`. Las tablas historicas guardan una foto diaria por entidad; hospedajes, planes y transportes incluyen solo registros disponibles, por lo que no guardan una columna `DISPONIBILIDAD`.
 
 ## 5. Cargar los datos de Bronce a Plata
 
