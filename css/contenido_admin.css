@@ -22,6 +22,8 @@
 }
 
 .portada-card {
+    display: flex;
+    flex-direction: column;
     background: var(--white);
     border: 1px solid var(--gray-200);
     border-radius: 16px;
@@ -38,6 +40,9 @@
 }
 
 .portada-card-body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
     padding: 16px
 }
 
@@ -56,8 +61,10 @@
 
 .portada-card-actions {
     display: flex;
+    flex-wrap: wrap;
     gap: 8px;
-    margin-top: 14px
+    margin-top: auto;
+    padding-top: 14px
 }
 
 .portada-action {
@@ -374,6 +381,15 @@ body.dark-mode .portada-field textarea {
 body.dark-mode .portada-field input[readonly] {
     background: #1e293b;
     color: #cbd5e1
+}
+
+body.dark-mode .portada-cancel {
+    background: #334155;
+    color: #f1f5f9
+}
+
+body.dark-mode .portada-cancel:hover {
+    background: #475569
 }
 
 @media(max-width:640px) {
