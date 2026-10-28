@@ -70,6 +70,8 @@ Este archivo contiene las cargas diarias de empresas, hospedajes, planes, transp
 
 Ejecuta `1_tablas.sql` una vez para crear las tablas; despues ejecuta `2_transformar.sql` cada dia para refrescar los datos.
 
+La carga de eventos usa `public.LOGS_CLICS_WEB_EXTERNOS` y su copia en `bronce`, con las columnas `fecha_hora`, `id_empresa`, `id_producto`, `tipo_categoria`, `id_ciudad` y `user_agent`. La tabla fuente se crea en la base principal ejecutando `db/DB_TOURISMEASY.sql`; luego la preparación y extracción genéricas de Bronce la copian automáticamente, igual que las demás tablas de `public`.
+
 ## 6. Crear las vistas de Oro
 
 Archivo: `sql/3_oro/1_vistas_oro.sql`
