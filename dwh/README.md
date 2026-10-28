@@ -60,40 +60,22 @@ Por ejemplo, para `CIUDADES`, vacia `BRONCE.CIUDADES` y luego copia sus registro
 
 Archivo: `sql/2_plata/1_tablas.sql`
 
-Este archivo crea cuatro tablas para guardar la informacion preparada:
+Este archivo crea el esquema `PLATA` y cinco tablas: `DIM_EMPRESAS`, `HIST_HOSPEDAJES`, `HIST_PLANES`, `HIST_TRANSPORTES` y `HIST_ARTESANIAS`. Las cuatro tablas `HIST_...` guardan una foto diaria por entidad.
 
-- `EMPRESA`: los datos necesarios para identificar cada empresa.
-- `OFERTA_SNAPSHOT`: una fotografia diaria de hospedajes, planes y transportes.
-- `PRODUCTO_SNAPSHOT`: una fotografia diaria de los productos artesanales.
-- `RESENA`: la puntuacion de cada resena y el total actual de sus likes.
+## 5. Cargar los datos de Bronce a Plata
 
-Las columnas obligatorias se declaran `NOT NULL`. Bronce conserva el origen; Plata guarda las fotografias historicas disponibles y los datos actuales. Las ofertas disponibles y no disponibles se guardan para que tambien se pueda analizar la disponibilidad. Los precios se copian del origen, que exige valores positivos; no se inventa un precio de `0` cuando falta.
+Archivo: `sql/2_plata/2_transformar.sql`
 
-La capacidad solo aplica a hospedajes. Para planes y transportes se deja `NULL` porque no es una medida aplicable; no se usa `0` como reemplazo. El total de likes puede ser `0` cuando la resena realmente no tiene likes.
+Este archivo contiene las cinco cargas diarias. La carga de empresas reemplaza la tabla para copiar el estado actual. Las otras cuatro cargas borran primero las filas de hoy y luego guardan una nueva foto desde Bronce; asi se puede ejecutar otra vez en el mismo dia sin duplicar esa foto. `TRIM` quita espacios y `CAST` convierte los tipos cuando hace falta.
 
-## 5. Transformar los datos de Bronce a Plata
+Ejecuta `1_tablas.sql` una vez para crear las tablas; despues ejecuta `2_transformar.sql` cada dia para refrescar los datos.
 
-La transformacion esta separada en archivos cortos. Ejecutalos en este orden:
-
-1. `sql/2_plata/2_transformar_1_empresas.sql`
-2. `sql/2_plata/2_transformar_2_hospedajes.sql`
-3. `sql/2_plata/2_transformar_3_planes.sql`
-4. `sql/2_plata/2_transformar_4_transportes.sql`
-5. `sql/2_plata/2_transformar_5_productos.sql`
-6. `sql/2_plata/2_transformar_6_resenas.sql`
-
-Cada archivo procesa solo su tema. Los archivos de hospedajes, planes, transportes y productos reconstruyen en Plata los registros historicos y agregan una fotografia del estado actual. Si un elemento tuvo varios cambios en un mismo dia, se conserva el ultimo para no duplicar la misma entidad y fecha.
-
-La mayoria de los pasos siguen la misma idea: `INSERT INTO ... SELECT` lee datos de Bronce y los guarda en Plata. `TRIM` quita espacios al principio y al final. Para las filas historicas, `->>` lee un campo del JSON guardado en Bronce. `CAST` convierte el valor al tipo de columna que usa Plata.
-
-Las ofertas de hospedaje, planes y transporte se guardan disponibles o no disponibles. `FECHA_SNAPSHOT` indica el dia al que corresponde cada fotografia.
-
-En cada archivo, `BEGIN` y `COMMIT` hacen que sus cambios se confirmen juntos. Si una instruccion falla, no se confirma a medias ese archivo.
+**Importante:** este diseño de Plata usa tablas distintas a las que lee el script de Oro actual. No ejecutes la carga de Oro con esta estructura hasta adaptar Oro para leer las cinco tablas nuevas de Plata.
 
 ## Orden de ejecucion explicado en esta guia
 
 1. `sql/0_admin/0_esquemas.sql`: crear los espacios del DWH.
 2. `sql/1_bronce/1_tablas.sql`: preparar las copias vacias de las tablas originales.
 3. `sql/1_bronce/2_extraer.sql`: copiar los registros originales a Bronce.
-4. `sql/2_plata/1_tablas.sql`: crear las tablas preparadas de Plata.
-5. Ejecutar en orden los seis archivos `sql/2_plata/2_transformar_*.sql`.
+4. `sql/2_plata/1_tablas.sql`: crear el esquema y las cinco tablas de Plata.
+5. `sql/2_plata/2_transformar.sql`: ejecutar las cargas diarias de Plata.

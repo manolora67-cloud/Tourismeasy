@@ -1,69 +1,71 @@
-/*
-ETAPA 2 - TRANSFORMACION: PLATA guarda datos seleccionados y organizados.
-A diferencia de bronce, aqui no se copian todas las tablas del sistema, 
-solo se guardan las que son necesarias para el analisis y la visualizacion.
-*/
+-- =====================================================================
+-- ESTRATEGIA PLATA SENCILLA: TABLAS SEPARADAS EN MODO FOTO DIARIA
+-- =====================================================================
 
--- Una fila por empresa. Sirve para relacionar sus ofertas con su tipo de servicio.
-CREATE TABLE IF NOT EXISTS PLATA.EMPRESA 
+-- Tabla limpia para Empresas
+CREATE TABLE IF NOT EXISTS PLATA.DIM_EMPRESAS 
 (
-    ID_EMPRESA          VARCHAR(10)     NOT NULL,
-    NOM_EMPRESA         VARCHAR(50)     NOT NULL,
-    TIPO_SERVICIO       VARCHAR(20)     NOT NULL,
-    FECHA_MODIFICACION  TIMESTAMP       NOT NULL,
+    ID_EMPRESA          VARCHAR(10),
+    NOM_EMPRESA         VARCHAR(50),
+    TIPO_SERVICIO       VARCHAR(20),
+    FECHA_MODIFICACION  TIMESTAMP,
     PRIMARY KEY (ID_EMPRESA)
 );
 
-/*Una fila por servicio y fotografia. Conserva los cambios historicos y el
-estado actual de hospedajes, planes y transportes.
-*/
-
-CREATE TABLE IF NOT EXISTS PLATA.OFERTA_SNAPSHOT 
+-- Tabla historica sencilla para Hospedajes
+CREATE TABLE IF NOT EXISTS PLATA.HIST_HOSPEDAJES 
 (
-    TIPO_SERVICIO       VARCHAR(20)     NOT NULL CHECK (TIPO_SERVICIO IN ('Hospedaje', 'Plan', 'Transporte')),
-    ID_SERVICIO_ORIGEN  VARCHAR(20)     NOT NULL,
-    FECHA_SNAPSHOT      DATE            NOT NULL,
-    ID_EMPRESA          VARCHAR(10)     NOT NULL,
-    ID_CIUDAD           VARCHAR(6)      NOT NULL,
-    ID_CIUDAD_ORIGEN    VARCHAR(6)      NOT NULL,
-    ID_CIUDAD_DESTINO   VARCHAR(6)      NOT NULL,
-    SUBTIPO             VARCHAR(100)    NOT NULL,
-    NOMBRE              VARCHAR(100)    NOT NULL,
-    ACCESIBILIDAD       VARCHAR(200)    NOT NULL,
-    CAPACIDAD_MAX       INTEGER, -- NULL significa que este servicio no tiene capacidad aplicable.
-    DURACION            VARCHAR(50)     NOT NULL,
-    ORIGEN              VARCHAR(100)    NOT NULL,
-    DESTINO             VARCHAR(100)    NOT NULL,
-    PRECIO              NUMERIC(12,0)   NOT NULL CHECK (PRECIO > 0),
-    DISPONIBLE          BOOLEAN         NOT NULL,
-    PRIMARY KEY (TIPO_SERVICIO, ID_SERVICIO_ORIGEN, FECHA_SNAPSHOT)
+    ID_HOSPEDAJE    VARCHAR(10),
+    FECHA_PROCESO   DATE,
+    NOM_HOSPEDAJE   VARCHAR(100),
+    TIPO_HOSPEDAJE  VARCHAR(30),
+    ID_EMPRESA      VARCHAR(10),
+    ID_CIUDAD       VARCHAR(6),
+    PRECIO_NOCHE    NUMERIC(12,0),
+    CAPACIDAD_MAX   INTEGER,
+    DISPONIBILIDAD  BOOLEAN,
+    PRIMARY KEY (ID_HOSPEDAJE, FECHA_PROCESO)
 );
 
-/*
-Una fila por producto y dia, para conservar los cambios del catalogo artesanal.
-*/
-CREATE TABLE IF NOT EXISTS PLATA.PRODUCTO_SNAPSHOT 
+-- Tabla historica sencilla para Planes
+CREATE TABLE IF NOT EXISTS PLATA.HIST_PLANES 
 (
-    ID_PRODUCTO_ORIGEN  INTEGER         NOT NULL,
-    FECHA_SNAPSHOT      DATE            NOT NULL,
-    ID_CIUDAD           VARCHAR(6)      NOT NULL,
-    CATEGORIA           VARCHAR(20)     NOT NULL,
-    NOMBRE              VARCHAR(100)    NOT NULL,
-    PROVEEDOR           VARCHAR(80)     NOT NULL,
-    PRECIO_COP          NUMERIC(10,0)   NOT NULL CHECK (PRECIO_COP > 0),
-    PRIMARY KEY (ID_PRODUCTO_ORIGEN, FECHA_SNAPSHOT)
+    ID_PLAN_TURISTICO   VARCHAR(10),
+    FECHA_PROCESO       DATE,
+    NOM_PLAN_TURISTICO  VARCHAR(100),
+    DURACION            VARCHAR(50),
+    PRECIO_PLAN         NUMERIC(12,0),
+    DISPONIBILIDAD      BOOLEAN,
+    ID_EMPRESA          VARCHAR(10),
+    ID_CIUDAD           VARCHAR(6),
+    PRIMARY KEY (ID_PLAN_TURISTICO, FECHA_PROCESO)
 );
 
--- Una fila por resena. El total de likes se calcula al momento de la carga.
-CREATE TABLE IF NOT EXISTS PLATA.RESENA 
+-- Tabla historica sencilla para Transportes
+CREATE TABLE IF NOT EXISTS PLATA.HIST_TRANSPORTES 
 (
-    ID_RESENA_ORIGEN     NUMERIC(10,0)   NOT NULL,
-    FECHA_CREACION       TIMESTAMP       NOT NULL,
-    PUNTUACION           SMALLINT        NOT NULL CHECK (PUNTUACION BETWEEN 1 AND 5),
-    TOTAL_LIKES          INTEGER         NOT NULL CHECK (TOTAL_LIKES >= 0),
-    PRIMARY KEY (ID_RESENA_ORIGEN)
+    ID_TRANSPORTE       VARCHAR(10),
+    FECHA_PROCESO       DATE,
+    ID_EMPRESA          VARCHAR(10),
+    ORIGEN              VARCHAR(100),
+    DESTINO             VARCHAR(100),
+    ID_CIUDAD_ORIGEN    VARCHAR(6),
+    ID_CIUDAD_DESTINO   VARCHAR(6),
+    PRECIO              NUMERIC(12,0),
+    DISPONIBILIDAD      BOOLEAN,
+    NOMBRE_CLASE        VARCHAR(100),
+    PRIMARY KEY (ID_TRANSPORTE, FECHA_PROCESO)
 );
 
--- Indices para encontrar mas rapido las fotografias por fecha.
-CREATE INDEX IF NOT EXISTS IX_OFERTA_SNAPSHOT_FECHA     ON PLATA.OFERTA_SNAPSHOT (FECHA_SNAPSHOT, TIPO_SERVICIO);
-CREATE INDEX IF NOT EXISTS IX_PRODUCTO_SNAPSHOT_FECHA   ON PLATA.PRODUCTO_SNAPSHOT (FECHA_SNAPSHOT);
+-- Tabla historica sencilla para Productos Artesanales
+CREATE TABLE IF NOT EXISTS PLATA.HIST_ARTESANIAS 
+(
+    ID_PRODUCTO     INTEGER,
+    FECHA_PROCESO   DATE,
+    NOM_PRODUCTO    VARCHAR(100),
+    PROVEEDOR       VARCHAR(80),
+    CATEGORIA       VARCHAR(20),
+    PRECIO_COP      NUMERIC(10,0),
+    ID_CIUDAD       VARCHAR(6),
+    PRIMARY KEY (ID_PRODUCTO, FECHA_PROCESO)
+);
