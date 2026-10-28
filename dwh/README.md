@@ -1,6 +1,6 @@
 # DWH TourismEasy
 
-Esta guia explica como preparar Bronce y transformar sus datos en Plata. La idea es avanzar por pasos: primero guardar una copia de los datos originales y despues organizar solo la informacion que se necesita para analizar.
+Esta guia explica como preparar Bronce, transformar sus datos en Plata y consultar Oro mediante vistas analiticas.
 
 ## Antes de empezar
 
@@ -60,22 +60,42 @@ Por ejemplo, para `CIUDADES`, vacia `BRONCE.CIUDADES` y luego copia sus registro
 
 Archivo: `sql/2_plata/1_tablas.sql`
 
-Este archivo crea el esquema `PLATA` y cinco tablas: `DIM_EMPRESAS`, `HIST_HOSPEDAJES`, `HIST_PLANES`, `HIST_TRANSPORTES` y `HIST_ARTESANIAS`. Las cuatro tablas `HIST_...` guardan una foto diaria por entidad.
+Este archivo crea el esquema `PLATA` y las tablas `DIM_EMPRESAS`, `HIST_HOSPEDAJES`, `HIST_PLANES`, `HIST_TRANSPORTES`, `HIST_ARTESANIAS` y `FACT_EVENTOS_WHATSAPP`. Las tablas historicas guardan una foto diaria por entidad.
 
 ## 5. Cargar los datos de Bronce a Plata
 
 Archivo: `sql/2_plata/2_transformar.sql`
 
-Este archivo contiene las cinco cargas diarias. La carga de empresas reemplaza la tabla para copiar el estado actual. Las otras cuatro cargas borran primero las filas de hoy y luego guardan una nueva foto desde Bronce; asi se puede ejecutar otra vez en el mismo dia sin duplicar esa foto. `TRIM` quita espacios y `CAST` convierte los tipos cuando hace falta.
+Este archivo contiene las cargas diarias de empresas, hospedajes, planes, transportes, artesanias y eventos de WhatsApp. La carga de empresas reemplaza la tabla para copiar el estado actual. Las demas cargas borran primero las filas de hoy y luego guardan una nueva foto desde Bronce; asi se puede ejecutar otra vez en el mismo dia sin duplicar esa foto. `TRIM` quita espacios y `CAST` convierte los tipos cuando hace falta.
 
 Ejecuta `1_tablas.sql` una vez para crear las tablas; despues ejecuta `2_transformar.sql` cada dia para refrescar los datos.
 
-**Importante:** este diseño de Plata usa tablas distintas a las que lee el script de Oro actual. No ejecutes la carga de Oro con esta estructura hasta adaptar Oro para leer las cinco tablas nuevas de Plata.
+## 6. Crear las vistas de Oro
+
+Archivo: `sql/3_oro/1_vistas_oro.sql`
+
+Este archivo crea el esquema `ORO` y tres vistas, sin crear tablas fisicas:
+
+- `BUSCADOR_IA_VIAJEROS`: catalogo disponible de hoy con hospedajes, planes y transportes.
+- `REPORTE_LEADS_WHATSAPP`: clics agrupados por aliado comercial y fecha.
+- `REPORTE_ARTESANIAS_VIGENTES`: artesanias de hoy con el nombre del municipio.
+
+Las vistas consultan Plata y buscan los nombres de municipios directamente en Bronce. Se actualizan al consultar; no requieren una carga aparte.
+
+## 7. Validar la carga
+
+Archivo: `sql/4_validacion/1_controles.sql`
+
+Este archivo solo ejecuta consultas. Compara los conteos de las tablas actuales de Bronce con las fotos de hoy en Plata y cuenta precios negativos o capacidades en cero para alertar sobre esos datos.
+
+La base transaccional no registra pedidos ni pagos; por eso los clics de WhatsApp se reportan como leads y no como ventas confirmadas.
 
 ## Orden de ejecucion explicado en esta guia
 
 1. `sql/0_admin/0_esquemas.sql`: crear los espacios del DWH.
 2. `sql/1_bronce/1_tablas.sql`: preparar las copias vacias de las tablas originales.
 3. `sql/1_bronce/2_extraer.sql`: copiar los registros originales a Bronce.
-4. `sql/2_plata/1_tablas.sql`: crear el esquema y las cinco tablas de Plata.
+4. `sql/2_plata/1_tablas.sql`: crear el esquema y las tablas de Plata.
 5. `sql/2_plata/2_transformar.sql`: ejecutar las cargas diarias de Plata.
+6. `sql/3_oro/1_vistas_oro.sql`: crear las vistas analiticas.
+7. `sql/4_validacion/1_controles.sql`: revisar conteos y alertas de calidad.

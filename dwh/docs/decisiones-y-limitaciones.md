@@ -5,8 +5,8 @@
 El proceso se presenta en las tres etapas ETL del curso y se ejecuta con consultas y DDL nativos de PostgreSQL dentro de la base `tourismeasy`. Las capas `bronce`, `plata` y `oro` son esquemas de esa misma base. No se usa PHP para extraer, PowerShell para orquestar, otra base de datos ni una herramienta ETL de terceros.
 
 1. **Extraer:** `bronce` recibe una copia cruda de las tablas base de `public`, sin limpiar ni transformar sus filas. `1_bronce/1_tablas.sql` busca las tablas en `PG_TABLES` y crea automáticamente espejos vacíos con `CREATE TABLE ... AS SELECT * ... WITH NO DATA`; `1_bronce/2_extraer.sql` copia las filas con instrucciones explícitas `INSERT ... SELECT` para las 37 tablas actuales. Si se agrega una tabla a `public`, también hay que incorporarla al archivo de extracción y a sus conteos. Estos espejos no conservan claves, restricciones, valores predeterminados ni índices. Tampoco duplican funciones, triggers ni secuencias.
-2. **Transformar:** `plata` selecciona y limpia los atributos analíticos, reconstruye las fotografías históricas disponibles y agrega el estado actual.
-3. **Cargar:** `oro` construye y carga el modelo de dimensiones y hechos desde Plata. Durante esa carga también relaciona registros con dimensiones y claves sustitutas. Los hechos se reconstruyen desde las fotografías acumuladas: un servicio eliminado deja de aparecer en la fotografía actual, pero sus fotografías anteriores se conservan.
+2. **Transformar:** `plata` selecciona los atributos analíticos y guarda fotografías diarias.
+3. **Consultar:** `oro` expone vistas sobre Plata. Las vistas de municipios los enlazan en tiempo de consulta con las tablas maestras de Bronce; no se crean dimensiones físicas de tiempo o ubicación.
 
 La creación de tablas de Bronce usa un bloque `DO`, un ciclo y el catálogo `PG_TABLES` para no escribir una instrucción por cada tabla; la copia de las filas sigue siendo explícita para las 37 tablas actuales. Ejecuta los scripts desde el cliente SQL de PostgreSQL ya disponible en el curso.
 
@@ -25,10 +25,10 @@ El trigger PostgreSQL guarda la clase de transporte anterior dentro del snapshot
 - No hay pedidos ni pagos: los hechos de productos miden catálogo, no ventas.
 - La historia anterior a la primera carga depende de las filas reales de `HISTORICO_*`; no se inventan fechas.
 - Si el nombre/tipo de una empresa cambió varias veces entre cargas y OLTP no conserva su historia, no se pueden reconstruir esas versiones intermedias.
-- La dimensión de producto conserva versiones SCD tipo 2 según las fotografías disponibles en plata; modificaciones múltiples dentro del mismo día se consolidan a la granularidad diaria.
-- Los snapshots diarios consolidan modificaciones intradía y guardan tanto ofertas disponibles como no disponibles.
+- Las tablas historicas de Plata tienen granularidad diaria; cada entidad aparece una vez por fecha de proceso.
+- El buscador de Oro solo muestra las ofertas disponibles de hoy; las tablas historicas de Plata conservan el valor de disponibilidad de cada fotografia.
 - El catálogo de productos artesanales no registra transacciones. No se puede calcular ventas por día de semana ni ventas totales hasta que OLTP tenga tablas de pedidos o pagos con fecha y valor.
 
-## Datos minimizados en plata y oro
+## Datos minimizados en Plata y Oro
 
-Las transformaciones de plata y oro seleccionan únicamente atributos analíticos. No llevan credenciales, cuentas, datos de contacto, textos de reseñas, comentarios ni el identificador del visitante a los hechos analíticos. Los snapshots JSONB se proyectan a una lista permitida de claves en plata; bronce conserva el JSONB original como parte de la copia cruda completa.
+Las transformaciones de Plata seleccionan únicamente atributos analíticos. No llevan credenciales, cuentas, datos de contacto, textos de reseñas, comentarios ni el identificador del visitante a las tablas analíticas. Bronce conserva la copia cruda completa.
