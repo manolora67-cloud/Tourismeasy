@@ -1,3 +1,4 @@
+-- ETAPA 3 - CARGA: carga en oro las dimensiones y los hechos desde plata.
 -- Ejecutar después de plata/02_transformar.sql.
 -- La transaccion hace que dimensiones y hechos se actualicen juntos.
 BEGIN;
@@ -14,11 +15,11 @@ DELETE FROM ORO.DIM_SUBTIPO_SERVICIO WHERE SK_SUBTIPO <> -1;
 -- La clave -1 representa "Desconocido". Asi las relaciones no quedan vacias
 -- si una fuente no tiene una ciudad, fecha, empresa o categoria reconocida.
 INSERT INTO ORO.DIM_MES (SK_MES, MES, NOMBRE_MES, TRIMESTRE, ANIO)
-VALUES (-1, 0, 'Desconocido', 0, 0)
+VALUES (-1, -1, 'Desconocido', -1, -1)
 ON CONFLICT (SK_MES) DO NOTHING;
 
 INSERT INTO ORO.DIM_TIEMPO (SK_TIEMPO, FECHA, DIA, DIA_SEMANA, ES_FIN_DE_SEMANA, SK_MES)
-VALUES (-1, DATE '0001-01-01', 0, 'Desconocido', FALSE, -1)
+VALUES (-1, DATE '0001-01-01', -1, 'Desconocido', FALSE, -1)
 ON CONFLICT (SK_TIEMPO) DO NOTHING;
 
 INSERT INTO ORO.DIM_DEPARTAMENTO (SK_DEPARTAMENTO, ID_DPTO, NOM_DPTO)
@@ -48,7 +49,7 @@ INSERT INTO ORO.DIM_SERVICIO (
     SK_SERVICIO, ID_SERVICIO_ORIGEN, NOMBRE, ACCESIBILIDAD, CAPACIDAD_MAX,
     DURACION, ORIGEN, DESTINO, SK_CIUDAD_ORIGEN, SK_CIUDAD_DESTINO, SK_SUBTIPO
 )
-VALUES (-1, '-1', 'Desconocido', 'Desconocido', 0, 'No aplica', 'No aplica',
+VALUES (-1, '-1', 'Desconocido', 'Desconocido', NULL, 'No aplica', 'No aplica',
         'No aplica', -1, -1, -1)
 ON CONFLICT (SK_SERVICIO) DO NOTHING;
 

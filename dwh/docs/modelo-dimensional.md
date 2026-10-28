@@ -4,6 +4,12 @@ El DWH conserva las jerarquías normalizadas en dimensiones separadas. Todas las
 
 En palabras sencillas, oro prepara tablas para analizar: las **dimensiones** dicen quién, qué, dónde y cuándo; los **hechos** guardan qué ocurrió y sus medidas. `SK` significa clave interna (surrogate key) creada para relacionar las tablas del DWH.
 
+## Relación con las etapas ETL
+
+- **Extraer a Bronce:** copiar las tablas crudas de `public` sin transformarlas.
+- **Transformar en Plata:** seleccionar y limpiar los datos que se van a analizar.
+- **Cargar en Oro:** guardar el resultado en dimensiones y hechos. La carga también asigna las claves internas y relaciona los registros.
+
 ## Hechos y granularidad
 
 | Hecho | Granularidad | Medidas |
@@ -12,7 +18,7 @@ En palabras sencillas, oro prepara tablas para analizar: las **dimensiones** dic
 | `oro.hecho_producto_artesanal` | Un producto y fecha de fotografía. | Precio COP y cantidad de productos (=1). |
 | `oro.hecho_resenas` | Una reseña publicada. | Puntuación 1–5, likes observados en la carga y cantidad de reseñas (=1). |
 
-Las fotografías actuales se generan con la fecha de carga. Los snapshots de `HISTORICO_*` agregan cambios anteriores que realmente existen en OLTP. Varias modificaciones de una entidad el mismo día se consolidan según la granularidad diaria. El catálogo artesanal no representa ventas o pedidos.
+Las fotografías actuales se generan con la fecha de carga. Los snapshots de `HISTORICO_*` agregan cambios anteriores que realmente existen en OLTP. Se conservan ofertas disponibles y no disponibles para analizar ambas situaciones. Varias modificaciones de una entidad el mismo día se consolidan según la granularidad diaria. `CAPACIDAD_MAX` queda vacía para planes y transportes, donde la capacidad no aplica; no se registra como cero. El catálogo artesanal no representa ventas o pedidos.
 
 Para leer la tabla: por ejemplo, la granularidad de `hecho_oferta_turistica` dice qué representa exactamente cada fila. Su clave evita guardar dos veces el mismo servicio en la misma fecha.
 
@@ -52,9 +58,9 @@ Los extremos de una ruta son dos referencias de rol a `dim_ciudad`: `dim_servici
 - Bronce conserva todas las tablas públicas originales, incluidos los datos sensibles. Las transformaciones de plata filtran los atributos que pasan a las capas analíticas.
 
 - Las dimensiones usan claves sustitutas; `-1` representa el registro desconocido.
-- El precio y la disponibilidad se miden en el hecho, no se suman atributos descriptivos.
+- El precio y la disponibilidad se guardan en el hecho; se cargan ofertas disponibles y no disponibles.
 - `dim_empresa` crea una versión cuando cambia su nombre o tipo; sus intervalos son semiabiertos (`FECHA_INICIO` incluida, `FECHA_FIN` excluida) y la versión vigente termina en `9999-12-31`.
 - `dim_producto` crea una versión cuando cambia el nombre, proveedor o categoría; usa intervalos semiabiertos y cada hecho se relaciona con la versión vigente en la fecha de su fotografía.
-- Plata refresca la fotografía del día actual y conserva las fotografías anteriores; también vuelve a cargar las filas históricas disponibles en OLTP. Los hechos de oro se reconstruyen desde esas fotografías acumuladas, lo que sincroniza eliminaciones actuales sin borrar la tendencia diaria.
+- Plata reconstruye las fotografías diarias desde los históricos de OLTP y agrega el estado actual. Si existen varios cambios del mismo elemento en un día, conserva el último; los hechos de oro se reconstruyen desde esas fotografías sin duplicar la entidad y fecha.
 - Los campos de origen/destino de servicios conservan etiquetas de texto y claves a ciudad cuando existen.
 - Contraseñas, sesiones, tokens, correos, teléfonos, comentarios y `VISITOR_ID` no se copian a las tablas analíticas de plata y oro.

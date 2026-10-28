@@ -1,68 +1,99 @@
-# Data Warehouse de TourismEasy
+# DWH TourismEasy
 
-El DWH vive en la misma base PostgreSQL de TourismEasy, en esquemas separados: `bronce`, `plata` y `oro`. La carga se implementa con SQL nativo de PostgreSQL: no requiere PHP, PowerShell, un ETL externo ni una segunda base.
+Esta guia explica como preparar Bronce y transformar sus datos en Plata. La idea es avanzar por pasos: primero guardar una copia de los datos originales y despues organizar solo la informacion que se necesita para analizar.
 
-La explicación del modelo dimensional está en [`docs/modelo-dimensional.md`](./docs/modelo-dimensional.md).
+## Antes de empezar
 
-## Modelo
+La base de datos de TourismEasy debe existir y tener sus tablas originales en `public`. Ejecuta los archivos con el cliente de PostgreSQL que usan en clase y sigue este orden.
 
-- **Bronce:** espejo crudo de todas las tablas base del esquema `public`. Copia las columnas y filas sin filtrarlas ni transformarlas.
-- **Plata:** unifica y normaliza oferta turística, productos artesanales y reseñas.
-- **Oro:** dimensiones normalizadas y tres hechos: oferta, catálogo artesanal y reseñas.
-- **Transporte:** origen y destino ahora son municipios seleccionados de `CIUDADES`, con claves foráneas. El DWH analiza ambos extremos como roles de la dimensión ciudad; ya no existe tabla de mapeo manual.
+## 1. Crear los espacios del DWH
 
-La aplicación no registra ventas ni reservas. El hecho de producto representa el catálogo y su precio, no transacciones comerciales. Las reseñas no tienen relación de origen con ciudad o servicio, así que se analizan por fecha.
+Archivo: `sql/0_admin/0_esquemas.sql`
 
-## Requisitos
+Este archivo crea tres esquemas dentro de la base: `BRONCE`, `PLATA` y `ORO`. Piensa en ellos como espacios separados para ordenar las tablas del DWH.
 
-- La base PostgreSQL de TourismEasy, documentada como `tourismeasy`.
-- Los esquemas y tablas del proyecto importados.
-- Permiso para crear esquemas/tablas y leer las fuentes. No se guardan credenciales en el DWH.
+`IF NOT EXISTS` quiere decir que PostgreSQL solo crea cada esquema si todavia no existe. Ejecuta este archivo primero, porque las tablas de Bronce necesitan ese espacio para poder crearse.
 
-No se conecta a una base separada ni instala extensiones. Ejecuta los archivos SQL en orden desde una sesión conectada a `tourismeasy`.
+## 2. Preparar las tablas vacias de Bronce
 
-> **Datos sensibles:** al copiar todas las tablas de `public`, bronce también contiene datos de cuentas, hashes de contraseñas, sesiones, tokens, auditoría y contactos. Restringe el acceso al esquema `bronce` a administradores autorizados; no concedas permisos de lectura al usuario de la aplicación ni a usuarios de análisis que no deban consultar esos datos.
+Archivo: `sql/1_bronce/1_tablas.sql`
 
-El espejo comprende las tablas y sus filas; no duplica funciones, triggers ni secuencias de PostgreSQL. Las transformaciones de plata seleccionan explícitamente solo los atributos analíticos requeridos.
+Este archivo busca las tablas originales que estan en `public` y prepara una copia vacia de cada una dentro de `BRONCE`. No hace falta escribir una instruccion por cada tabla: PostgreSQL revisa la lista y repite el trabajo por nosotros.
 
-Los archivos de bronce usan sentencias explícitas, una por tabla, para que se pueda ver qué tabla de `public` se copia a cuál tabla de `bronce`. En `01_tablas.sql`, `CREATE TABLE ... AS SELECT * ... WITH NO DATA` crea la tabla vacía con las mismas columnas y tipos; en `02_cargar.sql`, `INSERT INTO ... SELECT *` copia sus filas. Es una copia de las 37 tablas, sus columnas y sus datos, no un duplicado de todas las propiedades físicas: las copias de bronce no conservan claves, restricciones, valores predeterminados ni índices de OLTP. No se usan bloques `DO`, ciclos, funciones ni consultas al catálogo de PostgreSQL.
+En palabras sencillas:
 
-**Palabras clave:** `PUBLIC` es el esquema donde están las tablas originales; `BRONCE`, `PLATA` y `ORO` son esquemas dentro de la misma base PostgreSQL. `SELECT` lee datos, `CREATE TABLE` crea una tabla, `INSERT INTO ... SELECT` copia filas y `TRUNCATE` vacía una tabla para volverla a cargar.
+- `PG_TABLES` es la lista que PostgreSQL tiene de las tablas existentes.
+- `DO` le dice a PostgreSQL que ejecute un bloque de instrucciones.
+- `FOR ... LOOP` repite las instrucciones para cada tabla de la lista. `END LOOP` marca el final de lo que se repite.
+- `nombre_tabla` guarda el nombre de la tabla que se esta procesando.
+- `FORMAT` arma el comando SQL. `%I` indica que el valor que se inserta es un nombre de objeto, en este caso una tabla.
+- `EXECUTE` ejecuta el comando que se acaba de armar.
+- `WITH NO DATA` copia las columnas y sus tipos, pero deja la tabla sin filas.
+- `IF NOT EXISTS` evita crear otra vez una tabla que ya exista.
 
-En los scripts de oro también aparecen consultas comunes del curso: `JOIN` relaciona tablas; `WITH` da un nombre temporal a una consulta para leerla más fácil; `COALESCE` reemplaza un valor nulo por otro valor; `ON CONFLICT` evita duplicados y, según el caso, ignora la fila o actualiza sus datos; `LAG` y `LEAD` comparan una fotografía con la anterior o la siguiente para guardar cambios históricos; `GENERATE_SERIES` crea los días del calendario.
+Por ejemplo, cuando encuentra `CIUDADES`, prepara una tabla vacia equivalente a:
 
-## Explicación sencilla de las capas
+```sql
+CREATE TABLE IF NOT EXISTS BRONCE.CIUDADES AS
+SELECT * FROM PUBLIC.CIUDADES WITH NO DATA;
+```
 
-1. **Bronce copia:** hace una copia de las tablas originales, sin limpiar sus datos.
-2. **Plata limpia y organiza:** toma solo las tablas y columnas que sirven para analizar turismo; completa valores vacíos, unifica ofertas y conserva fotografías por fecha.
-3. **Oro prepara el análisis:** organiza los datos en dimensiones (por ejemplo, tiempo, ciudad y empresa) y hechos (ofertas, productos y reseñas) para poder agrupar y comparar.
+Este paso crea la estructura, pero no copia los registros. Las tablas de Bronce tienen las columnas y los tipos de la fuente, pero no copian sus claves, restricciones, valores predeterminados ni indices.
 
-En las diapositivas del curso se habla de **granularidad**: es qué representa una fila de un hecho. Aquí, una fila de oferta representa un servicio en una fecha; una fila de producto, un producto en una fecha; y una fila de reseña, una reseña publicada. **SCD tipo 2** significa guardar una nueva versión de una empresa o producto cuando cambia su información, en vez de borrar la versión anterior.
+## 3. Copiar los registros a Bronce
 
-## Preparar transporte
+Archivo: `sql/1_bronce/2_extraer.sql`
 
-Las columnas `TRANSPORTE.ID_CIUDAD_ORIGEN` y `ID_CIUDAD_DESTINO` y sus claves foráneas se crean desde el esquema nuevo de la aplicación. Usa una base vacía creada con [`../db/DB_TOURISMEASY.sql`](../db/DB_TOURISMEASY.sql); este paquete no proporciona migraciones para bases existentes. Las rutas se crean y editan escogiendo municipios existentes en la interfaz.
+Este archivo vuelve a recorrer las tablas de `public`. Para cada una, vacia su copia en Bronce y despues copia todos los registros desde la tabla original. Al terminar cada tabla, muestra un aviso con su nombre.
 
-## Crear y ejecutar el DWH
+Usa el mismo ciclo explicado en el paso anterior. La diferencia es lo que hace en cada vuelta:
 
-Conéctate a la base `tourismeasy` y ejecuta estos archivos **en orden**. Cada script es SQL nativo y se puede abrir desde el cliente SQL que ya use el curso:
+1. `TRUNCATE` vacia la copia de Bronce. Si la tabla esta vacia, no borra nada; si ya tenia datos de una ejecucion anterior, los quita para no duplicarlos.
+2. `INSERT INTO ... SELECT *` copia todos los registros de la tabla original a su copia.
+3. `RAISE NOTICE` muestra un aviso para indicar que termino esa tabla.
 
-1. `sql/00_admin/01_esquemas.sql`
-2. `sql/01_bronce/01_tablas.sql`
-3. `sql/02_plata/01_tablas.sql`
-4. `sql/03_oro/01_tablas.sql`
-5. `sql/01_bronce/02_cargar.sql`
-6. `sql/02_plata/02_transformar.sql`
-7. `sql/03_oro/02_cargar.sql`
-8. `sql/04_validacion/01_controles.sql`
+Por ejemplo, para `CIUDADES`, vacia `BRONCE.CIUDADES` y luego copia sus registros desde `PUBLIC.CIUDADES`.
 
-Para una nueva carga, vuelve a ejecutar desde el paso 5. Bronce reemplaza transaccionalmente la copia cruda de todas las tablas públicas y muestra el conteo copiado por tabla; plata refresca la fotografía del día y conserva las fotografías diarias anteriores y el historial OLTP; los hechos de oro se reconstruyen desde esas fotografías acumuladas. Así se conservan las tendencias históricas y no quedan filas actuales obsoletas. Las dimensiones mantienen sus claves sustitutas y la historia SCD tipo 2 de empresas y productos.
+`BEGIN` y `COMMIT` marcan el inicio y el final de la transaccion. PostgreSQL confirma la copia al llegar al final correctamente.
 
-`BEGIN` y `COMMIT` marcan el inicio y el fin de una transacción de carga: si un `INSERT` falla, PostgreSQL no deja a medias esa carga. El último archivo de validación solo muestra consultas; revisa que los conteos de plata y oro coincidan, que los resultados esperados sean cero y que la consulta de versiones vigentes no devuelva filas.
+## 4. Crear las tablas de Plata
 
-## Qué cambió y qué no se debe asumir
+Archivo: `sql/2_plata/1_tablas.sql`
 
-- No ejecutes la creación de la base ni `DB_TOURISMEASY.sql` sobre una base existente: ese archivo es para instalaciones nuevas.
-- La carga del DWH usa los datos que están en la base; no inventa historia anterior a la primera fotografía o a los snapshots que conserva OLTP.
-- Para revisar la granularidad, el mapeo fuente-destino y los límites, consulta [`docs/modelo-dimensional.md`](./docs/modelo-dimensional.md) y [`docs/decisiones-y-limitaciones.md`](./docs/decisiones-y-limitaciones.md).
-- Valida primero en una copia de desarrollo y revisa los conteos que imprime el último script antes de presentar los resultados.
+Este archivo crea cuatro tablas para guardar la informacion preparada:
+
+- `EMPRESA`: los datos necesarios para identificar cada empresa.
+- `OFERTA_SNAPSHOT`: una fotografia diaria de hospedajes, planes y transportes.
+- `PRODUCTO_SNAPSHOT`: una fotografia diaria de los productos artesanales.
+- `RESENA`: la puntuacion de cada resena y el total actual de sus likes.
+
+Las columnas obligatorias se declaran `NOT NULL`. Bronce conserva el origen; Plata guarda las fotografias historicas disponibles y los datos actuales. Las ofertas disponibles y no disponibles se guardan para que tambien se pueda analizar la disponibilidad. Los precios se copian del origen, que exige valores positivos; no se inventa un precio de `0` cuando falta.
+
+La capacidad solo aplica a hospedajes. Para planes y transportes se deja `NULL` porque no es una medida aplicable; no se usa `0` como reemplazo. El total de likes puede ser `0` cuando la resena realmente no tiene likes.
+
+## 5. Transformar los datos de Bronce a Plata
+
+La transformacion esta separada en archivos cortos. Ejecutalos en este orden:
+
+1. `sql/2_plata/2_transformar_1_empresas.sql`
+2. `sql/2_plata/2_transformar_2_hospedajes.sql`
+3. `sql/2_plata/2_transformar_3_planes.sql`
+4. `sql/2_plata/2_transformar_4_transportes.sql`
+5. `sql/2_plata/2_transformar_5_productos.sql`
+6. `sql/2_plata/2_transformar_6_resenas.sql`
+
+Cada archivo procesa solo su tema. Los archivos de hospedajes, planes, transportes y productos reconstruyen en Plata los registros historicos y agregan una fotografia del estado actual. Si un elemento tuvo varios cambios en un mismo dia, se conserva el ultimo para no duplicar la misma entidad y fecha.
+
+La mayoria de los pasos siguen la misma idea: `INSERT INTO ... SELECT` lee datos de Bronce y los guarda en Plata. `TRIM` quita espacios al principio y al final. Para las filas historicas, `->>` lee un campo del JSON guardado en Bronce. `CAST` convierte el valor al tipo de columna que usa Plata.
+
+Las ofertas de hospedaje, planes y transporte se guardan disponibles o no disponibles. `FECHA_SNAPSHOT` indica el dia al que corresponde cada fotografia.
+
+En cada archivo, `BEGIN` y `COMMIT` hacen que sus cambios se confirmen juntos. Si una instruccion falla, no se confirma a medias ese archivo.
+
+## Orden de ejecucion explicado en esta guia
+
+1. `sql/0_admin/0_esquemas.sql`: crear los espacios del DWH.
+2. `sql/1_bronce/1_tablas.sql`: preparar las copias vacias de las tablas originales.
+3. `sql/1_bronce/2_extraer.sql`: copiar los registros originales a Bronce.
+4. `sql/2_plata/1_tablas.sql`: crear las tablas preparadas de Plata.
+5. Ejecutar en orden los seis archivos `sql/2_plata/2_transformar_*.sql`.

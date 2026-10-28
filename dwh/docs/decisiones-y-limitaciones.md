@@ -1,10 +1,14 @@
 # Decisiones y limitaciones
 
-## Ejecución sin ETL externo
+## Proceso ETL con SQL de PostgreSQL
 
-La carga se realiza con consultas y DDL nativos de PostgreSQL dentro de la base `tourismeasy`. Las capas `bronce`, `plata` y `oro` son esquemas de esa misma base. No se usa PHP para extraer, PowerShell para orquestar, otra base de datos ni una herramienta ETL de terceros.
+El proceso se presenta en las tres etapas ETL del curso y se ejecuta con consultas y DDL nativos de PostgreSQL dentro de la base `tourismeasy`. Las capas `bronce`, `plata` y `oro` son esquemas de esa misma base. No se usa PHP para extraer, PowerShell para orquestar, otra base de datos ni una herramienta ETL de terceros.
 
-`bronce` refleja las 37 tablas base de `public` definidas en el esquema del proyecto y copia todas sus filas y columnas sin filtrar ni transformar, dentro de una transacción con sentencias `INSERT ... SELECT` explícitas. `CREATE TABLE ... AS SELECT * ... WITH NO DATA` crea cada espejo vacío a partir de las columnas y tipos de su tabla fuente; no copia claves, restricciones, valores predeterminados ni índices. Los archivos enumeran cada tabla para que el mapeo se pueda leer directamente; no requieren bloques `DO`, ciclos ni consultas al catálogo de PostgreSQL. Tampoco duplica funciones, triggers ni secuencias. Plata selecciona y limpia las columnas analíticas, reemplaza la fotografía correspondiente al día actual y conserva las anteriores; oro reconstruye los hechos desde el historial acumulado. De esta manera un servicio eliminado no aparece como oferta actual, pero sus fotografías previas no se pierden. Ejecuta los scripts desde el cliente SQL de PostgreSQL ya disponible en el curso.
+1. **Extraer:** `bronce` recibe una copia cruda de las tablas base de `public`, sin limpiar ni transformar sus filas. `1_bronce/1_tablas.sql` busca las tablas en `PG_TABLES` y crea automáticamente espejos vacíos con `CREATE TABLE ... AS SELECT * ... WITH NO DATA`; `1_bronce/2_extraer.sql` copia las filas con instrucciones explícitas `INSERT ... SELECT` para las 37 tablas actuales. Si se agrega una tabla a `public`, también hay que incorporarla al archivo de extracción y a sus conteos. Estos espejos no conservan claves, restricciones, valores predeterminados ni índices. Tampoco duplican funciones, triggers ni secuencias.
+2. **Transformar:** `plata` selecciona y limpia los atributos analíticos, reconstruye las fotografías históricas disponibles y agrega el estado actual.
+3. **Cargar:** `oro` construye y carga el modelo de dimensiones y hechos desde Plata. Durante esa carga también relaciona registros con dimensiones y claves sustitutas. Los hechos se reconstruyen desde las fotografías acumuladas: un servicio eliminado deja de aparecer en la fotografía actual, pero sus fotografías anteriores se conservan.
+
+La creación de tablas de Bronce usa un bloque `DO`, un ciclo y el catálogo `PG_TABLES` para no escribir una instrucción por cada tabla; la copia de las filas sigue siendo explícita para las 37 tablas actuales. Ejecuta los scripts desde el cliente SQL de PostgreSQL ya disponible en el curso.
 
 Como el espejo crudo incluye todas las tablas, también conserva datos de cuentas y seguridad —por ejemplo hashes, sesiones, tokens, auditoría y contactos—. No compartas la base con personas que no deban consultar esa información.
 
@@ -22,7 +26,8 @@ El trigger PostgreSQL guarda la clase de transporte anterior dentro del snapshot
 - La historia anterior a la primera carga depende de las filas reales de `HISTORICO_*`; no se inventan fechas.
 - Si el nombre/tipo de una empresa cambió varias veces entre cargas y OLTP no conserva su historia, no se pueden reconstruir esas versiones intermedias.
 - La dimensión de producto conserva versiones SCD tipo 2 según las fotografías disponibles en plata; modificaciones múltiples dentro del mismo día se consolidan a la granularidad diaria.
-- Los snapshots diarios consolidan modificaciones intradía.
+- Los snapshots diarios consolidan modificaciones intradía y guardan tanto ofertas disponibles como no disponibles.
+- El catálogo de productos artesanales no registra transacciones. No se puede calcular ventas por día de semana ni ventas totales hasta que OLTP tenga tablas de pedidos o pagos con fecha y valor.
 
 ## Datos minimizados en plata y oro
 
