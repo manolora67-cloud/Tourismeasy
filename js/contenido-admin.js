@@ -4,9 +4,10 @@
     const editor = document.getElementById('portadaEditor');
     const status = document.getElementById('portadaEstado');
     const newButton = document.getElementById('btnNuevoDestino');
+    const editorDialog = document.getElementById('portadaEditorDialog');
     const previewDialog = document.getElementById('portadaPreviewDialog');
     const previewFrame = document.getElementById('portadaPreviewFrame');
-    if (!list || !editor || !status || !newButton || !previewDialog || !previewFrame) return;
+    if (!list || !editor || !status || !newButton || !editorDialog || !previewDialog || !previewFrame) return;
 
     let destinos = [];
     let csrf = '';
@@ -44,6 +45,11 @@
     function showStatus(message, error = false) {
         status.textContent = message;
         status.classList.toggle('error', error);
+        const editorStatus = document.getElementById('portadaEditorStatus');
+        if (editorStatus) {
+            editorStatus.textContent = message;
+            editorStatus.classList.toggle('error', error);
+        }
     }
 
     async function request(url, options = {}) {
@@ -156,6 +162,7 @@
         editor.innerHTML = `
             <h3 id="portadaFormTitle">Crear destino</h3>
             <p class="portada-editor-intro">Completa la tarjeta de la portada y el artículo asociado. Para los datos y secciones usa una entrada por línea con el formato indicado.</p>
+            <p id="portadaEditorStatus" class="portada-status" role="status"></p>
             <form id="portadaForm">
                 <div class="portada-form-grid">
                     <div class="portada-field"><label for="pdKey">Clave URL</label><input id="pdKey" required maxlength="50" pattern="[a-z0-9-]{2,50}" placeholder="ejemplo-destino"><small>Identificador corto, en minúsculas. No lo cambies en destinos ya publicados.</small></div>
@@ -256,7 +263,7 @@
             videoPreview.hidden = true;
             videoRemove.hidden = true;
         }
-        document.getElementById('pdCancel').addEventListener('click', () => { editor.hidden = true; });
+        document.getElementById('pdCancel').addEventListener('click', () => editorDialog.close());
         document.getElementById('pdFile').addEventListener('change', uploadImage);
         document.getElementById('paVideoFile').addEventListener('change', uploadVideo);
         videoRemove.addEventListener('click', () => {
@@ -269,7 +276,8 @@
             document.getElementById('paVideoUploadStatus').textContent = 'Video quitado. Guarda el destino para aplicar el cambio.';
         });
         document.getElementById('portadaForm').addEventListener('submit', (event) => save(event, item));
-        editor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (!editorDialog.open) editorDialog.showModal();
+        document.getElementById('pdTitle').focus();
     }
 
     async function subirArchivo(file, field) {
@@ -414,7 +422,7 @@
             else destinos[index] = { ...result.data, municipio: original.municipio, persistido: true };
             destinos.sort((a, b) => a.orden - b.orden || a.titulo.localeCompare(b.titulo));
             render();
-            editor.hidden = true;
+            editorDialog.close();
             showStatus('Destino guardado. La portada pública ya mostrará los cambios.');
         } catch (error) {
             showStatus(error.message, true);
@@ -459,6 +467,10 @@
     });
     previewDialog.addEventListener('close', () => { previewFrame.src = 'about:blank'; });
     previewDialog.querySelector('[data-preview-close]').addEventListener('click', closePreview);
+    editorDialog.addEventListener('click', (event) => {
+        if (event.target === editorDialog) editorDialog.close();
+    });
+    editorDialog.addEventListener('close', () => { editor.hidden = true; });
     document.addEventListener('keydown', (event) => {
         if (event.key === 'Escape' && previewDialog.open) closePreview();
     });
