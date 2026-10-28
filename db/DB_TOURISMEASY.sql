@@ -6,7 +6,7 @@
   Relacionales:       4
   Soporte/Auditoría:  3
   Históricas:         5
-    Seguridad:          5
+  Seguridad:          5
 */
 /*
 --******************************
@@ -104,7 +104,7 @@ CREATE TABLE IF NOT EXISTS LOGS_CLICS_WEB_EXTERNOS
 (
     ID_CLICK            BIGSERIAL,
     FECHA_HORA          TIMESTAMP       NOT NULL,
-    ID_EMPRESA          VARCHAR(10)     NOT NULL CHECK (LENGTH(ID_EMPRESA) = 10),
+    ID_EMPRESA          VARCHAR(10)     CHECK (ID_EMPRESA IS NULL OR LENGTH(ID_EMPRESA) = 10),
     ID_PRODUCTO         VARCHAR(10)     NOT NULL CHECK (ID_PRODUCTO ~ '^[0-9]{1,10}$' AND ID_PRODUCTO ~ '[1-9]'),
     TIPO_CATEGORIA      VARCHAR(50)     NOT NULL CHECK (LENGTH(TRIM(TIPO_CATEGORIA)) > 0),
     ID_CIUDAD           VARCHAR(6)      NOT NULL CHECK (LENGTH(ID_CIUDAD) >= 5 AND ID_CIUDAD ~ '^[0-9A-Za-z]+$'),

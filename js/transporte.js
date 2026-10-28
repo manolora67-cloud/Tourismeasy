@@ -96,6 +96,8 @@ function actualizarBotonWhatsApp(btn) {
         " en TourismEasy y quisiera más información.";
 
     var link = buildWhatsAppLink(telefono, mensaje);
+    waBtn.dataset.idProducto = btn.dataset.idProducto || "";
+    waBtn.dataset.categoria = "Transporte";
 
     if (link) {
         waBtn.href = link;
@@ -845,6 +847,10 @@ document
             item.origen +
             ' → ' +
             item.destino +
+            '"' +
+
+            ' data-id-producto="' +
+            (item.id || "") +
             '"' +
 
             ' data-origen="' +

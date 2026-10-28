@@ -1,20 +1,25 @@
-# Vistas analiticas de Oro
+# Modelo dimensional de Oro
 
-La capa Oro de este diseño expone vistas de consulta en PostgreSQL, no tablas fisicas de dimensiones ni hechos. Las tablas de Plata contienen los datos preparados y las vistas de Oro los presentan para los usos analiticos del proyecto.
+El esquema `ORO` contiene dimensiones y tablas de hechos físicas, creadas y cargadas por `sql/3_oro/1_tablas_y_carga_oro.sql`.
 
-## Vistas
+## Dimensiones
 
-| Vista | Uso | Fuente |
-| --- | --- | --- |
-| `oro.buscador_ia_viajeros` | Catalogo disponible de hoy, unificado por tipo de servicio. | `plata.hist_hospedajes`, `plata.hist_planes`, `plata.hist_transportes` y nombres de municipio/departamento en `bronce.ciudades` y `bronce.departamentos`. |
-| `oro.reporte_leads_whatsapp` | Total de clics por aliado comercial y fecha. | `plata.fact_eventos_whatsapp` y `plata.dim_empresas`. |
-| `oro.reporte_artesanias_vigentes` | Productos artesanales de hoy con su municipio. | `plata.hist_artesanias` y `bronce.ciudades`/`bronce.departamentos`. |
+| Tabla | Contenido |
+| --- | --- |
+| `oro.dim_departamento` | Departamentos asociados a ciudades. |
+| `oro.dim_ciudad` | Ciudades y su departamento. |
+| `oro.dim_empresas` | Empresas proveedoras de servicios turísticos. |
 
-`FECHA_PROCESO` indica la fecha de cada fotografia. Las vistas de catalogo vigente filtran por `CURRENT_DATE`; el reporte de leads conserva agrupaciones para todas las fechas disponibles en Plata.
+## Hechos
 
-## Limites de analisis
+| Tabla | Contenido |
+| --- | --- |
+| `oro.hecho_oferta_turistica` | Fotos diarias de hospedajes, planes y transportes. |
+| `oro.hecho_producto_artesanal` | Fotos diarias de productos artesanales. |
+| `oro.hecho_eventos_whatsapp` | Clics en WhatsApp, con fecha, ciudad, categoría, producto de origen y dispositivo. |
 
-- Los clics en WhatsApp representan leads o intenciones de contacto, no ventas confirmadas.
-- La base no registra pedidos ni pagos; no se puede calcular el total vendido ni el dia de mayores ventas sin esos eventos.
-- Los nombres de municipios y departamentos se consultan desde las tablas maestras de Bronce y no se duplican como dimensiones fisicas en Oro.
-- Las fotografias de Plata se cargan diariamente; los nombres de municipios consultados por las vistas reflejan los valores actuales de Bronce.
+En `HECHO_EVENTOS_WHATSAPP`, `SK_EMPRESA` puede ser nulo para artesanías, cuyo contacto corresponde al artesano y no a una empresa turística. Los demás tipos de clic se asocian a una empresa. `ID_CLICK_ORIGEN` identifica de forma única el evento original y `FECHA_PROCESO` conserva la fecha del clic. Los clics son leads o intenciones de contacto; no son ventas confirmadas.
+
+La vista `oro.buscador_ia_viajeros` presenta las ofertas turísticas disponibles hoy. `oro.reporte_leads_whatsapp` agrupa los clics por fecha, categoría, empresa o contacto artesanal y ciudad. Las tablas de hechos se cargan a partir de las fotos de Plata; ejecuta el script de Oro después de la transformación diaria.
+
+La base no registra pedidos ni pagos, por lo que este modelo no permite calcular ventas confirmadas.

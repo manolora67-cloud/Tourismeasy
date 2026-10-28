@@ -198,8 +198,10 @@ function openDetailModal(product) {
 
     // El botón de WhatsApp usa el número de contacto sin espacios ni símbolos
     // .replace(/\D/g, "") elimina todo lo que no sea dígito
-    overlay.querySelector(".pm-whatsapp").href =
-        "https://wa.me/" + (product.contacto || "").replace(/\D/g, "");
+    const whatsappLink = overlay.querySelector(".pm-whatsapp");
+    whatsappLink.href = "https://wa.me/" + (product.contacto || "").replace(/\D/g, "");
+    whatsappLink.dataset.idProducto = String(product.id || "");
+    whatsappLink.dataset.categoria = "Artesanía";
 
     // Mostramos el modal y bloqueamos el scroll del fondo
     overlay.classList.add("active");

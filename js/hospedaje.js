@@ -19,6 +19,8 @@ function actualizarBotonWhatsApp(btn) {
     var telefono = btn.dataset.whatsapp || "";
     var mensaje = "Hola, vi " + (btn.dataset.titulo || "este hospedaje") + " en TourismEasy y quisiera más información.";
     var link = buildWhatsAppLink(telefono, mensaje);
+    waBtn.dataset.idProducto = btn.dataset.idProducto || "";
+    waBtn.dataset.categoria = "Hospedaje";
     if (link) {
         waBtn.href = link;
         waBtn.style.display = "";
@@ -270,6 +272,7 @@ function actualizarBotonWhatsApp(btn) {
             '<span class="price">' + precioDisplay + '</span>' +
             '<button class="btn-reservar btn-ver-detalles btn-ver-detalles-empresa"' +
             ' data-titulo="' + nombre + '" data-tipo="' + escapeHtml(item.tipo || "") + '"' +
+            ' data-id-producto="' + escapeHtml(item.id || "") + '"' +
             ' data-ubicacion="' + ciudad + '" data-capacidad="' + escapeHtml(item.capacidad_max || "—") + '"' +
             ' data-servicios="' + servicios + '" data-accesibilidad="' + (accesibilidad || "—") + '"' +
             ' data-precio="' + escapeHtml(precioDisplay) + '" data-empresa="' + empresa + '"' +

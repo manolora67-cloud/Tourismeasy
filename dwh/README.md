@@ -70,19 +70,18 @@ Este archivo contiene las cargas diarias de empresas, hospedajes, planes, transp
 
 Ejecuta `1_tablas.sql` una vez para crear las tablas; despues ejecuta `2_transformar.sql` cada dia para refrescar los datos.
 
-La carga de eventos usa `public.LOGS_CLICS_WEB_EXTERNOS` y su copia en `bronce`, con las columnas `fecha_hora`, `id_empresa`, `id_producto`, `tipo_categoria`, `id_ciudad` y `user_agent`. La tabla fuente se crea en la base principal ejecutando `db/DB_TOURISMEASY.sql`; luego la preparación y extracción genéricas de Bronce la copian automáticamente, igual que las demás tablas de `public`.
+Los botones de WhatsApp de hospedajes, planes, transportes y artesanias registran el clic en `public.LOGS_CLICS_WEB_EXTERNOS` mediante `api/registrar_click_whatsapp.php`. El servidor consulta el producto y sus datos en la base antes de guardar el evento; para artesanias, `ID_EMPRESA` queda nulo porque el contacto es del artesano. La tabla fuente se crea al ejecutar `db/DB_TOURISMEASY.sql`; luego la preparación y extracción genéricas de Bronce la copian automáticamente. Plata y Oro conservan el ID original y la fecha real del clic para que ejecutar de nuevo la carga no duplique eventos.
 
 ## 6. Crear las vistas de Oro
 
-Archivo: `sql/3_oro/1_vistas_oro.sql`
+Archivo: `sql/3_oro/1_tablas_y_carga_oro.sql`
 
-Este archivo crea el esquema `ORO` y tres vistas, sin crear tablas fisicas:
+Este archivo crea y carga las dimensiones y tablas de hechos del esquema `ORO`, y la vista de catalogo:
 
 - `BUSCADOR_IA_VIAJEROS`: catalogo disponible de hoy con hospedajes, planes y transportes.
-- `REPORTE_LEADS_WHATSAPP`: clics agrupados por aliado comercial y fecha.
-- `REPORTE_ARTESANIAS_VIGENTES`: artesanias de hoy con el nombre del municipio.
+- `REPORTE_LEADS_WHATSAPP`: cantidad de clics por fecha, categoria, empresa o contacto artesanal y ciudad.
 
-Las vistas consultan Plata y buscan los nombres de municipios directamente en Bronce. Se actualizan al consultar; no requieren una carga aparte.
+Los hechos de clics conservan el producto y el dispositivo; los clics de artesanias no tienen empresa asociada. Consulta la vista de reporte o las tablas de hechos junto con sus dimensiones para analizar las cargas.
 
 ## 7. Validar la carga
 
@@ -99,5 +98,5 @@ La base transaccional no registra pedidos ni pagos; por eso los clics de WhatsAp
 3. `sql/1_bronce/2_extraer.sql`: copiar los registros originales a Bronce.
 4. `sql/2_plata/1_tablas.sql`: crear el esquema y las tablas de Plata.
 5. `sql/2_plata/2_transformar.sql`: ejecutar las cargas diarias de Plata.
-6. `sql/3_oro/1_vistas_oro.sql`: crear las vistas analiticas.
+6. `sql/3_oro/1_tablas_y_carga_oro.sql`: crear y cargar el modelo analitico.
 7. `sql/4_validacion/1_controles.sql`: revisar conteos y alertas de calidad.
