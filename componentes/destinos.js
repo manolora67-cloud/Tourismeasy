@@ -721,23 +721,6 @@
     function renderDestinos(destinations) {
         if (!mount) return;
         const publicDestinations = destinations.filter((destination) => destination.publicado);
-        const previewKey = new URLSearchParams(window.location.search).get("previewDestino");
-        if (previewKey) {
-            const destination = publicDestinations.find((item) => item.key === previewKey);
-            mount.innerHTML = `
-    <section class="destinos destinos-preview">
-      <div class="section-container">
-        <div class="destinos-preview-card">
-          ${destination
-                    ? `<div class="destinos-page">${cardTemplate(destination)}</div>`
-                    : '<p class="destinos-error" role="alert">No se pudo cargar la tarjeta de este destino.</p>'}
-        </div>
-      </div>
-    </section>`;
-            const articleLink = mount.querySelector(".card-link");
-            if (articleLink) articleLink.addEventListener("click", (event) => event.preventDefault());
-            return;
-        }
         if (!publicDestinations.length) {
             mount.innerHTML = '<section class="destinos" id="destinos"><div class="section-container"><p class="destinos-error">Próximamente encontrarás nuevos destinos de Santander.</p></div></section>';
             return;
