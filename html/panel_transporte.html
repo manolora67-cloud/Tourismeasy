@@ -711,7 +711,7 @@
             var _fotoFile = document.getElementById("vm-foto").files[0];
 
             function _doSave(imgUrl) {
-                payload.img_url = imgUrl || null;
+                payload.img_url = imgUrl;
                 if (_editId) payload.id = _editId;
                 var btn = document.getElementById("vModal-save");
                 btn.disabled = true;
@@ -744,7 +744,7 @@
                     });
             }
             var _imgActual = document.getElementById("vm-foto-img").src;
-            var _imgUrl = _imgActual.includes("uploads/") ? _imgActual.replace(/.*uploads\//, "uploads/") : null;
+            var _imgUrl = _imgActual && !_imgActual.startsWith("data:") ? _imgActual : null;
             if (_fotoFile) {
                 var fd = new FormData();
                 fd.append("imagen", _fotoFile);
@@ -757,10 +757,15 @@
                         return r.json();
                     })
                     .then(function (res) {
-                        _doSave(res.ok ? res.url : _imgUrl);
+                        if (!res.ok || !res.url) {
+                            alert("Error: " + (res.error || "No se pudo subir la imagen."));
+                            return;
+                        }
+                        _doSave(res.url);
                     })
-                    .catch(function () {
-                        _doSave(_imgUrl);
+                    .catch(function (error) {
+                        console.error("Error subiendo la imagen del transporte:", error);
+                        alert("Error de conexión al subir la imagen. La ruta no se guardó.");
                     });
             } else {
                 _doSave(_imgUrl);
