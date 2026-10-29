@@ -39,13 +39,23 @@ try {
         throw new RuntimeException('La función de estadísticas no devolvió un objeto válido.');
     }
 
+    $recientes = $estadisticas['recientes'];
+    if ($tipo !== 'admin') {
+        foreach ($recientes as &$clic) {
+            if (is_array($clic)) {
+                unset($clic['dispositivo']);
+            }
+        }
+        unset($clic);
+    }
+
     responderEstadisticasClicks(200, [
         'ok' => true,
         'rol' => $tipo,
         'resumen' => $estadisticas['resumen'],
         'por_categoria' => $estadisticas['por_categoria'],
         'por_empresa' => $estadisticas['por_empresa'],
-        'recientes' => $estadisticas['recientes'],
+        'recientes' => $recientes,
     ]);
 } catch (Throwable $e) {
     error_log('[TourismEasy] get_estadisticas_clicks.php - ' . $e->getMessage());

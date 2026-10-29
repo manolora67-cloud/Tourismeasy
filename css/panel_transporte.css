@@ -255,6 +255,7 @@
     font-size: 0.78rem;
     color: var(--gray-600);
     font-weight: 500;
+    overflow-wrap: anywhere;
 }
 
 

@@ -57,17 +57,18 @@
             ],
             "Aún no hay clics registrados."
         );
+        var recentColumns = [
+            { key: "fecha_hora", format: formatDate },
+            { key: "empresa" },
+            { key: "categoria" },
+            { key: "id_producto" },
+            { key: "ciudad" },
+        ];
+        if (data.rol === "admin") recentColumns.push({ key: "dispositivo" });
         showRows(
             dashboard.querySelector("[data-clicks-recent]"),
             data.recientes,
-            [
-                { key: "fecha_hora", format: formatDate },
-                { key: "empresa" },
-                { key: "categoria" },
-                { key: "id_producto" },
-                { key: "ciudad" },
-                { key: "dispositivo" },
-            ],
+            recentColumns,
             "Aún no hay clics registrados."
         );
 
