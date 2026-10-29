@@ -467,8 +467,13 @@
     });
     previewDialog.addEventListener('close', () => { previewFrame.src = 'about:blank'; });
     previewDialog.querySelector('[data-preview-close]').addEventListener('click', closePreview);
-    editorDialog.addEventListener('click', (event) => {
-        if (event.target === editorDialog) editorDialog.close();
+    editorDialog.addEventListener('cancel', (event) => {
+        event.preventDefault();
+    });
+    editorDialog.addEventListener('mousedown', (event) => {
+        if (event.target === editorDialog) {
+            event.preventDefault();
+        }
     });
     editorDialog.addEventListener('close', () => { editor.hidden = true; });
     document.addEventListener('keydown', (event) => {
