@@ -104,7 +104,6 @@ try {
 
     if ($id_editar) {
 
-        $pdo->beginTransaction();
         $stmt = $pdo->prepare("
             SELECT fn_editar_transporte(
                 :id,
@@ -134,31 +133,14 @@ try {
             ':img'     => $img_url,
             ':disp'    => $disponible ? 't' : 'f',
         ]);
-
         $actualizada = $stmt->fetchColumn();
         if (!in_array($actualizada, [true, 't', 'true', '1', 1], true)) {
-            $pdo->rollBack();
             echo json_encode([
                 "ok" => false,
                 "error" => "No se pudo actualizar la ruta. Verifica que exista, te pertenezca y que los datos sean válidos."
             ]);
             exit;
         }
-
-        $stmt = $pdo->prepare(
-            'UPDATE TRANSPORTE
-             SET IMG_URL = CAST(:img AS VARCHAR(255))
-             WHERE ID_TRANSPORTE = :id
-               AND ID_EMPRESA = :emp
-               AND IMG_URL IS DISTINCT FROM CAST(:img_check AS VARCHAR(255))'
-        );
-        $stmt->execute([
-            ':img' => $img_url,
-            ':img_check' => $img_url,
-            ':id' => $id_editar,
-            ':emp' => $id_empresa,
-        ]);
-        $pdo->commit();
 
         echo json_encode([
             "ok" => true,
@@ -217,10 +199,6 @@ try {
     }
 
 } catch (PDOException $e) {
-    if ($pdo->inTransaction()) {
-        $pdo->rollBack();
-    }
-
     error_log('[TourismEasy] transporte/crear.php - ' . $e->getMessage());
 
     http_response_code(500);
