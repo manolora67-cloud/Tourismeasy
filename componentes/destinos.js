@@ -722,6 +722,22 @@
         if (!mount) return;
         const publicDestinations = destinations.filter((destination) => destination.publicado);
         const previewKey = new URLSearchParams(window.location.search).get("previewDestino");
+        if (previewKey) {
+            const destination = publicDestinations.find((item) => item.key === previewKey);
+            mount.innerHTML = `
+    <section class="destinos destinos-preview">
+      <div class="section-container">
+        <div class="destinos-preview-card">
+          ${destination
+                    ? `<div class="destinos-page">${cardTemplate(destination)}</div>`
+                    : '<p class="destinos-error" role="alert">No se pudo cargar la tarjeta de este destino.</p>'}
+        </div>
+      </div>
+    </section>`;
+            const articleLink = mount.querySelector(".card-link");
+            if (articleLink) articleLink.addEventListener("click", (event) => event.preventDefault());
+            return;
+        }
         if (!publicDestinations.length) {
             mount.innerHTML = '<section class="destinos" id="destinos"><div class="section-container"><p class="destinos-error">Próximamente encontrarás nuevos destinos de Santander.</p></div></section>';
             return;
@@ -761,8 +777,7 @@
         const previous = mount.querySelector(".destinos-arrow-prev");
         const next = mount.querySelector(".destinos-arrow-next");
         const pageCount = track.children.length;
-        const destinationIndex = publicDestinations.findIndex((destination) => destination.key === previewKey);
-        let pageIndex = destinationIndex < 0 ? 0 : Math.floor(destinationIndex / 8);
+        let pageIndex = 0;
         const update = () => updateCarousel(track, previous, next, pageIndex, pageCount);
         const changePage = (direction) => {
             pageIndex = Math.max(0, Math.min(pageCount - 1, pageIndex + direction));
@@ -772,7 +787,6 @@
         previous.addEventListener("click", () => changePage(-1));
         next.addEventListener("click", () => changePage(1));
         update();
-        if (previewKey && destinationIndex >= 0) mount.scrollIntoView({ block: "start" });
     }
 
     const citiesPromise = fetch(`${basePath}datos_referencia.php?tipo=ciudades`)

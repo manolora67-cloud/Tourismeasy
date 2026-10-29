@@ -91,8 +91,8 @@
 }
 
 .portada-preview-dialog {
-    width: min(1100px, calc(100vw - 32px));
-    height: min(850px, calc(100vh - 32px));
+    width: min(500px, calc(100vw - 32px));
+    height: min(620px, calc(100vh - 32px));
     max-width: none;
     max-height: none;
     padding: 0;

@@ -468,6 +468,32 @@ ul {
     background: var(--gray-100);
 }
 
+.destino-preview-page {
+    display: grid;
+    min-height: 100vh;
+    place-items: center;
+    background: var(--gray-100);
+}
+
+.destino-preview-page .destinos.destinos-preview {
+    display: grid;
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 100vh;
+    padding: 24px;
+    place-items: center;
+}
+
+.destino-preview-page .destinos-preview-card {
+    width: min(300px, 100%);
+}
+
+.destino-preview-page .destinos-preview-card .destinos-page {
+    display: block;
+    width: 100%;
+    padding: 0;
+}
+
 
 /* Fila de encabezado: título a la izquierda, enlace a la derecha */
 

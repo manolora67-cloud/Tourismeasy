@@ -142,7 +142,7 @@
     function openPreview(key) {
         const destination = destinos.find((item) => item.key === key);
         if (!destination) return;
-        previewFrame.src = `../index.html?previewDestino=${encodeURIComponent(key)}#destinos`;
+        previewFrame.src = `vista_previa_destino.html?previewDestino=${encodeURIComponent(key)}`;
         previewDialog.showModal();
     }
 
