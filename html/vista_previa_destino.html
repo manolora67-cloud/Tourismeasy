@@ -9,10 +9,37 @@
     <link rel="stylesheet" href="css/articulos.css?v=destino-preview-v1" />
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;500&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <style>
+        html,
+        body {
+            min-height: 100%;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        #destinoPreview {
+            min-height: 100vh;
+        }
+
+        #destinoPreview .art-overlay.open {
+            position: absolute;
+        }
+
+        #destinoPreview .art-preview-poster {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        #destinoPreview .art-hero-overlay {
+            z-index: 1;
+        }
+    </style>
 </head>
 <body>
-    <div id="site-articulos"></div>
-    <script src="componentes/destinos.js?v=destino-preview-v1"></script>
-    <script src="componentes/articulos.js?v=destino-preview-v1"></script>
+    <main id="destinoPreview" aria-live="polite"></main>
+    <script src="js/vista-previa-destino.js?v=destino-preview-v2"></script>
 </body>
 </html>

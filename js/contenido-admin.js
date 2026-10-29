@@ -14,6 +14,7 @@
     let cargando = false;
     let uploadsEnCurso = 0;
     let portadaInicializada = false;
+    let previewPendiente = null;
 
     const escapeHtml = (value) => String(value == null ? '' : value).replace(/[&<>"']/g, (char) => ({
         '&': '&amp;',
@@ -135,6 +136,7 @@
     }
 
     function closePreview() {
+        previewPendiente = null;
         if (previewDialog.open) previewDialog.close();
         previewFrame.src = 'about:blank';
     }
@@ -142,7 +144,34 @@
     function openPreview(key) {
         const destination = destinos.find((item) => item.key === key);
         if (!destination) return;
-        previewFrame.src = `vista_previa_destino.html?previewDestino=${encodeURIComponent(key)}`;
+        const baseArticle = (window.TE_ARTICULOS || []).find((item) => item.key === destination.key) || {};
+        const customArticle = destination.article || {};
+        const article = {
+            ...baseArticle,
+            ...customArticle,
+            key: destination.key,
+            poster: destination.img,
+            badge: customArticle.badge || destination.badge || baseArticle.badge || '',
+            titulo: customArticle.titulo || destination.titulo,
+            subtitulo: customArticle.subtitulo !== undefined ? customArticle.subtitulo : baseArticle.subtitulo || '',
+            datos: Array.isArray(customArticle.datos) ? customArticle.datos : baseArticle.datos || [],
+            intro: customArticle.intro !== undefined ? customArticle.intro : baseArticle.intro || '',
+            secciones: Array.isArray(customArticle.secciones) ? customArticle.secciones : baseArticle.secciones || [],
+            ctaTexto: customArticle.ctaTexto !== undefined ? customArticle.ctaTexto : baseArticle.ctaTexto || ''
+        };
+        delete article.video;
+        previewPendiente = {
+            destination: {
+                key: destination.key,
+                img: destination.img,
+                alt: destination.alt,
+                badge: destination.badge,
+                titulo: destination.titulo,
+                desc: destination.desc
+            },
+            article
+        };
+        previewFrame.src = `vista_previa_destino.html?previewDestino=${encodeURIComponent(key)}&previewVersion=2`;
         previewDialog.showModal();
     }
 
@@ -464,6 +493,17 @@
     });
     previewDialog.addEventListener('click', (event) => {
         if (event.target === previewDialog) closePreview();
+    });
+    previewFrame.addEventListener('load', () => {
+        if (!previewPendiente) return;
+        const previewUrl = new URL(previewFrame.contentWindow.location.href);
+        if (!previewUrl.pathname.endsWith('/vista_previa_destino.html')) return;
+        if (previewUrl.searchParams.get('previewDestino') !== previewPendiente.destination.key) return;
+        previewFrame.contentWindow.postMessage({
+            type: 'tourismeasy:preview-destino',
+            destination: previewPendiente
+        }, window.location.origin);
+        previewPendiente = null;
     });
     previewDialog.addEventListener('close', () => { previewFrame.src = 'about:blank'; });
     previewDialog.querySelector('[data-preview-close]').addEventListener('click', closePreview);
