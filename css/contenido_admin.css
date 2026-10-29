@@ -366,6 +366,10 @@ body.dark-mode .portada-editor-intro {
     color: #cbd5e1
 }
 
+body.dark-mode .portada-status:not(.error) {
+    color: #fff
+}
+
 body.dark-mode .portada-field label,
 body.dark-mode .portada-check {
     color: #e2e8f0
