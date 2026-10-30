@@ -100,3 +100,32 @@ La base transaccional no registra pedidos ni pagos; por eso los clics de WhatsAp
 5. `sql/2_plata/2_transformar.sql`: ejecutar las cargas diarias de Plata.
 6. `sql/3_oro/1_tablas_y_carga_oro.sql`: crear y cargar el modelo analitico.
 7. `sql/4_validacion/1_controles.sql`: revisar conteos y alertas de calidad.
+
+
+
+
+
+Read 
+Completed with input: {
+  "path": "C:\\Users\\SENA CSET\\.copilot\\session-state\\a44b660c-0f55-483c-a0d9-63ebb6050ad8\\checkpoints\\001-informe-y-sesi-n-de-copetran.md"
+}
+
+Search for `inicio|sesión|correo|dispositivo|aprobar|cuenta|401|pendiente|implementar`
+
+Search for `inicio|sesión|correo|dispositivo|aprobar|cuenta|401|pendiente|implementar`
+
+¡Ah, ya te entendí! Te refieres a las implementaciones que veníamos hablando, no solo a las estadísticas. La lista queda así:
+
+### Ya implementado
+- El correo se cambia desde **Mi perfil**, tanto para admin como para empresa; se quitó el duplicado de Configuración.
+- **Cambiar contraseña** está implementado para el administrador. Falta confirmar si también funciona para empresa.
+- Se retiraron las tablas y funciones de configuración que ya no se usan.
+- El boletín mensual de empresa está en **Configuración de empresa**, como el del admin.
+
+### Falta implementar o confirmar
+1. **Aprobación de inicio de sesión desde un dispositivo nuevo por correo**. Lo conversamos, pero ese flujo todavía no está implementado.
+2. Definir el comportamiento de las sesiones: si se aprueba el nuevo dispositivo, cerrar la sesión anterior; si se rechaza, conservarla y bloquear el acceso nuevo.
+3. Probar si el error intermitente **«No autorizado»** de Copetran quedó resuelto; los cambios de sesión están hechos, pero falta comprobarlo en uso real.
+4. Confirmar que **Cambiar contraseña** también esté conectado y funcione en la Configuración de empresa.
+
+La prioridad pendiente sería el punto 1: proteger el inicio de sesión con aprobación por correo.
