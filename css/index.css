@@ -1418,6 +1418,22 @@ body.dark-mode .card {
     background: #1e293b;
 }
 
+body.dark-mode .destinos-arrow {
+    background: #273449;
+    border-color: #64748b;
+    color: #c4b5fd;
+}
+
+body.dark-mode .destinos-arrow:hover:not(:disabled) {
+    background: #c4b5fd;
+    border-color: #c4b5fd;
+    color: #0f172a;
+}
+
+body.dark-mode .destinos-arrow:disabled {
+    opacity: .7;
+}
+
 body.dark-mode .testimonial-card {
     background: #1e293b;
 }
