@@ -176,14 +176,14 @@
                             <strong>Contraseña</strong>
                             <p>Ultima actualización: hace 0 días</p>
                         </div>
-                        <button class="pu-btn-secondary">Cambiar contraseña</button>
+                        <button class="pu-btn-secondary" id="btnCambiarContrasena" type="button">Cambiar contraseña</button>
                     </div>
                     <div class="pu-config-item">
                         <div>
                             <strong>Correo de administrador</strong>
                             <p id="configEmail">admin@tourismeasy.com</p>
                         </div>
-                        <button class="pu-btn-secondary">Cambiar correo</button>
+                        <button class="pu-btn-secondary" id="btnCambiarCorreo" type="button">Cambiar correo</button>
                     </div>
                 </div>
 
@@ -223,6 +223,26 @@
 
                 <div class="pu-card">
                     <h3 class="pu-card-title">
+                        <i class="fa-solid fa-file-pdf"></i> Informe mensual
+                    </h3>
+                    <div class="pu-config-item">
+                        <div>
+                            <strong>Descargar informe del OLTP</strong>
+                            <p>Incluye empresas nuevas y clics de WhatsApp comparados con el mes anterior, más el ranking de las empresas más contactadas. En impresión, selecciona «Guardar como PDF».</p>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+                            <label for="mesInformeAdmin">Mes</label>
+                            <input id="mesInformeAdmin" type="month" required>
+                            <button class="pu-btn-secondary" id="btnGenerarInformeAdmin" type="button">
+                                <i class="fa-solid fa-file-arrow-down"></i> Generar PDF
+                            </button>
+                        </div>
+                    </div>
+                    <p id="estadoInformeAdmin" role="status" aria-live="polite"></p>
+                </div>
+
+                <div class="pu-card">
+                    <h3 class="pu-card-title">
                         <i class="fa-solid fa-palette"></i> Apariencia
                     </h3>
                     <div class="pu-config-item">
@@ -257,6 +277,41 @@
             </div>
         </div>
     </main>
+
+    <div class="pu-modal" id="modalCambiarContrasena" role="dialog" aria-modal="true" aria-labelledby="modalCambiarContrasenaTitulo">
+        <div class="pu-modal-box">
+            <button class="pu-modal-close" id="btnCerrarModalContrasena" type="button" aria-label="Cerrar">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <h2 class="pu-modal-titulo" id="modalCambiarContrasenaTitulo">
+                <i class="fa-solid fa-key"></i> Cambiar contraseña
+            </h2>
+            <p class="pu-modal-desc">Confirma tu contraseña actual y escribe una nueva de al menos 8 caracteres (máximo 72 bytes).</p>
+            <form id="formCambiarContrasena">
+                <div class="pu-modal-fields">
+                    <label class="pu-modal-field">
+                        <span class="pu-modal-label">Contraseña actual</span>
+                        <input class="pu-modal-input" id="contrasenaActualAdmin" type="password" autocomplete="current-password" required>
+                    </label>
+                    <label class="pu-modal-field">
+                        <span class="pu-modal-label">Nueva contraseña</span>
+                        <input class="pu-modal-input" id="contrasenaNuevaAdmin" type="password" autocomplete="new-password" minlength="8" required>
+                    </label>
+                    <label class="pu-modal-field">
+                        <span class="pu-modal-label">Confirmar nueva contraseña</span>
+                        <input class="pu-modal-input" id="confirmarContrasenaAdmin" type="password" autocomplete="new-password" minlength="8" required>
+                    </label>
+                </div>
+                <p id="errorCambiarContrasena" role="alert" style="display:none;color:#dc2626;margin-bottom:16px"></p>
+                <div class="pu-modal-actions">
+                    <button class="pu-modal-btn-cancel" id="btnCancelarModalContrasena" type="button">Cancelar</button>
+                    <button class="pu-modal-btn-save" id="btnGuardarContrasenaAdmin" type="submit">
+                        <i class="fa-solid fa-check"></i> Actualizar contraseña
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <!-- FOOTER -->
     <div id="site-footer"></div>
@@ -360,10 +415,12 @@
             } catch (e) { }
             if (!sesion.id) return;
 
-            var API_BASE = window.location.origin + '/Tourismeasy/login/';
+            var API_BASE = new URL("../login/", window.location.href).href;
 
             // Refrescar nombre/correo/avatar reales desde la BD
-            fetch(API_BASE + 'get_perfil_admin.php?id=' + encodeURIComponent(sesion.id))
+            fetch(API_BASE + 'get_perfil_admin.php?id=' + encodeURIComponent(sesion.id), {
+                    credentials: 'include'
+                })
                 .then(function (r) {
                     return r.json();
                 })
@@ -443,6 +500,218 @@
                     guardarConfig("notif_boletin", chkBoletin.checked);
                 });
             }
+
+            var btnCambiarCorreo = document.getElementById("btnCambiarCorreo");
+            if (btnCambiarCorreo) {
+                btnCambiarCorreo.addEventListener("click", function () {
+                    window.location.href = "perfil_admin.html?editar=correo";
+                });
+            }
+
+            var modalContrasena = document.getElementById("modalCambiarContrasena");
+            var formContrasena = document.getElementById("formCambiarContrasena");
+            var errorContrasena = document.getElementById("errorCambiarContrasena");
+            var btnGuardarContrasena = document.getElementById("btnGuardarContrasenaAdmin");
+
+            function cerrarModalContrasena() {
+                modalContrasena.style.display = "none";
+                document.body.style.overflow = "";
+                formContrasena.reset();
+                errorContrasena.style.display = "none";
+                errorContrasena.textContent = "";
+            }
+
+            document.getElementById("btnCambiarContrasena").addEventListener("click", function () {
+                modalContrasena.style.display = "flex";
+                document.body.style.overflow = "hidden";
+                document.getElementById("contrasenaActualAdmin").focus();
+            });
+            document.getElementById("btnCerrarModalContrasena").addEventListener("click", cerrarModalContrasena);
+            document.getElementById("btnCancelarModalContrasena").addEventListener("click", cerrarModalContrasena);
+            modalContrasena.addEventListener("click", function (event) {
+                if (event.target === modalContrasena) cerrarModalContrasena();
+            });
+
+            formContrasena.addEventListener("submit", function (event) {
+                event.preventDefault();
+                var actual = document.getElementById("contrasenaActualAdmin").value;
+                var nueva = document.getElementById("contrasenaNuevaAdmin").value;
+                var confirmar = document.getElementById("confirmarContrasenaAdmin").value;
+
+                if (Array.from(nueva).length < 8) {
+                    errorContrasena.textContent = "La nueva contraseña debe tener al menos 8 caracteres.";
+                    errorContrasena.style.display = "block";
+                    return;
+                }
+                if (nueva !== confirmar) {
+                    errorContrasena.textContent = "La confirmación no coincide con la nueva contraseña.";
+                    errorContrasena.style.display = "block";
+                    return;
+                }
+
+                btnGuardarContrasena.disabled = true;
+                errorContrasena.style.display = "none";
+                fetch(API_BASE + "actualizar_contrasena_admin.php", {
+                    method: "POST",
+                    credentials: "include",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        contrasena_actual: actual,
+                        contrasena_nueva: nueva
+                    })
+                })
+                    .then(function (response) {
+                        return response.json().then(function (data) {
+                            if (!response.ok || !data.ok) {
+                                throw new Error(data.error || "No se pudo actualizar la contraseña.");
+                            }
+                            return data;
+                        });
+                    })
+                    .then(function () {
+                        alert("La contraseña se actualizó correctamente.");
+                        cerrarModalContrasena();
+                    })
+                    .catch(function (error) {
+                        errorContrasena.textContent = error.message || "No se pudo actualizar la contraseña.";
+                        errorContrasena.style.display = "block";
+                    })
+                    .finally(function () {
+                        btnGuardarContrasena.disabled = false;
+                    });
+            });
+
+            var mesInforme = document.getElementById("mesInformeAdmin");
+            var btnInforme = document.getElementById("btnGenerarInformeAdmin");
+            var estadoInforme = document.getElementById("estadoInformeAdmin");
+            function mesLocal(fecha) {
+                return fecha.getFullYear() + "-" + String(fecha.getMonth() + 1).padStart(2, "0");
+            }
+            var fechaDefaultInforme = new Date();
+            fechaDefaultInforme.setDate(1);
+            fechaDefaultInforme.setMonth(fechaDefaultInforme.getMonth() - 1);
+            mesInforme.value = mesLocal(fechaDefaultInforme);
+            mesInforme.max = mesLocal(new Date());
+
+            function escaparHtml(valor) {
+                return String(valor == null ? "" : valor).replace(/[&<>"']/g, function (caracter) {
+                    return {
+                        "&": "&amp;",
+                        "<": "&lt;",
+                        ">": "&gt;",
+                        '"': "&quot;",
+                        "'": "&#39;"
+                    }[caracter];
+                });
+            }
+
+            function formatearMes(valor) {
+                var fecha = new Date(valor + "-02T12:00:00");
+                return fecha.toLocaleDateString("es-CO", { month: "long", year: "numeric" });
+            }
+
+            function formatearVariacion(valor) {
+                if (valor === null || valor === undefined) return "Sin base de comparación";
+                return (valor > 0 ? "+" : "") + valor + "%";
+            }
+
+            function filasRanking(items) {
+                if (!Array.isArray(items) || !items.length) {
+                    return '<tr><td colspan="3">Sin clics de empresas registrados</td></tr>';
+                }
+                return items.map(function (item, index) {
+                    return "<tr><td>" + (index + 1) + "</td><td>" + escaparHtml(item.empresa) +
+                        "</td><td>" + escaparHtml(item.clics) + "</td></tr>";
+                }).join("");
+            }
+
+            function abrirInformePdf(informe, ventana) {
+                var empresas = informe.empresas_nuevas || {};
+                var clics = informe.clics_whatsapp || {};
+                var fechaGeneracion = new Date().toLocaleString("es-CO");
+
+                ventana.document.open();
+                ventana.document.write(
+                    '<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Informe TourismEasy - ' +
+                    escaparHtml(formatearMes(informe.mes)) + '</title><style>' +
+                    'body{font-family:Arial,sans-serif;color:#1e293b;margin:36px;font-size:12px}' +
+                    'header{border-bottom:3px solid #7c3aed;padding-bottom:16px;margin-bottom:24px}' +
+                    'h1{font-size:24px;margin:0 0 6px}h2{font-size:16px;margin:25px 0 10px;color:#5b21b6}' +
+                    '.muted{color:#64748b}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}' +
+                    '.metric{border:1px solid #cbd5e1;border-radius:8px;padding:14px}.metric strong{display:block;font-size:20px;margin:5px 0}' +
+                    'table{width:100%;border-collapse:collapse;margin:8px 0 20px}th,td{text-align:left;padding:8px;border-bottom:1px solid #cbd5e1}' +
+                    'th{background:#f1f5f9}.period{font-size:14px;text-transform:capitalize}.actions{margin:0 0 20px}' +
+                    '.actions button{background:#7c3aed;color:white;border:0;border-radius:6px;padding:10px 16px;font-weight:bold;cursor:pointer}' +
+                    '@media print{body{margin:15mm}.actions{display:none}h2{break-after:avoid}table{break-inside:avoid}}' +
+                    '</style></head><body>' +
+                    '<div class="actions"><button onclick="window.print()">Guardar como PDF / Imprimir</button>' +
+                    '<span class="muted"> En el diálogo, selecciona "Guardar como PDF".</span></div>' +
+                    '<header><h1>TourismEasy · Informe mensual</h1>' +
+                    '<div class="period">' + escaparHtml(formatearMes(informe.mes)) + '</div>' +
+                    '<div class="muted">Comparado con ' + escaparHtml(formatearMes(informe.mes_anterior)) +
+                    ' · Generado: ' + escaparHtml(fechaGeneracion) + '</div></header>' +
+                    '<h2>Resumen</h2><div class="grid">' +
+                    '<div class="metric">Cuentas nuevas de empresa<strong>' + escaparHtml(empresas.mes || 0) +
+                    '</strong><span class="muted">Mes anterior: ' + escaparHtml(empresas.mes_anterior || 0) +
+                    ' · Variación: ' + escaparHtml(formatearVariacion(empresas.variacion_porcentual)) +
+                    ' · Incluye todos los estados</span></div>' +
+                    '<div class="metric">Clics de WhatsApp<strong>' + escaparHtml(clics.mes || 0) +
+                    '</strong><span class="muted">Mes anterior: ' + escaparHtml(clics.mes_anterior || 0) +
+                    ' · Variación: ' + escaparHtml(formatearVariacion(clics.variacion_porcentual)) + '</span></div>' +
+                    '</div><h2>Empresas más contactadas · ' + escaparHtml(formatearMes(informe.mes)) + '</h2>' +
+                    '<table><thead><tr><th>#</th><th>Empresa</th><th>Clics</th></tr></thead><tbody>' +
+                    filasRanking(clics.empresas_mas_contactadas) + '</tbody></table>' +
+                    '<h2>Empresas más contactadas · ' + escaparHtml(formatearMes(informe.mes_anterior)) + '</h2>' +
+                    '<table><thead><tr><th>#</th><th>Empresa</th><th>Clics</th></tr></thead><tbody>' +
+                    filasRanking(clics.empresas_mas_contactadas_mes_anterior) + '</tbody></table>' +
+                    '<p class="muted">Fuente: registros transaccionales de TourismEasy (OLTP).</p>' +
+                    '</body></html>'
+                );
+                ventana.document.close();
+                window.setTimeout(function () {
+                    ventana.focus();
+                    ventana.print();
+                }, 300);
+            }
+
+            btnInforme.addEventListener("click", function () {
+                if (!mesInforme.value) {
+                    estadoInforme.textContent = "Selecciona un mes para continuar.";
+                    mesInforme.focus();
+                    return;
+                }
+
+                var ventanaInforme = window.open("", "_blank");
+                if (!ventanaInforme) {
+                    estadoInforme.textContent = "Permite las ventanas emergentes para generar el informe.";
+                    return;
+                }
+
+                btnInforme.disabled = true;
+                estadoInforme.textContent = "Generando el informe...";
+                fetch(API_BASE + "get_informe_mensual_admin.php?mes=" + encodeURIComponent(mesInforme.value), {
+                    credentials: "include"
+                })
+                    .then(function (response) {
+                        return response.json().then(function (data) {
+                            if (!response.ok || !data.ok) {
+                                throw new Error(data.error || "No se pudo generar el informe.");
+                            }
+                            return data.informe;
+                        });
+                    })
+                    .then(function (informe) {
+                        abrirInformePdf(informe, ventanaInforme);
+                        estadoInforme.textContent = "Informe listo. Selecciona «Guardar como PDF» en el diálogo de impresión.";
+                    })
+                    .catch(function (error) {
+                        ventanaInforme.close();
+                        estadoInforme.textContent = error.message || "No se pudo generar el informe.";
+                    })
+                    .finally(function () {
+                        btnInforme.disabled = false;
+                    });
+            });
 
             // Persistir el tema en la BD cuando el usuario lo cambia manualmente
             if (darkModeBtn) {

@@ -211,6 +211,41 @@
         </div>
     </main>
 
+    <div class="pu-modal" id="modalEditarAdmin" role="dialog" aria-modal="true" aria-labelledby="modalEditarAdminTitulo">
+        <div class="pu-modal-box">
+            <button class="pu-modal-close" id="btnCerrarModalAdmin" type="button" aria-label="Cerrar">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <h2 class="pu-modal-titulo" id="modalEditarAdminTitulo">
+                <i class="fa-solid fa-user-pen"></i> Editar perfil
+            </h2>
+            <p class="pu-modal-desc">Actualiza tus datos de administrador.</p>
+            <div class="pu-modal-fields">
+                <label class="pu-modal-field">
+                    <span class="pu-modal-label">Nombre completo</span>
+                    <input class="pu-modal-input" id="editNombreAdmin" type="text" autocomplete="name" required>
+                </label>
+                <label class="pu-modal-field">
+                    <span class="pu-modal-label">Correo de acceso</span>
+                    <input class="pu-modal-input" id="editEmailAdmin" type="email" autocomplete="email" required>
+                </label>
+                <label class="pu-modal-field">
+                    <span class="pu-modal-label">Teléfono</span>
+                    <input class="pu-modal-input" id="editTelAdmin" type="tel" autocomplete="tel">
+                </label>
+            </div>
+            <div class="pu-modal-actions">
+                <button class="pu-modal-btn-cancel" id="btnCancelarModalAdmin" type="button">Cancelar</button>
+                <button class="pu-modal-btn-save" id="btnGuardarPerfilAdmin" type="button">
+                    <i class="fa-solid fa-check"></i> Guardar cambios
+                </button>
+            </div>
+            <div class="pu-modal-toast" id="toastExitoAdmin" role="status" style="display:none">
+                <i class="fa-solid fa-circle-check"></i> Perfil actualizado correctamente.
+            </div>
+        </div>
+    </div>
+
     <!-- FOOTER -->
     <div id="site-footer"></div>
     <script src="../componentes/footer.js"></script>
@@ -349,9 +384,12 @@
             }
 
             function cargarPerfil() {
-                if (!sesion.id) return;
-                fetch(API_BASE + 'get_perfil_admin.php?id=' + encodeURIComponent(sesion.id))
+                if (!sesion.id) return Promise.resolve();
+                return fetch(API_BASE + 'get_perfil_admin.php?id=' + encodeURIComponent(sesion.id), {
+                        credentials: 'include'
+                    })
                     .then(function(r) {
+                        if (!r.ok) throw new Error("HTTP " + r.status);
                         return r.json();
                     })
                     .then(function(data) {
@@ -364,7 +402,7 @@
                         console.error("No se pudo cargar el perfil del administrador:", err);
                     });
             }
-            cargarPerfil();
+            var perfilPromise = cargarPerfil();
 
             function tiempoRelativo(fechaStr) {
                 var f = new Date((fechaStr || "").replace(" ", "T"));
@@ -497,11 +535,11 @@
 
                 fetch(API_BASE + 'actualizar_perfil_admin.php', {
                         method: 'POST',
+                        credentials: 'include',
                         headers: {
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
-                            id: sesion.id,
                             nombre: nombre,
                             apellido: apellido,
                             email: email,
@@ -526,7 +564,8 @@
 
                         sesion.nombre = nombreCompleto;
                         sesion.email = email;
-                        localStorage.setItem("te_session", JSON.stringify(sesion));
+                        var sessionStore = localStorage.getItem("te_session") ? localStorage : sessionStorage;
+                        sessionStore.setItem("te_session", JSON.stringify(sesion));
 
                         toast.style.display = "block";
                         setTimeout(function() {
@@ -548,6 +587,10 @@
                     this.style.borderColor = "var(--gray-200)";
                 });
             });
+
+            if (new URLSearchParams(window.location.search).get("editar") === "correo") {
+                perfilPromise.then(abrirModal);
+            }
         })();
     </script>
 </body>

@@ -91,6 +91,10 @@ Get-ChildItem $dirTriggers -Filter '*.sql' |
 
 El procedimiento incluye los scripts SQL de `funciones/` y luego instala los archivos de `triggers/`. `fn_buscar_hospedaje_publico.sql` instala la búsqueda pública de hospedajes por municipio, accesibilidad y capacidad; `fn_buscar_planes_publicos.sql`, la búsqueda de planes por municipio, tipo y accesibilidad; y `fn_buscar_productos_publicos.sql`, la búsqueda de productos artesanales por texto, categoría y municipio. En una base existente, ejecuta manualmente el script SQL de búsqueda correspondiente antes de usar esa página; no ejecutes todo `DB_TOURISMEASY.sql` sobre una base con datos. Entre las dependencias ordenadas al final están eliminación de transporte empresa, guardado unificado de hospedaje y productos, inicialización de portada y coordinación del login. Los triggers actualizan `FECHA_MODIFICACION` y guardan snapshots históricos automáticamente.
 
+El cambio de contraseña del administrador usa `funciones/fn_actualizar_contrasena_admin.sql`; el instalador anterior la incluye automáticamente. En una base existente, ejecuta ese archivo SQL por separado antes de habilitar el cambio de contraseña desde Configuración.
+
+El informe mensual del administrador consulta únicamente tablas OLTP mediante `funciones/fn_informe_mensual_admin.sql`. En una base existente, ejecuta ese archivo SQL para habilitar el informe mensual.
+
 Los endpoints de clics invocan las funciones `funciones/fn_registrar_click_whatsapp.sql` y `funciones/fn_estadisticas_clicks.sql`: la primera valida el producto y registra el evento, y la segunda devuelve métricas globales al administrador o filtradas por la empresa autenticada. El instalador anterior incluye ambas funciones al procesar todos los SQL de `funciones/`.
 
 El bloque inicia `psql` una vez por archivo; para evitar que solicite la contraseña repetidamente, configura el archivo `pgpass.conf` de PostgreSQL para tu usuario local o ejecuta cada script desde pgAdmin.
