@@ -71,14 +71,13 @@
                 { key: "fecha_hora", format: formatDate },
                 { key: "empresa" },
                 { key: "categoria" },
-                { key: "id_producto" },
-                { key: "ciudad" },
+                { key: "producto" },
                 { key: "dispositivo" },
             ]
             : [
                 { key: "fecha_hora", format: formatDate },
                 { key: "producto" },
-                { key: "ciudad" },
+                { key: "dispositivo" },
             ];
         showRows(
             dashboard.querySelector("[data-clicks-recent]"),

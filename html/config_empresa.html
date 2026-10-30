@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="../css/index.css" />
     <link rel="stylesheet" href="../css/login.css" />
     <link rel="stylesheet" href="../css/panel_empresa.css" />
+    <link rel="stylesheet" href="../css/click_metrics.css" />
     <link
         href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;500&display=swap"
         rel="stylesheet" />
@@ -169,6 +170,22 @@
                         <button class="pu-btn-secondary">Cambiar contraseña</button>
                     </div>
                 </div>
+
+                <section class="company-monthly-report" data-company-monthly-report aria-labelledby="companyReportTitle">
+                    <div class="company-monthly-report__heading">
+                        <h2 id="companyReportTitle"><i class="fa-solid fa-file-pdf"></i> Boletín mensual</h2>
+                        <p>Descarga un resumen de tus clics de WhatsApp y publicaciones más contactadas.</p>
+                    </div>
+                    <div class="company-monthly-report__controls">
+                        <label for="companyReportMonth"><span><i class="fa-regular fa-calendar"></i> Mes del boletín</span>
+                            <input id="companyReportMonth" type="month" required>
+                        </label>
+                        <button class="pu-btn-secondary" type="button" data-company-report-generate>
+                            <i class="fa-solid fa-file-pdf"></i> Generar PDF
+                        </button>
+                    </div>
+                    <p class="company-monthly-report__status" data-company-report-status role="status" aria-live="polite"></p>
+                </section>
 
                 <div class="pu-card">
                     <h3 class="pu-card-title">
@@ -470,6 +487,7 @@
             } catch (e) { }
         })();
     </script>
+    <script src="../js/company_monthly_report.js"></script>
 </body>
 
 </html>

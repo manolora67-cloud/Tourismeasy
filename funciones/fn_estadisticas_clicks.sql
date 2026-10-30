@@ -109,7 +109,6 @@ BEGIN
                 'categoria', datos.categoria,
                 'id_producto', datos.id_producto,
                 'producto', datos.producto,
-                'ciudad', datos.ciudad,
                 'dispositivo', datos.dispositivo
             )
             ORDER BY datos.fecha_hora DESC, datos.id_click DESC
@@ -133,11 +132,13 @@ BEGIN
                 END,
                 'Producto #' || L.ID_PRODUCTO
             ) AS producto,
-            C.NOM_CIUDAD AS ciudad,
-            L.USER_AGENT AS dispositivo
+            CASE
+                WHEN L.USER_AGENT ~* '(android|iphone|ipod|mobile|windows phone|blackberry|opera mini|iemobile)'
+                    THEN 'Celular'
+                ELSE 'Computador'
+            END AS dispositivo
         FROM LOGS_CLICS_WEB_EXTERNOS L
         LEFT JOIN EMPRESAS E ON E.ID_EMPRESA = L.ID_EMPRESA
-        LEFT JOIN CIUDADES C ON C.ID_CIUDAD = L.ID_CIUDAD
         LEFT JOIN TRANSPORTE T
             ON L.TIPO_CATEGORIA = 'Transporte'
            AND T.ID_TRANSPORTE::VARCHAR = L.ID_PRODUCTO
