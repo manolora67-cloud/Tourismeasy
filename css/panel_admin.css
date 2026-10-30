@@ -1927,6 +1927,139 @@ body.dark-mode .panel-navbar-label {
     margin: 0;
 }
 
+.pu-card--monthly-report {
+    overflow: hidden;
+    position: relative;
+}
+
+.pu-card--monthly-report::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 4px;
+    background: linear-gradient(180deg, #7c3aed, #a855f7);
+}
+
+.monthly-report__content {
+    display: grid;
+    gap: 20px;
+}
+
+.monthly-report__intro strong {
+    display: block;
+    color: var(--gray-800);
+    font-family: var(--font-head);
+    font-size: 0.95rem;
+    margin-bottom: 5px;
+}
+
+.monthly-report__intro p {
+    max-width: 720px;
+    color: var(--gray-500);
+    font-size: 0.86rem;
+    line-height: 1.65;
+}
+
+.monthly-report__controls {
+    display: flex;
+    align-items: end;
+    gap: 14px;
+    flex-wrap: wrap;
+    padding: 16px;
+    background: #f8f7fc;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+}
+
+.monthly-report__month {
+    display: grid;
+    gap: 6px;
+}
+
+.monthly-report__month label {
+    color: var(--gray-600);
+    font-family: var(--font-head);
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+.monthly-report__month label i {
+    color: var(--purple);
+    margin-right: 4px;
+}
+
+.monthly-report__month input {
+    min-height: 42px;
+    padding: 8px 11px;
+    color: var(--gray-800);
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
+    font: inherit;
+}
+
+.monthly-report__month input:focus-visible {
+    outline: 3px solid rgba(124, 58, 237, 0.2);
+    border-color: var(--purple);
+}
+
+.monthly-report__button {
+    min-height: 42px;
+    margin: 0;
+    border-radius: 9px;
+    box-shadow: 0 4px 10px rgba(124, 58, 237, 0.18);
+}
+
+.monthly-report__button:disabled {
+    cursor: wait;
+    opacity: 0.7;
+    transform: none;
+}
+
+.monthly-report__hint {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    color: var(--gray-500);
+    font-size: 0.78rem;
+}
+
+.monthly-report__hint i {
+    margin-top: 3px;
+    color: var(--purple);
+}
+
+.monthly-report__status:empty {
+    display: none;
+}
+
+.monthly-report__status:not(:empty) {
+    padding: 11px 13px;
+    border: 1px solid var(--gray-200);
+    border-radius: 9px;
+    color: var(--gray-700);
+    background: var(--gray-100);
+    font-size: 0.82rem;
+}
+
+.monthly-report__status[data-estado="success"] {
+    color: #166534;
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+}
+
+.monthly-report__status[data-estado="error"] {
+    color: #b91c1c;
+    background: #fef2f2;
+    border-color: #fecaca;
+}
+
+.monthly-report__status[data-estado="loading"] {
+    color: #5b21b6;
+    background: #f5f3ff;
+    border-color: #ddd6fe;
+}
+
 .pu-toggle-item {
     display: flex;
     justify-content: space-between;
@@ -2132,6 +2265,52 @@ body.dark-mode .pu-stat-label,
 body.dark-mode .pu-config-item p,
 body.dark-mode .pu-toggle-item p {
     color: #94a3b8;
+}
+
+body.dark-mode .monthly-report__intro strong,
+body.dark-mode .monthly-report__month label {
+    color: #f1f5f9;
+}
+
+body.dark-mode .monthly-report__intro p,
+body.dark-mode .monthly-report__hint {
+    color: #94a3b8;
+}
+
+body.dark-mode .monthly-report__controls {
+    background: #0f172a;
+    border-color: #334155;
+}
+
+body.dark-mode .monthly-report__month input {
+    color-scheme: dark;
+    background: #1e293b;
+    border-color: #475569;
+    color: #f1f5f9;
+}
+
+body.dark-mode .monthly-report__status:not(:empty) {
+    color: #cbd5e1;
+    background: #0f172a;
+    border-color: #334155;
+}
+
+body.dark-mode .monthly-report__status[data-estado="success"] {
+    color: #86efac;
+    background: rgba(22, 101, 52, 0.18);
+    border-color: rgba(74, 222, 128, 0.28);
+}
+
+body.dark-mode .monthly-report__status[data-estado="error"] {
+    color: #fca5a5;
+    background: rgba(185, 28, 28, 0.16);
+    border-color: rgba(248, 113, 113, 0.28);
+}
+
+body.dark-mode .monthly-report__status[data-estado="loading"] {
+    color: #c4b5fd;
+    background: rgba(91, 33, 182, 0.18);
+    border-color: rgba(167, 139, 250, 0.28);
 }
 
 body.dark-mode .pu-field,
@@ -2518,6 +2697,17 @@ body.dark-mode .btn-tbl-reject {
     .pu-config-item button {
         width: 100%;
         justify-content: center;
+    }
+
+    .monthly-report__controls {
+        align-items: stretch;
+        flex-direction: column;
+        padding: 12px;
+    }
+
+    .monthly-report__month input,
+    .monthly-report__button {
+        width: 100%;
     }
 
     .pu-page-header h1 {

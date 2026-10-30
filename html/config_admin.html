@@ -221,24 +221,27 @@
                     </button>
                 </div>
 
-                <div class="pu-card">
+                <div class="pu-card pu-card--monthly-report">
                     <h3 class="pu-card-title">
                         <i class="fa-solid fa-file-pdf"></i> Informe mensual
                     </h3>
-                    <div class="pu-config-item">
-                        <div>
+                    <div class="monthly-report__content">
+                        <div class="monthly-report__intro">
                             <strong>Descargar informe del OLTP</strong>
-                            <p>Incluye empresas nuevas y clics de WhatsApp comparados con el mes anterior, más el ranking de las empresas más contactadas. En impresión, selecciona «Guardar como PDF».</p>
+                            <p>Consulta empresas y artesanos nuevos, clics de WhatsApp y los rankings de contacto, comparados con el mes anterior.</p>
                         </div>
-                        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-                            <label for="mesInformeAdmin">Mes</label>
-                            <input id="mesInformeAdmin" type="month" required>
-                            <button class="pu-btn-secondary" id="btnGenerarInformeAdmin" type="button">
-                                <i class="fa-solid fa-file-arrow-down"></i> Generar PDF
+                        <div class="monthly-report__controls">
+                            <div class="monthly-report__month">
+                                <label for="mesInformeAdmin"><i class="fa-regular fa-calendar"></i> Mes del informe</label>
+                                <input id="mesInformeAdmin" type="month" required>
+                            </div>
+                            <button class="pu-btn-primary monthly-report__button" id="btnGenerarInformeAdmin" type="button">
+                                <i class="fa-solid fa-file-pdf"></i> Generar informe
                             </button>
                         </div>
+                        <p class="monthly-report__hint"><i class="fa-solid fa-circle-info"></i> Solo puedes generar informes de meses completos. Al abrir la vista de impresión, elige «Guardar como PDF».</p>
+                        <p id="estadoInformeAdmin" class="monthly-report__status" role="status" aria-live="polite"></p>
                     </div>
-                    <p id="estadoInformeAdmin" role="status" aria-live="polite"></p>
                 </div>
 
                 <div class="pu-card">
@@ -694,21 +697,30 @@
                 }, 300);
             }
 
+            function actualizarEstadoInforme(mensaje, estado) {
+                estadoInforme.textContent = mensaje;
+                if (estado) {
+                    estadoInforme.dataset.estado = estado;
+                } else {
+                    delete estadoInforme.dataset.estado;
+                }
+            }
+
             btnInforme.addEventListener("click", function () {
                 if (!mesInforme.value) {
-                    estadoInforme.textContent = "Selecciona un mes para continuar.";
+                    actualizarEstadoInforme("Selecciona un mes para continuar.", "error");
                     mesInforme.focus();
                     return;
                 }
 
                 var ventanaInforme = window.open("", "_blank");
                 if (!ventanaInforme) {
-                    estadoInforme.textContent = "Permite las ventanas emergentes para generar el informe.";
+                    actualizarEstadoInforme("Permite las ventanas emergentes para generar el informe.", "error");
                     return;
                 }
 
                 btnInforme.disabled = true;
-                estadoInforme.textContent = "Generando el informe...";
+                actualizarEstadoInforme("Estamos preparando tu informe…", "loading");
                 fetch(API_BASE + "get_informe_mensual_admin.php?mes=" + encodeURIComponent(mesInforme.value), {
                     credentials: "include"
                 })
@@ -722,11 +734,11 @@
                     })
                     .then(function (informe) {
                         abrirInformePdf(informe, ventanaInforme);
-                        estadoInforme.textContent = "Informe listo. Selecciona «Guardar como PDF» en el diálogo de impresión.";
+                        actualizarEstadoInforme("Informe listo. Selecciona «Guardar como PDF» en el diálogo de impresión.", "success");
                     })
                     .catch(function (error) {
                         ventanaInforme.close();
-                        estadoInforme.textContent = error.message || "No se pudo generar el informe.";
+                        actualizarEstadoInforme(error.message || "No se pudo generar el informe.", "error");
                     })
                     .finally(function () {
                         btnInforme.disabled = false;
