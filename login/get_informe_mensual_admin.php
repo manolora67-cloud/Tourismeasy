@@ -31,9 +31,9 @@ if (!is_string($mes) || !preg_match('/^\d{4}-(0[1-9]|1[0-2])$/D', $mes)) {
 
 $fechaMes = DateTimeImmutable::createFromFormat('!Y-m-d', $mes . '-01');
 $mesActual = new DateTimeImmutable('first day of this month');
-if (!$fechaMes || $fechaMes->format('Y-m') !== $mes || $fechaMes > $mesActual) {
+if (!$fechaMes || $fechaMes->format('Y-m') !== $mes || $fechaMes >= $mesActual) {
     http_response_code(400);
-    echo json_encode(["ok" => false, "error" => "No se puede generar un informe de un mes futuro."]);
+    echo json_encode(["ok" => false, "error" => "Solo se pueden generar informes de meses completos."]);
     exit;
 }
 

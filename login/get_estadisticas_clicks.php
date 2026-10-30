@@ -33,6 +33,7 @@ try {
         !is_array($estadisticas)
         || !is_array($estadisticas['resumen'] ?? null)
         || !is_array($estadisticas['por_categoria'] ?? null)
+        || !is_array($estadisticas['por_producto'] ?? null)
         || !is_array($estadisticas['por_empresa'] ?? null)
         || !is_array($estadisticas['recientes'] ?? null)
     ) {
@@ -54,6 +55,7 @@ try {
         'rol' => $tipo,
         'resumen' => $estadisticas['resumen'],
         'por_categoria' => $estadisticas['por_categoria'],
+        'por_producto' => $estadisticas['por_producto'],
         'por_empresa' => $estadisticas['por_empresa'],
         'recientes' => $recientes,
     ]);

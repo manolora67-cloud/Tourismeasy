@@ -591,7 +591,7 @@
             fechaDefaultInforme.setDate(1);
             fechaDefaultInforme.setMonth(fechaDefaultInforme.getMonth() - 1);
             mesInforme.value = mesLocal(fechaDefaultInforme);
-            mesInforme.max = mesLocal(new Date());
+            mesInforme.max = mesInforme.value;
 
             function escaparHtml(valor) {
                 return String(valor == null ? "" : valor).replace(/[&<>"']/g, function (caracter) {
@@ -625,8 +625,19 @@
                 }).join("");
             }
 
+            function filasRankingArtesanos(items) {
+                if (!Array.isArray(items) || !items.length) {
+                    return '<tr><td colspan="3">Sin clics de productos artesanales registrados</td></tr>';
+                }
+                return items.map(function (item, index) {
+                    return "<tr><td>" + (index + 1) + "</td><td>" + escaparHtml(item.artesano) +
+                        "</td><td>" + escaparHtml(item.clics) + "</td></tr>";
+                }).join("");
+            }
+
             function abrirInformePdf(informe, ventana) {
                 var empresas = informe.empresas_nuevas || {};
+                var artesanos = informe.artesanos_nuevos || {};
                 var clics = informe.clics_whatsapp || {};
                 var fechaGeneracion = new Date().toLocaleString("es-CO");
 
@@ -655,6 +666,9 @@
                     '</strong><span class="muted">Mes anterior: ' + escaparHtml(empresas.mes_anterior || 0) +
                     ' · Variación: ' + escaparHtml(formatearVariacion(empresas.variacion_porcentual)) +
                     ' · Incluye todos los estados</span></div>' +
+                    '<div class="metric">Artesanos registrados<strong>' + escaparHtml(artesanos.mes || 0) +
+                    '</strong><span class="muted">Mes anterior: ' + escaparHtml(artesanos.mes_anterior || 0) +
+                    ' · Variación: ' + escaparHtml(formatearVariacion(artesanos.variacion_porcentual)) + '</span></div>' +
                     '<div class="metric">Clics de WhatsApp<strong>' + escaparHtml(clics.mes || 0) +
                     '</strong><span class="muted">Mes anterior: ' + escaparHtml(clics.mes_anterior || 0) +
                     ' · Variación: ' + escaparHtml(formatearVariacion(clics.variacion_porcentual)) + '</span></div>' +
@@ -664,6 +678,12 @@
                     '<h2>Empresas más contactadas · ' + escaparHtml(formatearMes(informe.mes_anterior)) + '</h2>' +
                     '<table><thead><tr><th>#</th><th>Empresa</th><th>Clics</th></tr></thead><tbody>' +
                     filasRanking(clics.empresas_mas_contactadas_mes_anterior) + '</tbody></table>' +
+                    '<h2>Artesanos más contactados · ' + escaparHtml(formatearMes(informe.mes)) + '</h2>' +
+                    '<table><thead><tr><th>#</th><th>Artesano</th><th>Clics en sus productos</th></tr></thead><tbody>' +
+                    filasRankingArtesanos(clics.artesanos_mas_contactados) + '</tbody></table>' +
+                    '<h2>Artesanos más contactados · ' + escaparHtml(formatearMes(informe.mes_anterior)) + '</h2>' +
+                    '<table><thead><tr><th>#</th><th>Artesano</th><th>Clics en sus productos</th></tr></thead><tbody>' +
+                    filasRankingArtesanos(clics.artesanos_mas_contactados_mes_anterior) + '</tbody></table>' +
                     '<p class="muted">Fuente: registros transaccionales de TourismEasy (OLTP).</p>' +
                     '</body></html>'
                 );

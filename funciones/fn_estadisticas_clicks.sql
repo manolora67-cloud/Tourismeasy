@@ -6,6 +6,7 @@ AS $$
 DECLARE
     v_resumen JSONB;
     v_por_categoria JSONB;
+    v_por_producto JSONB;
     v_por_empresa JSONB;
     v_recientes JSONB;
 BEGIN
@@ -37,6 +38,47 @@ BEGIN
         GROUP BY L.TIPO_CATEGORIA
     ) datos;
 
+    SELECT COALESCE(
+        JSONB_AGG(
+            JSONB_BUILD_OBJECT(
+                'producto', datos.producto,
+                'cantidad', datos.cantidad
+            )
+            ORDER BY datos.cantidad DESC, datos.producto
+        ),
+        '[]'::JSONB
+    )
+    INTO v_por_producto
+    FROM (
+        SELECT
+            COALESCE(
+                CASE L.TIPO_CATEGORIA
+                    WHEN 'Transporte' THEN NULLIF(BTRIM(CONCAT_WS(' → ', T.ORIGEN, T.DESTINO)), '')
+                    WHEN 'Hospedaje' THEN NULLIF(BTRIM(H.NOM_HOSPEDAJE), '')
+                    WHEN 'Plan' THEN NULLIF(BTRIM(P.NOM_PLAN_TURISTICO), '')
+                    WHEN 'Artesanía' THEN NULLIF(BTRIM(A.NOM_PRODUCTO), '')
+                END,
+                'Producto #' || L.ID_PRODUCTO
+            ) AS producto,
+            COUNT(*) AS cantidad
+        FROM LOGS_CLICS_WEB_EXTERNOS L
+        LEFT JOIN TRANSPORTE T
+            ON L.TIPO_CATEGORIA = 'Transporte'
+           AND T.ID_TRANSPORTE::VARCHAR = L.ID_PRODUCTO
+        LEFT JOIN HOSPEDAJE H
+            ON L.TIPO_CATEGORIA = 'Hospedaje'
+           AND H.ID_HOSPEDAJE::VARCHAR = L.ID_PRODUCTO
+        LEFT JOIN PLANES_TURISTICOS P
+            ON L.TIPO_CATEGORIA = 'Plan'
+           AND P.ID_PLAN_TURISTICO::VARCHAR = L.ID_PRODUCTO
+        LEFT JOIN PRODUCTOS_ARTESANALES A
+            ON L.TIPO_CATEGORIA = 'Artesanía'
+           AND A.ID_PRODUCTO::VARCHAR = L.ID_PRODUCTO
+        WHERE p_id_empresa IS NULL OR L.ID_EMPRESA = p_id_empresa
+        GROUP BY L.TIPO_CATEGORIA, L.ID_PRODUCTO, T.ORIGEN, T.DESTINO,
+                 H.NOM_HOSPEDAJE, P.NOM_PLAN_TURISTICO, A.NOM_PRODUCTO
+    ) datos;
+
     IF p_id_empresa IS NULL THEN
         SELECT COALESCE(
             JSONB_AGG(
@@ -66,6 +108,7 @@ BEGIN
                 'empresa', datos.empresa,
                 'categoria', datos.categoria,
                 'id_producto', datos.id_producto,
+                'producto', datos.producto,
                 'ciudad', datos.ciudad,
                 'dispositivo', datos.dispositivo
             )
@@ -81,11 +124,32 @@ BEGIN
             COALESCE(E.NOM_EMPRESA, 'Contacto artesanal') AS empresa,
             L.TIPO_CATEGORIA AS categoria,
             L.ID_PRODUCTO AS id_producto,
+            COALESCE(
+                CASE L.TIPO_CATEGORIA
+                    WHEN 'Transporte' THEN NULLIF(BTRIM(CONCAT_WS(' → ', T.ORIGEN, T.DESTINO)), '')
+                    WHEN 'Hospedaje' THEN NULLIF(BTRIM(H.NOM_HOSPEDAJE), '')
+                    WHEN 'Plan' THEN NULLIF(BTRIM(P.NOM_PLAN_TURISTICO), '')
+                    WHEN 'Artesanía' THEN NULLIF(BTRIM(A.NOM_PRODUCTO), '')
+                END,
+                'Producto #' || L.ID_PRODUCTO
+            ) AS producto,
             C.NOM_CIUDAD AS ciudad,
             L.USER_AGENT AS dispositivo
         FROM LOGS_CLICS_WEB_EXTERNOS L
         LEFT JOIN EMPRESAS E ON E.ID_EMPRESA = L.ID_EMPRESA
         LEFT JOIN CIUDADES C ON C.ID_CIUDAD = L.ID_CIUDAD
+        LEFT JOIN TRANSPORTE T
+            ON L.TIPO_CATEGORIA = 'Transporte'
+           AND T.ID_TRANSPORTE::VARCHAR = L.ID_PRODUCTO
+        LEFT JOIN HOSPEDAJE H
+            ON L.TIPO_CATEGORIA = 'Hospedaje'
+           AND H.ID_HOSPEDAJE::VARCHAR = L.ID_PRODUCTO
+        LEFT JOIN PLANES_TURISTICOS P
+            ON L.TIPO_CATEGORIA = 'Plan'
+           AND P.ID_PLAN_TURISTICO::VARCHAR = L.ID_PRODUCTO
+        LEFT JOIN PRODUCTOS_ARTESANALES A
+            ON L.TIPO_CATEGORIA = 'Artesanía'
+           AND A.ID_PRODUCTO::VARCHAR = L.ID_PRODUCTO
         WHERE p_id_empresa IS NULL OR L.ID_EMPRESA = p_id_empresa
         ORDER BY L.FECHA_HORA DESC, L.ID_CLICK DESC
         LIMIT 15
@@ -94,6 +158,7 @@ BEGIN
     RETURN JSONB_BUILD_OBJECT(
         'resumen', v_resumen,
         'por_categoria', v_por_categoria,
+        'por_producto', v_por_producto,
         'por_empresa', v_por_empresa,
         'recientes', v_recientes
     );

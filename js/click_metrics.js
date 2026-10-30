@@ -48,23 +48,34 @@
         dashboard.querySelector("[data-clicks-30-days]").textContent =
             Number(data.resumen.ultimos_30_dias).toLocaleString("es-CO");
 
+        var isAdmin = data.rol === "admin";
+        var breakdownHeading = dashboard.querySelector("[data-clicks-breakdown-heading]");
+        if (breakdownHeading) {
+            breakdownHeading.textContent = isAdmin ? "Clics por categoría" : "Clics por producto";
+        }
         showRows(
             dashboard.querySelector("[data-clicks-categories]"),
-            data.por_categoria,
+            isAdmin ? data.por_categoria : data.por_producto,
             [
-                { key: "categoria" },
+                { key: isAdmin ? "categoria" : "producto" },
                 { key: "cantidad", format: function (value) { return Number(value).toLocaleString("es-CO"); } },
             ],
             "Aún no hay clics registrados."
         );
-        var recentColumns = [
-            { key: "fecha_hora", format: formatDate },
-            { key: "empresa" },
-            { key: "categoria" },
-            { key: "id_producto" },
-            { key: "ciudad" },
-        ];
-        if (data.rol === "admin") recentColumns.push({ key: "dispositivo" });
+        var recentColumns = isAdmin
+            ? [
+                { key: "fecha_hora", format: formatDate },
+                { key: "empresa" },
+                { key: "categoria" },
+                { key: "id_producto" },
+                { key: "ciudad" },
+                { key: "dispositivo" },
+            ]
+            : [
+                { key: "fecha_hora", format: formatDate },
+                { key: "producto" },
+                { key: "ciudad" },
+            ];
         showRows(
             dashboard.querySelector("[data-clicks-recent]"),
             data.recientes,
