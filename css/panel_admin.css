@@ -1989,6 +1989,8 @@ body.dark-mode .panel-navbar-label {
 }
 
 .monthly-report__month input {
+    width: 270px;
+    max-width: 100%;
     min-height: 42px;
     padding: 8px 11px;
     color: var(--gray-800);

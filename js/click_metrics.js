@@ -43,7 +43,7 @@
     }
 
     function render(data) {
-        dashboard.querySelector("[data-clicks-total]").textContent =
+        document.querySelector("[data-clicks-total]").textContent =
             Number(data.resumen.total).toLocaleString("es-CO");
         dashboard.querySelector("[data-clicks-30-days]").textContent =
             Number(data.resumen.ultimos_30_dias).toLocaleString("es-CO");
@@ -52,6 +52,10 @@
         var breakdownHeading = dashboard.querySelector("[data-clicks-breakdown-heading]");
         if (breakdownHeading) {
             breakdownHeading.textContent = isAdmin ? "Clics por categoría" : "Clics por producto";
+        }
+        var breakdownColumn = dashboard.querySelector("[data-clicks-breakdown-column]");
+        if (breakdownColumn) {
+            breakdownColumn.textContent = isAdmin ? "Categoría" : "Producto";
         }
         showRows(
             dashboard.querySelector("[data-clicks-categories]"),

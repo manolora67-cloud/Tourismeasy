@@ -84,6 +84,113 @@
     color: #b91c1c;
 }
 
+.company-monthly-report {
+    margin: -8px 0 28px;
+    padding: 22px 24px;
+    border: 1px solid rgba(148, 163, 184, .25);
+    border-radius: 16px;
+    background: var(--white, #fff);
+    box-shadow: 0 8px 24px rgba(15, 23, 42, .06);
+    color: var(--gray-800, #1e293b);
+}
+
+.company-monthly-report__heading {
+    margin-bottom: 16px;
+}
+
+.company-monthly-report__heading h2 {
+    margin: 0;
+    font-family: var(--font-head, Montserrat, sans-serif);
+    font-size: 1.1rem;
+}
+
+.company-monthly-report__heading h2 i {
+    margin-right: 7px;
+    color: var(--purple, #7c3aed);
+}
+
+.company-monthly-report__heading p {
+    margin: 4px 0 0;
+    color: var(--gray-500, #64748b);
+    font-size: .88rem;
+}
+
+.company-monthly-report__controls {
+    display: flex;
+    align-items: end;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 15px;
+    border: 1px solid rgba(148, 163, 184, .2);
+    border-radius: 12px;
+    background: rgba(124, 58, 237, .04);
+}
+
+.company-monthly-report__controls label {
+    display: grid;
+    gap: 6px;
+    color: var(--gray-600, #475569);
+    font-size: .82rem;
+    font-weight: 700;
+}
+
+.company-monthly-report__controls label i {
+    color: var(--purple, #7c3aed);
+}
+
+.company-monthly-report__controls input {
+    min-width: 250px;
+    min-height: 42px;
+    padding: 8px 11px;
+    border: 1px solid rgba(148, 163, 184, .4);
+    border-radius: 8px;
+    background: var(--white, #fff);
+    color: var(--gray-800, #1e293b);
+    font: inherit;
+}
+
+.company-monthly-report__controls input:focus-visible {
+    outline: 3px solid rgba(124, 58, 237, .2);
+    border-color: var(--purple, #7c3aed);
+}
+
+.company-monthly-report__controls button:disabled {
+    cursor: wait;
+    opacity: .7;
+}
+
+.company-monthly-report__status:empty {
+    display: none;
+}
+
+.company-monthly-report__status:not(:empty) {
+    margin: 12px 0 0;
+    padding: 10px 12px;
+    border: 1px solid rgba(148, 163, 184, .25);
+    border-radius: 9px;
+    color: var(--gray-600, #475569);
+    background: rgba(148, 163, 184, .08);
+    font-size: .82rem;
+}
+
+.company-monthly-report__status[data-state="success"] {
+    color: #166534;
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+}
+
+.company-monthly-report__status[data-state="error"] {
+    color: #b91c1c;
+    background: #fef2f2;
+    border-color: #fecaca;
+}
+
+.company-monthly-report__status[data-state="loading"] {
+    color: #5b21b6;
+    background: #f5f3ff;
+    border-color: #ddd6fe;
+}
+
 body.dark-mode .click-metrics {
     border-color: rgba(148, 163, 184, .2);
     background: #1e293b;
@@ -94,6 +201,53 @@ body.dark-mode .click-metrics__card {
     background: rgba(167, 139, 250, .12);
 }
 
+body.dark-mode .company-monthly-report {
+    border-color: rgba(148, 163, 184, .2);
+    background: #1e293b;
+    color: #f1f5f9;
+}
+
+body.dark-mode .company-monthly-report__heading p,
+body.dark-mode .company-monthly-report__controls label {
+    color: #94a3b8;
+}
+
+body.dark-mode .company-monthly-report__controls {
+    background: rgba(15, 23, 42, .55);
+    border-color: #334155;
+}
+
+body.dark-mode .company-monthly-report__controls input {
+    color-scheme: dark;
+    background: #0f172a;
+    border-color: #475569;
+    color: #f1f5f9;
+}
+
+body.dark-mode .company-monthly-report__status:not(:empty) {
+    color: #cbd5e1;
+    background: #0f172a;
+    border-color: #334155;
+}
+
+body.dark-mode .company-monthly-report__status[data-state="success"] {
+    color: #86efac;
+    background: rgba(22, 101, 52, .18);
+    border-color: rgba(74, 222, 128, .28);
+}
+
+body.dark-mode .company-monthly-report__status[data-state="error"] {
+    color: #fca5a5;
+    background: rgba(185, 28, 28, .16);
+    border-color: rgba(248, 113, 113, .28);
+}
+
+body.dark-mode .company-monthly-report__status[data-state="loading"] {
+    color: #c4b5fd;
+    background: rgba(91, 33, 182, .18);
+    border-color: rgba(167, 139, 250, .28);
+}
+
 @media (max-width: 640px) {
     .click-metrics {
         padding: 16px;
@@ -101,5 +255,21 @@ body.dark-mode .click-metrics__card {
 
     .click-metrics__heading {
         flex-direction: column;
+    }
+
+    .company-monthly-report {
+        padding: 16px;
+    }
+
+    .company-monthly-report__controls {
+        align-items: stretch;
+        flex-direction: column;
+        padding: 12px;
+    }
+
+    .company-monthly-report__controls input,
+    .company-monthly-report__controls button {
+        width: 100%;
+        min-width: 0;
     }
 }

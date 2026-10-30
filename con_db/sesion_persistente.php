@@ -16,11 +16,4 @@ function iniciarSesionPersistente(): void
         'samesite' => 'Lax',
     ]);
     session_start();
-    setcookie(session_name(), session_id(), [
-        'expires' => time() + $duracion,
-        'path' => '/',
-        'secure' => $seguro,
-        'httponly' => true,
-        'samesite' => 'Lax',
-    ]);
 }

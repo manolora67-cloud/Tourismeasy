@@ -59,9 +59,6 @@
                         <span>Tema</span><span class="pe-sidebar-row__val--gray" id="temaActual">Claro</span>
                     </div>
                     <div class="pe-sidebar-row">
-                        <span>Notificaciones</span><span class="pe-sidebar-row__val--verde">2 activas</span>
-                    </div>
-                    <div class="pe-sidebar-row">
                         <span>Idioma</span><span class="pe-sidebar-row__val--gray">Español</span>
                     </div>
                 </div>
@@ -171,40 +168,6 @@
                         </div>
                         <button class="pu-btn-secondary">Cambiar contraseña</button>
                     </div>
-                    <div class="pu-config-item">
-                        <div>
-                            <strong>Correo de contacto</strong>
-                            <p id="configEmail">Cargando...</p>
-                        </div>
-                        <button class="pu-btn-secondary">Cambiar correo</button>
-                    </div>
-                </div>
-
-                <!-- Notificaciones -->
-                <div class="pu-card">
-                    <h3 class="pu-card-title">
-                        <i class="fa-solid fa-bell"></i> Notificaciones
-                    </h3>
-                    <div class="pu-toggle-item">
-                        <div>
-                            <strong>Cancelaciones</strong>
-                            <p>Recibir alerta cuando se cancele una solicitud</p>
-                        </div>
-                        <label class="pu-toggle"><input type="checkbox" id="toggleNotifCancelaciones" checked /><span
-                                class="pu-toggle-slider"></span></label>
-                    </div>
-                    <div class="pu-toggle-item">
-                        <div>
-                            <strong>Boletín de TourismEasy</strong>
-                            <p>Novedades y estadísticas de la plataforma</p>
-                        </div>
-                        <label class="pu-toggle"><input type="checkbox" id="toggleNotifBoletin" /><span
-                                class="pu-toggle-slider"></span></label>
-                    </div>
-
-                    <button class="pu-btn-primary" id="btnGuardarConfigEmpresa">
-                        <i class="fa-solid fa-check"></i> Guardar preferencias
-                    </button>
                 </div>
 
                 <div class="pu-card">
@@ -388,9 +351,6 @@
             var nl = document.getElementById("navbarLabel");
             if (nl) nl.innerHTML = '<i class="fa-solid ' + icono + '"></i> Panel Empresa';
 
-            var em = document.getElementById("configEmail");
-            if (em) em.textContent = "Cargando...";
-
             document.title = "Configuración - TourismEasy";
             var md = document.getElementById("miembroDesde");
             if (md) md.textContent = "Cargando...";
@@ -435,7 +395,6 @@
                     var widgetAvatar = document.querySelector("#sessionWidget .session-avatar");
                     if (widgetName) widgetName.textContent = nombre;
                     if (widgetAvatar) widgetAvatar.textContent = iniciales;
-                    if (em) em.textContent = empresa.email_inst || "No registrado";
                     document.title = "Configuración - " + nombre + " - TourismEasy";
 
                     var fecha = String(empresa.fecha_registro || "").slice(0, 10).split("-");
@@ -479,25 +438,6 @@
                     if (md) md.textContent = "No disponible";
                 });
 
-            // Notificaciones activas: contar toggles encendidos
-            var toggles = document.querySelectorAll(".pu-toggle input[type=checkbox]");
-            var activas = 0;
-            toggles.forEach(function (t) {
-                if (t.checked) activas++;
-            });
-            var notifEl = document.querySelector(".pe-sidebar-row__val--verde");
-            if (notifEl) notifEl.textContent = activas + (activas === 1 ? " activa" : " activas");
-
-            // Actualizar contador al cambiar toggles
-            toggles.forEach(function (t) {
-                t.addEventListener("change", function () {
-                    var cnt = 0;
-                    toggles.forEach(function (x) {
-                        if (x.checked) cnt++;
-                    });
-                    if (notifEl) notifEl.textContent = cnt + (cnt === 1 ? " activa" : " activas");
-                });
-            });
         })();
 
         document
@@ -528,109 +468,6 @@
                     a.href = dest;
                 });
             } catch (e) { }
-        })();
-    </script>
-    <script>
-        // Configuración de la empresa (CONFIG_EMPRESA) - 100% desde la BD
-        (function () {
-            var sesion = {};
-            try {
-                sesion = JSON.parse((localStorage.getItem("te_session") || sessionStorage.getItem("te_session")) || "{}");
-            } catch (e) { }
-            if (!sesion.id) return;
-
-            var API_BASE = window.location.origin + '/Tourismeasy/login/';
-
-            var chkCancelaciones = document.getElementById("toggleNotifCancelaciones");
-            var chkBoletin = document.getElementById("toggleNotifBoletin");
-
-            function guardarConfig(campo, valor) {
-                return fetch(API_BASE + 'actualizar_config_empresa.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        id: sesion.id,
-                        campo: campo,
-                        valor: valor
-                    }),
-                }).catch(function (err) {
-                    console.error("No se pudo guardar la configuración:", err);
-                });
-            }
-
-            fetch(API_BASE + 'get_config_empresa.php?id=' + encodeURIComponent(sesion.id))
-                .then(function (r) {
-                    return r.json();
-                })
-                .then(function (data) {
-                    if (!data.ok || !data.config) return;
-                    var cfg = data.config;
-                    if (chkCancelaciones) chkCancelaciones.checked = !!cfg.notif_cancelaciones;
-                    if (chkBoletin) chkBoletin.checked = !!cfg.notif_boletin;
-
-                    // El tema guardado en la BD manda sobre lo detectado localmente
-                    if (cfg.tema_oscuro !== null && cfg.tema_oscuro !== undefined && typeof applyTheme === "function") {
-                        applyTheme(!!cfg.tema_oscuro);
-                    }
-
-                    // Recontar notificaciones activas en el sidebar con los valores reales
-                    var toggles = document.querySelectorAll(".pu-toggle input[type=checkbox]");
-                    var activas = 0;
-                    toggles.forEach(function (t) {
-                        if (t.checked) activas++;
-                    });
-                    var notifEl = document.querySelector(".pe-sidebar-row__val--verde");
-                    if (notifEl) notifEl.textContent = activas + (activas === 1 ? " activa" : " activas");
-                })
-                .catch(function (err) {
-                    console.error("No se pudo cargar la configuración:", err);
-                });
-
-            if (chkCancelaciones) {
-                chkCancelaciones.addEventListener("change", function () {
-                    guardarConfig("notif_cancelaciones", chkCancelaciones.checked);
-                });
-            }
-            if (chkBoletin) {
-                chkBoletin.addEventListener("change", function () {
-                    guardarConfig("notif_boletin", chkBoletin.checked);
-                });
-            }
-
-            // Persistir el tema en la BD cuando el usuario lo cambia manualmente
-            if (typeof darkModeBtn !== "undefined" && darkModeBtn) {
-                darkModeBtn.addEventListener("click", function () {
-                    guardarConfig("tema_oscuro", document.body.classList.contains("dark-mode"));
-                });
-            }
-            if (typeof themeToggle !== "undefined" && themeToggle) {
-                themeToggle.addEventListener("change", function () {
-                    guardarConfig("tema_oscuro", document.body.classList.contains("dark-mode"));
-                });
-            }
-
-            // Botón "Guardar preferencias": reenvía el estado actual de todo y confirma visualmente
-            var btnGuardarConfigEmpresa = document.getElementById("btnGuardarConfigEmpresa");
-            if (btnGuardarConfigEmpresa) {
-                btnGuardarConfigEmpresa.addEventListener("click", function () {
-                    var original = btnGuardarConfigEmpresa.innerHTML;
-                    var pendientes = [];
-                    if (chkCancelaciones) pendientes.push(guardarConfig("notif_cancelaciones", chkCancelaciones.checked));
-                    if (chkBoletin) pendientes.push(guardarConfig("notif_boletin", chkBoletin.checked));
-                    pendientes.push(guardarConfig("tema_oscuro", document.body.classList.contains("dark-mode")));
-
-                    btnGuardarConfigEmpresa.disabled = true;
-                    Promise.all(pendientes).then(function () {
-                        btnGuardarConfigEmpresa.innerHTML = '<i class="fa-solid fa-circle-check"></i> ¡Guardado!';
-                        setTimeout(function () {
-                            btnGuardarConfigEmpresa.innerHTML = original;
-                            btnGuardarConfigEmpresa.disabled = false;
-                        }, 1800);
-                    });
-                });
-            }
         })();
     </script>
 </body>

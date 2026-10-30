@@ -64,9 +64,6 @@
                         <span>Tema</span><span class="pe-sidebar-row__val--gray">Oscuro</span>
                     </div>
                     <div class="pe-sidebar-row">
-                        <span>Notificaciones</span><span style="color: #22c55e; font-weight: 600">3 activas</span>
-                    </div>
-                    <div class="pe-sidebar-row">
                         <span>Idioma</span><span class="pe-sidebar-row__val--gray">Español</span>
                     </div>
                     <div class="pe-sidebar-row">
@@ -79,15 +76,6 @@
                         <i class="fa-solid fa-rotate-left"></i> Cambios recientes
                     </p>
                     <div class="pe-actividad">
-                        <div class="pe-actividad-item">
-                            <div class="pe-actividad-icon pe-actividad-icon--verde">
-                                <i class="fa-solid fa-circle-dot"></i>
-                            </div>
-                            <div>
-                                <p class="pe-actividad-titulo">Notificaciones actualizadas</p>
-                                <p class="pe-actividad-hora">Hace 1 día</p>
-                            </div>
-                        </div>
                         <div class="pe-actividad-item">
                             <div class="pe-actividad-icon pe-actividad-icon--verde">
                                 <i class="fa-solid fa-circle-dot"></i>
@@ -178,47 +166,6 @@
                         </div>
                         <button class="pu-btn-secondary" id="btnCambiarContrasena" type="button">Cambiar contraseña</button>
                     </div>
-                    <div class="pu-config-item">
-                        <div>
-                            <strong>Correo de administrador</strong>
-                            <p id="configEmail">admin@tourismeasy.com</p>
-                        </div>
-                        <button class="pu-btn-secondary" id="btnCambiarCorreo" type="button">Cambiar correo</button>
-                    </div>
-                </div>
-
-                <div class="pu-card">
-                    <h3 class="pu-card-title">
-                        <i class="fa-solid fa-bell"></i> Notificaciones
-                    </h3>
-                    <div class="pu-toggle-item">
-                        <div>
-                            <strong>Cancelaciones</strong>
-                            <p>Recibir alerta cuando se cancele una solicitud</p>
-                        </div>
-                        <label class="pu-toggle"><input type="checkbox" id="toggleNotifCancelaciones" checked /><span
-                                class="pu-toggle-slider"></span></label>
-                    </div>
-                    <div class="pu-toggle-item">
-                        <div>
-                            <strong>Nuevas reseñas</strong>
-                            <p>Recibir alerta cuando un viajero deje una reseña</p>
-                        </div>
-                        <label class="pu-toggle"><input type="checkbox" id="toggleNotifResenas" checked /><span
-                                class="pu-toggle-slider"></span></label>
-                    </div>
-                    <div class="pu-toggle-item">
-                        <div>
-                            <strong>Boletín mensual</strong>
-                            <p>Estadísticas y novedades de TourismEasy</p>
-                        </div>
-                        <label class="pu-toggle"><input type="checkbox" id="toggleNotifBoletin" /><span
-                                class="pu-toggle-slider"></span></label>
-                    </div>
-
-                    <button class="pu-btn-primary" id="btnGuardarConfigAdmin">
-                        <i class="fa-solid fa-check"></i> Guardar preferencias
-                    </button>
                 </div>
 
                 <div class="pu-card pu-card--monthly-report">
@@ -333,10 +280,8 @@
             }
             var av = document.getElementById("sidebarAvatar");
             var nm = document.getElementById("sidebarNombre");
-            var em = document.getElementById("configEmail");
             if (av) av.textContent = u.avatar || "AD";
             if (nm) nm.textContent = u.nombre || "Administrador";
-            if (em) em.textContent = u.email || "admin@tourismeasy.com";
         })();
 
         // SESSION WIDGET
@@ -431,7 +376,6 @@
                     if (!data.ok || !data.admin) return;
                     var d = data.admin;
                     var nombreCompleto = ((d.nombre || "") + " " + (d.apellido || "")).trim() || sesion.nombre || "Administrador";
-                    var email = d.email_login || sesion.email || "admin@tourismeasy.com";
                     var initials = nombreCompleto.split(/\s+/).map(function (w) {
                         return w[0] || "";
                     }).join("").substring(0, 2).toUpperCase() || "AD";
@@ -439,77 +383,10 @@
                     if (av) av.textContent = initials;
                     var nm = document.getElementById("sidebarNombre");
                     if (nm) nm.textContent = nombreCompleto;
-                    var em = document.getElementById("configEmail");
-                    if (em) em.textContent = email;
                 })
                 .catch(function (err) {
                     console.error("No se pudo cargar el perfil del administrador:", err);
                 });
-
-            // Notificaciones y tema (CONFIG_ADMIN)
-            var chkCancelaciones = document.getElementById("toggleNotifCancelaciones");
-            var chkResenas = document.getElementById("toggleNotifResenas");
-            var chkBoletin = document.getElementById("toggleNotifBoletin");
-
-            function guardarConfig(campo, valor) {
-                return fetch(API_BASE + 'actualizar_config_admin.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        id: sesion.id,
-                        campo: campo,
-                        valor: valor
-                    }),
-                }).catch(function (err) {
-                    console.error("No se pudo guardar la configuración:", err);
-                });
-            }
-
-            fetch(API_BASE + 'get_config_admin.php?id=' + encodeURIComponent(sesion.id))
-                .then(function (r) {
-                    return r.json();
-                })
-                .then(function (data) {
-                    if (!data.ok || !data.config) return;
-                    var cfg = data.config;
-                    if (chkCancelaciones) chkCancelaciones.checked = !!cfg.notif_cancelaciones;
-                    if (chkResenas) chkResenas.checked = !!cfg.notif_resenas;
-                    if (chkBoletin) chkBoletin.checked = !!cfg.notif_boletin;
-
-                    // El tema guardado en la BD manda sobre lo detectado localmente
-                    if (cfg.tema_oscuro !== null && cfg.tema_oscuro !== undefined && typeof applyTheme === "function") {
-                        applyTheme(!!cfg.tema_oscuro);
-                        if (themeToggle) themeToggle.checked = !!cfg.tema_oscuro;
-                    }
-                })
-                .catch(function (err) {
-                    console.error("No se pudo cargar la configuración:", err);
-                });
-
-            if (chkCancelaciones) {
-                chkCancelaciones.addEventListener("change", function () {
-                    guardarConfig("notif_cancelaciones", chkCancelaciones.checked);
-                });
-            }
-            if (chkResenas) {
-                chkResenas.addEventListener("change", function () {
-                    guardarConfig("notif_resenas", chkResenas.checked);
-                });
-            }
-            if (chkBoletin) {
-                chkBoletin.addEventListener("change", function () {
-                    guardarConfig("notif_boletin", chkBoletin.checked);
-                });
-            }
-
-            var btnCambiarCorreo = document.getElementById("btnCambiarCorreo");
-            if (btnCambiarCorreo) {
-                btnCambiarCorreo.addEventListener("click", function () {
-                    window.location.href = "perfil_admin.html?editar=correo";
-                });
-            }
 
             var modalContrasena = document.getElementById("modalCambiarContrasena");
             var formContrasena = document.getElementById("formCambiarContrasena");
@@ -745,39 +622,6 @@
                     });
             });
 
-            // Persistir el tema en la BD cuando el usuario lo cambia manualmente
-            if (darkModeBtn) {
-                darkModeBtn.addEventListener("click", function () {
-                    guardarConfig("tema_oscuro", document.body.classList.contains("dark-mode"));
-                });
-            }
-            if (themeToggle) {
-                themeToggle.addEventListener("change", function () {
-                    guardarConfig("tema_oscuro", document.body.classList.contains("dark-mode"));
-                });
-            }
-
-            // Botón "Guardar preferencias": reenvía el estado actual de todo y confirma visualmente
-            var btnGuardarConfigAdmin = document.getElementById("btnGuardarConfigAdmin");
-            if (btnGuardarConfigAdmin) {
-                btnGuardarConfigAdmin.addEventListener("click", function () {
-                    var original = btnGuardarConfigAdmin.innerHTML;
-                    var pendientes = [];
-                    if (chkCancelaciones) pendientes.push(guardarConfig("notif_cancelaciones", chkCancelaciones.checked));
-                    if (chkResenas) pendientes.push(guardarConfig("notif_resenas", chkResenas.checked));
-                    if (chkBoletin) pendientes.push(guardarConfig("notif_boletin", chkBoletin.checked));
-                    if (themeToggle) pendientes.push(guardarConfig("tema_oscuro", document.body.classList.contains("dark-mode")));
-
-                    btnGuardarConfigAdmin.disabled = true;
-                    Promise.all(pendientes).then(function () {
-                        btnGuardarConfigAdmin.innerHTML = '<i class="fa-solid fa-circle-check"></i> ¡Guardado!';
-                        setTimeout(function () {
-                            btnGuardarConfigAdmin.innerHTML = original;
-                            btnGuardarConfigAdmin.disabled = false;
-                        }, 1800);
-                    });
-                });
-            }
         })();
     </script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>

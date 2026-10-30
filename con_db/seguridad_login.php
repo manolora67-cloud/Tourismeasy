@@ -157,7 +157,7 @@ function validarSesionActivaEnBD($pdo): void
     ]);
 
     if (!in_array($stmt->fetchColumn(), [true, 't', 'true', '1', 1], true)) {
-        destruirSesionActual();
+        destruirSesionActual(false);
     }
 }
 
@@ -197,10 +197,10 @@ function cerrarSesionActiva($pdo): bool
     return in_array($stmt->fetchColumn(), [true, 't', 'true', '1', 1], true);
 }
 
-function destruirSesionActual(): void
+function destruirSesionActual(bool $eliminarCookies = true): void
 {
     $_SESSION = [];
-    if (ini_get('session.use_cookies')) {
+    if ($eliminarCookies && ini_get('session.use_cookies')) {
         $params = session_get_cookie_params();
         setcookie(session_name(), '', [
             'expires' => time() - 42000,
@@ -211,6 +211,8 @@ function destruirSesionActual(): void
             'samesite' => 'Lax',
         ]);
     }
-    borrarCookieDispositivo();
+    if ($eliminarCookies) {
+        borrarCookieDispositivo();
+    }
     session_destroy();
 }
