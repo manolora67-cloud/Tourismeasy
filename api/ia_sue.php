@@ -4,7 +4,22 @@ header('Content-Type: application/json; charset=utf-8');
 $raw = file_get_contents('php://input');
 $input = json_decode($raw, true);
 $question = trim($input['question'] ?? '');
-$systemPrompt = trim($input['context'] ?? '');
+$history = $input['history'] ?? [];
+if (!is_array($history)) {
+    $history = [];
+}
+$history = array_values(array_filter(
+    $history,
+    static fn($message) =>
+        is_array($message)
+        && in_array($message['role'] ?? null, ['user', 'assistant'], true)
+        && is_string($message['content'] ?? null)
+        && !(
+            ($message['role'] ?? null) === 'assistant'
+            && preg_match('/base\s+de\s+datos|datos?\s+registrad[oa]s?\s+en\s+la\s+base/iu', $message['content']) === 1
+        )
+));
+$history = array_slice($history, -10);
 
 function identificarCategoriaCatalogo(string $question): ?string
 {
@@ -46,24 +61,120 @@ function cargarDatosCatalogo(string $categoria): array
     return $resultados;
 }
 
+function normalizarTextoMunicipio(string $texto): string
+{
+    $texto = mb_strtolower(trim($texto), 'UTF-8');
+    return strtr($texto, [
+        'á' => 'a',
+        'é' => 'e',
+        'í' => 'i',
+        'ó' => 'o',
+        'ú' => 'u',
+        'ü' => 'u',
+    ]);
+}
+
+function buscarMunicipiosMencionados(string $question): array
+{
+    $municipios = cargarDatosCatalogo('municipios');
+    $preguntaNormalizada = normalizarTextoMunicipio($question);
+    $mencionados = [];
+
+    foreach ($municipios as $municipio) {
+        $nombre = trim((string)($municipio['municipio'] ?? ''));
+        if ($nombre === '') {
+            continue;
+        }
+
+        $nombreNormalizado = preg_quote(normalizarTextoMunicipio($nombre), '/');
+        if (
+            preg_match(
+                '/(?<![\p{L}\p{N}])' . $nombreNormalizado . '(?![\p{L}\p{N}])/u',
+                $preguntaNormalizada
+            ) === 1
+        ) {
+            $mencionados[] = $nombre;
+        }
+    }
+
+    return array_values(array_unique($mencionados));
+}
+
+function respuestaMunicipiosSantander(array $municipios): string
+{
+    $nombres = count($municipios) > 1
+        ? implode(', ', array_slice($municipios, 0, -1)) . ' y ' . end($municipios)
+        : $municipios[0];
+
+    return "{$nombres} " . (count($municipios) > 1 ? 'son municipios' : 'es un municipio') .
+        " de Santander, Colombia. En TourismEasy puedo ayudarte a consultar opciones de transporte, hospedaje y planes turísticos para esos destinos.";
+}
+
 function formatearDatosCatalogo(string $categoria, array $resultados): string
 {
     if ($resultados === []) {
-        return 'No encontré información disponible en la base de datos para esa categoría.';
+        return 'No encontré opciones disponibles para esa categoría.';
     }
 
-    $respuesta = "Información consultada en la base de datos ({$categoria}):\n";
+    $etiquetasCategoria = [
+        'transportes' => 'transportes',
+        'hospedajes' => 'hospedajes',
+        'planes' => 'planes turísticos',
+        'productos' => 'productos artesanales',
+        'artesanos' => 'artesanos',
+        'empresas' => 'empresas turísticas',
+        'festividades' => 'festividades',
+        'municipios' => 'municipios',
+    ];
+    $camposVisibles = [
+        'transportes' => ['origen', 'destino', 'fecha_salida', 'hora_salida', 'precio', 'empresa', 'nombre_clase'],
+        'hospedajes' => ['nombre', 'tipo', 'ciudad', 'precio_noche', 'accesibilidad', 'capacidad_max', 'empresa', 'servicios'],
+        'planes' => ['nombre', 'tipo', 'ciudad', 'precio', 'duracion', 'accesibilidad', 'empresa', 'incluye', 'descripcion'],
+        'productos' => ['nombre', 'categoria', 'precio', 'municipio', 'artesano', 'descripcion'],
+        'artesanos' => ['artesano', 'productos', 'municipios'],
+        'empresas' => ['empresa', 'servicio', 'municipio', 'departamento', 'correo', 'telefono'],
+        'festividades' => ['fecha', 'titulo', 'detalle', 'descripcion', 'tipo', 'municipio'],
+        'municipios' => ['municipio', 'departamento'],
+    ];
+    $etiquetasCampo = [
+        'fecha_salida' => 'fecha',
+        'hora_salida' => 'hora',
+        'precio_noche' => 'por noche',
+        'nombre_clase' => 'clase',
+        'capacidad_max' => 'capacidad',
+        'tipo' => 'tipo',
+        'incluye' => 'incluye',
+    ];
+    $etiquetaCategoria = $etiquetasCategoria[$categoria] ?? 'opciones turísticas';
+    $campos = $camposVisibles[$categoria] ?? [];
+    $cantidadVisible = min(count($resultados), 5);
+    $respuesta = "Encontré estas opciones de {$etiquetaCategoria}:\n";
 
-    foreach ($resultados as $resultado) {
+    foreach (array_slice($resultados, 0, 5) as $resultado) {
         $detalles = [];
-        foreach ($resultado as $campo => $valor) {
+        foreach ($campos as $campo) {
+            $valor = $resultado[$campo] ?? null;
             if ($valor === null || $valor === '' || is_array($valor)) {
                 continue;
             }
 
-            $detalles[] = str_replace('_', ' ', $campo) . ': ' . $valor;
+            if (in_array($campo, ['precio', 'precio_noche'], true) && is_numeric($valor)) {
+                $valor = '$' . number_format((float)$valor, 0, ',', '.');
+            } elseif (in_array($campo, ['descripcion', 'incluye', 'servicios'], true)) {
+                $valor = mb_substr(trim((string)$valor), 0, 140, 'UTF-8');
+                if (mb_strlen((string)($resultado[$campo] ?? ''), 'UTF-8') > 140) {
+                    $valor .= '…';
+                }
+            }
+
+            $etiqueta = $etiquetasCampo[$campo] ?? str_replace('_', ' ', $campo);
+            $detalles[] = "{$etiqueta}: {$valor}";
         }
         $respuesta .= "\n• " . implode(' · ', $detalles);
+    }
+
+    if (count($resultados) > $cantidadVisible) {
+        $respuesta .= "\n\nTe muestro las primeras {$cantidadVisible} opciones.";
     }
 
     return $respuesta;
@@ -78,6 +189,27 @@ if ($question === '') {
 }
 
 $categoriaCatalogo = identificarCategoriaCatalogo($question);
+if (
+    $categoriaCatalogo === null
+    && (
+        preg_match('/\b(sobre|municipios?|ciudades?|pueblos?|destinos?|en|de|visitar|conocer|viajar)\b/ui', $question) === 1
+        || preg_match('/^\W*[\p{L}\p{M}][\p{L}\p{M}\s,.-]{2,40}\W*$/u', $question) === 1
+    )
+) {
+    try {
+        $municipiosMencionados = buscarMunicipiosMencionados($question);
+        if ($municipiosMencionados !== []) {
+            echo json_encode([
+                'success' => true,
+                'response' => respuestaMunicipiosSantander($municipiosMencionados),
+            ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+            exit;
+        }
+    } catch (Throwable $e) {
+        error_log('[TourismEasy IA] No se pudieron verificar municipios: ' . $e->getMessage());
+    }
+}
+
 $datosCatalogo = null;
 if ($categoriaCatalogo !== null) {
     try {
@@ -91,13 +223,11 @@ if ($categoriaCatalogo !== null) {
         exit;
     }
 
-    if ($datosCatalogo === []) {
-        echo json_encode([
-            'success' => true,
-            'response' => formatearDatosCatalogo($categoriaCatalogo, $datosCatalogo),
-        ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
-        exit;
-    }
+    echo json_encode([
+        'success' => true,
+        'response' => formatearDatosCatalogo($categoriaCatalogo, $datosCatalogo),
+    ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+    exit;
 }
 
 $groqKey = require __DIR__ . '/config.php';
@@ -175,11 +305,11 @@ if (!$groqKey) {
     exit;
 }
 
-$promptAsistente = $systemPrompt ?: 'Eres Sue, la asistente virtual de TourismEasy, especializada en turismo inclusivo en Santander, Colombia. Responde en español, de forma clara, cordial y concisa. No inventes datos de servicios.';
+$promptAsistente = 'Eres Sue, la asistente virtual de TourismEasy, enfocada exclusivamente en turismo, viajes, destinos y servicios turísticos de Santander, Colombia. Responde siempre en español, con amabilidad, brevedad y empatía. Limita tus respuestas a esos temas y a las funciones de TourismEasy. Si preguntan sobre fútbol, política, tareas, cultura general u otro tema ajeno al turismo, explica amablemente que solo puedes ayudar con turismo y ofrece orientar sobre destinos, transporte, hospedaje, planes, artesanías, festividades, municipios o accesibilidad. No menciones bases de datos, consultas, fuentes internas ni detalles técnicos de cómo obtienes la información. No inventes datos de servicios ni contradigas la información proporcionada. Máximo tres párrafos cortos.';
 if ($datosCatalogo !== null && $categoriaCatalogo !== null) {
-    $promptAsistente .= "\n\nDatos de {$categoriaCatalogo} consultados en la base de datos:\n";
+    $promptAsistente .= "\n\nInformación disponible sobre {$categoriaCatalogo}:\n";
     $promptAsistente .= json_encode($datosCatalogo, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
-    $promptAsistente .= "\nUsa solo estos datos para responder sobre esta categoría. No inventes ni completes información que no aparezca aquí.";
+    $promptAsistente .= "\nUsa solo esta información para responder sobre esos servicios. No inventes ni completes información que no aparezca aquí.";
 }
 
 $url = 'https://api.groq.com/openai/v1/chat/completions';
@@ -187,10 +317,17 @@ $payload = [
     'model' => 'openai/gpt-oss-120b',
     'messages' => [
         ['role' => 'system', 'content' => $promptAsistente],
+        ...array_map(
+            static fn($message) => [
+                'role' => $message['role'],
+                'content' => mb_substr($message['content'], 0, 1500, 'UTF-8'),
+            ],
+            $history
+        ),
         ['role' => 'user', 'content' => $question],
     ],
     'temperature' => 0.7,
-    'max_completion_tokens' => 450,
+    'max_completion_tokens' => 700,
     'top_p' => 0.95,
 ];
 
@@ -251,7 +388,10 @@ if (!isset($data['choices'][0]['message']['content'])) {
 
 $answer = trim($data['choices'][0]['message']['content']);
 
-if ($answer === '') {
+if (
+    $answer === ''
+    || preg_match('/base\s+de\s+datos|datos?\s+registrad[oa]s?\s+en\s+la\s+base/iu', $answer) === 1
+) {
     echo json_encode(
         respuestaConDatosOFallback($question, $datosCatalogo, $categoriaCatalogo),
         JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE

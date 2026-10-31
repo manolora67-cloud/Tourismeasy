@@ -1,0 +1,62 @@
+.destinos-mapa {
+    margin: 0 0 44px;
+}
+
+.destinos-mapa .section-title {
+    margin-bottom: 8px;
+}
+
+.destinos-mapa p {
+    margin-bottom: 18px;
+    color: var(--gray-600);
+    line-height: 1.6;
+}
+
+#mapa-turistico {
+    width: 100%;
+    height: clamp(340px, 48vw, 520px);
+    overflow: hidden;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius);
+    background: var(--gray-200);
+    box-shadow: var(--shadow-card);
+    z-index: 0;
+}
+
+#mapa-turistico .leaflet-popup-content {
+    margin: 14px 18px;
+    font-family: var(--font-body);
+    line-height: 1.55;
+}
+
+#mapa-turistico .leaflet-popup-content strong {
+    color: #1e293b;
+    font-family: var(--font-head);
+    font-size: 1rem;
+}
+
+#mapa-turistico .mapa-destino-link {
+    display: inline-block;
+    margin-top: 8px;
+    color: var(--purple-dark);
+    font-weight: 700;
+}
+
+#mapa-turistico .mapa-destino-link:hover {
+    color: var(--purple);
+    text-decoration: underline;
+}
+
+body.dark-mode .destinos-mapa p {
+    color: var(--gray-600);
+}
+
+@media (max-width: 600px) {
+    .destinos-mapa {
+        margin-bottom: 32px;
+    }
+
+    #mapa-turistico {
+        height: 380px;
+    }
+}

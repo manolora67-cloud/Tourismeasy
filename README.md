@@ -5,6 +5,7 @@ TourismEasy es una plataforma web de turismo inclusivo enfocada en Santander, Co
 ## Funcionalidades
 
 - Exploración de destinos, planes turísticos, hospedajes y transporte.
+- Mapa interactivo en la portada con Barichara, Vélez, Socorro, San Gil, Barrancabermeja, Curití, Los Santos, Guadalupe, Zapatoca y Molagavita. Está implementado con Leaflet y usa mapas de OpenStreetMap; sus archivos propios están en [mapa_interactuable/](mapa_interactuable/). No requiere clave de API, pero sí conexión a internet para cargar Leaflet y los mapas.
 - Acceso para administración y empresas, con solicitud de registro empresarial.
 - Carrusel de los 87 municipios de Santander en la portada, con ocho tarjetas por página y navegación con flechas. Los nombres se consultan de la tabla `CIUDADES`; cada municipio tiene una tarjeta descrita en [componentes/destinos.js](componentes/destinos.js) y una ficha de destino propia en `ARTICULOS` de [componentes/articulos.js](componentes/articulos.js). Desde el panel se pueden actualizar las imágenes y los videos.
 - Atención y contacto de viajeros por WhatsApp; no se crean cuentas de viajeros.
@@ -22,7 +23,7 @@ TourismEasy es una plataforma web de turismo inclusivo enfocada en Santander, Co
 - Backend: PHP.
 - Base de datos: PostgreSQL mediante PDO.
 - Correo: PHPMailer, instalado con Composer.
-- Servicios externos: Groq para el asistente y Cloudinary para imágenes.
+- Servicios externos: Groq para el asistente, Cloudinary para imágenes, Leaflet desde un CDN y mapas de OpenStreetMap.
 
 ## Requisitos
 
@@ -69,7 +70,10 @@ El servidor integrado de PHP es para desarrollo local, no para producción. Para
 | [con_db/](con_db/) | Conexión PDO y utilidades de sesión. |
 | [db/](db/) | Esquema y datos iniciales de PostgreSQL. |
 | [funciones/](funciones/) | Funciones SQL utilizadas por el backend. |
+| [mapa_interactuable/](mapa_interactuable/) | JavaScript y estilos del mapa turístico de la portada. |
 | [img/](img/), [audio-video/](audio-video/) | Recursos multimedia del sitio. Las imágenes subidas se alojan en Cloudinary. |
+
+Leaflet 1.9.4 se carga desde el CDN de unpkg mediante etiquetas `<link>` y `<script>` en [index.html](index.html); no se instaló ni descargó con un comando o gestor de paquetes. Los mosaicos del mapa se solicitan a OpenStreetMap y muestran su atribución en pantalla.
 
 ## Configuración y seguridad
 

@@ -267,8 +267,7 @@ ul {
     height: 100%;
     object-fit: cover;
     z-index: 0;
-    /* Efecto de zoom suave en loop para dar movimiento */
-    animation: zoomVideo 20s infinite alternate ease-in-out;
+    transform: scale(1.05);
 }
 
 
@@ -392,18 +391,6 @@ ul {
     width: 100%;
     max-width: 500px;
     margin-top: 16px;
-}
-
-
-/* Animación del zoom del video del hero */
-
-@keyframes zoomVideo {
-    from {
-        transform: scale(1);
-    }
-    to {
-        transform: scale(1.1);
-    }
 }
 
 
