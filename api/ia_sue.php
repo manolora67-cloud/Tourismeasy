@@ -6,12 +6,98 @@ $input = json_decode($raw, true);
 $question = trim($input['question'] ?? '');
 $systemPrompt = trim($input['context'] ?? '');
 
+function identificarCategoriaCatalogo(string $question): ?string
+{
+    $question = mb_strtolower($question, 'UTF-8');
+
+    $categorias = [
+        'transportes' => '/\b(transportes?|rutas?|buses?|autobuses?)\b/u',
+        'hospedajes' => '/\b(hospedajes?|hoteles?|alojamientos?|hostales?|posadas?)\b/u',
+        'planes' => '/\b(planes?|tours?|paquetes?|excursiones?|experiencias?|actividades?)\b/u',
+        'productos' => '/\b(productos?|artesan[ií]as?|bisuter[ií]a|alfarer[ií]a|talleres?)\b/u',
+        'artesanos' => '/\b(artesanos?|artesanas?)\b/u',
+        'empresas' => '/\b(empresas?|operadores?)\b/u',
+        'festividades' => '/\b(festividades?|fiestas?|festivales?|ferias?)\b/u',
+        'municipios' => '/\b(municipios?|ciudades?|pueblos?|destinos?)\b/u',
+    ];
+
+    foreach ($categorias as $categoria => $patron) {
+        if (preg_match($patron, $question) === 1) {
+            return $categoria;
+        }
+    }
+
+    return null;
+}
+
+function cargarDatosCatalogo(string $categoria): array
+{
+    require_once __DIR__ . '/../con_db/db.php';
+
+    $stmt = $pdo->prepare('SELECT fn_consultar_catalogo_sue(:categoria)');
+    $stmt->execute(['categoria' => $categoria]);
+    $datos = $stmt->fetchColumn();
+    $resultados = json_decode((string)$datos, true);
+
+    if (!is_array($resultados)) {
+        throw new RuntimeException('La consulta de catálogo devolvió una respuesta inválida.');
+    }
+
+    return $resultados;
+}
+
+function formatearDatosCatalogo(string $categoria, array $resultados): string
+{
+    if ($resultados === []) {
+        return 'No encontré información disponible en la base de datos para esa categoría.';
+    }
+
+    $respuesta = "Información consultada en la base de datos ({$categoria}):\n";
+
+    foreach ($resultados as $resultado) {
+        $detalles = [];
+        foreach ($resultado as $campo => $valor) {
+            if ($valor === null || $valor === '' || is_array($valor)) {
+                continue;
+            }
+
+            $detalles[] = str_replace('_', ' ', $campo) . ': ' . $valor;
+        }
+        $respuesta .= "\n• " . implode(' · ', $detalles);
+    }
+
+    return $respuesta;
+}
+
 if ($question === '') {
     echo json_encode([
         'success' => false,
         'error' => 'No se recibió ninguna pregunta.',
     ], JSON_UNESCAPED_UNICODE);
     exit;
+}
+
+$categoriaCatalogo = identificarCategoriaCatalogo($question);
+$datosCatalogo = null;
+if ($categoriaCatalogo !== null) {
+    try {
+        $datosCatalogo = cargarDatosCatalogo($categoriaCatalogo);
+    } catch (Throwable $e) {
+        error_log('[TourismEasy IA] No se pudo consultar el catálogo: ' . $e->getMessage());
+        echo json_encode([
+            'success' => true,
+            'response' => 'No pude consultar esa información ahora mismo. Inténtalo de nuevo más tarde.',
+        ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+        exit;
+    }
+
+    if ($datosCatalogo === []) {
+        echo json_encode([
+            'success' => true,
+            'response' => formatearDatosCatalogo($categoriaCatalogo, $datosCatalogo),
+        ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+        exit;
+    }
 }
 
 $groqKey = require __DIR__ . '/config.php';
@@ -69,37 +155,38 @@ function fallbackResponse(string $question): array
     ];
 }
 
+function respuestaConDatosOFallback(string $question, ?array $datosCatalogo, ?string $categoria): array
+{
+    if ($datosCatalogo !== null && $categoria !== null) {
+        return [
+            'success' => true,
+            'response' => formatearDatosCatalogo($categoria, $datosCatalogo),
+        ];
+    }
+
+    return fallbackResponse($question);
+}
+
 if (!$groqKey) {
-    echo json_encode(fallbackResponse($question), JSON_UNESCAPED_UNICODE);
+    echo json_encode(
+        respuestaConDatosOFallback($question, $datosCatalogo, $categoriaCatalogo),
+        JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE
+    );
     exit;
+}
+
+$promptAsistente = $systemPrompt ?: 'Eres Sue, la asistente virtual de TourismEasy, especializada en turismo inclusivo en Santander, Colombia. Responde en español, de forma clara, cordial y concisa. No inventes datos de servicios.';
+if ($datosCatalogo !== null && $categoriaCatalogo !== null) {
+    $promptAsistente .= "\n\nDatos de {$categoriaCatalogo} consultados en la base de datos:\n";
+    $promptAsistente .= json_encode($datosCatalogo, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+    $promptAsistente .= "\nUsa solo estos datos para responder sobre esta categoría. No inventes ni completes información que no aparezca aquí.";
 }
 
 $url = 'https://api.groq.com/openai/v1/chat/completions';
 $payload = [
     'model' => 'openai/gpt-oss-120b',
     'messages' => [
-        ['role' => 'system', 'content' => $systemPrompt ?: 'Eres Sue, la asistente virtual de TourismEasy, especializada en turismo inclusivo en el departamento de Santander, Colombia.
-
-TU FUNCIÓN:
-- Tu propósito es ayudar principalmente con turismo dentro del departamento de Santander, Colombia.
-- Puedes conversar de forma natural y responder preguntas relacionadas con destinos, municipios, ciudades, lugares turísticos, actividades, planes, transporte, hospedaje, gastronomía, cultura, naturaleza, eventos turísticos, rutas y accesibilidad.
-- NO limites Santander a una lista cerrada de municipios o destinos. Cualquier municipio, corregimiento, vereda, atractivo o lugar de Santander que el usuario mencione puede ser relevante.
-- Si el usuario menciona un municipio o ciudad sin indicar país o departamento, cuando exista un municipio con ese nombre en Santander debes priorizar la interpretación de Santander, Colombia.
-- En particular, “Málaga” significa Málaga, Santander, Colombia, salvo que el usuario diga expresamente que se refiere a Málaga, España u otro lugar.
-- Esta misma regla de contexto aplica a cualquier otro nombre geográfico ambiguo que pueda corresponder a Santander.
-
-ÁMBITO DE RESPUESTA:
-- Mantén el enfoque de Sue en turismo y viajes en Santander.
-- Si una pregunta general tiene relación útil con un viaje, una visita o una actividad turística en Santander, puedes responderla y contextualizarla.
-- Si el usuario pregunta por turismo fuera de Santander, aclara amablemente que Sue está especializada en Santander, Colombia, y orienta la conversación hacia alternativas en Santander.
-- No inventes datos específicos como horarios, precios, disponibilidad, rutas, establecimientos, eventos o servicios. Si no tienes información suficiente, dilo claramente.
-- Da prioridad al turismo inclusivo y a las necesidades de accesibilidad cuando sean relevantes.
-- Responde en español, de forma clara, natural, útil y cordial.
-
-IMPORTANTE:
-- No confundas municipios o lugares de Santander con lugares de España u otros países.
-- No asumas que una ciudad o municipio de Santander está limitada a los ejemplos mencionados en estas instrucciones.
-- Usa el contexto de Santander, Colombia como referencia geográfica principal para TourismEasy.'],
+        ['role' => 'system', 'content' => $promptAsistente],
         ['role' => 'user', 'content' => $question],
     ],
     'temperature' => 0.7,
@@ -118,11 +205,21 @@ $context = stream_context_create([
     ],
 ]);
 
-$response = @file_get_contents($url, false, $context);
+$responseStream = @fopen($url, 'rb', false, $context);
+$response = $responseStream === false ? false : stream_get_contents($responseStream);
+$responseHeaders = [];
+if ($responseStream !== false) {
+    $streamMetadata = stream_get_meta_data($responseStream);
+    $responseHeaders = is_array($streamMetadata['wrapper_data'] ?? null)
+        ? $streamMetadata['wrapper_data']
+        : [];
+    fclose($responseStream);
+}
+
 $httpCode = 0;
 $curlError = '';
-if (isset($http_response_header) && is_array($http_response_header)) {
-    foreach ($http_response_header as $headerLine) {
+if ($responseHeaders !== []) {
+    foreach ($responseHeaders as $headerLine) {
         if (preg_match('#^HTTP/\d\.\d\s+(\d+)#', $headerLine, $matches)) {
             $httpCode = (int) $matches[1];
             break;
@@ -135,23 +232,30 @@ if ($response === false) {
 
 if ($response === false || $httpCode !== 200) {
     error_log("[TourismEasy IA] Groq error HTTP {$httpCode}: {$curlError}");
-    // Si Groq falla (rate limit, timeout, etc.) usamos el fallback local
-    // en vez de mostrarle un error crudo al usuario.
-    echo json_encode(fallbackResponse($question), JSON_UNESCAPED_UNICODE);
+    echo json_encode(
+        respuestaConDatosOFallback($question, $datosCatalogo, $categoriaCatalogo),
+        JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE
+    );
     exit;
 }
 
 $data = json_decode($response, true);
 if (!isset($data['choices'][0]['message']['content'])) {
     error_log("[TourismEasy IA] Respuesta inválida de Groq: " . $response);
-    echo json_encode(fallbackResponse($question), JSON_UNESCAPED_UNICODE);
+    echo json_encode(
+        respuestaConDatosOFallback($question, $datosCatalogo, $categoriaCatalogo),
+        JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE
+    );
     exit;
 }
 
 $answer = trim($data['choices'][0]['message']['content']);
 
 if ($answer === '') {
-    echo json_encode(fallbackResponse($question), JSON_UNESCAPED_UNICODE);
+    echo json_encode(
+        respuestaConDatosOFallback($question, $datosCatalogo, $categoriaCatalogo),
+        JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE
+    );
     exit;
 }
 

@@ -50,6 +50,8 @@ El esquema base incluye las tablas necesarias para guardar contenido de portada 
 
 Los endpoints PHP invocan las funciones definidas en `funciones/`; hay que instalarlas todas para disponer del proyecto completo. Ejecuta el bloque siguiente en PowerShell **desde la raíz del repositorio**, después de importar el esquema. Instala primero auditoría, luego los scripts restantes y, al final, los wrappers que dependen de otras funciones y el inicializador de portada. Los triggers se instalan después de todas las funciones. `ON_ERROR_STOP` hace que el proceso se detenga si un archivo falla.
 
+Sue consulta sus datos mediante `fn_consultar_catalogo_sue.sql`, que reúne información pública de transportes, hospedajes, planes, empresas, artesanos, productos artesanales, festividades y municipios. En una base existente, basta con instalar esta función para habilitar las consultas de Sue.
+
 Las empresas pueden actualizar razón social, correo institucional, correo de acceso, teléfono y municipio una vez por mes calendario. El correo de acceso se guarda en `USUARIOS_EMPRESA.EMAIL_LOGIN` y se usa para iniciar sesión. El NIT y el sector no se pueden cambiar desde el perfil.
 
 ```powershell

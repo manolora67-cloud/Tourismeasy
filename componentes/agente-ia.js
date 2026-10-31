@@ -177,6 +177,11 @@ Reglas:
             .trim();
     }
 
+    function esConsultaDeCatalogo(texto) {
+        const pregunta = normalizarTexto(texto);
+        return /\b(transportes?|rutas?|buses?|autobuses?|hospedajes?|hoteles?|alojamientos?|hostales?|posadas?|planes?|tours?|paquetes?|excursiones?|experiencias?|actividades?|productos?|artesanias?|bisuteria|alfareria|talleres?|artesanos?|artesanas?|empresas?|operadores?|festividades?|fiestas?|festivales?|ferias?|municipios?|ciudades?|pueblos?|destinos?)\b/.test(pregunta);
+    }
+
     const INTENCIONES = [
         {
             nombre: "transporte",
@@ -413,6 +418,10 @@ Reglas:
             console.warn("[TourismEasy IA] respuesta inesperada:", data);
         } catch (err) {
             console.warn("[TourismEasy IA] fallback local:", err);
+        }
+
+        if (esConsultaDeCatalogo(mensajeUsuario)) {
+            return "No pude consultar esa información ahora mismo. Inténtalo de nuevo más tarde.";
         }
 
         return buscarRespuestaLocal(mensajeUsuario);
