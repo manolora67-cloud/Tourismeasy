@@ -1,25 +1,29 @@
 # Modelo dimensional de Oro
 
-El esquema `ORO` contiene dimensiones y tablas de hechos físicas, creadas y cargadas por `sql/3_oro/1_tablas_y_carga_oro.sql`.
+El DWH conserva todas las tablas originales en Bronce. Por ahora, Plata y Oro preparan y analizan únicamente hospedajes disponibles.
 
 ## Dimensiones
 
-| Tabla | Contenido |
+| Tabla | Contenido e historial |
 | --- | --- |
-| `oro.dim_departamento` | Departamentos asociados a ciudades. |
-| `oro.dim_ciudad` | Ciudades y su departamento. |
-| `oro.dim_empresas` | Empresas proveedoras de servicios turísticos. |
+| `oro.dim_departamento` | Catálogo de departamentos. |
+| `oro.dim_ciudad` | Ciudades relacionadas con su departamento. Se actualiza como dimensión tipo 1 porque OLTP no conserva cambios históricos de ciudades. |
+| `oro.dim_hospedaje` | Versiones SCD tipo 2 de los hospedajes disponibles en cada versión, con inicio, fin y estado actual. Las versiones anteriores se obtienen del historial capturado por OLTP. La vigencia indica el período de validez de una versión; no es el indicador de disponibilidad. |
+| `oro.dim_rango_capacidad` | Segmentos de capacidad: `1-10`, `11-20` y `21+`. |
 
-## Hechos
+## Hechos y grano
 
-| Tabla | Contenido |
-| --- | --- |
-| `oro.hecho_oferta_turistica` | Fotos diarias de hospedajes, planes y transportes. |
-| `oro.hecho_producto_artesanal` | Fotos diarias de productos artesanales. |
-| `oro.hecho_eventos_whatsapp` | Clics en WhatsApp, con fecha, ciudad, categoría, producto de origen y dispositivo. |
+| Tabla | Grano | Medidas |
+| --- | --- | --- |
+| `oro.hecho_capacidad_hospedaje` | Una fila por versión histórica disponible de un hospedaje. | Capacidad máxima, precio por noche, acción histórica y usuario registrado por el trigger. |
 
-En `HECHO_EVENTOS_WHATSAPP`, `SK_EMPRESA` puede ser nulo para artesanías, cuyo contacto corresponde al artesano y no a una empresa turística. Los demás tipos de clic se asocian a una empresa. `ID_CLICK_ORIGEN` identifica de forma única el evento original y `FECHA_PROCESO` conserva la fecha del clic. Los clics son leads o intenciones de contacto; no son ventas confirmadas.
+La capacidad exacta se guarda como medida numérica y el rango como dimensión analítica; no se pierde el valor original al clasificarlo. El historial conserva cada versión según sus fechas reales de vigencia SCD2; por ahora no se crean reportes separados al cierre diario, mensual o trimestral.
 
-La vista `oro.buscador_ia_viajeros` presenta las ofertas turísticas disponibles hoy. `oro.reporte_leads_whatsapp` agrupa los clics por fecha, categoría, empresa o contacto artesanal y ciudad. Las tablas de hechos se cargan a partir de las fotos de Plata; ejecuta el script de Oro después de la transformación diaria.
+El modelo analítico solo carga hospedajes disponibles. Si un hospedaje deja de estar disponible, la última versión disponible permanece como historia y se cierra; no se agrega una versión no disponible al catálogo analítico.
 
-La base no registra pedidos ni pagos, por lo que este modelo no permite calcular ventas confirmadas.
+El usuario de `HECHO_CAPACIDAD_HOSPEDAJE` es el valor guardado por el trigger de OLTP y corresponde al usuario de base de datos que registró el evento; no necesariamente identifica a la persona final que usó la aplicación. No se almacena una fecha de proceso; las fechas de los cambios proceden del historial y de la vigencia SCD2.
+
+## Límites interpretativos
+
+- Los rangos de capacidad preservan los límites ya usados por el modelo; los usuarios deben confirmar si son categorías útiles para el negocio.
+- La historia de hospedajes depende de las filas existentes en `HISTORICO_HOSPEDAJE` y de que el trigger haya estado activo cuando ocurrió el cambio.

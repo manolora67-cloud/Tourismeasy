@@ -1,34 +1,30 @@
 # Decisiones y limitaciones
 
-## Proceso ETL con SQL de PostgreSQL
+## Alcance del DWH
 
-El proceso se presenta en las tres etapas ETL del curso y se ejecuta con consultas y DDL nativos de PostgreSQL dentro de la base `tourismeasy`. Las capas `bronce`, `plata` y `oro` son esquemas de esa misma base. No se usa PHP para extraer, PowerShell para orquestar, otra base de datos ni una herramienta ETL de terceros.
+El objetivo de Oro es responder preguntas analíticas que no son simples consultas operativas del OLTP. Las búsquedas de catálogo y la operación diaria permanecen en la aplicación transaccional. Power BI consulta hechos, dimensiones y vistas consolidadas; la limpieza y las reglas de transformación se ejecutan antes, en Bronce y Plata.
 
-1. **Extraer:** `bronce` recibe una copia cruda de las tablas base de `public`, sin limpiar ni transformar sus filas. `1_bronce/1_tablas.sql` busca las tablas en `PG_TABLES` y crea automáticamente espejos vacíos con `CREATE TABLE ... AS SELECT * ... WITH NO DATA`; `1_bronce/2_extraer.sql` copia las filas con instrucciones explícitas `INSERT ... SELECT` para las 37 tablas actuales. Si se agrega una tabla a `public`, también hay que incorporarla al archivo de extracción y a sus conteos. Estos espejos no conservan claves, restricciones, valores predeterminados ni índices. Tampoco duplican funciones, triggers ni secuencias.
-2. **Transformar:** `plata` selecciona los atributos analíticos y guarda fotografías diarias.
-3. **Consultar:** `oro` expone vistas sobre Plata. Las vistas de municipios los enlazan en tiempo de consulta con las tablas maestras de Bronce; no se crean dimensiones físicas de tiempo o ubicación.
+Bronce copia todas las tablas de `public` sin cambiar sus filas ni columnas. Plata limpia y selecciona atributos; Oro no consulta directamente las tablas de `public` o Bronce.
+No se almacena `FECHA_PROCESO`: el ETL no crea una fecha de negocio. El análisis temporal de hospedajes usa las fechas reales de modificación y del historial de OLTP.
 
-La creación de tablas de Bronce usa un bloque `DO`, un ciclo y el catálogo `PG_TABLES` para no escribir una instrucción por cada tabla; la copia de las filas sigue siendo explícita para las 37 tablas actuales. Ejecuta los scripts desde el cliente SQL de PostgreSQL ya disponible en el curso.
+## Historial SCD tipo 2
 
-Como el espejo crudo incluye todas las tablas, también conserva datos de cuentas y seguridad —por ejemplo hashes, sesiones, tokens, auditoría y contactos—. No compartas la base con personas que no deban consultar esa información.
+- `oro.dim_hospedaje` utiliza los snapshots anteriores de `bronce.historico_hospedaje`, transformados en `plata.hist_cambios_hospedaje`, y el estado actual de `plata.hospedajes_disponibles`. Al cambiar o dejar de estar disponible un hospedaje, se cierra la versión disponible y se conserva el historial.
+- `oro.dim_ciudad` y `oro.dim_departamento` son catálogos tipo 1. La base OLTP no conserva un historial de sus cambios.
+- La historia disponible depende de que las tablas y triggers de OLTP hayan registrado los cambios. No se fabrican versiones ni fechas que la fuente no tenga.
 
-## Transporte y ciudades
+## Granularidad y consolidación
 
-La columna anterior `TRANSPORTE.ORIGEN`/`DESTINO` era texto libre y no permitía analizar rutas de manera fiable; por eso había aparecido una tabla de mapeo manual. El esquema nuevo usa `ID_CIUDAD_ORIGEN` y `ID_CIUDAD_DESTINO`, ambas con FK a `CIUDADES`. Los formularios de empresa y la búsqueda pública usan selectores de municipios. El proyecto no incluye migraciones para bases existentes: se debe crear una base nueva desde `db/DB_TOURISMEASY.sql` antes de instalar el DWH.
+El hecho de capacidad tiene una fila por versión histórica del hospedaje. El valor exacto de capacidad se conserva y se clasifica en rangos ya usados por el modelo: `1-10`, `11-20` y `21+`. Esos rangos son una propuesta técnica pendiente de validación con los usuarios.
 
-El trigger PostgreSQL guarda la clase de transporte anterior dentro del snapshot histórico antes de editar o eliminar la ruta. Así, la transformación conserva su subtipo real y no lo reemplaza por la clase vigente. Snapshots históricos generados antes de esa captura no contienen esa información y se clasifican como desconocidos.
+El historial conserva cada versión del hospedaje con sus fechas reales SCD2. Por ahora no se crean reportes separados de capacidad al cierre diario, mensual o trimestral; se pueden agregar cuando los usuarios confirmen qué consolidación necesitan.
 
-## Límites analíticos
+Por ahora, Oro conserva el estado y el historial SCD2 de hospedajes. Los análisis estadísticos y las consolidaciones se definirán más adelante con los usuarios.
 
-- Las reseñas no tienen una relación con ciudad, servicio o empresa; solo se analizan por fecha.
-- El número de likes es el valor observado al cargar; la base no conserva su historial completo.
-- No hay pedidos ni pagos: los hechos de productos miden catálogo, no ventas.
-- La historia anterior a la primera carga depende de las filas reales de `HISTORICO_*`; no se inventan fechas.
-- Si el nombre/tipo de una empresa cambió varias veces entre cargas y OLTP no conserva su historia, no se pueden reconstruir esas versiones intermedias.
-- Las tablas historicas de Plata tienen granularidad diaria; cada entidad aparece una vez por fecha de proceso.
-- El buscador de Oro solo muestra las ofertas disponibles de hoy; las tablas historicas de Plata conservan el valor de disponibilidad de cada fotografia.
-- El catálogo de productos artesanales no registra transacciones. No se puede calcular ventas por día de semana ni ventas totales hasta que OLTP tenga tablas de pedidos o pagos con fecha y valor.
+## Privacidad y acceso
 
-## Datos minimizados en Plata y Oro
+Bronce copia todas las columnas de las tablas de `public`, entre ellas algunos datos de contacto y snapshots históricos. Restringe el acceso a ese esquema. Plata y Oro no deben exponer credenciales, contactos ni datos que no hagan falta para las preguntas analíticas.
 
-Las transformaciones de Plata seleccionan únicamente atributos analíticos. No llevan credenciales, cuentas, datos de contacto, textos de reseñas, comentarios ni el identificador del visitante a las tablas analíticas. Bronce conserva la copia cruda completa.
+## Límites de negocio
+
+- La extracción de Bronce es completa. Al agregar una tabla en `public`, ejecuta de nuevo la creación de tablas de Bronce y la extracción. Solo agrega una transformación en Plata si esa tabla se necesita para el análisis.

@@ -1,131 +1,60 @@
 # DWH TourismEasy
 
-Esta guia explica como preparar Bronce, transformar sus datos en Plata y consultar Oro mediante vistas analiticas.
+El DWH se ejecuta en PostgreSQL, dentro de la base `tourismeasy`, y separa el proceso en tres capas:
 
-## Antes de empezar
+- **Bronce:** copias crudas de todas las tablas de `public`. No aplica limpieza ni reglas de negocio.
+- **Plata:** prepara los hospedajes disponibles, las ciudades y su historial.
+- **Oro:** publica el modelo y los reportes analíticos de hospedajes. Power BI consulta esta capa.
 
-La base de datos de TourismEasy debe existir y tener sus tablas originales en `public`. Ejecuta los archivos con el cliente de PostgreSQL que usan en clase y sigue este orden.
+El DWH no almacena `FECHA_PROCESO`: los hospedajes usan las fechas reales de modificación y vigencia de OLTP. Los servicios que no son hospedajes se conservan en Bronce, pero por ahora no se transforman ni se cargan en Oro.
 
-## 1. Crear los espacios del DWH
+## Instalación y ejecución
 
-Archivo: `sql/0_admin/0_esquemas.sql`
+Ejecuta los archivos con PostgreSQL, en este orden, después de crear las tablas OLTP desde `db/DB_TOURISMEASY.sql`:
 
-Este archivo crea tres esquemas dentro de la base: `BRONCE`, `PLATA` y `ORO`. Piensa en ellos como espacios separados para ordenar las tablas del DWH.
+1. `sql/0_admin/0_esquemas.sql`
+2. `sql/1_bronce/1_tablas.sql`
+3. `sql/1_bronce/2_extraer.sql`
+4. `sql/2_plata/1_tablas.sql`
+5. `sql/2_plata/2_transformar.sql`
+6. `sql/3_oro/1_tablas_y_carga_oro.sql`
+7. `sql/4_validacion/1_controles.sql`
 
-`IF NOT EXISTS` quiere decir que PostgreSQL solo crea cada esquema si todavia no existe. Ejecuta este archivo primero, porque las tablas de Bronce necesitan ese espacio para poder crearse.
+Los pasos 2 y 4 preparan las estructuras; los pasos 3, 5 y 6 cargan las capas. Repite la extracción, transformación y carga de Oro con la periodicidad acordada con los usuarios. Los scripts de esquema actuales no son una migración automática para un DWH instalado con una versión anterior.
 
-## 2. Preparar las tablas vacias de Bronce
+## Fuentes de Bronce
 
-Archivo: `sql/1_bronce/1_tablas.sql`
+Bronce crea una copia para cada tabla del esquema `public` y extrae sus filas sin modificar. Si se agrega una tabla nueva en `public`, vuelve a ejecutar `1_tablas.sql` y `2_extraer.sql` para incluirla.
 
-Este archivo busca las tablas originales que estan en `public` y prepara una copia vacia de cada una dentro de `BRONCE`. No hace falta escribir una instruccion por cada tabla: PostgreSQL revisa la lista y repite el trabajo por nosotros.
+Las copias de Bronce conservan las columnas originales, incluidos datos de contacto y snapshots históricos. Restringe el acceso a Bronce y no la expongas directamente en Power BI.
 
-En palabras sencillas:
+## Expresiones usadas en la transformación
 
-- `PG_TABLES` es la lista que PostgreSQL tiene de las tablas existentes.
-- `DO` le dice a PostgreSQL que ejecute un bloque de instrucciones.
-- `FOR ... LOOP` repite las instrucciones para cada tabla de la lista. `END LOOP` marca el final de lo que se repite.
-- `nombre_tabla` guarda el nombre de la tabla que se esta procesando.
-- `FORMAT` arma el comando SQL. `%I` indica que el valor que se inserta es un nombre de objeto, en este caso una tabla.
-- `EXECUTE` ejecuta el comando que se acaba de armar.
-- `WITH NO DATA` copia las columnas y sus tipos, pero deja la tabla sin filas.
-- `IF NOT EXISTS` evita crear otra vez una tabla que ya exista.
+En `sql/2_plata/2_transformar.sql`:
 
-Por ejemplo, cuando encuentra `CIUDADES`, prepara una tabla vacia equivalente a:
+- `TRIM(valor)` quita espacios al inicio y al final del texto.
+- `CAST(valor AS tipo)` y `valor::tipo` convierten un valor a otro tipo, por ejemplo, texto a número.
+- `->>'campo'` extrae del JSON el valor de un campo como texto.
+- `NULLIF(valor, '')` devuelve `NULL` si el valor está vacío.
+- `COALESCE(valor1, valor2, ...)` devuelve el primer valor que no sea `NULL`. Para las fechas históricas, usa la primera fecha disponible.
 
-```sql
-CREATE TABLE IF NOT EXISTS BRONCE.CIUDADES AS
-SELECT * FROM PUBLIC.CIUDADES WITH NO DATA;
-```
+## Modelo analítico
 
-Este paso crea la estructura, pero no copia los registros. Las tablas de Bronce tienen las columnas y los tipos de la fuente, pero no copian sus claves, restricciones, valores predeterminados ni indices.
+- `oro.dim_hospedaje` aplica SCD tipo 2: cada versión analizada tiene una clave sustituta y un intervalo de vigencia. Las versiones anteriores se conservan; no se sobrescriben. Vigencia indica durante qué período aplicó esa versión, no si el hospedaje está disponible.
+- Plata y Oro incluyen únicamente hospedajes disponibles. Si uno deja de estar disponible, la versión disponible anterior se conserva como historia y se cierra; no se carga el estado no disponible como oferta analítica.
+- Las versiones previas de hospedajes provienen de `HISTORICO_HOSPEDAJE` en OLTP. Plata contiene el estado actual disponible, sin una fecha artificial de proceso.
+- `oro.hecho_capacidad_hospedaje` guarda capacidad y precio por versión del hospedaje, además de la acción histórica y el usuario de base de datos registrado por el trigger. `oro.dim_rango_capacidad` organiza la capacidad en `1-10`, `11-20` y `21+`, conservando también el valor numérico exacto.
 
-## 3. Copiar los registros a Bronce
+Por ahora, Oro conserva los datos y el historial de hospedajes; no crea reportes estadísticos ni consolidaciones diarias, mensuales o trimestrales.
 
-Archivo: `sql/1_bronce/2_extraer.sql`
+Los límites de los rangos de capacidad mantienen la clasificación que ya estaba en el modelo. Confírmalos con los usuarios antes de considerarlos una regla definitiva.
 
-Este archivo vuelve a recorrer las tablas de `public`. Para cada una, vacia su copia en Bronce y despues copia todos los registros desde la tabla original. Al terminar cada tabla, muestra un aviso con su nombre.
+## Validación y límites
 
-Usa el mismo ciclo explicado en el paso anterior. La diferencia es lo que hace en cada vuelta:
+`sql/4_validacion/1_controles.sql` solo revisa los datos; no los modifica. Sus resultados se leen así:
 
-1. `TRUNCATE` vacia la copia de Bronce. Si la tabla esta vacia, no borra nada; si ya tenia datos de una ejecucion anterior, los quita para no duplicarlos.
-2. `INSERT INTO ... SELECT *` copia todos los registros de la tabla original a su copia.
-3. `RAISE NOTICE` muestra un aviso para indicar que termino esa tabla.
+- **Sincronización:** compara en Bronce y Plata los hospedajes disponibles y sus cambios históricos disponibles. `EN_SINCRO` debe ser `TRUE`; no compara todas las tablas de Bronce.
+- **Calidad:** cuenta hospedajes disponibles con capacidad o precio no positivo. `HAY_ALERTA = TRUE` indica filas que revisar.
+- **Historial y rangos:** comprueba que cada hospedaje disponible tenga una versión actual SCD2, que sus períodos históricos no se crucen y que cada capacidad pertenezca a un rango. En estos controles, `HAY_ALERTA = TRUE` indica un problema.
 
-Por ejemplo, para `CIUDADES`, vacia `BRONCE.CIUDADES` y luego copia sus registros desde `PUBLIC.CIUDADES`.
-
-`BEGIN` y `COMMIT` marcan el inicio y el final de la transaccion. PostgreSQL confirma la copia al llegar al final correctamente.
-
-## 4. Crear las tablas de Plata
-
-Archivo: `sql/2_plata/1_tablas.sql`
-
-Este archivo crea el esquema `PLATA` y las tablas `DIM_EMPRESAS`, `HIST_HOSPEDAJES`, `HIST_PLANES`, `HIST_TRANSPORTES`, `HIST_ARTESANIAS` y `FACT_EVENTOS_WHATSAPP`. Las tablas historicas guardan una foto diaria por entidad; hospedajes, planes y transportes incluyen solo registros disponibles, por lo que no guardan una columna `DISPONIBILIDAD`.
-
-## 5. Cargar los datos de Bronce a Plata
-
-Archivo: `sql/2_plata/2_transformar.sql`
-
-Este archivo contiene las cargas diarias de empresas, hospedajes, planes, transportes, artesanias y eventos de WhatsApp. La carga de empresas reemplaza la tabla para copiar el estado actual. Las demas cargas borran primero las filas de hoy y luego guardan una nueva foto desde Bronce; asi se puede ejecutar otra vez en el mismo dia sin duplicar esa foto. `TRIM` quita espacios y `CAST` convierte los tipos cuando hace falta.
-
-Ejecuta `1_tablas.sql` una vez para crear las tablas; despues ejecuta `2_transformar.sql` cada dia para refrescar los datos.
-
-Los botones de WhatsApp de hospedajes, planes, transportes y artesanias registran el clic en `public.LOGS_CLICS_WEB_EXTERNOS` mediante `api/registrar_click_whatsapp.php`. El servidor consulta el producto y sus datos en la base antes de guardar el evento; para artesanias, `ID_EMPRESA` queda nulo porque el contacto es del artesano. La tabla fuente se crea al ejecutar `db/DB_TOURISMEASY.sql`; luego la preparación y extracción genéricas de Bronce la copian automáticamente. Plata y Oro conservan el ID original y la fecha real del clic para que ejecutar de nuevo la carga no duplique eventos.
-
-## 6. Crear las vistas de Oro
-
-Archivo: `sql/3_oro/1_tablas_y_carga_oro.sql`
-
-Este archivo crea y carga las dimensiones y tablas de hechos del esquema `ORO`, y la vista de catalogo:
-
-- `BUSCADOR_IA_VIAJEROS`: catalogo disponible de hoy con hospedajes, planes y transportes.
-- `REPORTE_LEADS_WHATSAPP`: cantidad de clics por fecha, categoria, empresa o contacto artesanal y ciudad.
-
-Los hechos de clics conservan el producto y el dispositivo; los clics de artesanias no tienen empresa asociada. Consulta la vista de reporte o las tablas de hechos junto con sus dimensiones para analizar las cargas.
-
-## 7. Validar la carga
-
-Archivo: `sql/4_validacion/1_controles.sql`
-
-Este archivo solo ejecuta consultas. Compara los conteos de las tablas actuales de Bronce con las fotos de hoy en Plata y cuenta precios negativos o capacidades en cero para alertar sobre esos datos.
-
-La base transaccional no registra pedidos ni pagos; por eso los clics de WhatsApp se reportan como leads y no como ventas confirmadas.
-
-## Orden de ejecucion explicado en esta guia
-
-1. `sql/0_admin/0_esquemas.sql`: crear los espacios del DWH.
-2. `sql/1_bronce/1_tablas.sql`: preparar las copias vacias de las tablas originales.
-3. `sql/1_bronce/2_extraer.sql`: copiar los registros originales a Bronce.
-4. `sql/2_plata/1_tablas.sql`: crear el esquema y las tablas de Plata.
-5. `sql/2_plata/2_transformar.sql`: ejecutar las cargas diarias de Plata.
-6. `sql/3_oro/1_tablas_y_carga_oro.sql`: crear y cargar el modelo analitico.
-7. `sql/4_validacion/1_controles.sql`: revisar conteos y alertas de calidad.
-
-
-
-
-
-Read 
-Completed with input: {
-  "path": "C:\\Users\\SENA CSET\\.copilot\\session-state\\a44b660c-0f55-483c-a0d9-63ebb6050ad8\\checkpoints\\001-informe-y-sesi-n-de-copetran.md"
-}
-
-Search for `inicio|sesión|correo|dispositivo|aprobar|cuenta|401|pendiente|implementar`
-
-Search for `inicio|sesión|correo|dispositivo|aprobar|cuenta|401|pendiente|implementar`
-
-¡Ah, ya te entendí! Te refieres a las implementaciones que veníamos hablando, no solo a las estadísticas. La lista queda así:
-
-### Ya implementado
-- El correo se cambia desde **Mi perfil**, tanto para admin como para empresa; se quitó el duplicado de Configuración.
-- **Cambiar contraseña** está implementado para el administrador. Falta confirmar si también funciona para empresa.
-- Se retiraron las tablas y funciones de configuración que ya no se usan.
-- El boletín mensual de empresa está en **Configuración de empresa**, como el del admin.
-
-### Falta implementar o confirmar
-1. **Aprobación de inicio de sesión desde un dispositivo nuevo por correo**. Lo conversamos, pero ese flujo todavía no está implementado.
-2. Definir el comportamiento de las sesiones: si se aprueba el nuevo dispositivo, cerrar la sesión anterior; si se rechaza, conservarla y bloquear el acceso nuevo.
-3. Probar si el error intermitente **«No autorizado»** de Copetran quedó resuelto; los cambios de sesión están hechos, pero falta comprobarlo en uso real.
-4. Confirmar que **Cambiar contraseña** también esté conectado y funcione en la Configuración de empresa.
-
-La prioridad pendiente sería el punto 1: proteger el inicio de sesión con aprobación por correo.
+El DWH no analiza planes, transportes, artesanías ni clics por ahora; sus tablas fuente siguen completas en Bronce.
