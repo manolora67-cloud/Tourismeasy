@@ -130,6 +130,7 @@
                         ${destino.publicado ? `<button type="button" class="portada-action preview" data-preview="${escapeHtml(destino.key)}"><i class="fa-solid fa-eye"></i> Vista previa</button>` : ''}
                         <button type="button" class="portada-action edit" data-edit="${escapeHtml(destino.key)}"><i class="fa-solid fa-pen"></i> Editar</button>
                         ${destino.persistido ? `<button type="button" class="portada-action delete" data-delete="${escapeHtml(destino.key)}"><i class="fa-solid fa-trash"></i> Eliminar</button>` : ''}
+                        <button type="button" class="portada-action map" data-map="${escapeHtml(destino.key)}"><i class="fa-solid fa-map-location-dot"></i> ${destino.article && destino.article.mapa && destino.article.mapa.destacado ? 'Editar mapa' : 'Agregar al mapa'}</button>
                     </div>
                 </div>
             </article>`).join('');
@@ -203,13 +204,17 @@
                     <div class="portada-field full"><div class="portada-image-preview"><img id="pdPreview" alt="Vista previa"><span id="pdUploadStatus"></span></div></div>
                     <div class="portada-field"><label for="pdOrder">Orden en la portada</label><input id="pdOrder" type="text" inputmode="numeric" readonly required aria-describedby="pdOrderHelp"><small id="pdOrderHelp">Asignado automáticamente. No se puede editar.</small></div>
                     <label class="portada-check"><input id="pdPublished" type="checkbox"> Publicado en la portada</label>
-                    <label class="portada-check full"><input id="pdMapFeatured" type="checkbox"> Destacar en el mapa turístico</label>
-                    <p class="portada-help full">Los destinos del mapa se administran por separado de las tarjetas. Copia las coordenadas del lugar desde OpenStreetMap (clic derecho sobre el punto) y agrega de una a tres palabras clave.</p>
-                    <div class="portada-field"><label for="pdMapLatitude">Latitud</label><input id="pdMapLatitude" type="number" min="-90" max="90" step="any" placeholder="6.6357"></div>
-                    <div class="portada-field"><label for="pdMapLongitude">Longitud</label><input id="pdMapLongitude" type="number" min="-180" max="180" step="any" placeholder="-73.2228"></div>
-                    <div class="portada-field"><label for="pdMapTag1">Palabra clave 1</label><input id="pdMapTag1" maxlength="40" placeholder="Colonial"></div>
-                    <div class="portada-field"><label for="pdMapTag2">Palabra clave 2</label><input id="pdMapTag2" maxlength="40" placeholder="Camino Real"></div>
-                    <div class="portada-field"><label for="pdMapTag3">Palabra clave 3</label><input id="pdMapTag3" maxlength="40" placeholder="Artesanías"></div>
+                    <div class="portada-map-config full" id="pdMapConfig">
+                        <label class="portada-check"><input id="pdMapFeatured" type="checkbox"> Destacar en el mapa turístico</label>
+                        <p class="portada-help">Copia las coordenadas desde OpenStreetMap (clic derecho sobre el punto) y agrega de una a tres palabras clave.</p>
+                        <div class="portada-map-fields">
+                            <div class="portada-field"><label for="pdMapLatitude">Latitud</label><input id="pdMapLatitude" type="number" min="-90" max="90" step="any" placeholder="6.6357"></div>
+                            <div class="portada-field"><label for="pdMapLongitude">Longitud</label><input id="pdMapLongitude" type="number" min="-180" max="180" step="any" placeholder="-73.2228"></div>
+                            <div class="portada-field"><label for="pdMapTag1">Palabra clave 1</label><input id="pdMapTag1" maxlength="40" placeholder="Colonial"></div>
+                            <div class="portada-field"><label for="pdMapTag2">Palabra clave 2</label><input id="pdMapTag2" maxlength="40" placeholder="Camino Real"></div>
+                            <div class="portada-field"><label for="pdMapTag3">Palabra clave 3</label><input id="pdMapTag3" maxlength="40" placeholder="Artesanías"></div>
+                        </div>
+                    </div>
                     <div class="portada-field"><label for="paTitle">Título del artículo</label><input id="paTitle" maxlength="150"></div>
                     <div class="portada-field"><label for="paSubtitle">Subtítulo</label><input id="paSubtitle" maxlength="250"></div>
                     <div class="portada-field"><label for="paBadge">Insignia del artículo</label><input id="paBadge" maxlength="80"></div>
@@ -256,16 +261,20 @@
         }).filter((item) => item && item.label && item.val);
     }
 
-    function openEditor(destination) {
+    function openEditor(destination, mapOnly = false) {
         const isNew = !destination.key;
         const item = destination;
         const article = item.article || {};
         editorMarkup();
         editor.hidden = false;
-        document.getElementById('portadaFormTitle').textContent = isNew ? 'Crear destino' : `Editar ${item.titulo}`;
-        editor.querySelector('.portada-editor-intro').textContent = item.municipio
-            ? 'Edita la tarjeta de portada y todos los campos del artículo. La clave y el orden se mantienen fijos.'
-            : 'Completa la tarjeta de la portada y el artículo asociado. Para los datos y secciones usa una entrada por línea con el formato indicado.';
+        document.getElementById('portadaFormTitle').textContent = mapOnly
+            ? `Configurar mapa: ${item.titulo}`
+            : isNew ? 'Crear destino' : `Editar ${item.titulo}`;
+        editor.querySelector('.portada-editor-intro').textContent = mapOnly
+            ? 'Configura si este municipio aparece en el mapa, su ubicación y las palabras clave. Los demás datos se conservarán.'
+            : item.municipio
+                ? 'Edita la tarjeta de portada y todos los campos del artículo. La clave y el orden se mantienen fijos.'
+                : 'Completa la tarjeta de la portada y el artículo asociado. Para los datos y secciones usa una entrada por línea con el formato indicado.';
         const values = {
             pdKey: item.key,
             pdTitle: item.titulo,
@@ -292,7 +301,7 @@
         document.getElementById('pdKey').readOnly = !isNew || item.municipio;
         document.getElementById('pdPublished').checked = item.publicado !== false;
         const mapFeatured = document.getElementById('pdMapFeatured');
-        mapFeatured.checked = Boolean(article.mapa && article.mapa.destacado);
+        mapFeatured.checked = mapOnly || Boolean(article.mapa && article.mapa.destacado);
         const updateMapFields = () => {
             ['pdMapLatitude', 'pdMapLongitude', 'pdMapTag1', 'pdMapTag2', 'pdMapTag3'].forEach((id) => {
                 const field = document.getElementById(id);
@@ -302,6 +311,7 @@
         };
         mapFeatured.addEventListener('change', updateMapFields);
         updateMapFields();
+        document.getElementById('portadaForm').classList.toggle('map-only', mapOnly);
         const preview = document.getElementById('pdPreview');
         preview.src = item.img ? adminAsset(item.img) : '';
         const videoPreview = document.getElementById('paVideoPreview');
@@ -329,7 +339,12 @@
         });
         document.getElementById('portadaForm').addEventListener('submit', (event) => save(event, item));
         if (!editorDialog.open) editorDialog.showModal();
-        document.getElementById('pdTitle').focus();
+        if (mapOnly) {
+            document.getElementById('pdMapLatitude').focus();
+            document.getElementById('pdMapConfig').scrollIntoView({ block: 'center' });
+        } else {
+            document.getElementById('pdTitle').focus();
+        }
     }
 
     async function subirArchivo(file, field) {
@@ -533,12 +548,17 @@
         const editButton = event.target.closest('[data-edit]');
         const deleteButton = event.target.closest('[data-delete]');
         const previewButton = event.target.closest('[data-preview]');
+        const mapButton = event.target.closest('[data-map]');
         if (editButton) {
             const item = destinos.find((destination) => destination.key === editButton.dataset.edit);
             if (item) openEditor(item);
         }
         if (deleteButton) deleteDestination(deleteButton.dataset.delete);
         if (previewButton) openPreview(previewButton.dataset.preview);
+        if (mapButton) {
+            const item = destinos.find((destination) => destination.key === mapButton.dataset.map);
+            if (item) openEditor(item, true);
+        }
     });
     previewDialog.addEventListener('click', (event) => {
         if (event.target === previewDialog) closePreview();

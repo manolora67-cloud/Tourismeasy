@@ -90,6 +90,15 @@
     color: #075985;
 }
 
+.portada-action.map {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.portada-action.map:hover {
+    background: #bbf7d0;
+}
+
 .portada-preview-dialog {
     width: min(500px, calc(100vw - 32px));
     height: min(620px, calc(100vh - 32px));
@@ -233,6 +242,41 @@
 
 .portada-field.full {
     grid-column: 1/-1
+}
+
+.portada-map-config {
+    display: grid;
+    gap: 12px;
+    padding: 14px;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    background: var(--gray-100)
+}
+
+.portada-map-config .portada-help {
+    margin: -5px 0 0
+}
+
+.portada-map-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 13px
+}
+
+.portada-map-fields .portada-field:last-child {
+    grid-column: 1/-1
+}
+
+.portada-form.map-only .portada-form-grid > :not(.portada-map-config) {
+    display: none
+}
+
+.portada-form.map-only .portada-map-config .portada-check {
+    grid-column: auto
+}
+
+.portada-form.map-only .portada-map-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr))
 }
 
 .portada-form-grid > .portada-help.full {
@@ -402,6 +446,11 @@ body.dark-mode .portada-field input[readonly] {
     color: #cbd5e1
 }
 
+body.dark-mode .portada-map-config {
+    border-color: #475569;
+    background: #1e293b
+}
+
 body.dark-mode .portada-cancel {
     background: #334155;
     color: #f1f5f9
@@ -416,6 +465,12 @@ body.dark-mode .portada-cancel:hover {
         grid-template-columns: 1fr
     }
     .portada-field.full {
+        grid-column: auto
+    }
+    .portada-map-fields {
+        grid-template-columns: 1fr
+    }
+    .portada-map-fields .portada-field:last-child {
         grid-column: auto
     }
     .portada-form-grid > .portada-help.full {
