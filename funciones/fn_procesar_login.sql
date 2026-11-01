@@ -144,19 +144,15 @@ BEGIN
         RETURN;
     END IF;
 
-    PERFORM fn_registrar_auditoria(
-        CASE WHEN p_tipo = 'admin' THEN v_id ELSE NULL END,
-        'Inicio de sesión',
-        'Sesiones',
-        CASE
-            WHEN p_tipo = 'empresa' THEN 'Empresa: ' || v_nombre || ' (' || v_email_login || ')'
-            WHEN p_tipo = 'artesano' THEN 'Artesano: ' || v_nombre || ' ' || v_apellido || ' (' || v_email_login || ')'
-            ELSE 'Admin: ' || v_email_login
-        END,
-        'info',
-        CASE WHEN p_tipo = 'empresa' THEN v_id ELSE NULL END,
-        CASE WHEN p_tipo = 'artesano' THEN v_id ELSE NULL END
-    );
+    IF p_tipo = 'admin' THEN
+        PERFORM fn_registrar_auditoria(
+            v_id,
+            'Inicio de sesión',
+            'Sesiones',
+            'Admin: ' || v_email_login,
+            'info'
+        );
+    END IF;
 
     RETURN QUERY SELECT
         'OK'::VARCHAR(20), TRUE, v_mensaje, FALSE, 0, v_id,

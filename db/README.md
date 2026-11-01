@@ -57,6 +57,24 @@ psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\funciones\fn_listar_dest
 
 Reemplaza `postgres` y `tourismeasy` por los valores de tu instalación. No se incluye migración ni se insertan municipios destacados automáticamente: después de instalar las funciones, abre **Destinos de la portada** en el panel, edita cada municipio que quieras mostrar, activa **Destacar en el mapa turístico**, completa sus coordenadas y palabras clave, y guarda. En instalaciones nuevas, abre primero el panel para que se inicialice `CONTENIDO_PORTADA`. No ejecutes `DB_TOURISMEASY.sql` sobre una base existente.
 
+### Auditoría del panel administrador
+
+La auditoría del panel muestra 20 eventos por página y permite filtrar por módulo; consulta los 100 eventos más recientes. Se registran los intentos fallidos de todas las cuentas y los inicios exitosos de administradores. Las solicitudes y actualizaciones de perfil de empresa quedan asociadas a la empresa. La única función de registro, `fn_registrar_auditoria`, admite el detalle usual o un paquete JSON interno para almacenar también los valores anteriores y nuevos en las columnas `REG_ANTERIOR` y `REG_NUEVO`, que ya existen en `AUDITORIA`. Los guardados de portada sin cambios no generan eventos.
+
+Para actualizar una base existente, ejecuta primero la función de registro actualizada y la nueva función de consulta detallada; después ejecuta los archivos actualizados de las funciones existentes que registran esos cambios. Las funciones existentes conservan sus nombres y firmas. Se usa `CREATE OR REPLACE FUNCTION`; no se usa `ALTER`/`DROP`, no se crea una migración y no se modifica la estructura de las tablas:
+
+```powershell
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\funciones\fn_registrar_auditoria.sql
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\funciones\fn_listar_auditoria_detallada.sql
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\funciones\fn_registrar_empresa.sql
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\funciones\fn_actualizar_perfil_empresa.sql
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\funciones\fn_procesar_login.sql
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\funciones\fn_guardar_contenido_portada.sql
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\funciones\fn_eliminar_contenido_portada.sql
+```
+
+Reemplaza `postgres` y `tourismeasy` por los valores de tu instalación. `fn_listar_auditoria_detallada()` es de consulta; todos los registros se escriben por `fn_registrar_auditoria()`.
+
 ### Instalar las funciones SQL
 
 Los endpoints PHP invocan las funciones definidas en `funciones/`; hay que instalarlas todas para disponer del proyecto completo. Ejecuta el bloque siguiente en PowerShell **desde la raíz del repositorio**, después de importar el esquema. Instala primero auditoría, luego los scripts restantes y, al final, los wrappers que dependen de otras funciones y el inicializador de portada. Los triggers se instalan después de todas las funciones. `ON_ERROR_STOP` hace que el proceso se detenga si un archivo falla.

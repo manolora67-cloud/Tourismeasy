@@ -96,6 +96,32 @@ BEGIN
         FECHA_ULTIMA_EDICION_PERFIL = CURRENT_TIMESTAMP::TIMESTAMP
     WHERE ID_EMPRESA = p_id;
 
+    PERFORM fn_registrar_auditoria(
+        NULL,
+        'Perfil de empresa actualizado',
+        'Empresas',
+        'AUDIT_JSON:' || JSONB_BUILD_OBJECT(
+            'detalle', BTRIM(p_nombre) || ' (NIT ' || p_id || ')',
+            'reg_anterior', JSONB_BUILD_OBJECT(
+                'nombre', v_nombre_actual,
+                'correo_institucional', v_email_inst_actual,
+                'contacto', v_contacto_actual,
+                'id_ciudad', v_ciudad_actual,
+                'correo_acceso', v_email_login_actual
+            ),
+            'reg_nuevo', JSONB_BUILD_OBJECT(
+                'nombre', BTRIM(p_nombre),
+                'correo_institucional', BTRIM(p_email_inst),
+                'contacto', BTRIM(p_contacto),
+                'id_ciudad', p_id_ciudad,
+                'correo_acceso', BTRIM(p_email_login)
+            )
+        )::TEXT,
+        'info',
+        p_id,
+        NULL
+    );
+
     RETURN QUERY SELECT TRUE, 'Perfil actualizado correctamente.'::TEXT, 'UPDATED'::TEXT, NULL::TIMESTAMP, TRUE;
 EXCEPTION
     WHEN UNIQUE_VIOLATION THEN

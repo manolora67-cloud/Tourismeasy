@@ -6,17 +6,36 @@ RETURNS CONTENIDO_PORTADA.PUBLICADO%TYPE AS
 $$
 DECLARE
     v_eliminado CONTENIDO_PORTADA.PUBLICADO%TYPE := FALSE;
+    v_anterior JSONB;
 BEGIN
-    DELETE FROM CONTENIDO_PORTADA WHERE CLAVE = p_clave;
+    DELETE FROM CONTENIDO_PORTADA
+    WHERE CLAVE = p_clave
+    RETURNING JSONB_BUILD_OBJECT(
+        'clave', CLAVE,
+        'imagen', IMAGEN,
+        'texto_alt', TEXTO_ALT,
+        'insignia', INSIGNIA,
+        'titulo', TITULO,
+        'descripcion', DESCRIPCION,
+        'articulo', ARTICULO,
+        'orden', ORDEN,
+        'publicado', PUBLICADO
+    )
+    INTO v_anterior;
     v_eliminado := FOUND;
 
     IF v_eliminado THEN
         PERFORM fn_registrar_auditoria(
             p_id_admin,
-            'Eliminar destino',
+            'Eliminar contenido portada',
             'Contenido portada',
-            'Se eliminó el destino de portada ' || p_clave,
-            'info'
+            'AUDIT_JSON:' || JSONB_BUILD_OBJECT(
+                'detalle', 'Se eliminó "' || COALESCE(v_anterior->>'titulo', p_clave) ||
+                    '" (' || p_clave || ').',
+                'reg_anterior', v_anterior,
+                'reg_nuevo', NULL
+            )::TEXT,
+            'advertencia'
         );
     END IF;
 

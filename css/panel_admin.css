@@ -1080,6 +1080,84 @@ body.dark-mode .panel-navbar-label {
     cursor: pointer;
 }
 
+.audit-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 4px 0;
+    color: var(--gray-600);
+    font-size: 0.84rem;
+}
+
+.audit-pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.audit-page-button {
+    padding: 7px 12px;
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
+    background: var(--white);
+    color: var(--gray-800);
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.audit-page-button:hover:not(:disabled) {
+    border-color: var(--purple);
+    color: var(--purple);
+}
+
+.audit-page-button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.audit-page-indicator {
+    min-width: 90px;
+    text-align: center;
+    font-weight: 700;
+}
+
+.audit-empty {
+    padding: 28px !important;
+    text-align: center;
+    color: var(--gray-600);
+}
+
+.audit-change-details {
+    margin-top: 8px;
+    font-size: 0.78rem;
+}
+
+.audit-change-details summary {
+    color: var(--purple);
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.audit-change-snapshot {
+    max-height: 220px;
+    overflow: auto;
+    margin-top: 8px;
+    padding: 10px;
+    border-radius: 8px;
+    background: var(--gray-100);
+    color: var(--gray-800);
+    font-size: 0.72rem;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.audit-warning {
+    background: rgba(245, 158, 11, 0.12);
+    color: #d97706;
+}
+
 
 /* Slot de la navbar donde se inyectan el widget de sesión y otros botones */
 
@@ -2229,6 +2307,22 @@ body.dark-mode .panel-select {
     color: #f1f5f9;
 }
 
+body.dark-mode .audit-page-button {
+    background: #1e293b;
+    border-color: #334155;
+    color: #f1f5f9;
+}
+
+body.dark-mode .audit-pagination,
+body.dark-mode .audit-empty {
+    color: #cbd5e1;
+}
+
+body.dark-mode .audit-change-snapshot {
+    background: #0f172a;
+    color: #e2e8f0;
+}
+
 body.dark-mode .panel-filter-btn {
     border-color: rgba(255, 255, 255, .15);
     background: transparent;
@@ -2729,6 +2823,15 @@ body.dark-mode .btn-tbl-reject {
     .panel-content-header {
         flex-direction: column;
         align-items: flex-start;
+    }
+
+    .audit-pagination {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .audit-pagination-controls {
+        justify-content: space-between;
     }
 
     .btn-panel-add {

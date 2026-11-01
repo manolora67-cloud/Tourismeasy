@@ -37,6 +37,28 @@ BEGIN
     INSERT INTO USUARIOS_EMPRESA (ID_EMPRESA, EMAIL_LOGIN, CONTRASENA, ESTADO)
     VALUES (p_nit, p_email_login, p_hash, 'PENDIENTE');
 
+    PERFORM fn_registrar_auditoria(
+        NULL,
+        'Solicitud de empresa creada',
+        'Solicitudes',
+        'AUDIT_JSON:' || JSONB_BUILD_OBJECT(
+            'detalle', p_nombre || ' (NIT ' || p_nit || ')',
+            'reg_anterior', NULL,
+            'reg_nuevo', JSONB_BUILD_OBJECT(
+                'nit', p_nit,
+                'nombre', p_nombre,
+                'correo_institucional', p_email_inst,
+                'contacto', p_contacto,
+                'id_ciudad', p_id_ciudad,
+                'tipo_servicio', p_tipo_servicio,
+                'estado', 'PENDIENTE'
+            )
+        )::TEXT,
+        'info',
+        p_nit,
+        NULL
+    );
+
     RETURN QUERY SELECT TRUE, 'Solicitud enviada. Un administrador revisará tu cuenta pronto.'::TEXT;
 
 EXCEPTION

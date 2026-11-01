@@ -1,7 +1,7 @@
 <?php
 /**
  * soli_empresas/get_auditoria.php
- * Lista los últimos eventos de auditoría para el panel admin, vía fn_listar_auditoria().
+ * Lista los últimos eventos de auditoría para el panel admin, vía fn_listar_auditoria_detallada().
  */
 
 require_once __DIR__ . '/../con_db/sesion_persistente.php';
@@ -18,7 +18,7 @@ if (empty($_SESSION['tipo']) || $_SESSION['tipo'] !== 'admin') {
 }
 
 try {
-    $stmt = $pdo->query("SELECT * FROM fn_listar_auditoria()");
+    $stmt = $pdo->query("SELECT * FROM fn_listar_auditoria_detallada()");
     echo json_encode(["ok" => true, "data" => $stmt->fetchAll()]);
 
 } catch (PDOException $e) {

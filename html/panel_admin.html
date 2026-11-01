@@ -243,11 +243,14 @@
                 </h2>
                 <div class="panel-filter">
                     <select class="panel-select">
-                        <option>Todos los eventos</option>
-                        <option>Empresas</option>
-
-                        <option>Sesiones</option>
-                        <option>Alertas</option>
+                        <option value="">Todos los eventos</option>
+                        <option value="Empresas">Empresas</option>
+                        <option value="Solicitudes">Solicitudes</option>
+                        <option value="ARTESANOS">Artesanos</option>
+                        <option value="Festividades">Festividades</option>
+                        <option value="Contenido portada">Portada</option>
+                        <option value="Sesiones">Sesiones</option>
+                        <option value="Alertas">Alertas</option>
                     </select>
                 </div>
             </div>
@@ -265,6 +268,14 @@
                     </thead>
                     <tbody></tbody>
                 </table>
+            </div>
+            <div class="audit-pagination" id="auditoriaPaginacion" aria-label="Paginación de auditoría">
+                <span class="audit-pagination-summary" id="auditoriaResumen" aria-live="polite"></span>
+                <div class="audit-pagination-controls">
+                    <button class="audit-page-button" id="auditoriaAnterior" type="button">Anterior</button>
+                    <span class="audit-page-indicator" id="auditoriaPaginaActual" aria-live="polite"></span>
+                    <button class="audit-page-button" id="auditoriaSiguiente" type="button">Siguiente</button>
+                </div>
             </div>
         </div>
 
@@ -538,6 +549,8 @@
         var solicitudesData = [];
 
         var auditoriaData = [];
+        var auditoriaPagina = 1;
+        var auditoriaPorPagina = 20;
 
         var _svcLabel = {
             "TRANSPORTE": "Transporte",
@@ -603,6 +616,16 @@
                 });
         }
 
+        function normalizarSnapshotAuditoria(snapshot) {
+            if (typeof snapshot !== "string") return snapshot;
+            try {
+                return JSON.parse(snapshot);
+            } catch (error) {
+                console.error("La auditoría contiene un snapshot JSON inválido.", error);
+                return snapshot;
+            }
+        }
+
         // ── Cargar auditoría real desde la BD ──
         function cargarAuditoriaBD() {
             fetch("../soli_empresas/get_auditoria.php", {
@@ -620,7 +643,9 @@
                             accion: a.accion,
                             modulo: a.modulo,
                             detalle: a.detalle,
-                            nivel: a.nivel
+                            nivel: a.nivel,
+                            anterior: normalizarSnapshotAuditoria(a.reg_anterior),
+                            nuevo: normalizarSnapshotAuditoria(a.reg_nuevo)
                         };
                     });
                     renderAuditoria();
@@ -689,7 +714,7 @@
             }).length;
             var inactivas = total - activas;
             var alertas = auditoriaData.filter(function(a) {
-                return a.nivel === "alerta";
+                return esAlertaAuditoria(a);
             }).length;
             var pendientes = solicitudesData.length; // ya viene solo con las PENDIENTE
             var statNums = document.querySelectorAll(".stat-num");
@@ -699,6 +724,10 @@
             statNums[3].textContent = inactivas;
             statNums[4].textContent = auditoriaData.length;
             statNums[5].textContent = alertas;
+        }
+
+        function esAlertaAuditoria(evento) {
+            return ["alerta", "advertencia", "error"].includes(evento.nivel);
         }
 
         // ── RENDER EMPRESAS ──────────────────────────────────────────────────
@@ -1001,20 +1030,45 @@
         // ── RENDER AUDITORÍA ─────────────────────────────────────────────────
         function renderAuditoria(filtro) {
             var tbody = document.querySelector("#tab-auditoria .panel-table tbody");
-            var datos = filtro && filtro !== "Todos los eventos" ?
+            var selector = document.querySelector("#tab-auditoria .panel-select");
+            var valorFiltro = filtro === undefined ? selector.value : filtro;
+            var datos = valorFiltro ?
                 auditoriaData.filter(function(a) {
-                    return a.modulo === filtro || (filtro === "Alertas" && a.nivel === "alerta");
+                    return a.modulo === valorFiltro || (valorFiltro === "Alertas" && esAlertaAuditoria(a));
                 }) :
                 auditoriaData;
+            var totalPaginas = Math.ceil(datos.length / auditoriaPorPagina);
+            auditoriaPagina = Math.min(Math.max(auditoriaPagina, 1), Math.max(totalPaginas, 1));
+            var inicio = (auditoriaPagina - 1) * auditoriaPorPagina;
+            var eventosPagina = datos.slice(inicio, inicio + auditoriaPorPagina);
+            var resumen = document.getElementById("auditoriaResumen");
+            var indicadorPagina = document.getElementById("auditoriaPaginaActual");
+            var botonAnterior = document.getElementById("auditoriaAnterior");
+            var botonSiguiente = document.getElementById("auditoriaSiguiente");
+
             tbody.innerHTML = "";
-            datos.forEach(function(a) {
-                var accionHtml, nivelHtml;
-                if (a.nivel === "alerta") {
-                    accionHtml = '<span class="badge-acc" style="background:rgba(239,68,68,.1);color:#dc2626"><i class="fa-solid fa-triangle-exclamation"></i> ' + a.accion + '</span>';
-                    nivelHtml = '<span class="estado-inactivo">Alerta</span>';
+            if (!eventosPagina.length) {
+                var filaVacia = document.createElement("tr");
+                var celdaVacia = document.createElement("td");
+                celdaVacia.colSpan = 6;
+                celdaVacia.className = "audit-empty";
+                celdaVacia.textContent = "No hay eventos para este filtro.";
+                filaVacia.appendChild(celdaVacia);
+                tbody.appendChild(filaVacia);
+            }
+
+            eventosPagina.forEach(function(a) {
+                var iconoAccion;
+                var textoNivel;
+                var claseNivel;
+                if (a.nivel === "alerta" || a.nivel === "error") {
+                    iconoAccion = "fa-triangle-exclamation";
+                    textoNivel = a.nivel === "error" ? "Error" : "Alerta";
+                    claseNivel = "estado-inactivo";
                 } else if (a.nivel === "advertencia") {
-                    accionHtml = '<span class="badge-acc" style="background:rgba(245,158,11,.1);color:#d97706"><i class="fa-solid fa-ban"></i> ' + a.accion + '</span>';
-                    nivelHtml = '<span class="estado-ocupado" style="background:rgba(245,158,11,.12);color:#d97706">Advertencia</span>';
+                    iconoAccion = "fa-ban";
+                    textoNivel = "Advertencia";
+                    claseNivel = "estado-ocupado audit-warning";
                 } else {
                     var iconMap = {
                         "Empresa creada": "fa-building-circle-check",
@@ -1023,30 +1077,99 @@
                         "Empresa activada": "fa-circle-check",
                         "Empresa aceptada": "fa-building-circle-check",
                         "Empresa rechazada": "fa-ban",
+                        "Solicitud de empresa creada": "fa-file-circle-plus",
+                        "Perfil de empresa actualizado": "fa-pen-to-square",
                         "Artesano aprobado": "fa-palette",
                         "Artesano rechazado": "fa-ban",
-
+                        "Crear contenido portada": "fa-file-circle-plus",
+                        "Editar contenido portada": "fa-pen-to-square",
+                        "Eliminar contenido portada": "fa-trash",
                         "Inicio de sesión": "fa-right-to-bracket"
                     };
-                    var ic = iconMap[a.accion] || "fa-circle-info";
-                    accionHtml = '<span class="badge-acc"><i class="fa-solid ' + ic + '"></i> ' + a.accion + '</span>';
-                    nivelHtml = '<span class="estado-activo">Info</span>';
+                    iconoAccion = iconMap[a.accion] || "fa-circle-info";
+                    textoNivel = "Info";
+                    claseNivel = "estado-activo";
                 }
+
                 var tr = document.createElement("tr");
-                tr.innerHTML =
-                    '<td><code>' + a.fecha + '</code></td>' +
-                    '<td><strong>' + a.usuario + '</strong></td>' +
-                    '<td>' + accionHtml + '</td>' +
-                    '<td>' + a.modulo + '</td>' +
-                    '<td>' + a.detalle + '</td>' +
-                    '<td>' + nivelHtml + '</td>';
+                var fecha = document.createElement("td");
+                var fechaCode = document.createElement("code");
+                fechaCode.textContent = a.fecha || "";
+                fecha.appendChild(fechaCode);
+                tr.appendChild(fecha);
+
+                var usuario = document.createElement("td");
+                var usuarioStrong = document.createElement("strong");
+                usuarioStrong.textContent = a.usuario || "Sistema / desconocido";
+                usuario.appendChild(usuarioStrong);
+                tr.appendChild(usuario);
+
+                var accion = document.createElement("td");
+                var badge = document.createElement("span");
+                badge.className = "badge-acc";
+                var icono = document.createElement("i");
+                icono.className = "fa-solid " + iconoAccion;
+                badge.append(icono, document.createTextNode(" " + (a.accion || "Evento")));
+                accion.appendChild(badge);
+                tr.appendChild(accion);
+
+                var modulo = document.createElement("td");
+                modulo.textContent = a.modulo || "—";
+                tr.appendChild(modulo);
+
+                var detalle = document.createElement("td");
+                detalle.textContent = a.detalle || "—";
+                if ((a.anterior !== null && a.anterior !== undefined) ||
+                    (a.nuevo !== null && a.nuevo !== undefined)) {
+                    var cambios = document.createElement("details");
+                    cambios.className = "audit-change-details";
+                    var resumenCambios = document.createElement("summary");
+                    resumenCambios.textContent = "Ver valores antes/después";
+                    cambios.appendChild(resumenCambios);
+                    [
+                        ["Antes", a.anterior],
+                        ["Después", a.nuevo]
+                    ].forEach(function(item) {
+                        if (item[1] === null || item[1] === undefined) return;
+                        var valores = document.createElement("pre");
+                        valores.className = "audit-change-snapshot";
+                        valores.textContent = item[0] + ":\n" + JSON.stringify(item[1], null, 2);
+                        cambios.appendChild(valores);
+                    });
+                    detalle.appendChild(cambios);
+                }
+                tr.appendChild(detalle);
+
+                var nivel = document.createElement("td");
+                var nivelBadge = document.createElement("span");
+                nivelBadge.className = claseNivel;
+                nivelBadge.textContent = textoNivel;
+                nivel.appendChild(nivelBadge);
+                tr.appendChild(nivel);
                 tbody.appendChild(tr);
             });
+
+            resumen.textContent = datos.length ?
+                "Mostrando " + (inicio + 1) + "–" + Math.min(inicio + auditoriaPorPagina, datos.length) + " de " + datos.length + " eventos" :
+                "Sin eventos";
+            indicadorPagina.textContent = totalPaginas ? "Página " + auditoriaPagina + " de " + totalPaginas : "Página 0 de 0";
+            botonAnterior.disabled = auditoriaPagina <= 1;
+            botonSiguiente.disabled = auditoriaPagina >= totalPaginas;
         }
 
         // Filtro auditoría
         document.querySelector("#tab-auditoria .panel-select").addEventListener("change", function() {
+            auditoriaPagina = 1;
             renderAuditoria(this.value);
+        });
+        document.getElementById("auditoriaAnterior").addEventListener("click", function() {
+            if (auditoriaPagina <= 1) return;
+            auditoriaPagina--;
+            renderAuditoria();
+        });
+        document.getElementById("auditoriaSiguiente").addEventListener("click", function() {
+            auditoriaPagina++;
+            renderAuditoria();
         });
 
         // Botones agregar

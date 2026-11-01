@@ -33,6 +33,12 @@ DECLARE
     v_texto TEXT;
     v_titulo_item TEXT;
     v_valor TEXT;
+    v_anterior JSONB;
+    v_nuevo JSONB;
+    v_existe BOOLEAN;
+    v_accion TEXT;
+    v_detalle TEXT;
+    v_campos TEXT;
 BEGIN
     IF p_destino IS NULL OR JSONB_TYPEOF(p_destino) <> 'object' THEN
         RETURN FALSE;
@@ -175,6 +181,38 @@ BEGIN
     v_orden := GREATEST(0, LEAST(9999, COALESCE((p_destino->>'orden')::INTEGER, 0)));
     v_publicado := COALESCE((p_destino->>'publicado')::BOOLEAN, TRUE);
 
+    SELECT JSONB_BUILD_OBJECT(
+        'clave', CLAVE,
+        'imagen', IMAGEN,
+        'texto_alt', TEXTO_ALT,
+        'insignia', INSIGNIA,
+        'titulo', TITULO,
+        'descripcion', DESCRIPCION,
+        'articulo', ARTICULO,
+        'orden', ORDEN,
+        'publicado', PUBLICADO
+    )
+    INTO v_anterior
+    FROM CONTENIDO_PORTADA
+    WHERE CLAVE = v_clave;
+    v_existe := FOUND;
+
+    v_nuevo := JSONB_BUILD_OBJECT(
+        'clave', v_clave,
+        'imagen', v_imagen,
+        'texto_alt', v_alt,
+        'insignia', v_insignia,
+        'titulo', v_titulo,
+        'descripcion', v_descripcion,
+        'articulo', v_articulo,
+        'orden', v_orden,
+        'publicado', v_publicado
+    );
+
+    IF v_existe AND v_anterior IS NOT DISTINCT FROM v_nuevo THEN
+        RETURN TRUE;
+    END IF;
+
     INSERT INTO CONTENIDO_PORTADA (
         CLAVE, IMAGEN, TEXTO_ALT, INSIGNIA, TITULO, DESCRIPCION,
         ARTICULO, ORDEN, PUBLICADO, MODIFICADO_POR, FECHA_ACTUALIZACION
@@ -195,11 +233,41 @@ BEGIN
         FECHA_ACTUALIZACION = NOW();
 
     IF p_auditar THEN
+        IF v_existe THEN
+            v_accion := 'Editar contenido portada';
+            SELECT STRING_AGG(
+                CASE campo
+                    WHEN 'imagen' THEN 'imagen'
+                    WHEN 'texto_alt' THEN 'texto alternativo'
+                    WHEN 'insignia' THEN 'insignia'
+                    WHEN 'titulo' THEN 'título'
+                    WHEN 'descripcion' THEN 'descripción'
+                    WHEN 'articulo' THEN 'artículo y mapa'
+                    WHEN 'orden' THEN 'orden'
+                    WHEN 'publicado' THEN 'publicación'
+                    ELSE campo
+                END,
+                ', ' ORDER BY campo
+            )
+            INTO v_campos
+            FROM JSONB_OBJECT_KEYS(v_nuevo) AS campos(campo)
+            WHERE (v_nuevo -> campo) IS DISTINCT FROM (v_anterior -> campo);
+            v_detalle := 'Se editó "' || v_titulo || '" (' || v_clave ||
+                '). Campos modificados: ' || COALESCE(v_campos, 'sin detalle');
+        ELSE
+            v_accion := 'Crear contenido portada';
+            v_detalle := 'Se creó "' || v_titulo || '" (' || v_clave || ').';
+        END IF;
+
         PERFORM fn_registrar_auditoria(
             p_id_admin,
-            'Guardar destino',
+            v_accion,
             'Contenido portada',
-            'Se guardó el destino de portada ' || v_clave,
+            'AUDIT_JSON:' || JSONB_BUILD_OBJECT(
+                'detalle', v_detalle,
+                'reg_anterior', v_anterior,
+                'reg_nuevo', v_nuevo
+            )::TEXT,
             'info'
         );
     END IF;
