@@ -203,6 +203,13 @@
                     <div class="portada-field full"><div class="portada-image-preview"><img id="pdPreview" alt="Vista previa"><span id="pdUploadStatus"></span></div></div>
                     <div class="portada-field"><label for="pdOrder">Orden en la portada</label><input id="pdOrder" type="text" inputmode="numeric" readonly required aria-describedby="pdOrderHelp"><small id="pdOrderHelp">Asignado automáticamente. No se puede editar.</small></div>
                     <label class="portada-check"><input id="pdPublished" type="checkbox"> Publicado en la portada</label>
+                    <label class="portada-check full"><input id="pdMapFeatured" type="checkbox"> Destacar en el mapa turístico</label>
+                    <p class="portada-help full">Los destinos del mapa se administran por separado de las tarjetas. Copia las coordenadas del lugar desde OpenStreetMap (clic derecho sobre el punto) y agrega de una a tres palabras clave.</p>
+                    <div class="portada-field"><label for="pdMapLatitude">Latitud</label><input id="pdMapLatitude" type="number" min="-90" max="90" step="any" placeholder="6.6357"></div>
+                    <div class="portada-field"><label for="pdMapLongitude">Longitud</label><input id="pdMapLongitude" type="number" min="-180" max="180" step="any" placeholder="-73.2228"></div>
+                    <div class="portada-field"><label for="pdMapTag1">Palabra clave 1</label><input id="pdMapTag1" maxlength="40" placeholder="Colonial"></div>
+                    <div class="portada-field"><label for="pdMapTag2">Palabra clave 2</label><input id="pdMapTag2" maxlength="40" placeholder="Camino Real"></div>
+                    <div class="portada-field"><label for="pdMapTag3">Palabra clave 3</label><input id="pdMapTag3" maxlength="40" placeholder="Artesanías"></div>
                     <div class="portada-field"><label for="paTitle">Título del artículo</label><input id="paTitle" maxlength="150"></div>
                     <div class="portada-field"><label for="paSubtitle">Subtítulo</label><input id="paSubtitle" maxlength="250"></div>
                     <div class="portada-field"><label for="paBadge">Insignia del artículo</label><input id="paBadge" maxlength="80"></div>
@@ -267,6 +274,11 @@
             pdAlt: item.alt,
             pdImage: item.img,
             pdOrder: item.orden,
+            pdMapLatitude: article.mapa && article.mapa.latitud,
+            pdMapLongitude: article.mapa && article.mapa.longitud,
+            pdMapTag1: article.mapa && article.mapa.etiquetas && article.mapa.etiquetas[0],
+            pdMapTag2: article.mapa && article.mapa.etiquetas && article.mapa.etiquetas[1],
+            pdMapTag3: article.mapa && article.mapa.etiquetas && article.mapa.etiquetas[2],
             paTitle: article.titulo || item.titulo,
             paSubtitle: article.subtitulo,
             paBadge: article.badge,
@@ -279,6 +291,17 @@
         Object.entries(values).forEach(([id, value]) => { document.getElementById(id).value = value == null ? '' : value; });
         document.getElementById('pdKey').readOnly = !isNew || item.municipio;
         document.getElementById('pdPublished').checked = item.publicado !== false;
+        const mapFeatured = document.getElementById('pdMapFeatured');
+        mapFeatured.checked = Boolean(article.mapa && article.mapa.destacado);
+        const updateMapFields = () => {
+            ['pdMapLatitude', 'pdMapLongitude', 'pdMapTag1', 'pdMapTag2', 'pdMapTag3'].forEach((id) => {
+                const field = document.getElementById(id);
+                field.disabled = !mapFeatured.checked;
+                field.required = mapFeatured.checked && ['pdMapLatitude', 'pdMapLongitude'].includes(id);
+            });
+        };
+        mapFeatured.addEventListener('change', updateMapFields);
+        updateMapFields();
         const preview = document.getElementById('pdPreview');
         preview.src = item.img ? adminAsset(item.img) : '';
         const videoPreview = document.getElementById('paVideoPreview');
@@ -414,6 +437,21 @@
         button.disabled = true;
         showStatus('Guardando destino…');
         const value = (id) => document.getElementById(id).value.trim();
+        const destacarEnMapa = document.getElementById('pdMapFeatured').checked;
+        const etiquetasMapa = ['pdMapTag1', 'pdMapTag2', 'pdMapTag3']
+            .map(value)
+            .filter(Boolean);
+        const latitudMapa = Number(value('pdMapLatitude'));
+        const longitudMapa = Number(value('pdMapLongitude'));
+        if (destacarEnMapa && (
+            !Number.isFinite(latitudMapa) || latitudMapa < -90 || latitudMapa > 90
+            || !Number.isFinite(longitudMapa) || longitudMapa < -180 || longitudMapa > 180
+            || etiquetasMapa.length < 1
+        )) {
+            showStatus('Para destacar el municipio en el mapa, indica coordenadas válidas y al menos una palabra clave.', true);
+            button.disabled = false;
+            return;
+        }
         const record = {
             ...original,
             key: original.municipio ? original.key : value('pdKey'),
@@ -432,7 +470,18 @@
                 datos: parseFacts(value('paFacts')),
                 intro: value('paIntro'),
                 secciones: parseLines(value('paSections'), 'titulo', 'texto'),
-                ctaTexto: value('paCta')
+                ctaTexto: value('paCta'),
+                mapa: destacarEnMapa ? {
+                    destacado: true,
+                    latitud: latitudMapa,
+                    longitud: longitudMapa,
+                    etiquetas: etiquetasMapa
+                } : {
+                    destacado: false,
+                    latitud: null,
+                    longitud: null,
+                    etiquetas: []
+                }
             }
         };
         if (original.key && original.key !== record.key) {

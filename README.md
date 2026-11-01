@@ -5,7 +5,7 @@ TourismEasy es una plataforma web de turismo inclusivo enfocada en Santander, Co
 ## Funcionalidades
 
 - Exploración de destinos, planes turísticos, hospedajes y transporte.
-- Mapa interactivo en la portada con Barichara, Vélez, Socorro, San Gil, Barrancabermeja, Curití, Los Santos, Guadalupe, Zapatoca y Molagavita. Está implementado con Leaflet y usa mapas de OpenStreetMap; sus archivos propios están en [mapa_interactuable/](mapa_interactuable/). No requiere clave de API, pero sí conexión a internet para cargar Leaflet y los mapas.
+- Mapa interactivo de destinos turísticos en la portada. Desde el panel de administración se eligen los municipios, sus coordenadas y hasta tres palabras clave; el mapa reutiliza la foto de Cloudinary guardada para cada municipio, sin crear tarjetas adicionales. Está implementado con Leaflet y OpenStreetMap; sus archivos propios están en [mapa_interactuable/](mapa_interactuable/). No requiere clave de API, pero sí conexión a internet.
 - Acceso para administración y empresas, con solicitud de registro empresarial.
 - Carrusel de los 87 municipios de Santander en la portada, con ocho tarjetas por página y navegación con flechas. Los nombres se consultan de la tabla `CIUDADES`; cada municipio tiene una tarjeta descrita en [componentes/destinos.js](componentes/destinos.js) y una ficha de destino propia en `ARTICULOS` de [componentes/articulos.js](componentes/articulos.js). Desde el panel se pueden actualizar las imágenes y los videos.
 - Atención y contacto de viajeros por WhatsApp; no se crean cuentas de viajeros.
@@ -68,7 +68,7 @@ El servidor integrado de PHP es para desarrollo local, no para producción. Para
 | [admin/](admin/) | Endpoint de contenido administrable de portada. |
 | [api/](api/) | Asistente y configuración de servicios externos. |
 | [con_db/](con_db/) | Conexión PDO y utilidades de sesión. |
-| [db/](db/) | Esquema y datos iniciales de PostgreSQL. |
+| [db/](db/) | Esquema, datos iniciales y migraciones de PostgreSQL. |
 | [funciones/](funciones/) | Funciones SQL utilizadas por el backend. |
 | [mapa_interactuable/](mapa_interactuable/) | JavaScript y estilos del mapa turístico de la portada. |
 | [img/](img/), [audio-video/](audio-video/) | Recursos multimedia del sitio. Las imágenes subidas se alojan en Cloudinary. |

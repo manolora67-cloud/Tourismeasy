@@ -235,6 +235,12 @@
     grid-column: 1/-1
 }
 
+.portada-form-grid > .portada-help.full {
+    grid-column: 1/-1;
+    margin: 0;
+    line-height: 1.5
+}
+
 .portada-field label {
     font-weight: 700;
     color: var(--gray-700);
@@ -323,6 +329,15 @@
     font-weight: 700
 }
 
+.portada-check.full {
+    grid-column: 1/-1
+}
+
+.portada-field input:disabled {
+    opacity: .6;
+    cursor: not-allowed
+}
+
 .portada-form-actions {
     display: flex;
     gap: 10px;
@@ -401,6 +416,12 @@ body.dark-mode .portada-cancel:hover {
         grid-template-columns: 1fr
     }
     .portada-field.full {
+        grid-column: auto
+    }
+    .portada-form-grid > .portada-help.full {
+        grid-column: auto
+    }
+    .portada-check.full {
         grid-column: auto
     }
     .portada-editor {

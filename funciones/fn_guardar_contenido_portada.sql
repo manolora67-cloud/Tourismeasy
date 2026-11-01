@@ -14,11 +14,21 @@ DECLARE
     v_descripcion CONTENIDO_PORTADA.DESCRIPCION%TYPE;
     v_articulo CONTENIDO_PORTADA.ARTICULO%TYPE;
     v_articulo_entrada JSONB;
+    v_mapa_definido BOOLEAN;
+    v_mapa_entrada JSONB;
+    v_mapa JSONB;
     v_datos JSONB := '[]'::JSONB;
     v_secciones JSONB := '[]'::JSONB;
+    v_etiquetas JSONB := '[]'::JSONB;
     v_item JSONB;
     v_orden CONTENIDO_PORTADA.ORDEN%TYPE;
     v_publicado CONTENIDO_PORTADA.PUBLICADO%TYPE;
+    v_mapa_destacado BOOLEAN;
+    v_etiquetas_tipo TEXT;
+    v_latitud_tipo TEXT;
+    v_longitud_tipo TEXT;
+    v_latitud NUMERIC;
+    v_longitud NUMERIC;
     v_video TEXT;
     v_texto TEXT;
     v_titulo_item TEXT;
@@ -52,6 +62,54 @@ BEGIN
     v_articulo_entrada := COALESCE(p_destino->'article', '{}'::JSONB);
     IF JSONB_TYPEOF(v_articulo_entrada) <> 'object' THEN
         RETURN FALSE;
+    END IF;
+
+    v_mapa_definido := v_articulo_entrada ? 'mapa';
+    v_mapa_entrada := COALESCE(v_articulo_entrada->'mapa', '{}'::JSONB);
+    IF JSONB_TYPEOF(v_mapa_entrada) <> 'object'
+       OR (v_mapa_entrada ? 'destacado' AND JSONB_TYPEOF(v_mapa_entrada->'destacado') <> 'boolean') THEN
+        RETURN FALSE;
+    END IF;
+    v_mapa_destacado := COALESCE((v_mapa_entrada->>'destacado')::BOOLEAN, FALSE);
+
+    IF v_mapa_destacado THEN
+        v_latitud_tipo := COALESCE(JSONB_TYPEOF(v_mapa_entrada->'latitud'), '');
+        v_longitud_tipo := COALESCE(JSONB_TYPEOF(v_mapa_entrada->'longitud'), '');
+        v_etiquetas_tipo := COALESCE(JSONB_TYPEOF(v_mapa_entrada->'etiquetas'), '');
+        IF v_latitud_tipo <> 'number'
+           OR v_longitud_tipo <> 'number'
+           OR v_etiquetas_tipo <> 'array'
+           OR COALESCE(JSONB_ARRAY_LENGTH(v_mapa_entrada->'etiquetas'), 0) NOT BETWEEN 1 AND 3 THEN
+            RETURN FALSE;
+        END IF;
+
+        v_latitud := (v_mapa_entrada->>'latitud')::NUMERIC;
+        v_longitud := (v_mapa_entrada->>'longitud')::NUMERIC;
+        IF v_latitud NOT BETWEEN -90 AND 90 OR v_longitud NOT BETWEEN -180 AND 180 THEN
+            RETURN FALSE;
+        END IF;
+
+        FOR v_item IN SELECT VALUE FROM JSONB_ARRAY_ELEMENTS(v_mapa_entrada->'etiquetas') LOOP
+            v_texto := BTRIM(v_item #>> '{}');
+            IF JSONB_TYPEOF(v_item) <> 'string' OR v_texto IS NULL OR v_texto = '' OR LENGTH(v_texto) > 40 THEN
+                RETURN FALSE;
+            END IF;
+            v_etiquetas := v_etiquetas || JSONB_BUILD_ARRAY(v_texto);
+        END LOOP;
+
+        v_mapa := JSONB_BUILD_OBJECT(
+            'destacado', TRUE,
+            'latitud', v_latitud,
+            'longitud', v_longitud,
+            'etiquetas', v_etiquetas
+        );
+    ELSE
+        v_mapa := JSONB_BUILD_OBJECT(
+            'destacado', FALSE,
+            'latitud', NULL,
+            'longitud', NULL,
+            'etiquetas', '[]'::JSONB
+        );
     END IF;
 
     v_video := COALESCE(NULLIF(BTRIM(v_articulo_entrada->>'video'), ''), '');
@@ -111,6 +169,9 @@ BEGIN
         'secciones', v_secciones,
         'ctaTexto', COALESCE(BTRIM(v_articulo_entrada->>'ctaTexto'), '')
     );
+    IF v_mapa_definido THEN
+        v_articulo := v_articulo || JSONB_BUILD_OBJECT('mapa', v_mapa);
+    END IF;
     v_orden := GREATEST(0, LEAST(9999, COALESCE((p_destino->>'orden')::INTEGER, 0)));
     v_publicado := COALESCE((p_destino->>'publicado')::BOOLEAN, TRUE);
 

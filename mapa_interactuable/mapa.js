@@ -1,37 +1,18 @@
 (function () {
     "use strict";
 
-    const DESTINOS_TURISTICOS = [
-        { key: "barichara", nombre: "Barichara", coordenadas: [6.6357, -73.2228] },
-        { key: "velez", nombre: "Vélez", coordenadas: [6.0139, -73.6732] },
-        { key: "socorro", nombre: "Socorro", coordenadas: [6.4626, -73.2606] },
-        { key: "sangil", nombre: "San Gil", coordenadas: [6.5557, -73.1331] },
-        { key: "barrancabermeja", nombre: "Barrancabermeja", coordenadas: [7.0653, -73.8547] },
-        { key: "curiti", nombre: "Curití", coordenadas: [6.6057, -73.0689] },
-        { key: "lossantos", nombre: "Los Santos", coordenadas: [6.7552, -73.1021] },
-        { key: "guadalupe", nombre: "Guadalupe", coordenadas: [6.2463, -73.4189] },
-        { key: "zapatoca", nombre: "Zapatoca", coordenadas: [6.8153, -73.2677] },
-        { key: "molagavita", nombre: "Molagavita", coordenadas: [6.6400, -72.8100] },
-    ];
+    const basePath = window.location.pathname.includes("/html/") ? "../" : "";
 
     function crearContenidoPopup(destino) {
-        const enlaceTarjeta = Array.from(
-            document.querySelectorAll("#site-destinos [data-article]")
-        ).find((enlace) => enlace.dataset.article === destino.key);
-        const tarjeta = enlaceTarjeta && enlaceTarjeta.closest(".card");
-        const imagenTarjeta = tarjeta && tarjeta.querySelector(".card-img img");
-        const descripcionTarjeta = tarjeta && tarjeta.querySelector(".card-body p");
         const contenido = document.createElement("div");
         contenido.className = "mapa-popup";
 
-        if (imagenTarjeta) {
-            const imagen = document.createElement("img");
-            imagen.className = "mapa-popup-imagen";
-            imagen.src = imagenTarjeta.src;
-            imagen.alt = imagenTarjeta.alt || destino.nombre;
-            imagen.loading = "eager";
-            contenido.appendChild(imagen);
-        }
+        const imagen = document.createElement("img");
+        imagen.className = "mapa-popup-imagen";
+        imagen.src = destino.img;
+        imagen.alt = destino.alt || destino.titulo;
+        imagen.loading = "eager";
+        contenido.appendChild(imagen);
 
         const cuerpo = document.createElement("div");
         cuerpo.className = "mapa-popup-cuerpo";
@@ -42,14 +23,18 @@
         cuerpo.appendChild(region);
 
         const titulo = document.createElement("h3");
-        titulo.textContent = destino.nombre;
+        titulo.textContent = destino.titulo;
         cuerpo.appendChild(titulo);
 
-        if (descripcionTarjeta) {
-            const descripcion = document.createElement("p");
-            descripcion.textContent = descripcionTarjeta.textContent.trim();
-            cuerpo.appendChild(descripcion);
-        }
+        const etiquetas = document.createElement("div");
+        etiquetas.className = "mapa-popup-etiquetas";
+        etiquetas.setAttribute("aria-label", `Temas destacados de ${destino.titulo}`);
+        destino.mapa.etiquetas.forEach((texto) => {
+            const etiqueta = document.createElement("span");
+            etiqueta.textContent = texto;
+            etiquetas.appendChild(etiqueta);
+        });
+        cuerpo.appendChild(etiquetas);
 
         const enlace = document.createElement("a");
         enlace.className = "mapa-destino-link";
@@ -60,6 +45,50 @@
 
         contenido.appendChild(cuerpo);
         return contenido;
+    }
+
+    async function cargarDestinos(mapa, estado) {
+        estado.textContent = "Cargando destinos destacados…";
+        try {
+            const respuesta = await fetch(`${basePath}admin/contenido_portada.php?map=1`);
+            const resultado = await respuesta.json();
+            if (!respuesta.ok || !resultado.ok || !Array.isArray(resultado.data)) {
+                throw new Error(resultado.error || "No se pudieron cargar los destinos destacados.");
+            }
+
+            const destinos = resultado.data.filter((destino) => (
+                destino.mapa
+                && destino.mapa.destacado === true
+                && Number.isFinite(Number(destino.mapa.latitud))
+                && Number.isFinite(Number(destino.mapa.longitud))
+                && Array.isArray(destino.mapa.etiquetas)
+            ));
+
+            if (!destinos.length) {
+                estado.textContent = "Aún no hay municipios destacados. Puedes seleccionarlos desde el panel de administración.";
+                mapa.setView([6.7, -73.2], 8);
+                return;
+            }
+
+            const marcadores = destinos.map((destino) => window.L.marker([
+                Number(destino.mapa.latitud),
+                Number(destino.mapa.longitud),
+            ]).addTo(mapa).bindPopup(crearContenidoPopup(destino), {
+                maxWidth: 280,
+                minWidth: 240,
+                className: "destino-popup",
+            }));
+
+            estado.textContent = "";
+            estado.hidden = true;
+            mapa.fitBounds(window.L.featureGroup(marcadores).getBounds(), {
+                padding: [28, 28],
+                maxZoom: 9,
+            });
+        } catch (error) {
+            console.error("[TourismEasy] No se pudieron cargar los destinos del mapa.", error);
+            estado.textContent = "No se pudieron cargar los destinos del mapa. Inténtalo de nuevo más tarde.";
+        }
     }
 
     function crearMapa(contenedor) {
@@ -80,18 +109,9 @@
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         }).addTo(mapa);
 
-        const marcadores = DESTINOS_TURISTICOS.map((destino) => {
-            return window.L.marker(destino.coordenadas)
-                .addTo(mapa)
-                .bindPopup(crearContenidoPopup(destino), {
-                    maxWidth: 280,
-                    minWidth: 240,
-                    className: "destino-popup",
-                });
-        });
-
-        const limites = window.L.featureGroup(marcadores).getBounds();
-        mapa.fitBounds(limites, { padding: [28, 28], maxZoom: 9 });
+        const estado = contenedor.parentElement.querySelector(".mapa-estado");
+        mapa.setView([6.7, -73.2], 8);
+        cargarDestinos(mapa, estado);
     }
 
     function instalarMapa() {
@@ -108,6 +128,7 @@
         bloque.innerHTML = `
             <h2 class="section-title">Destinos turísticos destacados</h2>
             <p>Selecciona un marcador para conocer más sobre cada municipio.</p>
+            <p class="mapa-estado" role="status" aria-live="polite"></p>
             <div id="mapa-turistico" role="application" aria-label="Mapa interactivo de destinos turísticos de Santander"></div>
         `;
         seccion.insertBefore(bloque, puntoInsercion);

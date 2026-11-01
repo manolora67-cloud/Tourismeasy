@@ -44,7 +44,18 @@ La instalación nueva carga las 48 fechas iniciales en `FESTIVIDADES_SANTANDER`.
 
 ### Contenido administrable de la portada
 
-El esquema base incluye las tablas necesarias para guardar contenido de portada y la lista de municipios de Santander. Los 87 nombres se consultan desde `CIUDADES`; las descripciones de las tarjetas están en `componentes/destinos.js` y cada ficha de municipio tiene una entrada propia en `ARTICULOS` de `componentes/articulos.js`. Las imágenes y videos que se actualizan desde el panel se guardan como contenido de portada. El carrusel muestra ocho municipios por página. El panel permite actualizar los medios, pero no cambiar los nombres ni las descripciones. Al abrir por primera vez el panel de administración sobre una base nueva, se copian automáticamente a PostgreSQL los ocho destinos y artículos iniciales del sitio. No ejecutes este archivo sobre una base existente para actualizarla: está pensado para instalar el proyecto en una base vacía.
+El esquema base incluye las tablas necesarias para guardar contenido de portada y la lista de municipios de Santander. Los 87 nombres se consultan desde `CIUDADES`; las descripciones de las tarjetas están en `componentes/destinos.js` y cada ficha de municipio tiene una entrada propia en `ARTICULOS` de `componentes/articulos.js`. Las imágenes y videos que se actualizan desde el panel se guardan como contenido de portada. El carrusel muestra ocho municipios por página. El panel permite actualizar el contenido y los medios de las tarjetas.
+
+Desde el editor de un municipio, la opción **Destacar en el mapa turístico** permite administrar sus coordenadas y hasta tres palabras clave. Esto se guarda dentro del artículo JSONB de `CONTENIDO_PORTADA`, pero es independiente de `PUBLICADO`: se puede mostrar un municipio en el mapa sin mostrar su tarjeta en el carrusel. La foto del popup reutiliza la URL de imagen del contenido de portada. La función `fn_listar_destinos_mapa.sql` entrega al mapa solamente los municipios elegidos y los campos necesarios.
+
+En una base existente, instala la función actualizada de guardado y la nueva función de consulta del mapa:
+
+```powershell
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\funciones\fn_guardar_contenido_portada.sql
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\funciones\fn_listar_destinos_mapa.sql
+```
+
+Reemplaza `postgres` y `tourismeasy` por los valores de tu instalación. No se incluye migración ni se insertan municipios destacados automáticamente: después de instalar las funciones, abre **Destinos de la portada** en el panel, edita cada municipio que quieras mostrar, activa **Destacar en el mapa turístico**, completa sus coordenadas y palabras clave, y guarda. En instalaciones nuevas, abre primero el panel para que se inicialice `CONTENIDO_PORTADA`. No ejecutes `DB_TOURISMEASY.sql` sobre una base existente.
 
 ### Instalar las funciones SQL
 
