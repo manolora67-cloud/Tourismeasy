@@ -46,14 +46,11 @@
                     <i class="fa-solid fa-shield-halved"></i> Administrador
                 </div>
                 <nav class="pu-sidebar-nav">
-                    <a href="panel_admin.html" class="pu-nav-item pu-nav-highlight"><i
-                            class="fa-solid fa-shield-halved"></i>
-                        Panel Admin</a>
-                    <a href="perfil_admin.html" class="pu-nav-item"><i class="fa-solid fa-user"></i> Mi Perfil</a>
-                    <a href="config_admin.html" class="pu-nav-item active"><i class="fa-solid fa-gear"></i>
-                        Configuración</a>
-                    <a href="festividades_admin.html" class="pu-nav-item"><i class="fa-solid fa-calendar-days"></i>
-                        Festividades</a>
+                    <a href="panel_admin.html" class="pu-nav-item pu-nav-highlight">🛡️ Panel Admin</a>
+                    <a href="perfil_admin.html" class="pu-nav-item">👤 Mi Perfil</a>
+                    <a href="config_admin.html" class="pu-nav-item active">⚙️ Configuración</a>
+                    <a href="festividades_admin.html" class="pu-nav-item">📅 Festividades</a>
+                    <a href="../index.html" class="pu-nav-item">🏠 Ir al sitio</a>
                 </nav>
 
                 <div class="pe-sidebar-bloque pe-sidebar-bloque--purple">
@@ -142,7 +139,7 @@
 
                 <div style="margin-top: auto; padding-top: 16px">
                     <a href="#" class="pu-nav-item pu-nav-danger" style="display: block" id="sidebarLogout">
-                        <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión
+                        🚪 Cerrar Sesión
                     </a>
                 </div>
             </aside>
@@ -295,7 +292,7 @@
             var ini = user.avatar || ((user.nombre || "AD").trim().split(/\s+/).map(function (x) {
                 return x[0] || "";
             }).join("").toUpperCase().slice(0, 2) || "AD");
-            w.innerHTML = '<button class="session-trigger" id="sessionTrigger"><div class="session-avatar">' + ini + '</div><div class="session-info"><span class="session-name">' + (user.nombre || "Administrador") + '</span><span class="session-tipo">Administrador</span></div><i class="fa-solid fa-chevron-down session-chevron" id="sessionChevron"></i></button><div class="session-dropdown" id="sessionDropdown"><a class="session-menu-item" href="../index.html"><i class="fa-solid fa-house"></i> Ir al sitio</a><a class="session-menu-item session-menu-highlight" href="panel_admin.html"><i class="fa-solid fa-shield-halved"></i> Panel Administrador</a><a class="session-menu-item" href="perfil_admin.html"><i class="fa-solid fa-user"></i> Mi Perfil</a><a class="session-menu-item" href="config_admin.html"><i class="fa-solid fa-gear"></i> Configuracion</a><a class="session-menu-item" href="festividades_admin.html"><i class="fa-solid fa-calendar-days"></i> Festividades</a><a class="session-menu-item session-menu-danger" id="btnLogout" href="#"><i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesion</a></div>';
+            w.innerHTML = '<button class="session-trigger" id="sessionTrigger"><div class="session-avatar">' + ini + '</div><div class="session-info"><span class="session-name">' + (user.nombre || "Administrador") + '</span><span class="session-tipo">Administrador</span></div><i class="fa-solid fa-chevron-down session-chevron" id="sessionChevron"></i></button><div class="session-dropdown" id="sessionDropdown"><a class="session-menu-item" href="../index.html">🏠 Ir al sitio</a><a class="session-menu-item session-menu-highlight" href="panel_admin.html">🛡️ Panel Administrador</a><a class="session-menu-item" href="perfil_admin.html">👤 Mi Perfil</a><a class="session-menu-item" href="config_admin.html">⚙️ Configuración</a><a class="session-menu-item" href="festividades_admin.html">📅 Festividades</a><a class="session-menu-item session-menu-danger" id="btnLogout" href="#">🚪 Cerrar Sesión</a></div>';
             slot.appendChild(w);
             var trig = w.querySelector("#sessionTrigger"),
                 drop = w.querySelector("#sessionDropdown"),

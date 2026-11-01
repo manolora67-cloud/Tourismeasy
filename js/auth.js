@@ -342,11 +342,11 @@
 
         const panel = panelForSession(user);
         const menu = user.tipo === "admin" ?
-            `<a class="session-menu-item" href="${route("index.html")}">Ir al sitio</a><a class="session-menu-item session-menu-highlight" href="${route(panel)}">Panel Admin</a><a class="session-menu-item" href="${route("perfil_admin.html")}">Mi Perfil</a><a class="session-menu-item" href="${route("config_admin.html")}">Configuración</a><a class="session-menu-item" href="${route("festividades_admin.html")}">Festividades</a>` :
+            `<a class="session-menu-item" href="${inHtml ? "../index.html" : "index.html"}">🏠 Ir al sitio</a><a class="session-menu-item session-menu-highlight" href="${route(panel)}">🛡️ Panel Admin</a><a class="session-menu-item" href="${route("perfil_admin.html")}">👤 Mi Perfil</a><a class="session-menu-item" href="${route("config_admin.html")}">⚙️ Configuración</a><a class="session-menu-item" href="${route("festividades_admin.html")}">📅 Festividades</a>` :
             `<a class="session-menu-item session-menu-highlight" href="${route(panel)}">Mi Panel</a><a class="session-menu-item" href="${route("perfil_empresa.html")}">Mi Perfil</a><a class="session-menu-item" href="${route("config_empresa.html")}">Configuración</a>`;
         const widget = document.createElement("div");
         widget.className = "session-widget";
-        widget.innerHTML = `<button class="session-trigger"><span class="session-avatar"></span><span class="session-info"><span class="session-name"></span><span class="session-tipo"></span></span><i class="fa-solid fa-chevron-down session-chevron"></i></button><div class="session-dropdown">${menu}<a class="session-menu-item session-menu-danger logout-btn" href="#">Cerrar sesión</a></div>`;
+        widget.innerHTML = `<button class="session-trigger"><span class="session-avatar"></span><span class="session-info"><span class="session-name"></span><span class="session-tipo"></span></span><i class="fa-solid fa-chevron-down session-chevron"></i></button><div class="session-dropdown">${menu}<a class="session-menu-item session-menu-danger logout-btn" href="#">🚪 Cerrar sesión</a></div>`;
         const name = String(user.nombre || (user.tipo === "admin" ? "Administrador" : "Empresa"));
         widget.querySelector(".session-avatar").textContent = name.split(/\s+/).map((part) => part[0]).join("").slice(0, 2).toUpperCase();
         widget.querySelector(".session-name").textContent = name;
