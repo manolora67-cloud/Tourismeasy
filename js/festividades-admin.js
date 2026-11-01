@@ -248,25 +248,22 @@
         var dropdown = document.createElement("div");
         dropdown.className = "session-dropdown";
         [
-            ["panel_admin.html", "fa-shield-halved", "Panel Admin"],
-            ["perfil_admin.html", "fa-user", "Mi Perfil"],
-            ["config_admin.html", "fa-gear", "Configuración"],
-            ["festividades_admin.html", "fa-calendar-days", "Festividades"]
+            ["../index.html", "🏠", "Ir al sitio"],
+            ["panel_admin.html", "🛡️", "Panel Admin"],
+            ["perfil_admin.html", "👤", "Mi Perfil"],
+            ["config_admin.html", "⚙️", "Configuración"],
+            ["festividades_admin.html", "📅", "Festividades"]
         ].forEach(function(item) {
             var link = document.createElement("a");
             link.className = "session-menu-item";
             link.href = item[0];
-            var icon = document.createElement("i");
-            icon.className = "fa-solid " + item[1];
-            link.append(icon, document.createTextNode(" " + item[2]));
+            link.append(document.createTextNode(item[1] + " " + item[2]));
             dropdown.appendChild(link);
         });
         var logoutLink = document.createElement("a");
         logoutLink.className = "session-menu-item session-menu-danger";
         logoutLink.href = "#";
-        var logoutIcon = document.createElement("i");
-        logoutIcon.className = "fa-solid fa-right-from-bracket";
-        logoutLink.append(logoutIcon, document.createTextNode(" Cerrar Sesión"));
+        logoutLink.append(document.createTextNode("🚪 Cerrar Sesión"));
         dropdown.appendChild(logoutLink);
         widget.append(trigger, dropdown);
         slot.appendChild(widget);
