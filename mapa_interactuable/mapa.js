@@ -14,14 +14,52 @@
         { key: "molagavita", nombre: "Molagavita", coordenadas: [6.6400, -72.8100] },
     ];
 
-    function escaparHTML(texto) {
-        return String(texto).replace(/[&<>"']/g, (caracter) => ({
-            "&": "&amp;",
-            "<": "&lt;",
-            ">": "&gt;",
-            '"': "&quot;",
-            "'": "&#39;",
-        })[caracter]);
+    function crearContenidoPopup(destino) {
+        const enlaceTarjeta = Array.from(
+            document.querySelectorAll("#site-destinos [data-article]")
+        ).find((enlace) => enlace.dataset.article === destino.key);
+        const tarjeta = enlaceTarjeta && enlaceTarjeta.closest(".card");
+        const imagenTarjeta = tarjeta && tarjeta.querySelector(".card-img img");
+        const descripcionTarjeta = tarjeta && tarjeta.querySelector(".card-body p");
+        const contenido = document.createElement("div");
+        contenido.className = "mapa-popup";
+
+        if (imagenTarjeta) {
+            const imagen = document.createElement("img");
+            imagen.className = "mapa-popup-imagen";
+            imagen.src = imagenTarjeta.src;
+            imagen.alt = imagenTarjeta.alt || destino.nombre;
+            imagen.loading = "eager";
+            contenido.appendChild(imagen);
+        }
+
+        const cuerpo = document.createElement("div");
+        cuerpo.className = "mapa-popup-cuerpo";
+
+        const region = document.createElement("span");
+        region.className = "mapa-popup-region";
+        region.textContent = "Santander";
+        cuerpo.appendChild(region);
+
+        const titulo = document.createElement("h3");
+        titulo.textContent = destino.nombre;
+        cuerpo.appendChild(titulo);
+
+        if (descripcionTarjeta) {
+            const descripcion = document.createElement("p");
+            descripcion.textContent = descripcionTarjeta.textContent.trim();
+            cuerpo.appendChild(descripcion);
+        }
+
+        const enlace = document.createElement("a");
+        enlace.className = "mapa-destino-link";
+        enlace.href = `#art-${encodeURIComponent(destino.key)}`;
+        enlace.dataset.article = destino.key;
+        enlace.textContent = "Ver destino";
+        cuerpo.appendChild(enlace);
+
+        contenido.appendChild(cuerpo);
+        return contenido;
     }
 
     function crearMapa(contenedor) {
@@ -43,12 +81,13 @@
         }).addTo(mapa);
 
         const marcadores = DESTINOS_TURISTICOS.map((destino) => {
-            const enlace = `<a class="mapa-destino-link" href="#art-${destino.key}" data-article="${destino.key}">Conocer destino</a>`;
-            const popup = `<strong>${escaparHTML(destino.nombre)}, Santander</strong><br>${enlace}`;
-
             return window.L.marker(destino.coordenadas)
                 .addTo(mapa)
-                .bindPopup(popup);
+                .bindPopup(crearContenidoPopup(destino), {
+                    maxWidth: 280,
+                    minWidth: 240,
+                    className: "destino-popup",
+                });
         });
 
         const limites = window.L.featureGroup(marcadores).getBounds();
