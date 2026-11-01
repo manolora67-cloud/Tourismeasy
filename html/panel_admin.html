@@ -7,7 +7,7 @@
     <title>Panel Administrador - TourismEasy</title>
     <link rel="stylesheet" href="../css/index.css" />
     <link rel="stylesheet" href="../css/login.css" />
-    <link rel="stylesheet" href="../css/panel_admin.css" />
+    <link rel="stylesheet" href="../css/panel_admin.css?v=auditoria-texto-v1" />
     <link rel="stylesheet" href="../css/click_metrics.css" />
     <link rel="stylesheet" href="../css/contenido_admin.css?v=destino-mapa-v5" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -626,6 +626,121 @@
             }
         }
 
+        var etiquetasSnapshotAuditoria = {
+            clave: "Clave",
+            imagen: "Imagen",
+            texto_alt: "Texto alternativo",
+            insignia: "Insignia",
+            titulo: "Título",
+            descripcion: "Descripción",
+            articulo: "Contenido del artículo",
+            orden: "Orden",
+            publicado: "Publicado",
+            video: "Video",
+            subtitulo: "Subtítulo",
+            datos: "Datos",
+            intro: "Introducción",
+            secciones: "Secciones",
+            ctaTexto: "Texto del botón",
+            mapa: "Mapa",
+            destacado: "Destacado en el mapa",
+            latitud: "Latitud",
+            longitud: "Longitud",
+            etiquetas: "Palabras clave",
+            label: "Campo",
+            val: "Valor",
+            texto: "Texto",
+            nombre: "Nombre",
+            correo_institucional: "Correo institucional",
+            contacto: "Contacto",
+            id_ciudad: "Código del municipio",
+            tipo_servicio: "Tipo de servicio",
+            estado: "Estado",
+            correo_acceso: "Correo de acceso"
+        };
+
+        function crearSnapshotAuditoria(titulo, snapshot) {
+            var seccion = document.createElement("section");
+            seccion.className = "audit-snapshot";
+            var encabezado = document.createElement("h4");
+            encabezado.className = "audit-snapshot-title";
+            encabezado.textContent = titulo;
+            seccion.appendChild(encabezado);
+
+            var campos = document.createElement("div");
+            campos.className = "audit-snapshot-fields";
+            if (snapshot && typeof snapshot === "object" && !Array.isArray(snapshot)) {
+                Object.keys(snapshot).forEach(function(clave) {
+                    agregarCampoSnapshotAuditoria(campos, clave, snapshot[clave]);
+                });
+            } else {
+                agregarValorSnapshotAuditoria(campos, snapshot);
+            }
+            seccion.appendChild(campos);
+            return seccion;
+        }
+
+        function agregarCampoSnapshotAuditoria(contenedor, clave, valor) {
+            var campo = document.createElement("div");
+            campo.className = "audit-snapshot-field";
+            var etiqueta = document.createElement("span");
+            etiqueta.className = "audit-snapshot-label";
+            etiqueta.textContent = etiquetasSnapshotAuditoria[clave] ||
+                clave.replace(/_/g, " ").replace(/^./, function(letra) { return letra.toUpperCase(); });
+            campo.appendChild(etiqueta);
+
+            var contenido = document.createElement("div");
+            contenido.className = "audit-snapshot-value";
+            if (valor && typeof valor === "object") {
+                agregarValorSnapshotAuditoria(contenido, valor);
+            } else {
+                contenido.textContent = valor === null || valor === undefined || valor === "" ?
+                    "Sin valor" :
+                    typeof valor === "boolean" ? (valor ? "Sí" : "No") : String(valor);
+            }
+            campo.appendChild(contenido);
+            contenedor.appendChild(campo);
+        }
+
+        function agregarValorSnapshotAuditoria(contenedor, valor) {
+            if (Array.isArray(valor)) {
+                if (!valor.length) {
+                    contenedor.textContent = "Sin elementos";
+                    return;
+                }
+                valor.forEach(function(elemento) {
+                    if (elemento && typeof elemento === "object") {
+                        var tarjeta = document.createElement("div");
+                        tarjeta.className = "audit-snapshot-item";
+                        Object.keys(elemento).forEach(function(clave) {
+                            agregarCampoSnapshotAuditoria(tarjeta, clave, elemento[clave]);
+                        });
+                        contenedor.appendChild(tarjeta);
+                    } else {
+                        var item = document.createElement("span");
+                        item.className = "audit-snapshot-tag";
+                        item.textContent = elemento === null || elemento === undefined ? "Sin valor" : String(elemento);
+                        contenedor.appendChild(item);
+                    }
+                });
+                return;
+            }
+
+            if (valor && typeof valor === "object") {
+                var grupo = document.createElement("div");
+                grupo.className = "audit-snapshot-group";
+                Object.keys(valor).forEach(function(clave) {
+                    agregarCampoSnapshotAuditoria(grupo, clave, valor[clave]);
+                });
+                contenedor.appendChild(grupo);
+                return;
+            }
+
+            contenedor.textContent = valor === null || valor === undefined || valor === "" ?
+                "Sin valor" :
+                typeof valor === "boolean" ? (valor ? "Sí" : "No") : String(valor);
+        }
+
         // ── Cargar auditoría real desde la BD ──
         function cargarAuditoriaBD() {
             fetch("../soli_empresas/get_auditoria.php", {
@@ -1131,10 +1246,7 @@
                         ["Después", a.nuevo]
                     ].forEach(function(item) {
                         if (item[1] === null || item[1] === undefined) return;
-                        var valores = document.createElement("pre");
-                        valores.className = "audit-change-snapshot";
-                        valores.textContent = item[0] + ":\n" + JSON.stringify(item[1], null, 2);
-                        cambios.appendChild(valores);
+                        cambios.appendChild(crearSnapshotAuditoria(item[0], item[1]));
                     });
                     detalle.appendChild(cambios);
                 }

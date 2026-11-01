@@ -1140,17 +1140,73 @@ body.dark-mode .panel-navbar-label {
     font-weight: 700;
 }
 
-.audit-change-snapshot {
-    max-height: 220px;
-    overflow: auto;
-    margin-top: 8px;
-    padding: 10px;
+.audit-snapshot {
+    margin-top: 10px;
+    padding: 12px;
+    border: 1px solid var(--gray-200);
+    border-radius: 10px;
+    background: var(--white);
+    color: var(--gray-800);
+}
+
+.audit-snapshot-title {
+    margin: 0 0 8px;
+    color: var(--purple);
+    font-family: var(--font-head);
+    font-size: 0.82rem;
+    font-weight: 800;
+}
+
+.audit-snapshot-fields,
+.audit-snapshot-group {
+    display: grid;
+    gap: 7px;
+}
+
+.audit-snapshot-field {
+    display: grid;
+    grid-template-columns: minmax(110px, 0.35fr) minmax(0, 1fr);
+    gap: 10px;
+    align-items: start;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.audit-snapshot-field:last-child {
+    padding-bottom: 0;
+    border-bottom: 0;
+}
+
+.audit-snapshot-label {
+    color: var(--gray-600);
+    font-weight: 700;
+}
+
+.audit-snapshot-value {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+}
+
+.audit-snapshot-group,
+.audit-snapshot-item {
+    min-width: 0;
+    padding: 9px;
     border-radius: 8px;
     background: var(--gray-100);
+}
+
+.audit-snapshot-item + .audit-snapshot-item {
+    margin-top: 7px;
+}
+
+.audit-snapshot-tag {
+    display: inline-block;
+    margin: 0 5px 5px 0;
+    padding: 4px 8px;
+    border-radius: 20px;
+    background: var(--gray-100);
     color: var(--gray-800);
-    font-size: 0.72rem;
-    white-space: pre-wrap;
-    overflow-wrap: anywhere;
 }
 
 .audit-warning {
@@ -2318,9 +2374,21 @@ body.dark-mode .audit-empty {
     color: #cbd5e1;
 }
 
-body.dark-mode .audit-change-snapshot {
+body.dark-mode .audit-snapshot {
+    background: #1e293b;
+    border-color: #334155;
+    color: #e2e8f0;
+}
+
+body.dark-mode .audit-snapshot-group,
+body.dark-mode .audit-snapshot-item,
+body.dark-mode .audit-snapshot-tag {
     background: #0f172a;
     color: #e2e8f0;
+}
+
+body.dark-mode .audit-snapshot-label {
+    color: #94a3b8;
 }
 
 body.dark-mode .panel-filter-btn {
