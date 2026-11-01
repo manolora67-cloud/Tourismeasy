@@ -25,6 +25,10 @@ BEGIN
         TG_OP
     );
 
+    IF TG_OP = 'UPDATE' THEN
+        RETURN NEW;
+    END IF;
+
     RETURN OLD;
 END;
 $$
