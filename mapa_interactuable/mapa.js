@@ -212,7 +212,7 @@
         }).addTo(mapa);
 
         mapa.setView([6.7, -73.2], 8);
-        cargarDestinos(mapa, contenedor.parentElement);
+        cargarDestinos(mapa, contenedor.closest(".destinos-mapa"));
     }
 
     function instalarMapa() {
