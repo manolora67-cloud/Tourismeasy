@@ -87,7 +87,7 @@
         });
     }
 
-    function agregarDestinoAlPanel(destino, categoria, marcador, lista) {
+    function agregarDestinoAlPanel(destino, categoria, marcador, lista, mapa) {
         const boton = document.createElement("button");
         boton.type = "button";
         boton.className = "mapa-destino-item";
@@ -110,7 +110,7 @@
         boton.appendChild(informacion);
 
         const flecha = document.createElement("i");
-        flecha.className = "fa-solid fa-arrow-up-right-from-square mapa-destino-flecha";
+        flecha.className = "fa-solid fa-crosshairs mapa-destino-flecha";
         flecha.setAttribute("aria-hidden", "true");
         boton.appendChild(flecha);
 
@@ -177,7 +177,7 @@
             const marcadores = destinos.map((destino) => {
                 const categoria = obtenerCategoria(destino);
                 const marcador = crearMarcador(destino, mapa, categoria);
-                agregarDestinoAlPanel(destino, categoria, marcador, lista);
+                agregarDestinoAlPanel(destino, categoria, marcador, lista, mapa);
                 return marcador;
             });
 
