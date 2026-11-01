@@ -240,6 +240,7 @@
                 </div>
                 <div class="portada-form-actions">
                     <button type="button" class="portada-cancel" id="pdCancel">Cancelar</button>
+                    <button type="button" class="portada-map-remove" id="pdMapRemove" hidden><i class="fa-solid fa-map"></i> Quitar del mapa</button>
                     <button type="submit" class="portada-save" id="pdSave"><i class="fa-solid fa-floppy-disk"></i> Guardar destino</button>
                 </div>
             </form>`;
@@ -424,15 +425,31 @@
         const article = item.article || {};
         editorMarkup();
         editor.hidden = false;
+        const form = document.getElementById('portadaForm');
+        form.classList.toggle('map-only', mapOnly);
+        if (mapOnly) {
+            Array.from(form.querySelector('.portada-form-grid').children).forEach((field) => {
+                if (field.id !== 'pdMapConfig') field.remove();
+            });
+        }
         document.getElementById('portadaFormTitle').textContent = mapOnly
             ? `Configurar mapa: ${item.titulo}`
             : isNew ? 'Crear destino' : `Editar ${item.titulo}`;
+        document.getElementById('pdSave').innerHTML = mapOnly
+            ? '<i class="fa-solid fa-floppy-disk"></i> Guardar mapa'
+            : '<i class="fa-solid fa-floppy-disk"></i> Guardar destino';
         editor.querySelector('.portada-editor-intro').textContent = mapOnly
             ? 'Configura si este municipio aparece en el mapa, su ubicación y las palabras clave. Los demás datos se conservarán.'
             : item.municipio
                 ? 'Edita la tarjeta de portada y todos los campos del artículo. La clave y el orden se mantienen fijos.'
                 : 'Completa la tarjeta de la portada y el artículo asociado. Para los datos y secciones usa una entrada por línea con el formato indicado.';
-        const values = {
+        const values = mapOnly ? {
+            pdMapLatitude: article.mapa && article.mapa.latitud,
+            pdMapLongitude: article.mapa && article.mapa.longitud,
+            pdMapTag1: article.mapa && article.mapa.etiquetas && article.mapa.etiquetas[0],
+            pdMapTag2: article.mapa && article.mapa.etiquetas && article.mapa.etiquetas[1],
+            pdMapTag3: article.mapa && article.mapa.etiquetas && article.mapa.etiquetas[2]
+        } : {
             pdKey: item.key,
             pdTitle: item.titulo,
             pdDesc: item.desc,
@@ -455,46 +472,61 @@
             paCta: article.ctaTexto
         };
         Object.entries(values).forEach(([id, value]) => { document.getElementById(id).value = value == null ? '' : value; });
-        document.getElementById('pdKey').readOnly = !isNew || item.municipio;
-        document.getElementById('pdPublished').checked = item.publicado !== false;
+        if (!mapOnly) {
+            document.getElementById('pdKey').readOnly = !isNew || item.municipio;
+            document.getElementById('pdPublished').checked = item.publicado !== false;
+        }
         const mapFeatured = document.getElementById('pdMapFeatured');
+        const yaDestacado = Boolean(article.mapa && article.mapa.destacado);
         mapFeatured.checked = mapOnly || Boolean(article.mapa && article.mapa.destacado);
+        const removeMapButton = document.getElementById('pdMapRemove');
+        removeMapButton.hidden = !mapOnly || !yaDestacado || !mapFeatured.checked;
         const updateMapFields = () => {
             ['pdMapLatitude', 'pdMapLongitude', 'pdMapTag1', 'pdMapTag2', 'pdMapTag3'].forEach((id) => {
                 const field = document.getElementById(id);
                 field.disabled = !mapFeatured.checked;
                 field.required = mapFeatured.checked && ['pdMapLatitude', 'pdMapLongitude'].includes(id);
             });
+            removeMapButton.hidden = !mapOnly || !yaDestacado || !mapFeatured.checked;
         };
         mapFeatured.addEventListener('change', updateMapFields);
         updateMapFields();
-        document.getElementById('portadaForm').classList.toggle('map-only', mapOnly);
-        const preview = document.getElementById('pdPreview');
-        preview.src = item.img ? adminAsset(item.img) : '';
-        const videoPreview = document.getElementById('paVideoPreview');
-        const videoRemove = document.getElementById('paVideoRemove');
-        if (article.video) {
-            videoPreview.src = adminAsset(article.video);
-            videoPreview.hidden = false;
-            videoRemove.hidden = false;
-        } else {
-            videoPreview.removeAttribute('src');
-            videoPreview.hidden = true;
-            videoRemove.hidden = true;
+        if (!mapOnly) {
+            const preview = document.getElementById('pdPreview');
+            preview.src = item.img ? adminAsset(item.img) : '';
+            const videoPreview = document.getElementById('paVideoPreview');
+            const videoRemove = document.getElementById('paVideoRemove');
+            if (article.video) {
+                videoPreview.src = adminAsset(article.video);
+                videoPreview.hidden = false;
+                videoRemove.hidden = false;
+            } else {
+                videoPreview.removeAttribute('src');
+                videoPreview.hidden = true;
+                videoRemove.hidden = true;
+            }
         }
         document.getElementById('pdCancel').addEventListener('click', () => editorDialog.close());
-        document.getElementById('pdFile').addEventListener('change', uploadImage);
-        document.getElementById('paVideoFile').addEventListener('change', uploadVideo);
-        videoRemove.addEventListener('click', () => {
-            document.getElementById('paVideo').value = '';
-            document.getElementById('paVideoFile').value = '';
-            videoPreview.pause();
-            videoPreview.removeAttribute('src');
-            videoPreview.hidden = true;
-            videoRemove.hidden = true;
-            document.getElementById('paVideoUploadStatus').textContent = 'Video quitado. Guarda el destino para aplicar el cambio.';
-        });
-        document.getElementById('portadaForm').addEventListener('submit', (event) => save(event, item));
+        if (!mapOnly) {
+            document.getElementById('pdFile').addEventListener('change', uploadImage);
+            document.getElementById('paVideoFile').addEventListener('change', uploadVideo);
+            videoRemove.addEventListener('click', () => {
+                document.getElementById('paVideo').value = '';
+                document.getElementById('paVideoFile').value = '';
+                videoPreview.pause();
+                videoPreview.removeAttribute('src');
+                videoPreview.hidden = true;
+                videoRemove.hidden = true;
+                document.getElementById('paVideoUploadStatus').textContent = 'Video quitado. Guarda el destino para aplicar el cambio.';
+            });
+        } else {
+            removeMapButton.addEventListener('click', () => {
+                mapFeatured.checked = false;
+                updateMapFields();
+                form.requestSubmit();
+            });
+        }
+        form.addEventListener('submit', (event) => save(event, item, mapOnly));
         if (!editorDialog.open) editorDialog.showModal();
         if (mapOnly) {
             document.getElementById('pdMapConfig').scrollIntoView({ block: 'center' });
@@ -595,14 +627,14 @@
         }
     }
 
-    async function save(event, original) {
+    async function save(event, original, mapOnly = false) {
         event.preventDefault();
         const button = document.getElementById('pdSave');
         if (uploadsEnCurso > 0) {
             showStatus('Espera a que termine la subida de los archivos.', true);
             return;
         }
-        if (!document.getElementById('pdImage').value) {
+        if (!mapOnly && !document.getElementById('pdImage').value) {
             showStatus('Selecciona una foto de la tarjeta y espera a que termine la subida.', true);
             return;
         }
@@ -626,17 +658,31 @@
             button.disabled = false;
             return;
         }
+        const mapa = destacarEnMapa ? {
+            destacado: true,
+            latitud: latitudMapa,
+            longitud: longitudMapa,
+            etiquetas: etiquetasMapa
+        } : {
+            destacado: false,
+            latitud: null,
+            longitud: null,
+            etiquetas: []
+        };
         const record = {
             ...original,
-            key: original.municipio ? original.key : value('pdKey'),
-            img: value('pdImage'),
-            alt: value('pdAlt'),
-            badge: value('pdBadge'),
-            titulo: value('pdTitle'),
-            desc: value('pdDesc'),
-            orden: Number(original.orden) || Number(value('pdOrder')) || 0,
-            publicado: document.getElementById('pdPublished').checked,
-            article: {
+            key: mapOnly || original.municipio ? original.key : value('pdKey'),
+            img: mapOnly ? original.img : value('pdImage'),
+            alt: mapOnly ? original.alt : value('pdAlt'),
+            badge: mapOnly ? original.badge : value('pdBadge'),
+            titulo: mapOnly ? original.titulo : value('pdTitle'),
+            desc: mapOnly ? original.desc : value('pdDesc'),
+            orden: mapOnly ? original.orden : Number(original.orden) || Number(value('pdOrder')) || 0,
+            publicado: mapOnly ? original.publicado : document.getElementById('pdPublished').checked,
+            article: mapOnly ? {
+                ...(original.article || {}),
+                mapa
+            } : {
                 video: value('paVideo'),
                 badge: value('paBadge'),
                 titulo: value('paTitle') || value('pdTitle'),
@@ -645,17 +691,7 @@
                 intro: value('paIntro'),
                 secciones: parseLines(value('paSections'), 'titulo', 'texto'),
                 ctaTexto: value('paCta'),
-                mapa: destacarEnMapa ? {
-                    destacado: true,
-                    latitud: latitudMapa,
-                    longitud: longitudMapa,
-                    etiquetas: etiquetasMapa
-                } : {
-                    destacado: false,
-                    latitud: null,
-                    longitud: null,
-                    etiquetas: []
-                }
+                mapa
             }
         };
         if (original.key && original.key !== record.key) {
@@ -675,7 +711,11 @@
             destinos.sort((a, b) => a.orden - b.orden || a.titulo.localeCompare(b.titulo));
             render();
             editorDialog.close();
-            showStatus('Destino guardado. La portada pública ya mostrará los cambios.');
+            showStatus(mapOnly
+                ? destacarEnMapa
+                    ? 'Municipio agregado al mapa turístico.'
+                    : 'Municipio quitado del mapa turístico.'
+                : 'Destino guardado. La portada pública ya mostrará los cambios.');
         } catch (error) {
             showStatus(error.message, true);
         } finally {
