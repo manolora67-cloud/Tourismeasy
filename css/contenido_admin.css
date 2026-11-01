@@ -257,6 +257,89 @@
     margin: -5px 0 0
 }
 
+.portada-map-search {
+    display: grid;
+    gap: 7px
+}
+
+.portada-map-search > label {
+    color: var(--gray-700);
+    font-size: .82rem;
+    font-weight: 700
+}
+
+.portada-map-search-row {
+    display: flex;
+    gap: 8px
+}
+
+.portada-map-search-row input {
+    min-width: 0;
+    flex: 1;
+    border: 1px solid var(--gray-300);
+    border-radius: 9px;
+    padding: 10px 12px;
+    background: var(--white);
+    color: var(--gray-800);
+    font: 500 .9rem var(--font-body)
+}
+
+.portada-map-search-button {
+    border: 0;
+    border-radius: 9px;
+    padding: 9px 14px;
+    background: var(--purple);
+    color: #fff;
+    font: 700 .82rem var(--font-head);
+    cursor: pointer
+}
+
+.portada-map-search-button:disabled {
+    opacity: .65;
+    cursor: wait
+}
+
+.portada-map-search-results {
+    display: grid;
+    gap: 5px;
+    max-height: 160px;
+    overflow: auto
+}
+
+.portada-map-search-results:empty {
+    display: none
+}
+
+.portada-map-search-result {
+    padding: 8px 10px;
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
+    background: var(--white);
+    color: var(--gray-700);
+    font: 500 .8rem/1.4 var(--font-body);
+    text-align: left;
+    cursor: pointer
+}
+
+.portada-map-search-result:hover {
+    border-color: var(--purple);
+    background: var(--gray-100)
+}
+
+.portada-map-picker {
+    width: 100%;
+    height: 300px;
+    overflow: hidden;
+    border: 1px solid var(--gray-300);
+    border-radius: 10px;
+    background: #e2e8f0;
+    z-index: 0
+}
+
+.portada-form:not(.map-only) .portada-map-config {
+    display: none
+}
+
 .portada-map-fields {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -451,6 +534,21 @@ body.dark-mode .portada-map-config {
     background: #1e293b
 }
 
+body.dark-mode .portada-map-search > label {
+    color: #e2e8f0
+}
+
+body.dark-mode .portada-map-search-row input,
+body.dark-mode .portada-map-search-result {
+    border-color: #475569;
+    background: #0f172a;
+    color: #f1f5f9
+}
+
+body.dark-mode .portada-map-search-result:hover {
+    background: #334155
+}
+
 body.dark-mode .portada-cancel {
     background: #334155;
     color: #f1f5f9
@@ -469,6 +567,9 @@ body.dark-mode .portada-cancel:hover {
     }
     .portada-map-fields {
         grid-template-columns: 1fr
+    }
+    .portada-map-picker {
+        height: 260px
     }
     .portada-map-fields .portada-field:last-child {
         grid-column: auto

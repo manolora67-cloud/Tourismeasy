@@ -15,6 +15,9 @@
     let uploadsEnCurso = 0;
     let portadaInicializada = false;
     let previewPendiente = null;
+    let mapaSelector = null;
+    let marcadorSelector = null;
+    let ultimaBusquedaMapa = 0;
 
     const escapeHtml = (value) => String(value == null ? '' : value).replace(/[&<>"']/g, (char) => ({
         '&': '&amp;',
@@ -206,7 +209,18 @@
                     <label class="portada-check"><input id="pdPublished" type="checkbox"> Publicado en la portada</label>
                     <div class="portada-map-config full" id="pdMapConfig">
                         <label class="portada-check"><input id="pdMapFeatured" type="checkbox"> Destacar en el mapa turístico</label>
-                        <p class="portada-help">Copia las coordenadas desde OpenStreetMap (clic derecho sobre el punto) y agrega de una a tres palabras clave.</p>
+                        <p class="portada-help">Busca el municipio o un lugar cercano y selecciónalo. Luego puedes hacer clic en el mapa para ajustar el marcador. Agrega de una a tres palabras clave.</p>
+                        <div class="portada-map-search">
+                            <label for="pdMapSearch">Buscar lugar en Santander</label>
+                            <div class="portada-map-search-row">
+                                <input id="pdMapSearch" type="search" maxlength="120" placeholder="Ej. Barichara, parque principal">
+                                <button type="button" class="portada-map-search-button" id="pdMapSearchButton">Buscar</button>
+                            </div>
+                            <p id="pdMapSearchStatus" class="portada-help" role="status" aria-live="polite"></p>
+                            <div id="pdMapSearchResults" class="portada-map-search-results" aria-label="Resultados de búsqueda"></div>
+                        </div>
+                        <div id="pdMapPicker" class="portada-map-picker" role="application" aria-label="Mapa para seleccionar la ubicación del municipio"></div>
+                        <p class="portada-help">Haz clic en el mapa o arrastra el marcador para elegir la ubicación. © OpenStreetMap contributors.</p>
                         <div class="portada-map-fields">
                             <div class="portada-field"><label for="pdMapLatitude">Latitud</label><input id="pdMapLatitude" type="number" min="-90" max="90" step="any" placeholder="6.6357"></div>
                             <div class="portada-field"><label for="pdMapLongitude">Longitud</label><input id="pdMapLongitude" type="number" min="-180" max="180" step="any" placeholder="-73.2228"></div>
@@ -259,6 +273,149 @@
                 val: line.slice(divider + (line.startsWith(' - ', divider) ? 3 : 1)).trim()
             };
         }).filter((item) => item && item.label && item.val);
+    }
+
+    function updateMapCoordinates(latitude, longitude, zoom = 15) {
+        document.getElementById('pdMapLatitude').value = latitude.toFixed(6);
+        document.getElementById('pdMapLongitude').value = longitude.toFixed(6);
+        if (mapaSelector) {
+            const position = [latitude, longitude];
+            if (!marcadorSelector) {
+                marcadorSelector = window.L.marker(position, { draggable: true }).addTo(mapaSelector);
+                marcadorSelector.on('dragend', () => {
+                    const point = marcadorSelector.getLatLng();
+                    updateMapCoordinates(point.lat, point.lng, mapaSelector.getZoom());
+                });
+            } else {
+                marcadorSelector.setLatLng(position);
+            }
+            mapaSelector.setView(position, zoom);
+        }
+    }
+
+    function showMapSearchResults(results) {
+        const container = document.getElementById('pdMapSearchResults');
+        container.replaceChildren();
+
+        results.forEach((result) => {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'portada-map-search-result';
+            button.textContent = result.display_name;
+            button.addEventListener('click', () => {
+                const latitude = Number(result.lat);
+                const longitude = Number(result.lon);
+                updateMapCoordinates(latitude, longitude);
+                document.getElementById('pdMapSearchStatus').textContent = 'Ubicación seleccionada. Puedes afinarla haciendo clic o arrastrando el marcador.';
+                container.replaceChildren();
+            });
+            container.appendChild(button);
+        });
+    }
+
+    async function searchMapLocation() {
+        const input = document.getElementById('pdMapSearch');
+        const status = document.getElementById('pdMapSearchStatus');
+        const button = document.getElementById('pdMapSearchButton');
+        if (button.disabled) return;
+        const query = input.value.trim();
+        if (!query) {
+            status.textContent = 'Escribe el nombre de un municipio o lugar para buscarlo.';
+            input.focus();
+            return;
+        }
+
+        button.disabled = true;
+        status.textContent = 'Buscando en el mapa…';
+        try {
+            const tiempoRestante = 1100 - (Date.now() - ultimaBusquedaMapa);
+            if (tiempoRestante > 0) {
+                await new Promise((resolve) => window.setTimeout(resolve, tiempoRestante));
+            }
+            const parametros = new URLSearchParams({
+                q: `${query}, Santander, Colombia`,
+                format: 'jsonv2',
+                limit: '5',
+                countrycodes: 'co',
+                'accept-language': 'es'
+            });
+            ultimaBusquedaMapa = Date.now();
+            const response = await fetch(`https://nominatim.openstreetmap.org/search?${parametros}`);
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const results = await response.json();
+            if (!Array.isArray(results)) throw new Error('La respuesta de búsqueda no tiene el formato esperado.');
+            const validResults = results.filter((result) => (
+                Number.isFinite(Number(result.lat))
+                && Number.isFinite(Number(result.lon))
+                && typeof result.display_name === 'string'
+            ));
+            showMapSearchResults(validResults);
+            status.textContent = validResults.length
+                ? 'Elige el resultado correcto para ubicar el marcador.'
+                : 'No encontramos ese lugar. Prueba con otro nombre.';
+        } catch (error) {
+            console.error('[TourismEasy] No se pudo buscar la ubicación del municipio.', error);
+            status.textContent = 'No se pudo completar la búsqueda. Revisa tu conexión e inténtalo de nuevo.';
+        } finally {
+            button.disabled = false;
+        }
+    }
+
+    function initializeMapPicker(mapConfig) {
+        const container = document.getElementById('pdMapPicker');
+        if (!window.L) {
+            document.getElementById('pdMapSearchStatus').textContent = 'No se pudo cargar el mapa. Puedes ingresar las coordenadas manualmente.';
+            return;
+        }
+
+        if (mapaSelector) {
+            mapaSelector.remove();
+            mapaSelector = null;
+            marcadorSelector = null;
+        }
+
+        const latitudeValue = document.getElementById('pdMapLatitude').value.trim();
+        const longitudeValue = document.getElementById('pdMapLongitude').value.trim();
+        const latitude = Number(latitudeValue);
+        const longitude = Number(longitudeValue);
+        const tieneCoordenadas = latitudeValue !== '' && longitudeValue !== ''
+            && Number.isFinite(latitude) && Number.isFinite(longitude);
+        const centro = tieneCoordenadas ? [latitude, longitude] : [6.7, -73.2];
+        mapaSelector = window.L.map(container, { scrollWheelZoom: false }).setView(centro, tieneCoordenadas ? 14 : 8);
+        window.L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(mapaSelector);
+
+        if (tieneCoordenadas) updateMapCoordinates(latitude, longitude, 14);
+        mapaSelector.on('click', (event) => {
+            updateMapCoordinates(event.latlng.lat, event.latlng.lng, mapaSelector.getZoom());
+        });
+
+        document.getElementById('pdMapSearchButton').addEventListener('click', searchMapLocation);
+        document.getElementById('pdMapSearch').addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                searchMapLocation();
+            }
+        });
+        ['pdMapLatitude', 'pdMapLongitude'].forEach((id) => {
+            document.getElementById(id).addEventListener('change', () => {
+                const latitudeValue = document.getElementById('pdMapLatitude').value.trim();
+                const longitudeValue = document.getElementById('pdMapLongitude').value.trim();
+                const latitude = Number(latitudeValue);
+                const longitude = Number(longitudeValue);
+                if (latitudeValue && longitudeValue
+                    && Number.isFinite(latitude) && latitude >= -90 && latitude <= 90
+                    && Number.isFinite(longitude) && longitude >= -180 && longitude <= 180) {
+                    updateMapCoordinates(latitude, longitude, mapaSelector.getZoom());
+                }
+            });
+        });
+        if (mapConfig && mapConfig.destacado) {
+            document.getElementById('pdMapSearchStatus').textContent = 'Ubicación actual. Busca otro lugar o haz clic en el mapa para cambiarla.';
+        }
+        window.setTimeout(() => mapaSelector && mapaSelector.invalidateSize(), 0);
     }
 
     function openEditor(destination, mapOnly = false) {
@@ -340,8 +497,8 @@
         document.getElementById('portadaForm').addEventListener('submit', (event) => save(event, item));
         if (!editorDialog.open) editorDialog.showModal();
         if (mapOnly) {
-            document.getElementById('pdMapLatitude').focus();
             document.getElementById('pdMapConfig').scrollIntoView({ block: 'center' });
+            requestAnimationFrame(() => initializeMapPicker(article.mapa));
         } else {
             document.getElementById('pdTitle').focus();
         }
@@ -456,11 +613,13 @@
         const etiquetasMapa = ['pdMapTag1', 'pdMapTag2', 'pdMapTag3']
             .map(value)
             .filter(Boolean);
-        const latitudMapa = Number(value('pdMapLatitude'));
-        const longitudMapa = Number(value('pdMapLongitude'));
+        const latitudMapaTexto = value('pdMapLatitude');
+        const longitudMapaTexto = value('pdMapLongitude');
+        const latitudMapa = Number(latitudMapaTexto);
+        const longitudMapa = Number(longitudMapaTexto);
         if (destacarEnMapa && (
-            !Number.isFinite(latitudMapa) || latitudMapa < -90 || latitudMapa > 90
-            || !Number.isFinite(longitudMapa) || longitudMapa < -180 || longitudMapa > 180
+            !latitudMapaTexto || !Number.isFinite(latitudMapa) || latitudMapa < -90 || latitudMapa > 90
+            || !longitudMapaTexto || !Number.isFinite(longitudMapa) || longitudMapa < -180 || longitudMapa > 180
             || etiquetasMapa.length < 1
         )) {
             showStatus('Para destacar el municipio en el mapa, indica coordenadas válidas y al menos una palabra clave.', true);
@@ -584,7 +743,14 @@
             event.preventDefault();
         }
     });
-    editorDialog.addEventListener('close', () => { editor.hidden = true; });
+    editorDialog.addEventListener('close', () => {
+        editor.hidden = true;
+        if (mapaSelector) {
+            mapaSelector.remove();
+            mapaSelector = null;
+            marcadorSelector = null;
+        }
+    });
     document.addEventListener('keydown', (event) => {
         if (event.key === 'Escape' && previewDialog.open) closePreview();
     });
