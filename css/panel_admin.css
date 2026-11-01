@@ -1096,6 +1096,10 @@ body.dark-mode .panel-navbar-label {
     gap: 10px;
 }
 
+.audit-pagination-controls[hidden] {
+    display: none;
+}
+
 .audit-page-button {
     padding: 7px 12px;
     border: 1px solid var(--gray-200);
@@ -1138,6 +1142,51 @@ body.dark-mode .panel-navbar-label {
     color: var(--purple);
     cursor: pointer;
     font-weight: 700;
+}
+
+.audit-changes-list {
+    display: grid;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.audit-change-row {
+    padding: 8px 10px;
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
+}
+
+.audit-change-label {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--gray-800);
+}
+
+.audit-change-values {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+}
+
+.audit-change-value {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.audit-change-value-details {
+    display: inline;
+}
+
+.audit-change-value-details summary {
+    display: inline;
+    font-weight: 600;
+}
+
+.audit-change-value-details > span,
+.audit-change-value-details > div {
+    display: block;
+    margin-top: 6px;
+    white-space: pre-wrap;
 }
 
 .audit-snapshot {
@@ -2377,6 +2426,14 @@ body.dark-mode .audit-empty {
 body.dark-mode .audit-snapshot {
     background: #1e293b;
     border-color: #334155;
+    color: #e2e8f0;
+}
+
+body.dark-mode .audit-change-row {
+    border-color: #334155;
+}
+
+body.dark-mode .audit-change-label {
     color: #e2e8f0;
 }
 

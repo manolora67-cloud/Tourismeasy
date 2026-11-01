@@ -7,7 +7,7 @@
     <title>Panel Administrador - TourismEasy</title>
     <link rel="stylesheet" href="../css/index.css" />
     <link rel="stylesheet" href="../css/login.css" />
-    <link rel="stylesheet" href="../css/panel_admin.css?v=auditoria-texto-v1" />
+    <link rel="stylesheet" href="../css/panel_admin.css?v=auditoria-empresas-paginadas-v2" />
     <link rel="stylesheet" href="../css/click_metrics.css" />
     <link rel="stylesheet" href="../css/contenido_admin.css?v=destino-mapa-v5" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -208,6 +208,14 @@
                     </thead>
                     <tbody></tbody>
                 </table>
+            </div>
+            <div class="audit-pagination" id="empresasPaginacion" aria-label="Paginación de empresas">
+                <span class="audit-pagination-summary" id="empresasResumen" aria-live="polite"></span>
+                <div class="audit-pagination-controls" id="empresasControles">
+                    <button class="audit-page-button" id="empresasAnterior" type="button">Anterior</button>
+                    <span class="audit-page-indicator" id="empresasPaginaActual" aria-live="polite"></span>
+                    <button class="audit-page-button" id="empresasSiguiente" type="button">Siguiente</button>
+                </div>
             </div>
         </div>
 
@@ -545,6 +553,8 @@
 
 
         var empresasData = [];
+        var empresasPagina = 1;
+        var empresasPorPagina = 20;
 
         var solicitudesData = [];
 
@@ -741,6 +751,137 @@
                 typeof valor === "boolean" ? (valor ? "Sí" : "No") : String(valor);
         }
 
+        function obtenerCambiosSnapshotAuditoria(anterior, nuevo) {
+            var cambios = [];
+
+            function comparar(valorAnterior, valorNuevo, ruta) {
+                var objetoAnterior = valorAnterior && typeof valorAnterior === "object" && !Array.isArray(valorAnterior);
+                var objetoNuevo = valorNuevo && typeof valorNuevo === "object" && !Array.isArray(valorNuevo);
+                var objetoAgregadoOEliminado = (valorAnterior === null || valorAnterior === undefined) && objetoNuevo ||
+                    (valorNuevo === null || valorNuevo === undefined) && objetoAnterior;
+                if ((objetoAnterior && objetoNuevo) || objetoAgregadoOEliminado) {
+                    var claves = new Set(Object.keys(objetoAnterior ? valorAnterior : {}).concat(Object.keys(objetoNuevo ? valorNuevo : {})));
+                    claves.forEach(function(clave) {
+                        comparar(
+                            objetoAnterior ? valorAnterior[clave] : undefined,
+                            objetoNuevo ? valorNuevo[clave] : undefined,
+                            ruta.concat(clave)
+                        );
+                    });
+                    return;
+                }
+
+                if (JSON.stringify(valorAnterior) === JSON.stringify(valorNuevo)) return;
+                cambios.push({
+                    ruta: ruta,
+                    anterior: valorAnterior,
+                    nuevo: valorNuevo
+                });
+            }
+
+            comparar(anterior, nuevo, []);
+            return cambios;
+        }
+
+        function etiquetaRutaSnapshotAuditoria(ruta) {
+            return ruta.map(function(clave) {
+                return etiquetasSnapshotAuditoria[clave] ||
+                    clave.replace(/_/g, " ").replace(/^./, function(letra) { return letra.toUpperCase(); });
+            }).join(" · ");
+        }
+
+        function textoCortoSnapshotAuditoria(valor) {
+            if (valor === null || valor === undefined || valor === "") return "Sin valor";
+            if (typeof valor === "boolean") return valor ? "Sí" : "No";
+            if (Array.isArray(valor)) {
+                if (valor.every(function(item) { return item === null || ["string", "number", "boolean"].includes(typeof item); })) {
+                    return valor.map(function(item) {
+                        return item === null ? "Sin valor" : typeof item === "boolean" ? (item ? "Sí" : "No") : String(item);
+                    }).join(", ") || "Sin elementos";
+                }
+                return valor.length + (valor.length === 1 ? " elemento" : " elementos");
+            }
+            if (typeof valor === "object") return "Contenido estructurado";
+            return String(valor);
+        }
+
+        function crearValorCambioSnapshotAuditoria(valor, lado) {
+            var contenedor = document.createElement("span");
+            contenedor.className = "audit-change-value";
+            var prefijo = document.createElement("strong");
+            prefijo.textContent = lado + ": ";
+            contenedor.appendChild(prefijo);
+
+            var texto = textoCortoSnapshotAuditoria(valor);
+            var valorEstructurado = Array.isArray(valor) || (valor && typeof valor === "object");
+            var requiereDetalle = typeof valor === "string" && valor.length > 120 ||
+                valorEstructurado && (texto === "Contenido estructurado" || /^\d+ elementos?$/.test(texto));
+            if (requiereDetalle) {
+                var detalles = document.createElement("details");
+                detalles.className = "audit-change-value-details";
+                var resumen = document.createElement("summary");
+                resumen.textContent = typeof valor === "string" ? valor.substring(0, 120) + "…" : texto + " (ver)";
+                detalles.appendChild(resumen);
+                if (typeof valor === "string") {
+                    var textoCompleto = document.createElement("span");
+                    textoCompleto.textContent = valor;
+                    detalles.appendChild(textoCompleto);
+                } else {
+                    var contenido = document.createElement("div");
+                    agregarValorSnapshotAuditoria(contenido, valor);
+                    detalles.appendChild(contenido);
+                }
+                contenedor.appendChild(detalles);
+            } else {
+                var contenidoCorto = document.createElement("span");
+                contenidoCorto.textContent = texto.length > 120 ? texto.substring(0, 120) + "…" : texto;
+                contenedor.appendChild(contenidoCorto);
+                if (texto.length > 120) {
+                    var detallesTexto = document.createElement("details");
+                    detallesTexto.className = "audit-change-value-details";
+                    var resumenTexto = document.createElement("summary");
+                    resumenTexto.textContent = "Ver texto completo";
+                    var textoCompleto = document.createElement("span");
+                    textoCompleto.textContent = texto;
+                    detallesTexto.append(resumenTexto, textoCompleto);
+                    contenedor.appendChild(detallesTexto);
+                }
+            }
+            return contenedor;
+        }
+
+        function crearResumenCambiosAuditoria(anterior, nuevo) {
+            var cambios = obtenerCambiosSnapshotAuditoria(anterior, nuevo);
+            if (!cambios.length) return null;
+
+            var contenedor = document.createElement("details");
+            contenedor.className = "audit-change-details";
+            var resumen = document.createElement("summary");
+            resumen.textContent = "Ver " + cambios.length + (cambios.length === 1 ? " campo modificado" : " campos modificados");
+            contenedor.appendChild(resumen);
+
+            var lista = document.createElement("div");
+            lista.className = "audit-changes-list";
+            cambios.forEach(function(cambio) {
+                var fila = document.createElement("div");
+                fila.className = "audit-change-row";
+                var etiqueta = document.createElement("strong");
+                etiqueta.className = "audit-change-label";
+                etiqueta.textContent = etiquetaRutaSnapshotAuditoria(cambio.ruta) || "Registro";
+                fila.appendChild(etiqueta);
+                var valores = document.createElement("div");
+                valores.className = "audit-change-values";
+                valores.append(
+                    crearValorCambioSnapshotAuditoria(cambio.anterior, "Antes"),
+                    crearValorCambioSnapshotAuditoria(cambio.nuevo, "Después")
+                );
+                fila.appendChild(valores);
+                lista.appendChild(fila);
+            });
+            contenedor.appendChild(lista);
+            return contenedor;
+        }
+
         // ── Cargar auditoría real desde la BD ──
         function cargarAuditoriaBD() {
             fetch("../soli_empresas/get_auditoria.php", {
@@ -849,11 +990,29 @@
         function renderEmpresas() {
             var tbody = document.querySelector("#tab-empresas .panel-table tbody");
             tbody.innerHTML = "";
+            var totalPaginas = Math.ceil(empresasData.length / empresasPorPagina);
+            empresasPagina = Math.min(Math.max(empresasPagina, 1), Math.max(totalPaginas, 1));
+            var inicio = (empresasPagina - 1) * empresasPorPagina;
+            var empresasPaginaActual = empresasData.slice(inicio, inicio + empresasPorPagina);
+            var resumen = document.getElementById("empresasResumen");
+            var indicadorPagina = document.getElementById("empresasPaginaActual");
+            var botonAnterior = document.getElementById("empresasAnterior");
+            var botonSiguiente = document.getElementById("empresasSiguiente");
+            var controles = document.getElementById("empresasControles");
+
+            resumen.textContent = empresasData.length ?
+                "Mostrando " + (inicio + 1) + "–" + Math.min(inicio + empresasPorPagina, empresasData.length) + " de " + empresasData.length + " empresas" :
+                "Sin empresas";
+            indicadorPagina.textContent = totalPaginas ? "Página " + empresasPagina + " de " + totalPaginas : "Página 0 de 0";
+            botonAnterior.disabled = empresasPagina <= 1;
+            botonSiguiente.disabled = empresasPagina >= totalPaginas;
+            controles.hidden = totalPaginas <= 1;
+
             if (empresasData.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:#64748b;font-style:italic;">No hay empresas registradas todavía</td></tr>';
                 return;
             }
-            empresasData.forEach(function(emp) {
+            empresasPaginaActual.forEach(function(emp) {
                 var icono = servicioIconos[(emp.servicio || "").toLowerCase()] || "fa-tag";
                 var servicioLabel = _svcLabel[emp.servicio] || emp.servicio;
                 var activa = emp.estado === "ACTIVO";
@@ -890,6 +1049,17 @@
                 });
             });
         }
+
+        document.getElementById("empresasAnterior").addEventListener("click", function() {
+            if (empresasPagina <= 1) return;
+            empresasPagina--;
+            renderEmpresas();
+        });
+        document.getElementById("empresasSiguiente").addEventListener("click", function() {
+            if (empresasPagina >= Math.ceil(empresasData.length / empresasPorPagina)) return;
+            empresasPagina++;
+            renderEmpresas();
+        });
 
         // ── RENDER SOLICITUDES ───────────────────────────────────────────────
         function renderSolicitudes() {
@@ -1236,19 +1406,8 @@
                 detalle.textContent = a.detalle || "—";
                 if ((a.anterior !== null && a.anterior !== undefined) ||
                     (a.nuevo !== null && a.nuevo !== undefined)) {
-                    var cambios = document.createElement("details");
-                    cambios.className = "audit-change-details";
-                    var resumenCambios = document.createElement("summary");
-                    resumenCambios.textContent = "Ver valores antes/después";
-                    cambios.appendChild(resumenCambios);
-                    [
-                        ["Antes", a.anterior],
-                        ["Después", a.nuevo]
-                    ].forEach(function(item) {
-                        if (item[1] === null || item[1] === undefined) return;
-                        cambios.appendChild(crearSnapshotAuditoria(item[0], item[1]));
-                    });
-                    detalle.appendChild(cambios);
+                    var cambios = crearResumenCambiosAuditoria(a.anterior, a.nuevo);
+                    if (cambios) detalle.appendChild(cambios);
                 }
                 tr.appendChild(detalle);
 
