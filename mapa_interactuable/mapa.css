@@ -194,44 +194,9 @@
     font-size: 0.96rem;
 }
 
-.mapa-destino-icono--aventura,
-.mapa-marcador--aventura,
-.mapa-leyenda-aventura {
-    --mapa-acento: #ea7a22;
-    --mapa-acento-claro: #fff1e5;
-}
-
-.mapa-destino-icono--naturaleza,
-.mapa-marcador--naturaleza,
-.mapa-leyenda-naturaleza {
-    --mapa-acento: #16875b;
-    --mapa-acento-claro: #e6f7ee;
-}
-
-.mapa-destino-icono--cultura,
-.mapa-marcador--cultura,
-.mapa-leyenda-cultura {
-    --mapa-acento: #7541c8;
-    --mapa-acento-claro: #f0e9ff;
-}
-
-.mapa-destino-icono--gastronomia,
-.mapa-marcador--gastronomia,
-.mapa-leyenda-gastronomia {
-    --mapa-acento: #d34b52;
-    --mapa-acento-claro: #ffebeb;
-}
-
-.mapa-destino-icono--destacado,
-.mapa-marcador--destacado,
-.mapa-leyenda-destacado {
-    --mapa-acento: #197c9b;
-    --mapa-acento-claro: #e5f6fb;
-}
-
 .mapa-destino-icono {
-    background: var(--mapa-acento-claro);
-    color: var(--mapa-acento);
+    background: #f0e9ff;
+    color: #6d28d9;
 }
 
 .mapa-destino-informacion {
@@ -277,27 +242,6 @@
     line-height: 1.5;
 }
 
-.mapa-leyenda {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 9px 12px;
-    padding: 13px 15px 16px;
-    border-top: 1px solid var(--gray-200);
-}
-
-.mapa-leyenda span {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    color: var(--gray-600);
-    font-size: 0.68rem;
-    font-weight: 600;
-}
-
-.mapa-leyenda i {
-    color: var(--mapa-acento);
-}
-
 #mapa-turistico {
     position: relative;
     z-index: 0;
@@ -320,7 +264,7 @@
     place-items: center;
     border: 3px solid #fff;
     border-radius: 50% 50% 50% 8px;
-    background: var(--mapa-acento);
+    background: #7c3aed;
     box-shadow: 0 4px 12px rgba(15, 23, 42, 0.32);
     color: #fff;
     font-size: 0.98rem;
@@ -381,25 +325,6 @@
     line-height: 1.35;
 }
 
-#mapa-turistico .mapa-popup-etiquetas {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin: 10px 0 14px;
-}
-
-#mapa-turistico .mapa-popup-etiquetas span {
-    display: inline-block;
-    padding: 4px 8px;
-    border: 1px solid #e2e8f0;
-    border-radius: 999px;
-    background: #f1f5f9;
-    color: #334155;
-    font-size: 0.75rem;
-    font-weight: 600;
-    line-height: 1.3;
-}
-
 #mapa-turistico .mapa-destino-link {
     display: inline-block;
     padding: 8px 12px;
@@ -451,7 +376,6 @@ body.dark-mode .mapa-destino-item.is-selected {
 body.dark-mode .mapa-destino-informacion > span,
 body.dark-mode .mapa-panel-cabecera p,
 body.dark-mode .mapa-lista-vacia,
-body.dark-mode .mapa-leyenda span,
 body.dark-mode .destinos-mapa .mapa-estado,
 body.dark-mode .mapa-encabezado-texto p {
     color: #cbd5e1;
@@ -461,7 +385,6 @@ body.dark-mode .mapa-panel-cabecera h3 {
     color: #f1f5f9;
 }
 
-body.dark-mode .mapa-leyenda,
 body.dark-mode .mapa-panel-cabecera,
 body.dark-mode .mapa-panel-lateral {
     border-color: #334155;
@@ -476,9 +399,6 @@ body.dark-mode .mapa-titulo {
         grid-template-columns: minmax(220px, 0.38fr) minmax(0, 1fr);
     }
 
-    .mapa-leyenda {
-        gap: 8px 10px;
-    }
 }
 
 @media (max-width: 700px) {
@@ -560,10 +480,6 @@ body.dark-mode .mapa-titulo {
 
     .mapa-destino-flecha {
         display: none;
-    }
-
-    .mapa-leyenda {
-        padding: 10px 12px 12px;
     }
 
     #mapa-turistico {

@@ -15,9 +15,6 @@
     let uploadsEnCurso = 0;
     let portadaInicializada = false;
     let previewPendiente = null;
-    let mapaSelector = null;
-    let marcadorSelector = null;
-    let ultimaBusquedaMapa = 0;
 
     const escapeHtml = (value) => String(value == null ? '' : value).replace(/[&<>"']/g, (char) => ({
         '&': '&amp;',
@@ -133,7 +130,6 @@
                         ${destino.publicado ? `<button type="button" class="portada-action preview" data-preview="${escapeHtml(destino.key)}"><i class="fa-solid fa-eye"></i> Vista previa</button>` : ''}
                         <button type="button" class="portada-action edit" data-edit="${escapeHtml(destino.key)}"><i class="fa-solid fa-pen"></i> Editar</button>
                         ${destino.persistido ? `<button type="button" class="portada-action delete" data-delete="${escapeHtml(destino.key)}"><i class="fa-solid fa-trash"></i> Eliminar</button>` : ''}
-                        <button type="button" class="portada-action map" data-map="${escapeHtml(destino.key)}"><i class="fa-solid fa-map-location-dot"></i> ${destino.article && destino.article.mapa && destino.article.mapa.destacado ? 'Editar mapa' : 'Agregar al mapa'}</button>
                     </div>
                 </div>
             </article>`).join('');
@@ -207,28 +203,6 @@
                     <div class="portada-field full"><div class="portada-image-preview"><img id="pdPreview" alt="Vista previa"><span id="pdUploadStatus"></span></div></div>
                     <div class="portada-field"><label for="pdOrder">Orden en la portada</label><input id="pdOrder" type="text" inputmode="numeric" readonly required aria-describedby="pdOrderHelp"><small id="pdOrderHelp">Asignado automáticamente. No se puede editar.</small></div>
                     <label class="portada-check"><input id="pdPublished" type="checkbox"> Publicado en la portada</label>
-                    <div class="portada-map-config full" id="pdMapConfig">
-                        <label class="portada-check"><input id="pdMapFeatured" type="checkbox"> Destacar en el mapa turístico</label>
-                        <p class="portada-help">Busca el municipio o un lugar cercano y selecciónalo. Luego puedes hacer clic en el mapa para ajustar el marcador. Agrega de una a tres palabras clave.</p>
-                        <div class="portada-map-search">
-                            <label for="pdMapSearch">Buscar lugar en Santander</label>
-                            <div class="portada-map-search-row">
-                                <input id="pdMapSearch" type="search" maxlength="120" placeholder="Ej. Barichara, parque principal">
-                                <button type="button" class="portada-map-search-button" id="pdMapSearchButton">Buscar</button>
-                            </div>
-                            <p id="pdMapSearchStatus" class="portada-help" role="status" aria-live="polite"></p>
-                            <div id="pdMapSearchResults" class="portada-map-search-results" aria-label="Resultados de búsqueda"></div>
-                        </div>
-                        <div id="pdMapPicker" class="portada-map-picker" role="application" aria-label="Mapa para seleccionar la ubicación del municipio"></div>
-                        <p class="portada-help">Haz clic en el mapa o arrastra el marcador para elegir la ubicación. © OpenStreetMap contributors.</p>
-                        <div class="portada-map-fields">
-                            <div class="portada-field"><label for="pdMapLatitude">Latitud</label><input id="pdMapLatitude" type="number" min="-90" max="90" step="any" placeholder="6.6357"></div>
-                            <div class="portada-field"><label for="pdMapLongitude">Longitud</label><input id="pdMapLongitude" type="number" min="-180" max="180" step="any" placeholder="-73.2228"></div>
-                            <div class="portada-field"><label for="pdMapTag1">Palabra clave 1</label><input id="pdMapTag1" maxlength="40" placeholder="Colonial"></div>
-                            <div class="portada-field"><label for="pdMapTag2">Palabra clave 2</label><input id="pdMapTag2" maxlength="40" placeholder="Camino Real"></div>
-                            <div class="portada-field"><label for="pdMapTag3">Palabra clave 3</label><input id="pdMapTag3" maxlength="40" placeholder="Artesanías"></div>
-                        </div>
-                    </div>
                     <div class="portada-field"><label for="paTitle">Título del artículo</label><input id="paTitle" maxlength="150"></div>
                     <div class="portada-field"><label for="paSubtitle">Subtítulo</label><input id="paSubtitle" maxlength="250"></div>
                     <div class="portada-field"><label for="paBadge">Insignia del artículo</label><input id="paBadge" maxlength="80"></div>
@@ -240,7 +214,6 @@
                 </div>
                 <div class="portada-form-actions">
                     <button type="button" class="portada-cancel" id="pdCancel">Cancelar</button>
-                    <button type="button" class="portada-map-remove" id="pdMapRemove" hidden><i class="fa-solid fa-map"></i> Quitar del mapa</button>
                     <button type="submit" class="portada-save" id="pdSave"><i class="fa-solid fa-floppy-disk"></i> Guardar destino</button>
                 </div>
             </form>`;
@@ -276,180 +249,18 @@
         }).filter((item) => item && item.label && item.val);
     }
 
-    function updateMapCoordinates(latitude, longitude, zoom = 15) {
-        document.getElementById('pdMapLatitude').value = latitude.toFixed(6);
-        document.getElementById('pdMapLongitude').value = longitude.toFixed(6);
-        if (mapaSelector) {
-            const position = [latitude, longitude];
-            if (!marcadorSelector) {
-                marcadorSelector = window.L.marker(position, { draggable: true }).addTo(mapaSelector);
-                marcadorSelector.on('dragend', () => {
-                    const point = marcadorSelector.getLatLng();
-                    updateMapCoordinates(point.lat, point.lng, mapaSelector.getZoom());
-                });
-            } else {
-                marcadorSelector.setLatLng(position);
-            }
-            mapaSelector.setView(position, zoom);
-        }
-    }
-
-    function showMapSearchResults(results) {
-        const container = document.getElementById('pdMapSearchResults');
-        container.replaceChildren();
-
-        results.forEach((result) => {
-            const button = document.createElement('button');
-            button.type = 'button';
-            button.className = 'portada-map-search-result';
-            button.textContent = result.display_name;
-            button.addEventListener('click', () => {
-                const latitude = Number(result.lat);
-                const longitude = Number(result.lon);
-                updateMapCoordinates(latitude, longitude);
-                document.getElementById('pdMapSearchStatus').textContent = 'Ubicación seleccionada. Puedes afinarla haciendo clic o arrastrando el marcador.';
-                container.replaceChildren();
-            });
-            container.appendChild(button);
-        });
-    }
-
-    async function searchMapLocation() {
-        const input = document.getElementById('pdMapSearch');
-        const status = document.getElementById('pdMapSearchStatus');
-        const button = document.getElementById('pdMapSearchButton');
-        if (button.disabled) return;
-        const query = input.value.trim();
-        if (!query) {
-            status.textContent = 'Escribe el nombre de un municipio o lugar para buscarlo.';
-            input.focus();
-            return;
-        }
-
-        button.disabled = true;
-        status.textContent = 'Buscando en el mapa…';
-        try {
-            const tiempoRestante = 1100 - (Date.now() - ultimaBusquedaMapa);
-            if (tiempoRestante > 0) {
-                await new Promise((resolve) => window.setTimeout(resolve, tiempoRestante));
-            }
-            const parametros = new URLSearchParams({
-                q: `${query}, Santander, Colombia`,
-                format: 'jsonv2',
-                limit: '5',
-                countrycodes: 'co',
-                'accept-language': 'es'
-            });
-            ultimaBusquedaMapa = Date.now();
-            const response = await fetch(`https://nominatim.openstreetmap.org/search?${parametros}`);
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            const results = await response.json();
-            if (!Array.isArray(results)) throw new Error('La respuesta de búsqueda no tiene el formato esperado.');
-            const validResults = results.filter((result) => (
-                Number.isFinite(Number(result.lat))
-                && Number.isFinite(Number(result.lon))
-                && typeof result.display_name === 'string'
-            ));
-            showMapSearchResults(validResults);
-            status.textContent = validResults.length
-                ? 'Elige el resultado correcto para ubicar el marcador.'
-                : 'No encontramos ese lugar. Prueba con otro nombre.';
-        } catch (error) {
-            console.error('[TourismEasy] No se pudo buscar la ubicación del municipio.', error);
-            status.textContent = 'No se pudo completar la búsqueda. Revisa tu conexión e inténtalo de nuevo.';
-        } finally {
-            button.disabled = false;
-        }
-    }
-
-    function initializeMapPicker(mapConfig) {
-        const container = document.getElementById('pdMapPicker');
-        if (!window.L) {
-            document.getElementById('pdMapSearchStatus').textContent = 'No se pudo cargar el mapa. Puedes ingresar las coordenadas manualmente.';
-            return;
-        }
-
-        if (mapaSelector) {
-            mapaSelector.remove();
-            mapaSelector = null;
-            marcadorSelector = null;
-        }
-
-        const latitudeValue = document.getElementById('pdMapLatitude').value.trim();
-        const longitudeValue = document.getElementById('pdMapLongitude').value.trim();
-        const latitude = Number(latitudeValue);
-        const longitude = Number(longitudeValue);
-        const tieneCoordenadas = latitudeValue !== '' && longitudeValue !== ''
-            && Number.isFinite(latitude) && Number.isFinite(longitude);
-        const centro = tieneCoordenadas ? [latitude, longitude] : [6.7, -73.2];
-        mapaSelector = window.L.map(container, { scrollWheelZoom: false }).setView(centro, tieneCoordenadas ? 14 : 8);
-        window.L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(mapaSelector);
-
-        if (tieneCoordenadas) updateMapCoordinates(latitude, longitude, 14);
-        mapaSelector.on('click', (event) => {
-            updateMapCoordinates(event.latlng.lat, event.latlng.lng, mapaSelector.getZoom());
-        });
-
-        document.getElementById('pdMapSearchButton').addEventListener('click', searchMapLocation);
-        document.getElementById('pdMapSearch').addEventListener('keydown', (event) => {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                searchMapLocation();
-            }
-        });
-        ['pdMapLatitude', 'pdMapLongitude'].forEach((id) => {
-            document.getElementById(id).addEventListener('change', () => {
-                const latitudeValue = document.getElementById('pdMapLatitude').value.trim();
-                const longitudeValue = document.getElementById('pdMapLongitude').value.trim();
-                const latitude = Number(latitudeValue);
-                const longitude = Number(longitudeValue);
-                if (latitudeValue && longitudeValue
-                    && Number.isFinite(latitude) && latitude >= -90 && latitude <= 90
-                    && Number.isFinite(longitude) && longitude >= -180 && longitude <= 180) {
-                    updateMapCoordinates(latitude, longitude, mapaSelector.getZoom());
-                }
-            });
-        });
-        if (mapConfig && mapConfig.destacado) {
-            document.getElementById('pdMapSearchStatus').textContent = 'Ubicación actual. Busca otro lugar o haz clic en el mapa para cambiarla.';
-        }
-        window.setTimeout(() => mapaSelector && mapaSelector.invalidateSize(), 0);
-    }
-
-    function openEditor(destination, mapOnly = false) {
+    function openEditor(destination) {
         const isNew = !destination.key;
         const item = destination;
         const article = item.article || {};
         editorMarkup();
         editor.hidden = false;
         const form = document.getElementById('portadaForm');
-        form.classList.toggle('map-only', mapOnly);
-        if (mapOnly) {
-            Array.from(form.querySelector('.portada-form-grid').children).forEach((field) => {
-                if (field.id !== 'pdMapConfig') field.remove();
-            });
-        }
-        document.getElementById('portadaFormTitle').textContent = mapOnly
-            ? `Configurar mapa: ${item.titulo}`
-            : isNew ? 'Crear destino' : `Editar ${item.titulo}`;
-        document.getElementById('pdSave').innerHTML = mapOnly
-            ? '<i class="fa-solid fa-floppy-disk"></i> Guardar mapa'
-            : '<i class="fa-solid fa-floppy-disk"></i> Guardar destino';
-        editor.querySelector('.portada-editor-intro').textContent = mapOnly
-            ? 'Configura si este municipio aparece en el mapa, su ubicación y las palabras clave. Los demás datos se conservarán.'
-            : item.municipio
-                ? 'Edita la tarjeta de portada y todos los campos del artículo. La clave y el orden se mantienen fijos.'
-                : 'Completa la tarjeta de la portada y el artículo asociado. Para los datos y secciones usa una entrada por línea con el formato indicado.';
-        const values = mapOnly ? {
-            pdMapLatitude: article.mapa && article.mapa.latitud,
-            pdMapLongitude: article.mapa && article.mapa.longitud,
-            pdMapTag1: article.mapa && article.mapa.etiquetas && article.mapa.etiquetas[0],
-            pdMapTag2: article.mapa && article.mapa.etiquetas && article.mapa.etiquetas[1],
-            pdMapTag3: article.mapa && article.mapa.etiquetas && article.mapa.etiquetas[2]
-        } : {
+        document.getElementById('portadaFormTitle').textContent = isNew ? 'Crear destino' : `Editar ${item.titulo}`;
+        editor.querySelector('.portada-editor-intro').textContent = item.municipio
+            ? 'Edita la tarjeta de portada y todos los campos del artículo. La clave y el orden se mantienen fijos.'
+            : 'Completa la tarjeta de la portada y el artículo asociado. Para los datos y secciones usa una entrada por línea con el formato indicado.';
+        const values = {
             pdKey: item.key,
             pdTitle: item.titulo,
             pdDesc: item.desc,
@@ -457,11 +268,6 @@
             pdAlt: item.alt,
             pdImage: item.img,
             pdOrder: item.orden,
-            pdMapLatitude: article.mapa && article.mapa.latitud,
-            pdMapLongitude: article.mapa && article.mapa.longitud,
-            pdMapTag1: article.mapa && article.mapa.etiquetas && article.mapa.etiquetas[0],
-            pdMapTag2: article.mapa && article.mapa.etiquetas && article.mapa.etiquetas[1],
-            pdMapTag3: article.mapa && article.mapa.etiquetas && article.mapa.etiquetas[2],
             paTitle: article.titulo || item.titulo,
             paSubtitle: article.subtitulo,
             paBadge: article.badge,
@@ -472,68 +278,36 @@
             paCta: article.ctaTexto
         };
         Object.entries(values).forEach(([id, value]) => { document.getElementById(id).value = value == null ? '' : value; });
-        if (!mapOnly) {
-            document.getElementById('pdKey').readOnly = !isNew || item.municipio;
-            document.getElementById('pdPublished').checked = item.publicado !== false;
-        }
-        const mapFeatured = document.getElementById('pdMapFeatured');
-        const yaDestacado = Boolean(article.mapa && article.mapa.destacado);
-        mapFeatured.checked = mapOnly || Boolean(article.mapa && article.mapa.destacado);
-        const removeMapButton = document.getElementById('pdMapRemove');
-        removeMapButton.hidden = !mapOnly || !yaDestacado || !mapFeatured.checked;
-        const updateMapFields = () => {
-            ['pdMapLatitude', 'pdMapLongitude', 'pdMapTag1', 'pdMapTag2', 'pdMapTag3'].forEach((id) => {
-                const field = document.getElementById(id);
-                field.disabled = !mapFeatured.checked;
-                field.required = mapFeatured.checked && ['pdMapLatitude', 'pdMapLongitude'].includes(id);
-            });
-            removeMapButton.hidden = !mapOnly || !yaDestacado || !mapFeatured.checked;
-        };
-        mapFeatured.addEventListener('change', updateMapFields);
-        updateMapFields();
-        if (!mapOnly) {
-            const preview = document.getElementById('pdPreview');
-            preview.src = item.img ? adminAsset(item.img) : '';
-            const videoPreview = document.getElementById('paVideoPreview');
-            const videoRemove = document.getElementById('paVideoRemove');
-            if (article.video) {
-                videoPreview.src = adminAsset(article.video);
-                videoPreview.hidden = false;
-                videoRemove.hidden = false;
-            } else {
-                videoPreview.removeAttribute('src');
-                videoPreview.hidden = true;
-                videoRemove.hidden = true;
-            }
+        document.getElementById('pdKey').readOnly = !isNew || item.municipio;
+        document.getElementById('pdPublished').checked = item.publicado !== false;
+        const preview = document.getElementById('pdPreview');
+        preview.src = item.img ? adminAsset(item.img) : '';
+        const videoPreview = document.getElementById('paVideoPreview');
+        const videoRemove = document.getElementById('paVideoRemove');
+        if (article.video) {
+            videoPreview.src = adminAsset(article.video);
+            videoPreview.hidden = false;
+            videoRemove.hidden = false;
+        } else {
+            videoPreview.removeAttribute('src');
+            videoPreview.hidden = true;
+            videoRemove.hidden = true;
         }
         document.getElementById('pdCancel').addEventListener('click', () => editorDialog.close());
-        if (!mapOnly) {
-            document.getElementById('pdFile').addEventListener('change', uploadImage);
-            document.getElementById('paVideoFile').addEventListener('change', uploadVideo);
-            videoRemove.addEventListener('click', () => {
-                document.getElementById('paVideo').value = '';
-                document.getElementById('paVideoFile').value = '';
-                videoPreview.pause();
-                videoPreview.removeAttribute('src');
-                videoPreview.hidden = true;
-                videoRemove.hidden = true;
-                document.getElementById('paVideoUploadStatus').textContent = 'Video quitado. Guarda el destino para aplicar el cambio.';
-            });
-        } else {
-            removeMapButton.addEventListener('click', () => {
-                mapFeatured.checked = false;
-                updateMapFields();
-                form.requestSubmit();
-            });
-        }
-        form.addEventListener('submit', (event) => save(event, item, mapOnly));
+        document.getElementById('pdFile').addEventListener('change', uploadImage);
+        document.getElementById('paVideoFile').addEventListener('change', uploadVideo);
+        videoRemove.addEventListener('click', () => {
+            document.getElementById('paVideo').value = '';
+            document.getElementById('paVideoFile').value = '';
+            videoPreview.pause();
+            videoPreview.removeAttribute('src');
+            videoPreview.hidden = true;
+            videoRemove.hidden = true;
+            document.getElementById('paVideoUploadStatus').textContent = 'Video quitado. Guarda el destino para aplicar el cambio.';
+        });
+        form.addEventListener('submit', (event) => save(event, item));
         if (!editorDialog.open) editorDialog.showModal();
-        if (mapOnly) {
-            document.getElementById('pdMapConfig').scrollIntoView({ block: 'center' });
-            requestAnimationFrame(() => initializeMapPicker(article.mapa));
-        } else {
-            document.getElementById('pdTitle').focus();
-        }
+        document.getElementById('pdTitle').focus();
     }
 
     async function subirArchivo(file, field) {
@@ -627,62 +401,32 @@
         }
     }
 
-    async function save(event, original, mapOnly = false) {
+    async function save(event, original) {
         event.preventDefault();
         const button = document.getElementById('pdSave');
         if (uploadsEnCurso > 0) {
             showStatus('Espera a que termine la subida de los archivos.', true);
             return;
         }
-        if (!mapOnly && !document.getElementById('pdImage').value) {
+        if (!document.getElementById('pdImage').value) {
             showStatus('Selecciona una foto de la tarjeta y espera a que termine la subida.', true);
             return;
         }
         button.disabled = true;
         showStatus('Guardando destino…');
         const value = (id) => document.getElementById(id).value.trim();
-        const destacarEnMapa = document.getElementById('pdMapFeatured').checked;
-        const etiquetasMapa = ['pdMapTag1', 'pdMapTag2', 'pdMapTag3']
-            .map(value)
-            .filter(Boolean);
-        const latitudMapaTexto = value('pdMapLatitude');
-        const longitudMapaTexto = value('pdMapLongitude');
-        const latitudMapa = Number(latitudMapaTexto);
-        const longitudMapa = Number(longitudMapaTexto);
-        if (destacarEnMapa && (
-            !latitudMapaTexto || !Number.isFinite(latitudMapa) || latitudMapa < -90 || latitudMapa > 90
-            || !longitudMapaTexto || !Number.isFinite(longitudMapa) || longitudMapa < -180 || longitudMapa > 180
-            || etiquetasMapa.length < 1
-        )) {
-            showStatus('Para destacar el municipio en el mapa, indica coordenadas válidas y al menos una palabra clave.', true);
-            button.disabled = false;
-            return;
-        }
-        const mapa = destacarEnMapa ? {
-            destacado: true,
-            latitud: latitudMapa,
-            longitud: longitudMapa,
-            etiquetas: etiquetasMapa
-        } : {
-            destacado: false,
-            latitud: null,
-            longitud: null,
-            etiquetas: []
-        };
         const record = {
             ...original,
-            key: mapOnly || original.municipio ? original.key : value('pdKey'),
-            img: mapOnly ? original.img : value('pdImage'),
-            alt: mapOnly ? original.alt : value('pdAlt'),
-            badge: mapOnly ? original.badge : value('pdBadge'),
-            titulo: mapOnly ? original.titulo : value('pdTitle'),
-            desc: mapOnly ? original.desc : value('pdDesc'),
-            orden: mapOnly ? original.orden : Number(original.orden) || Number(value('pdOrder')) || 0,
-            publicado: mapOnly ? original.publicado : document.getElementById('pdPublished').checked,
-            article: mapOnly ? {
+            key: original.municipio ? original.key : value('pdKey'),
+            img: value('pdImage'),
+            alt: value('pdAlt'),
+            badge: value('pdBadge'),
+            titulo: value('pdTitle'),
+            desc: value('pdDesc'),
+            orden: Number(original.orden) || Number(value('pdOrder')) || 0,
+            publicado: document.getElementById('pdPublished').checked,
+            article: {
                 ...(original.article || {}),
-                mapa
-            } : {
                 video: value('paVideo'),
                 badge: value('paBadge'),
                 titulo: value('paTitle') || value('pdTitle'),
@@ -690,8 +434,7 @@
                 datos: parseFacts(value('paFacts')),
                 intro: value('paIntro'),
                 secciones: parseLines(value('paSections'), 'titulo', 'texto'),
-                ctaTexto: value('paCta'),
-                mapa
+                ctaTexto: value('paCta')
             }
         };
         if (original.key && original.key !== record.key) {
@@ -711,11 +454,7 @@
             destinos.sort((a, b) => a.orden - b.orden || a.titulo.localeCompare(b.titulo));
             render();
             editorDialog.close();
-            showStatus(mapOnly
-                ? destacarEnMapa
-                    ? 'Municipio agregado al mapa turístico.'
-                    : 'Municipio quitado del mapa turístico.'
-                : 'Destino guardado. La portada pública ya mostrará los cambios.');
+            showStatus('Destino guardado. La portada pública ya mostrará los cambios.');
         } catch (error) {
             showStatus(error.message, true);
         } finally {
@@ -747,17 +486,12 @@
         const editButton = event.target.closest('[data-edit]');
         const deleteButton = event.target.closest('[data-delete]');
         const previewButton = event.target.closest('[data-preview]');
-        const mapButton = event.target.closest('[data-map]');
         if (editButton) {
             const item = destinos.find((destination) => destination.key === editButton.dataset.edit);
             if (item) openEditor(item);
         }
         if (deleteButton) deleteDestination(deleteButton.dataset.delete);
         if (previewButton) openPreview(previewButton.dataset.preview);
-        if (mapButton) {
-            const item = destinos.find((destination) => destination.key === mapButton.dataset.map);
-            if (item) openEditor(item, true);
-        }
     });
     previewDialog.addEventListener('click', (event) => {
         if (event.target === previewDialog) closePreview();
@@ -785,11 +519,6 @@
     });
     editorDialog.addEventListener('close', () => {
         editor.hidden = true;
-        if (mapaSelector) {
-            mapaSelector.remove();
-            mapaSelector = null;
-            marcadorSelector = null;
-        }
     });
     document.addEventListener('keydown', (event) => {
         if (event.key === 'Escape' && previewDialog.open) closePreview();

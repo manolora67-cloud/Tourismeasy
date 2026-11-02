@@ -26,8 +26,8 @@
 =========================== */
 
 .module-hero {
-    /* Gradiente oscuro sobre banhos5.jpg para que el texto sea legible */
-    background: linear-gradient(rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.3)), url('../img/banhos5.jpg');
+    /* Gradiente oscuro para que el texto sea legible sobre el banner local. */
+    background: linear-gradient(rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.3)), url('../img/ban_hospedaje.jpg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;

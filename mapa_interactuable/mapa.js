@@ -1,24 +1,95 @@
 (function () {
     "use strict";
 
-    const basePath = window.location.pathname.includes("/html/") ? "../" : "";
-    const categoriasMapa = [
-        { nombre: "Aventura", palabras: ["aventura", "rafting", "deporte", "adrenalina"], clase: "aventura", icono: "fa-person-hiking" },
-        { nombre: "Naturaleza", palabras: ["naturaleza", "cascada", "montana", "rio", "parque", "paisaje", "cueva"], clase: "naturaleza", icono: "fa-leaf" },
-        { nombre: "Cultura e historia", palabras: ["cultura", "historia", "colonial", "patrimonio", "arquitectura", "tradicion"], clase: "cultura", icono: "fa-landmark" },
-        { nombre: "Gastronomía", palabras: ["gastronomia", "comida", "cafe", "bocadillo", "dulce"], clase: "gastronomia", icono: "fa-utensils" },
-    ];
-
-    function normalizarTexto(texto) {
-        return String(texto || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-    }
-
-    function obtenerCategoria(destino) {
-        const etiquetas = destino.mapa.etiquetas.map(normalizarTexto);
-        return categoriasMapa.find((categoria) => (
-            etiquetas.some((etiqueta) => categoria.palabras.some((palabra) => etiqueta.includes(palabra)))
-        )) || { nombre: "Destino destacado", clase: "destacado", icono: "fa-location-dot" };
-    }
+    const coordenadasMunicipios = {
+        "68001": [7.127459, -73.119130],
+        "68013": [6.162366, -73.521569],
+        "68020": [5.758765, -73.915162],
+        "68051": [6.694573, -73.018703],
+        "68077": [5.932603, -73.612437],
+        "68079": [6.635716, -73.223442],
+        "68081": [7.067331, -73.852563],
+        "68092": [6.900640, -73.283559],
+        "68101": [5.989980, -73.770548],
+        "68121": [6.593352, -73.246398],
+        "68132": [7.348091, -72.945929],
+        "68147": [6.529180, -72.698262],
+        "68152": [6.627352, -72.626097],
+        "68160": [6.753059, -72.973394],
+        "68162": [6.843599, -72.693963],
+        "68167": [6.288174, -73.148289],
+        "68169": [7.280799, -72.968226],
+        "68176": [6.344397, -73.372743],
+        "68179": [6.062477, -73.637253],
+        "68190": [6.314541, -73.949681],
+        "68207": [6.768293, -72.694484],
+        "68209": [6.355975, -73.240963],
+        "68211": [6.290737, -73.474556],
+        "68217": [6.295630, -73.040706],
+        "68229": [6.606703, -73.069209],
+        "68235": [6.698692, -73.511569],
+        "68245": [6.245266, -73.497561],
+        "68250": [6.055759, -73.814993],
+        "68255": [7.470891, -73.203309],
+        "68264": [6.137825, -73.098837],
+        "68266": [6.668207, -72.699343],
+        "68271": [5.802419, -73.970934],
+        "68276": [7.062580, -73.085885],
+        "68296": [6.637910, -73.287453],
+        "68298": [5.945857, -73.345350],
+        "68307": [7.069069, -73.170028],
+        "68318": [6.876076, -72.855764],
+        "68320": [6.246817, -73.418182],
+        "68322": [6.308298, -73.321224],
+        "68324": [5.954265, -73.699788],
+        "68327": [6.025402, -73.572506],
+        "68344": [6.542627, -73.307787],
+        "68368": [5.876558, -73.782777],
+        "68370": [6.732705, -73.096113],
+        "68377": [5.858840, -73.965829],
+        "68385": [6.220533, -73.811375],
+        "68397": [6.178593, -73.589584],
+        "68406": [7.113842, -73.217406],
+        "68418": [6.755903, -73.101821],
+        "68425": [6.506171, -72.592896],
+        "68432": [6.699661, -72.732456],
+        "68444": [7.323081, -73.015568],
+        "68464": [6.476121, -72.970620],
+        "68468": [6.673729, -72.809114],
+        "68498": [6.340720, -73.122026],
+        "68500": [6.264200, -73.298780],
+        "68502": [6.343897, -72.816606],
+        "68522": [6.538635, -73.291693],
+        "68524": [6.406625, -73.287918],
+        "68533": [6.416541, -73.169399],
+        "68547": [6.987481, -73.050413],
+        "68549": [6.532250, -73.173230],
+        "68572": [5.877096, -73.679106],
+        "68573": [6.651506, -74.056449],
+        "68575": [7.348018, -73.897978],
+        "68615": [7.264631, -73.150280],
+        "68655": [7.393942, -73.499886],
+        "68669": [6.810067, -72.850635],
+        "68673": [6.125328, -73.509729],
+        "68679": [6.555286, -73.131235],
+        "68682": [6.427589, -72.867653],
+        "68684": [6.658387, -72.733489],
+        "68686": [6.575929, -72.645549],
+        "68689": [6.881139, -73.410626],
+        "68705": [6.989766, -72.907512],
+        "68720": [6.338798, -73.616366],
+        "68745": [6.443509, -73.337420],
+        "68755": [6.470518, -73.262319],
+        "68770": [6.103265, -73.440173],
+        "68773": [5.918810, -73.791256],
+        "68780": [7.366493, -72.984736],
+        "68820": [7.202063, -72.966373],
+        "68842": [6.448015, -73.144301],
+        "68855": [6.012363, -73.672960],
+        "68861": [7.309264, -72.871808],
+        "68867": [6.671239, -73.175398],
+        "68872": [6.816660, -73.268653],
+    };
 
     function crearContenidoPopup(destino) {
         const contenido = document.createElement("div");
@@ -43,16 +114,6 @@
         titulo.textContent = destino.titulo;
         cuerpo.appendChild(titulo);
 
-        const etiquetas = document.createElement("div");
-        etiquetas.className = "mapa-popup-etiquetas";
-        etiquetas.setAttribute("aria-label", `Temas destacados de ${destino.titulo}`);
-        destino.mapa.etiquetas.forEach((texto) => {
-            const etiqueta = document.createElement("span");
-            etiqueta.textContent = texto;
-            etiquetas.appendChild(etiqueta);
-        });
-        cuerpo.appendChild(etiquetas);
-
         const enlace = document.createElement("a");
         enlace.className = "mapa-destino-link";
         enlace.href = `#art-${encodeURIComponent(destino.key)}`;
@@ -64,19 +125,16 @@
         return contenido;
     }
 
-    function crearMarcador(destino, mapa, categoria) {
+    function crearMarcador(destino, coordenadas, mapa) {
         const icono = window.L.divIcon({
             className: "mapa-marcador-wrapper",
-            html: `<span class="mapa-marcador mapa-marcador--${categoria.clase}" aria-hidden="true"><i class="fa-solid ${categoria.icono}"></i></span>`,
+            html: '<span class="mapa-marcador" aria-hidden="true"><i class="fa-solid fa-location-dot"></i></span>',
             iconSize: [42, 48],
             iconAnchor: [21, 44],
             popupAnchor: [0, -40],
         });
 
-        return window.L.marker([
-            Number(destino.mapa.latitud),
-            Number(destino.mapa.longitud),
-        ], {
+        return window.L.marker(coordenadas, {
             icon: icono,
             title: destino.titulo,
             alt: `Ver ${destino.titulo} en el mapa`,
@@ -87,7 +145,7 @@
         });
     }
 
-    function agregarDestinoAlPanel(destino, categoria, marcador, lista, mapa) {
+    function agregarDestinoAlPanel(destino, marcador, lista, mapa) {
         const boton = document.createElement("button");
         boton.type = "button";
         boton.className = "mapa-destino-item";
@@ -95,9 +153,9 @@
         boton.setAttribute("aria-label", `Ubicar ${destino.titulo} en el mapa`);
 
         const icono = document.createElement("span");
-        icono.className = `mapa-destino-icono mapa-destino-icono--${categoria.clase}`;
+        icono.className = "mapa-destino-icono";
         icono.setAttribute("aria-hidden", "true");
-        icono.innerHTML = `<i class="fa-solid ${categoria.icono}"></i>`;
+        icono.innerHTML = '<i class="fa-solid fa-location-dot"></i>';
         boton.appendChild(icono);
 
         const informacion = document.createElement("span");
@@ -105,7 +163,7 @@
         const titulo = document.createElement("strong");
         titulo.textContent = destino.titulo;
         const tipo = document.createElement("span");
-        tipo.textContent = destino.mapa.etiquetas[0] || categoria.nombre;
+        tipo.textContent = "Municipio de Santander";
         informacion.append(titulo, tipo);
         boton.appendChild(informacion);
 
@@ -144,40 +202,32 @@
         const estado = bloque.querySelector(".mapa-estado");
         const lista = bloque.querySelector(".mapa-destinos-lista");
         const contador = bloque.querySelector(".mapa-contador-numero");
-        estado.textContent = "Cargando destinos destacados…";
+        estado.textContent = "Cargando municipios…";
         try {
-            const respuesta = await fetch(`${basePath}admin/contenido_portada.php?map=1`);
-            const resultado = await respuesta.json();
-            if (!respuesta.ok || !resultado.ok || !Array.isArray(resultado.data)) {
-                throw new Error(resultado.error || "No se pudieron cargar los destinos destacados.");
+            const destinos = await window.TE_MUNICIPIOS_PROMISE;
+            if (!Array.isArray(destinos)) {
+                throw new Error("La lista de municipios no está disponible.");
+            }
+            if (destinos.length !== Object.keys(coordenadasMunicipios).length) {
+                throw new Error(`Se esperaban ${Object.keys(coordenadasMunicipios).length} municipios y se recibieron ${destinos.length}.`);
+            }
+            const sinCoordenadas = destinos.filter((destino) => !coordenadasMunicipios[String(destino.id)]);
+            if (sinCoordenadas.length) {
+                throw new Error(`Faltan coordenadas para: ${sinCoordenadas.map((destino) => destino.titulo).join(", ")}`);
             }
 
-            const destinos = resultado.data.filter((destino) => (
-                destino.mapa
-                && destino.mapa.destacado === true
-                && destino.mapa.latitud !== null
-                && destino.mapa.latitud !== ""
-                && destino.mapa.longitud !== null
-                && destino.mapa.longitud !== ""
-                && Number.isFinite(Number(destino.mapa.latitud))
-                && Math.abs(Number(destino.mapa.latitud)) <= 90
-                && Number.isFinite(Number(destino.mapa.longitud))
-                && Math.abs(Number(destino.mapa.longitud)) <= 180
-                && Array.isArray(destino.mapa.etiquetas)
-            ));
             contador.textContent = destinos.length;
 
             if (!destinos.length) {
-                estado.textContent = "Aún no hay municipios destacados. Puedes seleccionarlos desde el panel de administración.";
-                lista.innerHTML = '<p class="mapa-lista-vacia">Los destinos que destaques aparecerán aquí.</p>';
+                estado.textContent = "No hay municipios disponibles para mostrar.";
+                lista.innerHTML = '<p class="mapa-lista-vacia">No hay municipios disponibles.</p>';
                 mapa.setView([6.7, -73.2], 8);
                 return;
             }
 
             const marcadores = destinos.map((destino) => {
-                const categoria = obtenerCategoria(destino);
-                const marcador = crearMarcador(destino, mapa, categoria);
-                agregarDestinoAlPanel(destino, categoria, marcador, lista, mapa);
+                const marcador = crearMarcador(destino, coordenadasMunicipios[String(destino.id)], mapa);
+                agregarDestinoAlPanel(destino, marcador, lista, mapa);
                 return marcador;
             });
 
@@ -231,34 +281,27 @@
                 <div class="mapa-encabezado-icono" aria-hidden="true"><i class="fa-solid fa-compass"></i></div>
                 <div class="mapa-encabezado-texto">
                     <span class="mapa-eyebrow">Descubre Santander</span>
-                    <h2 class="mapa-titulo">Santander, destino a destino</h2>
-                    <p>Explora municipios, encuentra nuevos atractivos y elige tu próxima aventura.</p>
+                    <h2 class="mapa-titulo">Santander, municipio a municipio</h2>
+                    <p>Explora el territorio, ubica cada municipio y elige tu próxima aventura.</p>
                 </div>
                 <div class="mapa-contador" aria-live="polite">
                     <strong class="mapa-contador-numero">0</strong>
-                    <span>destinos<br>destacados</span>
+                    <span>municipios<br>de Santander</span>
                 </div>
             </header>
             <p class="mapa-estado" role="status" aria-live="polite"></p>
             <div class="mapa-explorador">
-                <aside class="mapa-panel-lateral" aria-label="Destinos destacados">
+                <aside class="mapa-panel-lateral" aria-label="Municipios de Santander">
                     <div class="mapa-panel-cabecera">
                         <div>
-                            <h3>Explora destinos</h3>
+                            <h3>Explora municipios</h3>
                             <p>Selecciona un lugar para ubicarlo</p>
                         </div>
                         <i class="fa-solid fa-map-location-dot" aria-hidden="true"></i>
                     </div>
                     <div class="mapa-destinos-lista"></div>
-                    <div class="mapa-leyenda" aria-label="Categorías de destinos">
-                        <span><i class="fa-solid fa-person-hiking mapa-leyenda-aventura"></i> Aventura</span>
-                        <span><i class="fa-solid fa-leaf mapa-leyenda-naturaleza"></i> Naturaleza</span>
-                        <span><i class="fa-solid fa-landmark mapa-leyenda-cultura"></i> Cultura</span>
-                        <span><i class="fa-solid fa-utensils mapa-leyenda-gastronomia"></i> Gastronomía</span>
-                        <span><i class="fa-solid fa-location-dot mapa-leyenda-destacado"></i> Otros</span>
-                    </div>
                 </aside>
-                <div id="mapa-turistico" role="application" aria-label="Mapa interactivo de destinos turísticos de Santander"></div>
+                <div id="mapa-turistico" role="application" aria-label="Mapa interactivo de los municipios de Santander"></div>
             </div>
         `;
         seccion.insertBefore(bloque, puntoInsercion);

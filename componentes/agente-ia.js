@@ -17,7 +17,7 @@
 
     const TE_CONFIG = {
         nombre: "Sue",
-        avatarImg: (_enHtml ? "../img/" : "img/") + "sarafoto.png",
+        avatarImg: (_enHtml ? "../img/" : "img/") + "Sue_foto.jpg",
         modelo: "llama-3.3-70b-versatile", //el modelo de IA
         burbujaDelay: 3000, // Milisegundos antes de mostrar la burbuja de atención
         burbulaAutoClose: 6000, // Milisegundos que dura visible la burbuja antes de ocultarse

@@ -668,6 +668,7 @@
             };
             const saved = content.find((item) => [slug, base.key].includes(String(item.key || "").toLowerCase()));
             return {
+                id: String(city.id),
                 key: saved ? saved.key : base.key,
                 img: (saved && saved.img) || base.img,
                 alt: (saved && saved.alt) || base.alt,

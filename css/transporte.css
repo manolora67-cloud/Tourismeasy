@@ -37,7 +37,7 @@
 
 .module-hero {
     /* Gradiente oscuro sobre la imagen para legibilidad del texto */
-    background: linear-gradient(rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.3)), url('../img/bantra.jpg');
+    background: linear-gradient(rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.3)), url('../img/ban_transporte.jpg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
