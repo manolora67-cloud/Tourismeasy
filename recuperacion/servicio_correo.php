@@ -65,13 +65,13 @@ function enviarCorreoRecuperacion(string $emailDestino, string $nombreDestino, s
     $mail->isSMTP();
     $mail->Host       = 'smtp.gmail.com';
     $mail->SMTPAuth   = true;
-    $mail->Username   = 'soportetourismeasy@gmail.com';
-    $mail->Password   = 'kxhd fhga fnsu ivuq';
+    $mail->Username   = 'tourismeasyadso@gmail.com';
+    $mail->Password   = 'jioq ucah vqsg hvsg';
     $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
     $mail->Port       = 465;
     $mail->CharSet    = 'UTF-8';
 
-    $mail->setFrom('soportetourismeasy@gmail.com', 'TourismEasy Soporte');
+    $mail->setFrom('tourismeasyadso@gmail.com', 'TourismEasy Soporte');
     $mail->addAddress($emailDestino, $nombre);
     $mail->isHTML(true);
     $mail->Subject = 'Te ayudamos a recuperar el acceso a TourismEasy';
