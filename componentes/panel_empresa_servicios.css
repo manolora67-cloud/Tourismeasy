@@ -1,7 +1,7 @@
 /* ===========================
    PANEL EMPRESA - TourismEasy
-   CSS independiente (no requiere panel_admin.css).
-   Incluye todo lo necesario para el panel de la empresa:
+   Componente de estilos compartidos de hospedaje, planes y transporte.
+   No requiere panel_admin.css. Incluye:
    header, stats, tabs, tablas, sidebar, modales y dark mode.
 =========================== */
 
@@ -235,13 +235,14 @@
     white-space: nowrap;
 }
 
-/* "Precio promedio / noche" puede salir como $2.500.000: más largo que el
-   resto de los números de esta grilla, así que se le baja el tamaño y se
-   le permite partir en dos líneas en vez de desbordar la tarjeta. Mismo
-   caso para el más caro/barato. */
+/* Ajusta los precios largos para evitar que desborden las tarjetas. */
 #statPrecioPromedio,
 #statPrecioCaro,
-#statPrecioBarato {
+#statPrecioBarato,
+#statPlanCaro,
+#statPlanBarato,
+#statRutaCara,
+#statRutaBarata {
     font-size: 1.15rem;
     white-space: normal;
     overflow-wrap: break-word;
@@ -1725,8 +1726,8 @@ body.dark-mode .pe-acceso-link {
 
 
 /* ══════════════════════════════════════════════════
-   MODALES DE HOSPEDAJE (crear / editar / eliminar)
-   Se usan para gestionar hospedaje desde el panel empresa
+   MODALES DE SERVICIOS (crear / editar / ver detalles)
+   Estructura compartida por los paneles de empresa
 ══════════════════════════════════════════════════ */
 
 

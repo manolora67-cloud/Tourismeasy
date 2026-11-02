@@ -11,7 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;500&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
-    <script src="../componentes/ui-feedback.js?v=ui-feedback-v2"></script>
+    <script src="../componentes/ui-feedback.js?v=ui-feedback-v3"></script>
 </head>
 
 <body>
@@ -496,14 +496,16 @@
                 document.body.style.overflow = "hidden";
             }
 
-            function cerrarModal() {
+            function cerrarModal(notify) {
+                var estabaAbierto = modal.style.display === "flex";
                 modal.style.display = "none";
                 document.body.style.overflow = "";
+                if (notify && estabaAbierto) window.TEUI.notifyClosed("Formulario");
             }
 
             btnAbrir.addEventListener("click", abrirModal);
             async function solicitarCierreModal() {
-                if (await window.TEUI.confirmDiscard(modal)) cerrarModal();
+                if (await window.TEUI.confirmDiscard(modal)) cerrarModal(true);
             }
             btnCerrar.addEventListener("click", solicitarCierreModal);
             btnCancelar.addEventListener("click", solicitarCierreModal);
@@ -568,7 +570,7 @@
                         window.TEUI.markClean(modal);
                         window.TEUI.toast("Perfil actualizado correctamente.");
                         setTimeout(function() {
-                            cerrarModal();
+                            cerrarModal(false);
                         }, 1400);
                     })
                     .catch(function(err) {

@@ -170,10 +170,10 @@ function actualizarBotonWhatsApp(btn) {
 
 
     function cerrarModal() {
-
+        if (!overlay.classList.contains('visible')) return;
         overlay.classList.remove('visible');
-
         document.body.style.overflow = '';
+        window.TEUI.notifyClosed("Detalle");
     }
 
 

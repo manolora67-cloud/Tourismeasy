@@ -7,12 +7,13 @@
     <title>Panel Hospedaje - TourismEasy</title>
     <link rel="stylesheet" href="../css/index.css" />
     <link rel="stylesheet" href="../css/login.css" />
-    <link rel="stylesheet" href="../css/panel_hospedaje.css" />
+    <link rel="stylesheet" href="../componentes/panel_empresa_servicios.css?v=shared-panels-v1" />
     <link rel="stylesheet" href="../css/click_metrics.css" />
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;500&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
-    <script src="../componentes/ui-feedback.js?v=ui-feedback-v2"></script>
+    <script src="../componentes/ui-feedback.js?v=ui-feedback-v3"></script>
+    <script src="../componentes/panel-modals.js?v=panel-modals-v1"></script>
 </head>
 
 <body>
@@ -405,17 +406,7 @@
                 });
             });
 
-        // Cierra cualquier modal que haya quedado abierto antes de mostrar uno nuevo
-        function closeAllVM() {
-            if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
-            document.querySelectorAll(".vm-overlay.vm-visible").forEach(function(ov) {
-                ov.classList.remove("vm-visible");
-                ov.setAttribute("aria-hidden", "true");
-            });
-        }
-
         function openModal(row) {
-            closeAllVM();
             editRow = row || null;
             _editId = row ? parseInt(row.dataset.id || "0", 10) : null;
             document.getElementById("vModal-title").textContent = row ? "Editar hospedaje" : "Nuevo hospedaje";
@@ -457,14 +448,12 @@
                 document.getElementById("vm-foto-img").src = "";
                 _foto64 = "";
             }
-            document.getElementById("vModal-overlay").classList.add("vm-visible");
-            document.getElementById("vModal-overlay").removeAttribute("aria-hidden");
+            window.TEPanelModals.open("#vModal-overlay");
             window.TEUI.markClean(document.querySelector("#vModal-overlay .vm-box"));
         }
 
         function closeModal() {
-            document.getElementById("vModal-overlay").classList.remove("vm-visible");
-            document.getElementById("vModal-overlay").setAttribute("aria-hidden", "true");
+            window.TEPanelModals.close("#vModal-overlay");
             editRow = null;
             _editId = null;
             document.getElementById("vm-foto").value = "";
@@ -487,11 +476,11 @@
         document.getElementById("btn-nuevo").addEventListener("click", function() {
             openModal(null);
         });
-        async function solicitarCierreModal() {
-            if (await window.TEUI.confirmDiscard(document.querySelector("#vModal-overlay .vm-box"))) closeModal();
-        }
-        document.getElementById("vModal-close").addEventListener("click", solicitarCierreModal);
-        document.getElementById("vModal-cancel").addEventListener("click", solicitarCierreModal);
+        window.TEPanelModals.bindDiscardClose(
+            "#vModal-overlay",
+            ["#vModal-close", "#vModal-cancel"],
+            closeModal
+        );
 
         document.getElementById("vModal-save").addEventListener("click", function() {
             var nombre = document.getElementById("vm-nombre").value.trim();
@@ -606,7 +595,6 @@
         }
 
         function openDetalle(row) {
-            closeAllVM();
             var cells = row.querySelectorAll("td");
             var nombre = cells[0].textContent.trim();
             document.getElementById("vDetalle-nombre").textContent = "Hospedaje: " + nombre;
@@ -626,16 +614,10 @@
             } else {
                 fw.style.display = "none";
             }
-            document.getElementById("vDetalle-overlay").classList.add("vm-visible");
-            document.getElementById("vDetalle-overlay").removeAttribute("aria-hidden");
+            window.TEPanelModals.open("#vDetalle-overlay");
         }
 
-        function closeDetalle() {
-            document.getElementById("vDetalle-overlay").classList.remove("vm-visible");
-            document.getElementById("vDetalle-overlay").setAttribute("aria-hidden", "true");
-        }
-        document.getElementById("vDetalle-close").addEventListener("click", closeDetalle);
-        document.getElementById("vDetalle-close2").addEventListener("click", closeDetalle);
+        window.TEPanelModals.bindClose("#vDetalle-overlay", ["#vDetalle-close", "#vDetalle-close2"], "Detalle");
         document.getElementById("tabla-servicios").addEventListener("click", function(e) {
             var row = e.target.closest("tr");
             if (!row) return;

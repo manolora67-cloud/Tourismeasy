@@ -458,6 +458,7 @@
                     fecha: res.fecha || new Date().toISOString(),
                     likes: 0
                 };
+                window.TEUI.toast("Reseña publicada correctamente.");
                 sliderTrack.insertBefore(buildCard(nueva), sliderTrack.firstChild);
                 window.dispatchEvent(new Event("resenasListas"));
 

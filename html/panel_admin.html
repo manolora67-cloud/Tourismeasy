@@ -14,7 +14,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;500&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
-    <script src="../componentes/ui-feedback.js?v=ui-feedback-v2"></script>
+    <script src="../componentes/ui-feedback.js?v=ui-feedback-v3"></script>
 </head>
 
 <body>
@@ -437,11 +437,6 @@
             </h2>
             <div id="panelModalBody"></div>
         </div>
-    </div>
-
-    <!-- TOAST -->
-    <div id="adminToast" style="position:fixed;bottom:28px;right:28px;background:#7c3aed;color:#fff;padding:12px 20px;border-radius:12px;font-family:'Montserrat',sans-serif;font-weight:700;font-size:0.85rem;z-index:9999;display:none;box-shadow:0 8px 24px rgba(124,58,237,0.35);gap:8px;align-items:center;">
-        <i class="fa-solid fa-check-circle"></i> <span id="toastMsg"></span>
     </div>
 
     <script>
@@ -899,14 +894,7 @@
 
         // ── UTILIDADES ───────────────────────────────────────────────────────
         function showToast(msg, color) {
-            var t = document.getElementById("adminToast");
-            t.style.background = color || "#7c3aed";
-            document.getElementById("toastMsg").textContent = msg;
-            t.style.display = "flex";
-            clearTimeout(t._timer);
-            t._timer = setTimeout(function() {
-                t.style.display = "none";
-            }, 3000);
+            window.TEUI.toast(msg, color === "#ef4444" ? "error" : "success");
         }
 
         function openPanelModal(title, bodyHTML) {
@@ -925,8 +913,9 @@
             }
         }
 
-        function closePanelModal() {
+        function closePanelModal(notify) {
             document.getElementById("panelModalOverlay").style.display = "none";
+            if (notify !== false) window.TEUI.notifyClosed("Ventana");
         }
         window.closePanelModal = closePanelModal;
 
@@ -1136,7 +1125,7 @@
                         cargarSolicitudesBD();
                         cargarEmpresasBD();
                         cargarAuditoriaBD();
-                        closePanelModal();
+                        closePanelModal(false);
                         showToast(s.nombre + " — aceptada ✓", "#16a34a");
                     })
                     .catch(function() {
@@ -1196,8 +1185,8 @@
                         }
                         cargarSolicitudesBD();
                         cargarAuditoriaBD();
-                        closePanelModal();
-                        showToast(s.nombre + " — rechazada", "#ef4444");
+                        closePanelModal(false);
+                        showToast(s.nombre + " — rechazada", "#16a34a");
                     })
                     .catch(function() {
                         btnConf2.disabled = false;
@@ -1235,7 +1224,7 @@
                     updateStats();
                     cargarAuditoriaBD();
                     var activada = res.estado === "ACTIVO";
-                    showToast(emp.nombre + " — " + (activada ? "activada ✓" : "inactivada"), activada ? "#16a34a" : "#ef4444");
+                    showToast(emp.nombre + " — " + (activada ? "activada ✓" : "inactivada"), "#16a34a");
                 })
                 .catch(function() {
                     showToast("Error de conexión al actualizar el estado", "#ef4444");
@@ -1286,8 +1275,8 @@
                         }
                         cargarEmpresasBD();
                         cargarAuditoriaBD();
-                        closePanelModal();
-                        showToast(emp.nombre + " — eliminada", "#ef4444");
+                        closePanelModal(false);
+                        showToast(emp.nombre + " — eliminada", "#16a34a");
                     })
                     .catch(function() {
                         btn.disabled = false;

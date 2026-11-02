@@ -213,8 +213,11 @@ function openDetailModal(product) {
  * Oculta el modal de detalle y restaura el scroll normal.
  */
 function closeDetailModal() {
-    document.getElementById("productModalOverlay").classList.remove("active");
+    const overlay = document.getElementById("productModalOverlay");
+    if (!overlay.classList.contains("active")) return;
+    overlay.classList.remove("active");
     document.body.style.overflow = "";
+    window.TEUI.notifyClosed("Detalle");
 }
 
 function renderProducts() {
@@ -507,11 +510,15 @@ document.querySelectorAll("[data-modal]").forEach((link) => {
     });
 });
 
-tlClose.addEventListener("click", () =>
-    tlOverlay.classList.remove("active"),
-);
+function closeTutorialModal() {
+    if (!tlOverlay.classList.contains("active")) return;
+    tlOverlay.classList.remove("active");
+    window.TEUI.notifyClosed("Ventana");
+}
+
+tlClose.addEventListener("click", closeTutorialModal);
 tlOverlay.addEventListener("click", (e) => {
-    if (e.target === tlOverlay) tlOverlay.classList.remove("active");
+    if (e.target === tlOverlay) closeTutorialModal();
 });
 
 // ============================================================

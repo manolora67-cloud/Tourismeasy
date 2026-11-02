@@ -137,8 +137,17 @@
 
     function closePreview() {
         previewPendiente = null;
-        if (previewDialog.open) previewDialog.close();
+        if (previewDialog.open) {
+            previewDialog.close();
+            window.TEUI.notifyClosed("Vista previa");
+        }
         previewFrame.src = 'about:blank';
+    }
+
+    function closeEditor(notify) {
+        if (!editorDialog.open) return;
+        editorDialog.close();
+        if (notify) window.TEUI.notifyClosed("Formulario");
     }
 
     function openPreview(key) {
@@ -295,7 +304,7 @@
         }
         window.TEUI.markClean(form);
         document.getElementById('pdCancel').addEventListener('click', async () => {
-            if (await window.TEUI.confirmDiscard(form)) editorDialog.close();
+            if (await window.TEUI.confirmDiscard(form)) closeEditor(true);
         });
         document.getElementById('pdFile').addEventListener('change', uploadImage);
         document.getElementById('paVideoFile').addEventListener('change', uploadVideo);
@@ -457,7 +466,7 @@
             destinos.sort((a, b) => a.orden - b.orden || a.titulo.localeCompare(b.titulo));
             render();
             window.TEUI.markClean(document.getElementById('portadaForm'));
-            editorDialog.close();
+            closeEditor(false);
             showStatus('Destino guardado. La portada pública ya mostrará los cambios.');
             window.TEUI.toast(original.persistido ? 'Destino actualizado correctamente.' : 'Destino guardado correctamente.');
         } catch (error) {
@@ -485,6 +494,7 @@
                 : destination);
             render();
             showStatus('Contenido del municipio eliminado de la portada. El municipio permanece en el catálogo y puedes volver a publicarlo editándolo.');
+            window.TEUI.toast('Contenido eliminado de la portada correctamente.');
         } catch (error) {
             showStatus(error.message, true);
         }
@@ -522,7 +532,7 @@
         event.preventDefault();
         const form = document.getElementById('portadaForm');
         window.TEUI.confirmDiscard(form).then((confirmed) => {
-            if (confirmed) editorDialog.close();
+            if (confirmed) closeEditor(true);
         });
     });
     editorDialog.addEventListener('mousedown', (event) => {

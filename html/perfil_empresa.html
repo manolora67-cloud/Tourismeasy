@@ -13,7 +13,7 @@
         rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
-    <script src="../componentes/ui-feedback.js?v=ui-feedback-v2"></script>
+    <script src="../componentes/ui-feedback.js?v=ui-feedback-v3"></script>
 </head>
 
 <body>
@@ -460,7 +460,10 @@
             });
 
             async function solicitarCierrePerfil() {
-                if (await window.TEUI.confirmDiscard(formEditarPerfil)) modalEditarPerfil.close();
+                if (await window.TEUI.confirmDiscard(formEditarPerfil)) {
+                    modalEditarPerfil.close();
+                    window.TEUI.notifyClosed("Formulario");
+                }
             }
             document.getElementById("btnCerrarEditarPerfil").addEventListener("click", solicitarCierrePerfil);
             document.getElementById("btnCancelarEditarPerfil").addEventListener("click", solicitarCierrePerfil);

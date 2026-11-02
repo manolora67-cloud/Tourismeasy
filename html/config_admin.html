@@ -13,7 +13,7 @@
         rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
-    <script src="../componentes/ui-feedback.js?v=ui-feedback-v2"></script>
+    <script src="../componentes/ui-feedback.js?v=ui-feedback-v3"></script>
 </head>
 
 <body>
@@ -387,12 +387,14 @@
             var errorContrasena = document.getElementById("errorCambiarContrasena");
             var btnGuardarContrasena = document.getElementById("btnGuardarContrasenaAdmin");
 
-            function cerrarModalContrasena() {
+            function cerrarModalContrasena(notify) {
+                var estabaAbierto = modalContrasena.style.display === "flex";
                 modalContrasena.style.display = "none";
                 document.body.style.overflow = "";
                 formContrasena.reset();
                 errorContrasena.style.display = "none";
                 errorContrasena.textContent = "";
+                if (notify && estabaAbierto) window.TEUI.notifyClosed("Formulario");
             }
 
             document.getElementById("btnCambiarContrasena").addEventListener("click", function () {
@@ -403,7 +405,7 @@
                 document.getElementById("contrasenaActualAdmin").focus();
             });
             async function solicitarCerrarModalContrasena() {
-                if (await window.TEUI.confirmDiscard(formContrasena)) cerrarModalContrasena();
+                if (await window.TEUI.confirmDiscard(formContrasena)) cerrarModalContrasena(true);
             }
             document.getElementById("btnCerrarModalContrasena").addEventListener("click", solicitarCerrarModalContrasena);
             document.getElementById("btnCancelarModalContrasena").addEventListener("click", solicitarCerrarModalContrasena);
@@ -449,7 +451,7 @@
                     })
                     .then(function () {
                         window.TEUI.toast("Contraseña actualizada correctamente.");
-                        cerrarModalContrasena();
+                        cerrarModalContrasena(false);
                     })
                     .catch(function (error) {
                         errorContrasena.textContent = error.message || "No se pudo actualizar la contraseña.";

@@ -202,6 +202,10 @@
         }, 3600);
     }
 
+    function notifyClosed(subject) {
+        toast((subject || "Ventana") + " cerrada correctamente.");
+    }
+
     function snapshotForm(form) {
         return Array.from(form.querySelectorAll("input, select, textarea"))
             .filter((element) => !element.disabled && !["button", "submit", "reset"].includes(element.type))
@@ -299,5 +303,5 @@
         }
     }
 
-    window.TEUI = { confirm, confirmDelete, toast, markClean, confirmDiscard, logoutAdmin };
+    window.TEUI = { confirm, confirmDelete, toast, notifyClosed, markClean, confirmDiscard, logoutAdmin };
 })();

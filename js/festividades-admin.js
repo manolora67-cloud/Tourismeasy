@@ -24,6 +24,12 @@
         formErrorBox.hidden = true;
     }
 
+    function cerrarDialogo(notify) {
+        if (!dialog.open) return;
+        dialog.close();
+        if (notify) window.TEUI.notifyClosed("Formulario");
+    }
+
     async function respuestaJson(response) {
         var data;
         try {
@@ -188,7 +194,7 @@
                 festividad: festivalData
             });
             window.TEUI.markClean(form);
-            dialog.close();
+            cerrarDialogo(false);
             await cargarFestividades();
             window.TEUI.toast(editing ? "Festividad actualizada correctamente." : "Festividad guardada correctamente.");
         } catch (error) {
@@ -202,7 +208,7 @@
         abrirFormulario(null);
     });
     async function cerrarFormulario() {
-        if (await window.TEUI.confirmDiscard(form)) dialog.close();
+        if (await window.TEUI.confirmDiscard(form)) cerrarDialogo(true);
     }
     document.getElementById("btnCerrarDialogo").addEventListener("click", cerrarFormulario);
     document.getElementById("btnCancelarFestividad").addEventListener("click", cerrarFormulario);

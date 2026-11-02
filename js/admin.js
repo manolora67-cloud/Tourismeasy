@@ -685,6 +685,7 @@ document.addEventListener('DOMContentLoaded', () => {
     btnCancel.addEventListener('click', async() => {
         if (await window.TEUI.confirmDiscard(productForm)) {
             resetForm();
+            window.TEUI.notifyClosed("Edición");
         }
     });
 
