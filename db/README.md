@@ -1,8 +1,6 @@
 # Base de datos de TourismEasy
 
-La aplicación usa PostgreSQL y accede a la base de datos mediante PDO. El esquema y los datos iniciales están en [`DB_TOURISMEASY.sql`](DB_TOURISMEASY.sql); las funciones SQL que invocan los endpoints PHP están en [`../funciones/`](../funciones/).
-
-Consulta el [diccionario de datos en Excel](Diccionario_de_datos_TourismEasy.xlsx) para ver, en una sola hoja, los atributos, tipos, restricciones, nulabilidad, descripciones y relaciones del esquema. Cada tabla tiene su propio bloque con título, encabezados y espacio de separación.
+La aplicación usa PostgreSQL y accede a la base de datos mediante PDO. El esquema y los datos iniciales están en [`DB_TOURISMEASY.sql`](DB_TOURISMEASY.sql); las funciones SQL que invocan los endpoints PHP están en [`../functions/`](../functions/), y los triggers están en [`../triggers/`](../triggers/).
 
 ## Requisitos
 
@@ -26,9 +24,9 @@ psql -U postgres -d tourismeasy -f .\db\DB_TOURISMEASY.sql
 
 El usuario `postgres` del ejemplo es el usuario local de PostgreSQL; reemplázalo por el que corresponda a tu instalación. También puedes crear `tourismeasy` desde pgAdmin y ejecutar allí el archivo SQL.
 
-El esquema nuevo crea 34 tablas y carga datos iniciales, incluyendo el departamento de Santander, sus municipios y registros de ejemplo. `USUARIOS` guarda directamente el perfil y las credenciales de administración; no existe una tabla genérica `PERSONAS` ni cuentas para viajeros. Las reseñas son públicas y se guardan con el nombre proporcionado por quien las publica; los likes se identifican por visitante. `TIPOS_DOCUMENTOS` se conserva porque las cuentas de artesanos/e-commerce todavía la utilizan. `CONTENIDO_PORTADA` y `ESTADO_INICIAL_PORTADA` almacenan las tarjetas administrables y el estado de carga inicial.
+El esquema crea las tablas de la aplicación y carga datos iniciales, incluyendo el departamento de Santander, sus municipios y registros de ejemplo. `USUARIOS` guarda directamente el perfil y las credenciales de administración; no existe una tabla genérica `PERSONAS` ni cuentas para viajeros. Las reseñas son públicas y se guardan con el nombre proporcionado por quien las publica; los likes se identifican por visitante. `TIPOS_DOCUMENTOS` se conserva porque las cuentas de artesanos/e-commerce todavía la utilizan. `CONTENIDO_PORTADA` y `ESTADO_INICIAL_PORTADA` almacenan las tarjetas administrables y el estado de carga inicial.
 
-Para una base existente, vuelve a ejecutar [`fn_guardar_festividad.sql`](../funciones/fn_guardar_festividad.sql). Usa `CREATE OR REPLACE FUNCTION`, así que reemplaza la función anterior sin borrarla manualmente. No ejecutes todo `DB_TOURISMEASY.sql` sobre una base con datos.
+Las funciones se cargan por separado después del esquema. Si únicamente necesitas reemplazar una función en una base que ya tiene la estructura compatible, ejecuta el archivo correspondiente de `functions/`; `CREATE OR REPLACE FUNCTION` reemplaza la definición. Esto no convierte `DB_TOURISMEASY.sql` en una actualización: nunca lo ejecutes sobre una base con datos.
 
 `SESIONES_ACTIVAS` mantiene una reserva por cuenta para admin, empresa y artesano. Cerrar el navegador no libera esa reserva; el endpoint de logout la elimina. La cookie de sesión HTTP se conserva hasta 30 días desde el último uso. Su duración se configura como cantidad de días en [`../con_db/sesion_persistente.php`](../con_db/sesion_persistente.php). Además, el navegador conserva el token de dispositivo en una cookie `HttpOnly` por hasta 400 días. Si se pierde esa cookie de dispositivo antes de cerrar sesión, la reserva podría requerir eliminación manual en PostgreSQL para recuperar el acceso.
 
@@ -36,11 +34,11 @@ Este archivo representa una instalación nueva. Importa el esquema en una base v
 
 ### Claves de municipio en rutas de transporte
 
-Las instalaciones nuevas guardan `ID_CIUDAD_ORIGEN` y `ID_CIUDAD_DESTINO` en `TRANSPORTE`, con claves foráneas a `CIUDADES`. Para usar este modelo, crea una base vacía e importa `DB_TOURISMEASY.sql`; no se ofrecen migraciones para actualizar bases existentes.
+Las instalaciones nuevas guardan `ID_CIUDAD_ORIGEN` y `ID_CIUDAD_DESTINO` en `TRANSPORTE`, con claves foráneas a `CIUDADES`. Para usar este modelo, crea una base vacía e importa `DB_TOURISMEASY.sql`; no se ofrecen migraciones ni scripts `ALTER` para actualizar bases existentes.
 
 ### Calendario administrable de festividades
 
-La instalación nueva carga las 48 fechas iniciales en `FESTIVIDADES_SANTANDER`. El administrador puede gestionarlas desde el apartado **Festividades** del panel. Las funciones SQL para listar, guardar y eliminar festividades están en `funciones/` y se instalan junto con el resto de funciones.
+La instalación nueva carga las 48 fechas iniciales en `FESTIVIDADES_SANTANDER`. El administrador puede gestionarlas desde el apartado **Festividades** del panel. Las funciones SQL para listar, guardar y eliminar festividades están en `functions/` y se instalan junto con el resto de funciones.
 
 ### Contenido administrable de la portada
 
@@ -51,8 +49,8 @@ En cada tarjeta del panel, el botón **Agregar al mapa** abre un cuadro exclusiv
 En una base existente, instala la función actualizada de guardado y la nueva función de consulta del mapa:
 
 ```powershell
-psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\funciones\fn_guardar_contenido_portada.sql
-psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\funciones\fn_listar_destinos_mapa.sql
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\fn_guardar_contenido_portada.sql
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\fn_listar_destinos_mapa.sql
 ```
 
 Reemplaza `postgres` y `tourismeasy` por los valores de tu instalación. No se incluye migración ni se insertan municipios destacados automáticamente: después de instalar las funciones, abre **Destinos de la portada** en el panel, edita cada municipio que quieras mostrar, activa **Destacar en el mapa turístico**, completa sus coordenadas y palabras clave, y guarda. En instalaciones nuevas, abre primero el panel para que se inicialice `CONTENIDO_PORTADA`. No ejecutes `DB_TOURISMEASY.sql` sobre una base existente.
@@ -64,20 +62,20 @@ La auditoría del panel muestra 20 eventos por página y permite filtrar por mó
 Para actualizar una base existente, ejecuta primero la función de registro actualizada y la nueva función de consulta detallada; después ejecuta los archivos actualizados de las funciones existentes que registran esos cambios. Las funciones existentes conservan sus nombres y firmas. Se usa `CREATE OR REPLACE FUNCTION`; no se usa `ALTER`/`DROP`, no se crea una migración y no se modifica la estructura de las tablas:
 
 ```powershell
-psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\funciones\fn_registrar_auditoria.sql
-psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\funciones\fn_listar_auditoria_detallada.sql
-psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\funciones\fn_registrar_empresa.sql
-psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\funciones\fn_actualizar_perfil_empresa.sql
-psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\funciones\fn_procesar_login.sql
-psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\funciones\fn_guardar_contenido_portada.sql
-psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\funciones\fn_eliminar_contenido_portada.sql
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\fn_registrar_auditoria.sql
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\fn_listar_auditoria_detallada.sql
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\fn_registrar_empresa.sql
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\fn_actualizar_perfil_empresa.sql
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\fn_procesar_login.sql
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\fn_guardar_contenido_portada.sql
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\fn_eliminar_contenido_portada.sql
 ```
 
 Reemplaza `postgres` y `tourismeasy` por los valores de tu instalación. `fn_listar_auditoria_detallada()` es de consulta; todos los registros se escriben por `fn_registrar_auditoria()`.
 
 ### Instalar las funciones SQL
 
-Los endpoints PHP invocan las funciones definidas en `funciones/`; hay que instalarlas todas para disponer del proyecto completo. Ejecuta el bloque siguiente en PowerShell **desde la raíz del repositorio**, después de importar el esquema. Instala primero auditoría, luego los scripts restantes y, al final, los wrappers que dependen de otras funciones y el inicializador de portada. Los triggers se instalan después de todas las funciones. `ON_ERROR_STOP` hace que el proceso se detenga si un archivo falla.
+Los endpoints PHP invocan las funciones definidas en `functions/`; hay que instalarlas todas para disponer del proyecto completo. Ejecuta el bloque siguiente en PowerShell **desde la raíz del repositorio**, después de importar el esquema en una base vacía. Instala primero auditoría, luego los scripts restantes y, al final, los wrappers que dependen de otras funciones y el inicializador de portada. Los triggers se instalan después de todas las funciones. `ON_ERROR_STOP` hace que el proceso se detenga si un archivo falla. Este procedimiento no es una migración y no debe usarse sobre una base existente.
 
 Sue consulta sus datos mediante `fn_consultar_catalogo_sue.sql`, que reúne información pública de transportes, hospedajes, planes, empresas, artesanos, productos artesanales, festividades y municipios. En una base existente, basta con instalar esta función para habilitar las consultas de Sue.
 
@@ -86,7 +84,7 @@ Las empresas pueden actualizar razón social, correo institucional, correo de ac
 ```powershell
 $db = 'tourismeasy'
 $user = 'postgres' # Sustituye por tu usuario local de PostgreSQL
-$dir = '.\funciones'
+$dir = '.\functions'
 $finales = @(
 	'fn_eliminar_transporte_empresa.sql',
 	'fn_guardar_hospedaje.sql',
@@ -120,24 +118,39 @@ Get-ChildItem $dirTriggers -Filter '*.sql' |
 	}
 ```
 
-El procedimiento incluye los scripts SQL de `funciones/` y luego instala los archivos de `triggers/`. `fn_buscar_hospedaje_publico.sql` instala la búsqueda pública de hospedajes por municipio, accesibilidad y capacidad; `fn_buscar_planes_publicos.sql`, la búsqueda de planes por municipio, tipo y accesibilidad; y `fn_buscar_productos_publicos.sql`, la búsqueda de productos artesanales por texto, categoría y municipio. En una base existente, ejecuta manualmente el script SQL de búsqueda correspondiente antes de usar esa página; no ejecutes todo `DB_TOURISMEASY.sql` sobre una base con datos. Entre las dependencias ordenadas al final están eliminación de transporte empresa, guardado unificado de hospedaje y productos, inicialización de portada y coordinación del login. Los triggers actualizan `FECHA_MODIFICACION` y guardan snapshots históricos automáticamente.
+El procedimiento incluye los scripts SQL de `functions/` y luego instala los archivos de `triggers/`. `fn_buscar_hospedaje_publico.sql` instala la búsqueda pública de hospedajes por municipio, accesibilidad y capacidad; `fn_buscar_planes_publicos.sql`, la búsqueda de planes por municipio, tipo y accesibilidad; y `fn_buscar_productos_publicos.sql`, la búsqueda de productos artesanales por texto, categoría y municipio. Entre las dependencias ordenadas al final están eliminación de transporte empresa, guardado unificado de hospedaje y productos, inicialización de portada y coordinación del login. Los triggers actualizan `FECHA_MODIFICACION` y guardan snapshots históricos automáticamente.
 
-El cambio de contraseña del administrador usa `funciones/fn_actualizar_contrasena_admin.sql`; el instalador anterior la incluye automáticamente. En una base existente, ejecuta ese archivo SQL por separado antes de habilitar el cambio de contraseña desde Configuración.
+El cambio de contraseña del administrador usa `functions/fn_actualizar_contrasena_admin.sql`; el instalador anterior la incluye automáticamente.
 
-El informe mensual del administrador consulta únicamente tablas OLTP mediante `funciones/fn_informe_mensual_admin.sql`. En una base existente, ejecuta ese archivo SQL para habilitar el informe mensual.
+El informe mensual del administrador consulta únicamente tablas OLTP mediante `functions/fn_informe_mensual_admin.sql`.
 
-Los endpoints de clics invocan las funciones `funciones/fn_registrar_click_whatsapp.sql` y `funciones/fn_estadisticas_clicks.sql`: la primera valida el producto y registra el evento, y la segunda devuelve métricas globales al administrador o filtradas por la empresa autenticada. El instalador anterior incluye ambas funciones al procesar todos los SQL de `funciones/`.
+### Registro y estadísticas de clics de WhatsApp
+
+`LOGS_CLICS_WEB_EXTERNOS` guarda fecha, categoría, producto, dispositivo (user agent), empresa cuando corresponde y `ID_PERSONA_ECOMMERCE` para identificar al artesano asociado al clic. En una instalación nueva, esta última columna tiene una llave foránea a `PERSONAS_ECOMMERCE`; no se reutiliza `ID_EMPRESA` para representar artesanos.
+
+`functions/fn_registrar_click_whatsapp.sql` valida el producto y registra el evento con su dueño. `functions/fn_estadisticas_clicks.sql` devuelve el resumen y los 10 eventos recientes de la página solicitada; permite estadísticas globales para administración y filtrado por la cuenta de empresa o artesano autenticada. El endpoint PHP toma la identidad de la sesión, no de un identificador enviado por el navegador. Los paneles de empresas y artesanos reutilizan el tablero de clics.
+
+Para una base nueva, importa primero `DB_TOURISMEASY.sql` y luego instala las funciones mediante el procedimiento de arriba. Si la tabla existente no incluye `ID_PERSONA_ECOMMERCE`, estas funciones no son compatibles con ella. No se incluye migración automática ni se ejecutó SQL contra una base productiva.
+
+Si necesitas cargar estas dos funciones por separado después de importar el esquema (por ejemplo, si ya ejecutaste el instalador general), usa desde la raíz del repositorio:
+
+```powershell
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\fn_registrar_click_whatsapp.sql
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\fn_estadisticas_clicks.sql
+```
+
+No es necesario ejecutarlas otra vez si el instalador general ya terminó correctamente.
 
 El bloque inicia `psql` una vez por archivo; para evitar que solicite la contraseña repetidamente, configura el archivo `pgpass.conf` de PostgreSQL para tu usuario local o ejecuta cada script desde pgAdmin.
 
-Este procedimiento está destinado a una base vacía recién creada; no lo uses sobre una base con datos o funciones en uso. El límite mensual del perfil forma parte del esquema inicial de `USUARIOS_EMPRESA` en `DB_TOURISMEASY.sql`, y la lógica de edición se instala desde `funciones/fn_actualizar_perfil_empresa.sql`. Solo las cuentas con estado `ACTIVO` pueden editar su perfil; las solicitudes pendientes no pueden hacerlo.
+Este procedimiento está destinado a una base vacía recién creada; no lo uses sobre una base con datos o funciones en uso. El límite mensual del perfil forma parte del esquema inicial de `USUARIOS_EMPRESA` en `DB_TOURISMEASY.sql`, y la lógica de edición se instala desde `functions/fn_actualizar_perfil_empresa.sql`. Solo las cuentas con estado `ACTIVO` pueden editar su perfil; las solicitudes pendientes no pueden hacerlo.
 
 
 ## Configurar el backend
 
 La conexión PDO se encuentra en [`../con_db/db.php`](../con_db/db.php). Actualmente host, puerto, nombre de base de datos, usuario y contraseña están escritos en ese archivo versionado. No publiques credenciales; rótalas si siguen activas y migra la configuración a variables de entorno o un archivo local excluido de Git antes de compartir o desplegar el proyecto.
 
-El nombre de base de datos usado actualmente por la configuración es `tourismeasy`, con el puerto PostgreSQL habitual `5432`. La disponibilidad de las funciones del sistema depende de haber importado también los scripts SQL necesarios de `funciones/`.
+El nombre de base de datos usado actualmente por la configuración es `tourismeasy`, con el puerto PostgreSQL habitual `5432`. La disponibilidad de las funciones del sistema depende de haber importado también los scripts SQL necesarios de `functions/`.
 
 ## Organización del modelo
 

@@ -7,11 +7,14 @@ TourismEasy es una plataforma web de turismo inclusivo enfocada en Santander, Co
 - Exploración de destinos, planes turísticos, hospedajes y transporte.
 - Mapa interactivo de destinos turísticos en la portada. Desde el panel de administración se eligen los municipios, sus coordenadas y hasta tres palabras clave; el mapa reutiliza la foto de Cloudinary guardada para cada municipio, sin crear tarjetas adicionales. Está implementado con Leaflet y OpenStreetMap; sus archivos propios están en [mapa_interactuable/](mapa_interactuable/). No requiere clave de API, pero sí conexión a internet.
 - Acceso para administración y empresas, con solicitud de registro empresarial.
-- Carrusel de los 87 municipios de Santander en la portada, con ocho tarjetas por página y navegación con flechas. Los nombres se consultan de la tabla `CIUDADES`; cada municipio tiene una tarjeta descrita en [componentes/destinos.js](componentes/destinos.js) y una ficha de destino propia en `ARTICULOS` de [componentes/articulos.js](componentes/articulos.js). Desde el panel se pueden actualizar las imágenes y los videos.
+- Carrusel de los 87 municipios de Santander en la portada, con paginación responsive y navegación con flechas. Los nombres se consultan de la tabla `CIUDADES`; cada municipio tiene una tarjeta descrita en [componentes/destinos.js](componentes/destinos.js) y una ficha de destino propia en `ARTICULOS` de [componentes/articulos.js](componentes/articulos.js). Desde el panel se pueden actualizar las imágenes y los videos.
 - Atención y contacto de viajeros por WhatsApp; no se crean cuentas de viajeros.
+- Registro de clics de WhatsApp para empresas y artesanos. Los paneles muestran estadísticas y paginan los registros recientes de diez en diez; el backend determina la cuenta desde la sesión.
 - Gestión de servicios y productos artesanales.
 - Reseñas y reacciones de viajeros.
 - Perfiles y preferencias de administración y empresas.
+- CAPTCHA verificado en el servidor para los inicios de sesión, y recuperación de contraseña con enlace por correo.
+- Confirmaciones, notificaciones y avisos de cambios sin guardar reutilizados en los paneles que los integran.
 - Sesiones de administración, empresas y artesanos que se recuerdan hasta 30 días desde el último uso, salvo que se cierre sesión manualmente.
 - Recuperación de contraseña por correo electrónico para administración, empresas y artesanos del e-commerce.
 - Asistente virtual Sue para preguntas sobre turismo en Santander. Consulta en la base de datos transportes, hospedajes, planes, empresas, artesanos, productos artesanales, festividades y municipios; si Groq no está disponible, responde directamente con esos datos.
@@ -61,19 +64,36 @@ El servidor integrado de PHP es para desarrollo local, no para producción. Para
 | [index.html](index.html) | Página principal. |
 | [html/](html/) | Páginas de acceso, perfiles, paneles y catálogos. |
 | [css/](css/) | Estilos de la interfaz. |
-| [js/](js/), [componentes/](componentes/) | Lógica del navegador y componentes reutilizables. |
+| [js/](js/) | Lógica de las páginas y controladores del navegador. |
+| [componentes/](componentes/) | Componentes compartidos de interfaz y contenido. |
 | [login/](login/), [recuperacion/](recuperacion/), [resenas/](resenas/) | Endpoints de cuentas, recuperación y reseñas. |
 | [planes/](planes/), [hospedaje/](hospedaje/), [transporte/](transporte/) | Endpoints de servicios turísticos. |
 | [e-commerce/](e-commerce/) | Endpoints de productos y cuentas de artesanos. |
 | [admin/](admin/) | Endpoint de contenido administrable de portada. |
 | [api/](api/) | Asistente y configuración de servicios externos. |
 | [con_db/](con_db/) | Conexión PDO y utilidades de sesión. |
-| [db/](db/) | Esquema, datos iniciales y migraciones de PostgreSQL. |
-| [funciones/](funciones/) | Funciones SQL utilizadas por el backend. |
+| [db/](db/) | Esquema inicial y datos de referencia de PostgreSQL; no contiene migraciones de actualización. |
+| [functions/](functions/) | Funciones PostgreSQL invocadas por los endpoints y procesos del backend. |
+| [triggers/](triggers/) | Triggers de historial y actualización de fechas. |
+| [dwh/](dwh/) | Scripts y documentación del almacén analítico por capas Bronce, Plata y Oro. |
 | [mapa_interactuable/](mapa_interactuable/) | JavaScript y estilos del mapa turístico de la portada. |
 | [img/](img/), [audio-video/](audio-video/) | Recursos multimedia del sitio. Las imágenes subidas se alojan en Cloudinary. |
 
 Leaflet 1.9.4 se carga desde el CDN de unpkg mediante etiquetas `<link>` y `<script>` en [index.html](index.html); no se instaló ni descargó con un comando o gestor de paquetes. Los mosaicos del mapa se solicitan a OpenStreetMap y muestran su atribución en pantalla.
+
+## Componentes compartidos
+
+Los componentes se cargan desde las páginas que los usan; no requieren un proceso de compilación independiente.
+
+| Archivo | Responsabilidad |
+| --- | --- |
+| [componentes/ui-feedback.js](componentes/ui-feedback.js) | Diálogos de confirmación, notificaciones, comprobación de formularios modificados y cierre de sesión para las páginas integradas. |
+| [componentes/panel-modals.js](componentes/panel-modals.js) | Apertura, cierre y confirmación de salida de los modales de edición de hospedaje, planes y transporte. |
+| [componentes/panel_empresa_servicios.css](componentes/panel_empresa_servicios.css) | Estilos compartidos de los paneles de servicios de empresas. |
+| [componentes/click-metrics-dashboard.js](componentes/click-metrics-dashboard.js) | Plantilla del tablero de clics de WhatsApp reutilizada por los paneles compatibles. |
+| [componentes/destinos.js](componentes/destinos.js) y [componentes/articulos.js](componentes/articulos.js) | Contenido descriptivo de destinos y fichas de municipios. |
+
+El panel artesanal reutiliza el tablero de clics, con datos limitados por la sesión de artesano. Para una base nueva, el esquema y las funciones relacionados se describen en [db/README.md](db/README.md); las funciones SQL no se ejecutan automáticamente al cargar PHP.
 
 ## Configuración y seguridad
 
@@ -84,4 +104,4 @@ Leaflet 1.9.4 se carga desde el CDN de unpkg mediante etiquetas `<link>` y `<scr
 
 ## Base de datos
 
-El detalle del esquema, las instrucciones de importación y las funciones SQL está en [db/README.md](db/README.md). El [diccionario de datos en Excel](db/Diccionario_de_datos_TourismEasy.xlsx) documenta en una hoja las tablas, columnas y relaciones de la base de datos.
+El detalle del esquema, las instrucciones de instalación desde cero y la carga de funciones SQL están en [db/README.md](db/README.md). El diseño, los pasos de carga y las limitaciones actuales del DWH se documentan en [dwh/README.md](dwh/README.md).

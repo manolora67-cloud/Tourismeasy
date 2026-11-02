@@ -4,7 +4,7 @@ El DWH se ejecuta en PostgreSQL, dentro de la base `tourismeasy`, y separa el pr
 
 - **Bronce:** copias crudas de todas las tablas de `public`. No aplica limpieza ni reglas de negocio.
 - **Plata:** prepara los hospedajes disponibles, las ciudades y su historial.
-- **Oro:** publica el modelo y los reportes analíticos de hospedajes. Power BI consulta esta capa.
+- **Oro:** publica el modelo analítico de hospedajes. Power BI consulta esta capa; la extracción y las transformaciones están en los scripts SQL, no en Power BI.
 
 El DWH no almacena `FECHA_PROCESO`: los hospedajes usan las fechas reales de modificación y vigencia de OLTP. Los servicios que no son hospedajes se conservan en Bronce, pero por ahora no se transforman ni se cargan en Oro.
 
@@ -45,7 +45,14 @@ En `sql/2_plata/2_transformar.sql`:
 - Las versiones previas de hospedajes provienen de `HISTORICO_HOSPEDAJE` en OLTP. Plata contiene el estado actual disponible, sin una fecha artificial de proceso.
 - `oro.hecho_capacidad_hospedaje` guarda capacidad y precio por versión del hospedaje, además de la acción histórica y el usuario de base de datos registrado por el trigger. `oro.dim_rango_capacidad` organiza la capacidad en `1-10`, `11-20` y `21+`, conservando también el valor numérico exacto.
 
-Por ahora, Oro conserva los datos y el historial de hospedajes; no crea reportes estadísticos ni consolidaciones diarias, mensuales o trimestrales.
+### Granularidad, consolidación y uso desde Power BI
+
+- La granularidad del hecho es **una fila por versión del hospedaje** (`SK_HOSPEDAJE`), no una fila por día, mes o trimestre. Las versiones históricas conservan los valores capturados por el historial de OLTP; la fila actual representa el hospedaje disponible.
+- Los rangos `1-10`, `11-20` y `21+` son una clasificación analítica de capacidad en `oro.dim_rango_capacidad`. **No son particiones físicas de tablas**.
+- Oro no crea actualmente agregados diarios, mensuales ni trimestrales, ni medidas de moda, varianza o correlación. La periodicidad de consolidación y las métricas que necesitan los usuarios todavía deben definirse antes de añadirlas al modelo.
+- Power BI debe conectarse a Oro para consultar y visualizar. No debe usarse para modificar las filas fuente ni para sustituir el proceso ETL; las cargas y cambios de Oro se realizan con los scripts SQL del DWH. Estos scripts no crean por sí solos un usuario PostgreSQL de solo lectura: configura los permisos de acceso en el servidor antes de publicar la conexión.
+
+Por ahora, Oro conserva los datos y el historial de hospedajes; no implementa reportes estadísticos ni consolidaciones por período.
 
 Los límites de los rangos de capacidad mantienen la clasificación que ya estaba en el modelo. Confírmalos con los usuarios antes de considerarlos una regla definitiva.
 
