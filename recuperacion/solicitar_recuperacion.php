@@ -39,7 +39,7 @@ try {
 
     // Respuesta genérica siempre — no revelamos si el correo existe o no
     if ($row['ok'] && $row['existe']) {
-        $enlace = "web.adsoserver.site/Tourismeasy/html/recupera_correo.html?token={$token}"
+        $enlace = "https://web.adsoserver.site/Tourismeasy/html/recupera_correo.html?token={$token}"
             . ($origenEcommerce ? '&origen=ecommerce' : '');
         enviarCorreoRecuperacion($email, $enlace);
     }
