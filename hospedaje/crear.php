@@ -24,7 +24,13 @@ if (!is_array($input)) {
 }
 
 try {
-    $stmt = $pdo->prepare('SELECT ok::TEXT, id_hospedaje FROM fn_guardar_hospedaje(CAST(:datos AS JSONB), CAST(:empresa AS VARCHAR(10)))');
+    $stmt = $pdo->prepare(
+        'SELECT resultado.ok::TEXT, resultado.id_hospedaje
+         FROM public.fn_guardar_hospedaje(
+             CAST(:datos AS JSONB),
+             CAST(:empresa AS CHARACTER VARYING)
+         ) AS resultado'
+    );
     $stmt->execute([
         ':datos' => json_encode($input, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR),
         ':empresa' => $_SESSION['id_empresa'],
@@ -38,7 +44,14 @@ try {
     }
     echo json_encode(['ok' => true, 'id' => (string)$resultado['id_hospedaje']]);
 } catch (Throwable $e) {
+    $codigoError = $e instanceof PDOException
+        ? ($e->errorInfo[0] ?? $e->getCode())
+        : $e->getCode();
     error_log('[TourismEasy] hospedaje/crear.php - ' . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['ok' => false, 'error' => 'Error al guardar el hospedaje.']);
+    echo json_encode([
+        'ok' => false,
+        'error' => 'Error al guardar el hospedaje.',
+        'codigo' => is_scalar($codigoError) ? (string)$codigoError : 'desconocido',
+    ]);
 }
