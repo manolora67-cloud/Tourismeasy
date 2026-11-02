@@ -1,5 +1,6 @@
 CREATE OR REPLACE FUNCTION fn_estadisticas_clicks(
-    p_id_empresa EMPRESAS.ID_EMPRESA%TYPE DEFAULT NULL
+    p_id_empresa EMPRESAS.ID_EMPRESA%TYPE DEFAULT NULL,
+    p_pagina INTEGER DEFAULT 1
 )
 RETURNS JSONB
 AS $$
@@ -153,7 +154,8 @@ BEGIN
            AND A.ID_PRODUCTO::VARCHAR = L.ID_PRODUCTO
         WHERE p_id_empresa IS NULL OR L.ID_EMPRESA = p_id_empresa
         ORDER BY L.FECHA_HORA DESC, L.ID_CLICK DESC
-        LIMIT 15
+        LIMIT 10
+        OFFSET ((GREATEST(COALESCE(p_pagina, 1), 1)::BIGINT - 1) * 10)
     ) datos;
 
     RETURN JSONB_BUILD_OBJECT(
@@ -161,7 +163,9 @@ BEGIN
         'por_categoria', v_por_categoria,
         'por_producto', v_por_producto,
         'por_empresa', v_por_empresa,
-        'recientes', v_recientes
+        'recientes', v_recientes,
+        'pagina', GREATEST(COALESCE(p_pagina, 1), 1),
+        'por_pagina', 10
     );
 END;
 $$ LANGUAGE plpgsql STABLE;

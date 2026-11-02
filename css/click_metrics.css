@@ -84,6 +84,41 @@
     color: #b91c1c;
 }
 
+.click-metrics__pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 14px;
+}
+
+.click-metrics__pagination[hidden] {
+    display: none;
+}
+
+.click-metrics__pagination button {
+    min-height: 38px;
+    padding: 7px 14px;
+    border: 1px solid rgba(124, 58, 237, .35);
+    border-radius: 8px;
+    background: var(--white, #fff);
+    color: var(--purple, #7c3aed);
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.click-metrics__pagination button:disabled {
+    cursor: not-allowed;
+    opacity: .5;
+}
+
+.click-metrics__pagination span {
+    color: var(--gray-500, #64748b);
+    font-size: .88rem;
+    text-align: center;
+}
+
 .company-monthly-report {
     margin: -8px 0 28px;
     padding: 22px 24px;
@@ -201,6 +236,16 @@ body.dark-mode .click-metrics__card {
     background: rgba(167, 139, 250, .12);
 }
 
+body.dark-mode .click-metrics__pagination button {
+    background: #0f172a;
+    border-color: #475569;
+    color: #c4b5fd;
+}
+
+body.dark-mode .click-metrics__pagination span {
+    color: #94a3b8;
+}
+
 body.dark-mode .company-monthly-report {
     border-color: rgba(148, 163, 184, .2);
     background: #1e293b;
@@ -255,6 +300,11 @@ body.dark-mode .company-monthly-report__status[data-state="loading"] {
 
     .click-metrics__heading {
         flex-direction: column;
+    }
+
+    .click-metrics__pagination {
+        gap: 8px;
+        flex-wrap: wrap;
     }
 
     .company-monthly-report {

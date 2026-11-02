@@ -23,11 +23,20 @@ if ($tipo !== 'admin' && (!is_string($idEmpresa) || $idEmpresa === '')) {
     responderEstadisticasClicks(401, ['ok' => false, 'error' => 'No autorizado.']);
 }
 
+$paginaEntrada = $_GET['pagina'] ?? '1';
+if (!is_string($paginaEntrada) || !preg_match('/^[1-9][0-9]{0,5}$/D', $paginaEntrada)) {
+    responderEstadisticasClicks(400, ['ok' => false, 'error' => 'Número de página inválido.']);
+}
+$pagina = (int)$paginaEntrada;
+
 try {
     $stmt = $pdo->prepare(
-        'SELECT fn_estadisticas_clicks(CAST(:id_empresa AS VARCHAR(10)))::TEXT'
+        'SELECT fn_estadisticas_clicks(CAST(:id_empresa AS VARCHAR(10)), CAST(:pagina AS INTEGER))::TEXT'
     );
-    $stmt->execute([':id_empresa' => $idEmpresa]);
+    $stmt->execute([
+        ':id_empresa' => $idEmpresa,
+        ':pagina' => $pagina,
+    ]);
     $estadisticas = json_decode($stmt->fetchColumn(), true, 512, JSON_THROW_ON_ERROR);
     if (
         !is_array($estadisticas)
@@ -36,6 +45,8 @@ try {
         || !is_array($estadisticas['por_producto'] ?? null)
         || !is_array($estadisticas['por_empresa'] ?? null)
         || !is_array($estadisticas['recientes'] ?? null)
+        || !is_int($estadisticas['pagina'] ?? null)
+        || !is_int($estadisticas['por_pagina'] ?? null)
     ) {
         throw new RuntimeException('La función de estadísticas no devolvió un objeto válido.');
     }
@@ -48,6 +59,9 @@ try {
         'por_producto' => $estadisticas['por_producto'],
         'por_empresa' => $estadisticas['por_empresa'],
         'recientes' => $estadisticas['recientes'],
+        'pagina' => $estadisticas['pagina'],
+        'por_pagina' => $estadisticas['por_pagina'],
+        'total' => (int)$estadisticas['resumen']['total'],
     ]);
 } catch (Throwable $e) {
     error_log('[TourismEasy] get_estadisticas_clicks.php - ' . $e->getMessage());
