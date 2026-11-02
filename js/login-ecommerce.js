@@ -124,7 +124,8 @@
                 body: JSON.stringify({
                     email: document.getElementById('loginEmail').value.trim(),
                     password: document.getElementById('loginPassword').value,
-                    reemplazar_sesion: reemplazarSesion
+                    reemplazar_sesion: reemplazarSesion,
+                    captcha_token: window.TeCaptcha ? window.TeCaptcha.getToken() : ''
                 })
             })
             .then(function(response) {

@@ -7,6 +7,7 @@
 
 require_once __DIR__ . '/../con_db/sesion_persistente.php';
 iniciarSesionPersistente();
+require_once __DIR__ . '/../con_db/seguridad_captcha.php';
 require_once __DIR__ . '/../con_db/db.php';
 require_once __DIR__ . '/../con_db/seguridad_login.php';
 
@@ -18,10 +19,17 @@ $email = trim($input['email'] ?? '');
 $password = trim($input['password'] ?? '');
 $tipo = trim($input['tipo'] ?? '');
 $reemplazarSesion = ($input['reemplazar_sesion'] ?? false) === true;
+$captchaToken = $input['captcha_token'] ?? '';
 
 if (!$email || !$password || !in_array($tipo, ['admin', 'empresa'], true)) {
     http_response_code(400);
     echo json_encode(["ok" => false, "error" => "Datos incompletos."]);
+    exit;
+}
+
+if (!teCaptchaLoginTokenValido($captchaToken)) {
+    http_response_code(403);
+    echo json_encode(["ok" => false, "error" => "Completa nuevamente la verificación de seguridad."]);
     exit;
 }
 
@@ -53,9 +61,14 @@ try {
     $row = $stmt->fetch();
 
     if (!$row) {
+        teConsumirCaptchaLoginToken();
         http_response_code(500);
         echo json_encode(["ok" => false, "error" => "Error interno del servidor."]);
         exit;
+    }
+
+    if ($row['codigo'] !== 'SESION_ACTIVA') {
+        teConsumirCaptchaLoginToken();
     }
 
     if ($row['codigo'] === 'BLOQUEADO') {
@@ -125,6 +138,7 @@ try {
 
     echo json_encode(["ok" => true, "session" => $datos_sesion]);
 } catch (Throwable $e) {
+    teConsumirCaptchaLoginToken();
     error_log('[TourismEasy] login.php - ' . $e->getMessage());
     http_response_code(500);
     echo json_encode(["ok" => false, "error" => "Error interno del servidor."]);

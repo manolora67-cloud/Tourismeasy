@@ -129,7 +129,7 @@
 
 .panel-stats {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    grid-template-columns: repeat(6, minmax(0, 1fr));
     gap: 16px;
     margin-bottom: 28px;
 }
@@ -784,9 +784,9 @@ body.dark-mode .panel-select option {
 /* ── RESPONSIVE ───────────────────────────────────── */
 
 
-/* Tablet (≤900px): stats en 3 columnas, tabs más compactos */
+/* En pantallas medianas, distribuye las seis tarjetas en dos filas parejas. */
 
-@media (max-width: 900px) {
+@media (max-width: 1200px) {
     .panel-stats {
         grid-template-columns: repeat(3, 1fr);
     }

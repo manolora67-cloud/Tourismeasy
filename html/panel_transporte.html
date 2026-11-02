@@ -73,11 +73,6 @@
                         class="stat-label" id="statProximaSalidaLabel">Próxima salida</span></div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon stat-icon-purple"><i class="fa-solid fa-clock-rotate-left"></i></div>
-                <div class="stat-info"><span class="stat-num" id="statUltimaRuta">—</span><span class="stat-label"
-                        id="statUltimaRutaLabel">Última ruta publicada</span></div>
-            </div>
-            <div class="stat-card">
                 <div class="stat-icon stat-icon-red"><i class="fa-solid fa-arrow-trend-up"></i></div>
                 <div class="stat-info"><span class="stat-num" id="statRutaCara">—</span><span class="stat-label"
                         id="statRutaCaraLabel">Ruta más cara</span></div>
@@ -808,14 +803,12 @@
             return parseInt(p[2], 10) + " " + mo[parseInt(p[1], 10) - 1];
         }
 
-        // NUEVAS TARJETAS: clase top, ruta cara/barata, última publicada, próxima salida
+        // Estadísticas adicionales de precios y próximas salidas.
         function actualizarStatsExtra(data) {
             var elRutaCaraNum = document.getElementById("statRutaCara");
             var elRutaCaraLabel = document.getElementById("statRutaCaraLabel");
             var elRutaBarataNum = document.getElementById("statRutaBarata");
             var elRutaBarataLabel = document.getElementById("statRutaBarataLabel");
-            var elUltimaNum = document.getElementById("statUltimaRuta");
-            var elUltimaLabel = document.getElementById("statUltimaRutaLabel");
             var elProximaNum = document.getElementById("statProximaSalida");
             var elProximaLabel = document.getElementById("statProximaSalidaLabel");
 
@@ -824,8 +817,6 @@
                 if (elRutaCaraLabel) elRutaCaraLabel.textContent = "Ruta más cara";
                 if (elRutaBarataNum) elRutaBarataNum.textContent = "—";
                 if (elRutaBarataLabel) elRutaBarataLabel.textContent = "Ruta más barata";
-                if (elUltimaNum) elUltimaNum.textContent = "—";
-                if (elUltimaLabel) elUltimaLabel.textContent = "Última ruta publicada";
                 if (elProximaNum) elProximaNum.textContent = "—";
                 if (elProximaLabel) elProximaLabel.textContent = "Próxima salida";
                 return;
@@ -841,19 +832,6 @@
             if (elRutaCaraLabel) elRutaCaraLabel.textContent = "Más cara: " + (rutaCara.origen || "") + " → " + (rutaCara.destino || "");
             if (elRutaBarataNum) elRutaBarataNum.textContent = "$" + Number(rutaBarata.precio || 0).toLocaleString("es-CO");
             if (elRutaBarataLabel) elRutaBarataLabel.textContent = "Más barata: " + (rutaBarata.origen || "") + " → " + (rutaBarata.destino || "");
-
-            // Última ruta publicada (por fecha_creacion)
-            var conFechaCreacion = data.filter(function (item) { return !!item.fecha_creacion; });
-            if (conFechaCreacion.length) {
-                var ultima = conFechaCreacion.slice().sort(function (a, b) {
-                    return new Date(b.fecha_creacion) - new Date(a.fecha_creacion);
-                })[0];
-                var fechaCreacionCorta = (ultima.fecha_creacion || "").split(/[T ]/)[0];
-                if (elUltimaNum) elUltimaNum.textContent = fmtDateCorta(fechaCreacionCorta);
-                if (elUltimaLabel) elUltimaLabel.textContent = "Última: " + (ultima.origen || "") + " → " + (ultima.destino || "");
-            } else {
-                if (elUltimaNum) elUltimaNum.textContent = "—";
-            }
 
             // Próxima salida (primera fecha_salida futura o de hoy en adelante)
             var hoy = new Date();

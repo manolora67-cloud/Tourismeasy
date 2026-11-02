@@ -40,10 +40,17 @@ function mapDbProduct(row) {
 }
 
 function productImageUrl(image) {
-    if (!image) return "";
-    if (/^https?:\/\//i.test(image)) return image;
-    if (image.startsWith("//")) return "";
-    return image.startsWith("../") ? image : `../${image}`;
+    const path = String(image || "").trim();
+    if (!path || path.startsWith("//")) return "";
+
+    try {
+        const url = /^https?:\/\//i.test(path)
+            ? new URL(path)
+            : new URL(path.startsWith("../") ? path : `../${path}`, window.location.href);
+        return url.protocol === "http:" || url.protocol === "https:" ? url.href : "";
+    } catch (error) {
+        return "";
+    }
 }
 
 /**
@@ -279,24 +286,54 @@ function renderProducts() {
             "Consultar precio";
 
         const imageUrl = productImageUrl(product.img);
-        const imageMarkup = imageUrl
-            ? `<img src="${imageUrl}" alt="${product.name}">`
-            : '<div class="product-image-placeholder" aria-label="Producto sin imagen"><i class="fa-solid fa-image" aria-hidden="true"></i></div>';
-        card.innerHTML = `
-      ${imageMarkup}
-      <div class="card-info">
-        <span class="category-tag">${categoryLabels[product.category] || product.category}</span>
-        <h3>${product.name}</h3>
-        <p class="provider">${product.provider}</p>
-        <p class="description">${product.description}</p>
-        <p class="price">${priceFormatted}</p>
-        <button class="btn-add" data-id="${product.id}">Ver más info</button>
-      </div>
-    `;
+        if (imageUrl) {
+            const image = document.createElement("img");
+            image.src = imageUrl;
+            image.alt = String(product.name || "");
+            card.appendChild(image);
+        } else {
+            const placeholder = document.createElement("div");
+            placeholder.className = "product-image-placeholder";
+            placeholder.setAttribute("aria-label", "Producto sin imagen");
+            const placeholderIcon = document.createElement("i");
+            placeholderIcon.className = "fa-solid fa-image";
+            placeholderIcon.setAttribute("aria-hidden", "true");
+            placeholder.appendChild(placeholderIcon);
+            card.appendChild(placeholder);
+        }
 
-        card.querySelector(".btn-add").addEventListener("click", () => {
+        const cardInfo = document.createElement("div");
+        cardInfo.className = "card-info";
+
+        const category = document.createElement("span");
+        category.className = "category-tag";
+        category.textContent = categoryLabels[product.category] || product.category || "";
+
+        const name = document.createElement("h3");
+        name.textContent = product.name || "";
+
+        const provider = document.createElement("p");
+        provider.className = "provider";
+        provider.textContent = product.provider || "";
+
+        const description = document.createElement("p");
+        description.className = "description";
+        description.textContent = product.description || "";
+
+        const price = document.createElement("p");
+        price.className = "price";
+        price.textContent = priceFormatted;
+
+        const detailsButton = document.createElement("button");
+        detailsButton.className = "btn-add";
+        detailsButton.type = "button";
+        detailsButton.textContent = "Ver más info";
+        detailsButton.addEventListener("click", () => {
             openDetailModal(product);
         });
+
+        cardInfo.append(category, name, provider, description, price, detailsButton);
+        card.appendChild(cardInfo);
         productList.appendChild(card);
     });
 

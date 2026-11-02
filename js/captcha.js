@@ -1,81 +1,14 @@
 (function () {
     'use strict'; //use strict para evitar errores comunes y malas prácticas
 
-    // Detecta si la página actual está dentro de la carpeta /html/ (como ya
-    // se hace en resenas.js) para armar la ruta correcta a las imágenes,
-    // sea que la página esté en la raíz del proyecto o en /html/.
     var _enHtml = window.location.pathname.includes('/html/');
-    // Si la página anfitriona define window.TE_CAPTCHA_IMG_BASE ANTES de cargar este script,
-    // se usa esa ruta tal cual. Esto es necesario para módulos que no viven en la estructura
-    // estándar de TourismEasy (raíz / html/), como el login del e-commerce.
-    var BASE_PATH = window.TE_CAPTCHA_IMG_BASE || (_enHtml ? '../img/' : 'img/');
-
-    var CHALLENGES = [ //creacion dependiendo del tema
-        {
-            label: 'aventura',
-            instruction: 'Selecciona todas las imágenes de <strong>aventura</strong>',
-            images: [
-                BASE_PATH + 'aventura/aventura1.jpg',
-                BASE_PATH + 'aventura/aventura2.jpg',
-                BASE_PATH + 'aventura/aventura3.jpg',
-                BASE_PATH + 'aventura/aventura4.jpg',
-            ]
-        },
-        {
-            label: 'cascadas',
-            instruction: 'Selecciona todas las imágenes de <strong>cascadas</strong>',
-            images: [
-                BASE_PATH + 'cascadas/cascada1.jpg',
-                BASE_PATH + 'cascadas/cascada2.jpg',
-                BASE_PATH + 'cascadas/cascada3.jpg',
-                BASE_PATH + 'cascadas/cascada4.jpg',
-            ]
-        },
-        {
-            label: 'naturaleza',
-            instruction: 'Selecciona todas las imágenes de <strong>naturaleza</strong>',
-            images: [
-                BASE_PATH + 'naturaleza/naturaleza1.jpg',
-                BASE_PATH + 'naturaleza/naturaleza2.jpg',
-                BASE_PATH + 'naturaleza/naturaleza3.jpg',
-                BASE_PATH + 'naturaleza/naturaleza4.jpg',
-            ]
-        },
-        {
-            label: 'pueblos',
-            instruction: 'Selecciona todas las imágenes de <strong>pueblos</strong>',
-            images: [
-                BASE_PATH + 'pueblos/pueblo1.png',
-                BASE_PATH + 'pueblos/pueblo2.png',
-                BASE_PATH + 'pueblos/pueblo3.png',
-                BASE_PATH + 'pueblos/pueblo4.png',
-            ]
-        },
-    ];
-
-    var DISTRACTORS = [
-        BASE_PATH + 'distractores/distractor1.jpg',
-        BASE_PATH + 'distractores/distractor2.jpg',
-        BASE_PATH + 'distractores/distractor3.jpg',
-        BASE_PATH + 'distractores/distractor4.jpg',
-        BASE_PATH + 'distractores/distractor5.jpg',
-    ];
-
-    function shuffle(arr) { //esta función mezcla un arreglo de forma aleatoria 
-        var a = arr.slice(); // se crea una copia del arreglo original para no modificarlo
-        for (var i = a.length - 1; i > 0; i--) {
-            var j = Math.floor(Math.random() * (i + 1)); // se genera un índice aleatorio entre 0 e i
-            var t = a[i];
-            a[i] = a[j];
-            a[j] = t; // se intercambian los elementos en las posiciones i y j
-        }
-        return a;
-    }
+    var API_URL = _enHtml ? '../login/captcha.php' : 'login/captcha.php';
 
     var state = {
         verified: false,
-        correct: [], // índices de las imágenes correctas en la cuadrícula actual
-        selected: [], // índices de las imágenes que el usuario ha seleccionado
+        challengeId: '',
+        token: '',
+        selected: [],
         attempts: 0,
         loading: false
     };
@@ -121,8 +54,9 @@
         if (state.loading) return; //no cargar si ya está cargando
         state.loading = true;
         state.selected = [];
-        state.correct = [];
         state.verified = false;
+        state.challengeId = '';
+        state.token = '';
 
         // referencias a elementos del DOM dentro del widget
         var box = wrap.querySelector('#teCaptchaBox');
@@ -140,28 +74,69 @@
         msg.innerHTML = '';
         verifyBtn.disabled = true; // el btn de verificar se deshabilita hasta que todas las imágenes carguen
         progressBar.style.width = '0%';
-
-        // se elige un nuevo captcha al azar de la lista de desafíos
-        var ch = CHALLENGES[Math.floor(Math.random() * CHALLENGES.length)];
-        instr.innerHTML = ch.instruction; // se muestra la instrucción correspondiente
-
-        var correctImgs = shuffle(ch.images).slice(0, 4);
-
-        var distImgs = shuffle(DISTRACTORS).slice(0, 5);
-
-        // 4 correctas + 5 distractores = 9 imágenes totales para la cuadrícula
-        var allImgs = correctImgs.concat(distImgs);
-        var correctSet = correctImgs.slice(); //las img correctas se guardan para comparar luego con la selección del usuario
-        allImgs = shuffle(allImgs); //se mexclan las imágenes para que no siempre estén en la misma posición
-
-        state.correct = allImgs.reduce(function (acc, src, idx) { // se recorren las imágenes mezcladas y se guarda el índice de las correctas
-            if (correctSet.indexOf(src) !== -1) acc.push(idx);
-            return acc;
-        }, []);
-
-        // ── Construimos la cuadrícula de 9 celdas ──
         grid.innerHTML = '';
+        instr.textContent = 'Cargando desafío...';
+
+        fetch(API_URL, { credentials: 'include', cache: 'no-store' })
+            .then(function (response) {
+                return response.json().then(function (result) {
+                    if (!response.ok || !result.ok || !result.challenge) {
+                        throw new Error(result.error || 'No se pudo cargar el desafío.');
+                    }
+                    return result.challenge;
+                });
+            })
+            .then(function (challenge) {
+                if (!Array.isArray(challenge.images) || challenge.images.length !== 9) {
+                    throw new Error('El servidor devolvió un desafío inválido.');
+                }
+
+                var instructions = {
+                    aventura: 'Selecciona todas las imágenes de aventura',
+                    cascadas: 'Selecciona todas las imágenes de cascadas',
+                    naturaleza: 'Selecciona todas las imágenes de naturaleza',
+                    pueblos: 'Selecciona todas las imágenes de pueblos'
+                };
+                if (!instructions[challenge.label] || typeof challenge.id !== 'string') {
+                    throw new Error('El servidor devolvió un desafío inválido.');
+                }
+
+                state.challengeId = challenge.id;
+                instr.textContent = instructions[challenge.label];
+                renderChallenge(wrap, challenge.images.map(function (image) {
+                    return API_URL + '?image=' + encodeURIComponent(image);
+                }));
+            })
+            .catch(function (error) {
+                state.loading = false;
+                msg.className = 'te-cap-msg te-cap-msg--err';
+                msg.textContent = error.message || 'No se pudo cargar el desafío. Intenta de nuevo.';
+            });
+    }
+
+    function renderChallenge(wrap, allImgs) {
+        var grid = wrap.querySelector('#teCapGrid');
+        var verifyBtn = wrap.querySelector('#teCapVerify');
+        var msg = wrap.querySelector('#teCapMsg');
+        var progressBar = wrap.querySelector('#teCapProgressBar');
         var loadedCount = 0; // Contador de imágenes que ya cargaron
+        var imageLoadFailed = false;
+
+        function finishLoading() {
+            loadedCount++;
+            progressBar.style.width = Math.round(loadedCount / allImgs.length * 100) + '%';
+            if (loadedCount !== allImgs.length) return;
+
+            state.loading = false;
+            if (imageLoadFailed) {
+                msg.className = 'te-cap-msg te-cap-msg--err';
+                msg.textContent = 'No se pudieron cargar todas las imágenes. Solicita otro desafío.';
+                return;
+            }
+
+            verifyBtn.disabled = false;
+            setTimeout(function () { progressBar.style.width = '0%'; }, 400);
+        }
 
         allImgs.forEach(function (src, idx) {
             var cell = document.createElement('div');
@@ -194,42 +169,31 @@
                 check.innerHTML = '<i class="fa-solid fa-check"></i>';
                 cell.appendChild(check);
 
-                loadedCount++;
-                // Actualizamos la barra de progreso
-                progressBar.style.width = Math.round(loadedCount / 9 * 100) + '%';
-
-                if (loadedCount === 9) {
-                    // Todas las imágenes cargaron → habilitamos el botón Verificar
-                    verifyBtn.disabled = false;
-                    state.loading = false;
-                    setTimeout(function () { progressBar.style.width = '0%'; }, 400);
-                }
+                finishLoading();
             };
 
             img.onload = finalize;
 
             // ── Si la imagen no existe o no carga ──
             img.onerror = function () {
-                // Mostramos una celda gris con ícono de imagen rota
-                cell.innerHTML = '';
+                imageLoadFailed = true;
+                cell.replaceChildren();
                 cell.classList.remove('te-cap-cell--loading');
                 cell.style.cssText = 'background:#f3f4f6;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;';
-                cell.innerHTML = '<i class="fa-solid fa-image" style="color:#9ca3af;font-size:1.4rem;"></i>' +
-                    '<span style="font-size:0.6rem;color:#9ca3af;">sin imagen</span>';
+                var errorIcon = document.createElement('i');
+                errorIcon.className = 'fa-solid fa-image';
+                errorIcon.style.cssText = 'color:#9ca3af;font-size:1.4rem;';
+                var errorText = document.createElement('span');
+                errorText.style.cssText = 'font-size:0.6rem;color:#9ca3af;';
+                errorText.textContent = 'sin imagen';
+                cell.append(errorIcon, errorText);
 
                 // Igual añadimos el check para no romper la lógica de selección
                 var check = document.createElement('div');
                 check.className = 'te-cap-check';
                 check.innerHTML = '<i class="fa-solid fa-check"></i>';
                 cell.appendChild(check);
-
-                loadedCount++;
-                progressBar.style.width = Math.round(loadedCount / 9 * 100) + '%';
-                if (loadedCount === 9) {
-                    verifyBtn.disabled = false;
-                    state.loading = false;
-                    setTimeout(function () { progressBar.style.width = '0%'; }, 400);
-                }
+                finishLoading();
             };
 
             img.src = src; // Esto dispara la carga de la imagen
@@ -293,7 +257,7 @@
     }
 
     // ── Muestra el error y recarga un nuevo desafío automáticamente ──
-    function showError(wrap) {
+    function showError(wrap, message) {
         state.attempts++;
         var box = wrap.querySelector('#teCaptchaBox');
         // Animación de "sacudida" para indicar error
@@ -302,7 +266,7 @@
 
         var msg = wrap.querySelector('#teCapMsg');
         msg.className = 'te-cap-msg te-cap-msg--err';
-        msg.innerHTML = '<i class="fa-solid fa-circle-xmark"></i> Selección incorrecta, intenta de nuevo';
+        msg.textContent = message || 'Selección incorrecta, intenta de nuevo';
 
         // Después de 1.2 segundos cargamos un nuevo desafío
         setTimeout(function () { loadChallenge(wrap); }, 1200);
@@ -323,13 +287,43 @@
 
     // ── Asigna los eventos a los botones del widget ──
     function initEvents(wrap) {
-        // Botón "Verificar": compara la selección del usuario con las respuestas correctas
         wrap.querySelector('#teCapVerify').addEventListener('click', function () {
             if (state.verified || state.loading) return;
-            // Ordenamos ambos arreglos y los convertimos a string para comparar fácilmente
-            var sel = state.selected.slice().sort().join(',');
-            var cor = state.correct.slice().sort().join(',');
-            if (sel === cor) { showSuccess(wrap); } else { showError(wrap); }
+
+            var verifyButton = this;
+            verifyButton.disabled = true;
+            state.loading = true;
+            fetch(API_URL, {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    challenge_id: state.challengeId,
+                    selected: state.selected
+                })
+            })
+                .then(function (response) {
+                    return response.json().then(function (result) {
+                        if (!response.ok || !result.ok) {
+                            throw new Error(result.error || 'No se pudo verificar el desafío.');
+                        }
+                        return result;
+                    });
+                })
+                .then(function (result) {
+                    state.loading = false;
+                    if (!result.verified || typeof result.token !== 'string') {
+                        showError(wrap);
+                        return;
+                    }
+                    state.token = result.token;
+                    showSuccess(wrap);
+                })
+                .catch(function () {
+                    state.loading = false;
+                    state.token = '';
+                    showError(wrap, 'No se pudo verificar el desafío. Intenta de nuevo.');
+                });
         });
 
         // Botón de refresh (↺): carga un nuevo desafío diferente
@@ -341,6 +335,7 @@
     // ── API pública: otros scripts pueden usar estas funciones ──
     window.TeCaptcha = {
         isVerified: function () { return state.verified; }, // ¿Fue verificado?
+        getToken: function () { return state.verified ? state.token : ''; },
         showRequired: function () { var w = document.getElementById('te-captcha-wrap'); if (w) showCaptchaRequired(w); }, // Mostrar aviso
         reset: function () { var w = document.getElementById('te-captcha-wrap'); if (w) loadChallenge(w); }, // Resetear (nuevo desafío + quita el colapso verde)
         // Se debe llamar cuando el backend responde que el login fue inválido (usuario/clave incorrectos).

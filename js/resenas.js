@@ -69,13 +69,6 @@
 
     // ── Helpers ──────────────────────────────────────────────────────────
 
-    function buildStarsHtml(val) {
-        var h = "";
-        for (var i = 1; i <= 5; i++)
-            h += '<span style="color:' + (i <= val ? "#f59e0b" : "#cbd5e1") + '">&#9733;</span>';
-        return h;
-    }
-
     /**
      * Convierte una fecha ISO en texto relativo: "hace 2 días", "hace 1 mes", etc.
      */
@@ -188,7 +181,8 @@
     // ── Construir tarjeta ─────────────────────────────────────────────────
 
     function buildCard(r) {
-        var partes = (r.nombre || "Viajero").trim().split(" ");
+        var nombre = typeof r.nombre === "string" && r.nombre.trim() ? r.nombre.trim() : "Viajero";
+        var partes = nombre.split(/\s+/);
         var iniciales = (partes[0][0] + (partes[1] ? partes[1][0] : "")).toUpperCase();
         var puedelikeear = true;
         var likesCount = parseInt(r.likes) || 0;
@@ -200,36 +194,81 @@
         // Botón de like
         var likeClass = puedelikeear ? "resena-btn-like" : "resena-btn-like disabled";
         if (yaLeDiLike) likeClass += " liked";
-        var likeTitle = "¿Te gustó esta reseña?";
-
-        var likeHtml =
-            '<button class="' + likeClass + '" data-id="' + r.id + '" ' +
-            'data-liked="' + (yaLeDiLike ? "1" : "0") + '" title="' + likeTitle + '">' +
-            '<span class="like-icon">' + (yaLeDiLike ? "♥" : "♡") + '</span>' +
-            '<span class="like-count">' + likesCount + '</span>' +
-            '</button>';
 
         var card = document.createElement("div");
         card.className = "testimonial-card resena-nueva";
         card.dataset.id = r.id;
-        card.innerHTML =
-            '<div class="testimonial-author">' +
-            '<div class="author-avatar">' + iniciales + '</div>' +
-            '<div>' +
-            '<strong>' + r.nombre + '</strong>' +
-            (r.fecha ? '<span class="resena-fecha">' + tiempoRelativo(r.fecha) + '</span>' : '') +
-            '</div>' +
-            '</div>' +
-            '<p class="testimonial-text">' + (r.texto || r.comentario || "").replace(/</g, "&lt;") + '</p>' +
-            '<div class="resena-footer">' +
-            '<div class="resena-stars-display">' + buildStarsHtml(r.rating || r.puntuacion) + '</div>' +
-            '<div class="resena-actions">' +
-            likeHtml +
-            (mostrarModeracion
-                ? '<button class="resena-btn-delete" type="button" title="Eliminar reseña" aria-label="Eliminar reseña" data-id="' + r.id + '"><i class="fa-solid fa-trash"></i> Eliminar</button>'
-                : '') +
-            '</div>' +
-            '</div>';
+
+        var author = document.createElement("div");
+        author.className = "testimonial-author";
+        var avatar = document.createElement("div");
+        avatar.className = "author-avatar";
+        avatar.textContent = iniciales;
+        var authorDetails = document.createElement("div");
+        var authorName = document.createElement("strong");
+        authorName.textContent = nombre;
+        authorDetails.appendChild(authorName);
+        if (r.fecha) {
+            var date = document.createElement("span");
+            date.className = "resena-fecha";
+            date.textContent = tiempoRelativo(r.fecha);
+            authorDetails.appendChild(date);
+        }
+        author.appendChild(avatar);
+        author.appendChild(authorDetails);
+        card.appendChild(author);
+
+        var text = document.createElement("p");
+        text.className = "testimonial-text";
+        text.textContent = r.texto || r.comentario || "";
+        card.appendChild(text);
+
+        var footer = document.createElement("div");
+        footer.className = "resena-footer";
+        var starsDisplay = document.createElement("div");
+        starsDisplay.className = "resena-stars-display";
+        var score = r.rating || r.puntuacion;
+        for (var i = 1; i <= 5; i++) {
+            var star = document.createElement("span");
+            star.style.color = i <= score ? "#f59e0b" : "#cbd5e1";
+            star.textContent = "★";
+            starsDisplay.appendChild(star);
+        }
+        footer.appendChild(starsDisplay);
+
+        var actions = document.createElement("div");
+        actions.className = "resena-actions";
+        var btnLike = document.createElement("button");
+        btnLike.className = likeClass;
+        btnLike.dataset.id = r.id;
+        btnLike.dataset.liked = yaLeDiLike ? "1" : "0";
+        btnLike.title = "¿Te gustó esta reseña?";
+        var likeIcon = document.createElement("span");
+        likeIcon.className = "like-icon";
+        likeIcon.textContent = yaLeDiLike ? "♥" : "♡";
+        var likeCount = document.createElement("span");
+        likeCount.className = "like-count";
+        likeCount.textContent = likesCount;
+        btnLike.appendChild(likeIcon);
+        btnLike.appendChild(likeCount);
+        actions.appendChild(btnLike);
+
+        if (mostrarModeracion) {
+            var btnDelete = document.createElement("button");
+            btnDelete.className = "resena-btn-delete";
+            btnDelete.type = "button";
+            btnDelete.title = "Eliminar reseña";
+            btnDelete.setAttribute("aria-label", "Eliminar reseña");
+            btnDelete.dataset.id = r.id;
+            var deleteIcon = document.createElement("i");
+            deleteIcon.className = "fa-solid fa-trash";
+            deleteIcon.setAttribute("aria-hidden", "true");
+            btnDelete.appendChild(deleteIcon);
+            btnDelete.appendChild(document.createTextNode(" Eliminar"));
+            actions.appendChild(btnDelete);
+        }
+        footer.appendChild(actions);
+        card.appendChild(footer);
 
         var btnDelete = card.querySelector(".resena-btn-delete");
         if (btnDelete) {

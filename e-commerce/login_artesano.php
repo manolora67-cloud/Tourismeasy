@@ -7,6 +7,7 @@
 
 require_once __DIR__ . '/../con_db/sesion_persistente.php';
 iniciarSesionPersistente();
+require_once __DIR__ . '/../con_db/seguridad_captcha.php';
 
 require_once __DIR__ . '/../con_db/db.php';
 require_once __DIR__ . '/../con_db/seguridad_login.php';
@@ -18,10 +19,17 @@ $input    = json_decode(file_get_contents('php://input'), true);
 $email    = trim($input['email']    ?? '');
 $password = trim($input['password'] ?? '');
 $reemplazarSesion = ($input['reemplazar_sesion'] ?? false) === true;
+$captchaToken = $input['captcha_token'] ?? '';
 
 if (!$email || !$password) {
     http_response_code(400);
     echo json_encode(["ok" => false, "error" => "Correo y contraseña requeridos."]);
+    exit;
+}
+
+if (!teCaptchaLoginTokenValido($captchaToken)) {
+    http_response_code(403);
+    echo json_encode(["ok" => false, "error" => "Completa nuevamente la verificación de seguridad."]);
     exit;
 }
 
@@ -53,9 +61,14 @@ try {
     $row = $stmt->fetch();
 
     if (!$row) {
+        teConsumirCaptchaLoginToken();
         http_response_code(500);
         echo json_encode(["ok" => false, "error" => "Error interno del servidor."]);
         exit;
+    }
+
+    if ($row['codigo'] !== 'SESION_ACTIVA') {
+        teConsumirCaptchaLoginToken();
     }
 
     if ($row['codigo'] === 'BLOQUEADO') {
@@ -118,6 +131,7 @@ try {
     ]);
 
 } catch (Throwable $e) {
+    teConsumirCaptchaLoginToken();
     error_log('[TourismEasy] login_artesano.php - ' . $e->getMessage());
     http_response_code(500);
     echo json_encode(["ok" => false, "error" => "Error interno del servidor."]);

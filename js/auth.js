@@ -202,7 +202,8 @@
                         email: document.getElementById("loginEmail").value.trim(),
                         password: document.getElementById("loginPass").value,
                         tipo: document.getElementById("loginType").value,
-                        reemplazar_sesion: reemplazarSesion
+                        reemplazar_sesion: reemplazarSesion,
+                        captcha_token: window.TeCaptcha ? window.TeCaptcha.getToken() : ""
                     })
                 });
                 const result = await response.json();

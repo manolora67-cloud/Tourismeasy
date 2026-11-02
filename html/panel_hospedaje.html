@@ -73,10 +73,6 @@
                 <div class="stat-icon stat-icon-green"><i class="fa-solid fa-arrow-trend-down"></i></div>
                 <div class="stat-info"><span class="stat-num" id="statPrecioBarato">—</span><span class="stat-label" id="statPrecioBaratoLabel">Más barato / noche</span></div>
             </div>
-            <div class="stat-card">
-                <div class="stat-icon stat-icon-blue"><i class="fa-solid fa-clock-rotate-left"></i></div>
-                <div class="stat-info"><span class="stat-num" id="statUltimo">—</span><span class="stat-label" id="statUltimoLabel">Último publicado</span></div>
-            </div>
         </div>
 
         <section class="click-metrics" data-clicks-dashboard data-clicks-dashboard-template aria-label="Contactos por WhatsApp"></section>
@@ -647,25 +643,13 @@
             el.textContent = "$" + promedio.toLocaleString("es-CO");
         }
 
-        // FECHA CORTA para tarjetas (ej: "22 ago")
-        function fmtDateCorta(iso) {
-            if (!iso) return "—";
-            var soloFecha = iso.split(/[T ]/)[0];
-            if (soloFecha.indexOf("-") === -1) return "—";
-            var p = soloFecha.split("-"),
-                mo = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
-            return parseInt(p[2], 10) + " " + mo[parseInt(p[1], 10) - 1];
-        }
-
-        // NUEVAS TARJETAS: activos, tipo top, precio caro/barato, último publicado
+        // Estadísticas adicionales de disponibilidad y precios.
         function actualizarStatsExtra(data) {
             var elActivos = document.getElementById("statActivos");
             var elCaroNum = document.getElementById("statPrecioCaro");
             var elCaroLabel = document.getElementById("statPrecioCaroLabel");
             var elBaratoNum = document.getElementById("statPrecioBarato");
             var elBaratoLabel = document.getElementById("statPrecioBaratoLabel");
-            var elUltimoNum = document.getElementById("statUltimo");
-            var elUltimoLabel = document.getElementById("statUltimoLabel");
 
             if (elActivos) {
                 elActivos.textContent = (data || []).filter(function(item) {
@@ -678,8 +662,6 @@
                 if (elCaroLabel) elCaroLabel.textContent = "Más caro / noche";
                 if (elBaratoNum) elBaratoNum.textContent = "—";
                 if (elBaratoLabel) elBaratoLabel.textContent = "Más barato / noche";
-                if (elUltimoNum) elUltimoNum.textContent = "—";
-                if (elUltimoLabel) elUltimoLabel.textContent = "Último publicado";
                 return;
             }
 
@@ -693,20 +675,6 @@
             if (elCaroLabel) elCaroLabel.textContent = "Más caro: " + (caro.nombre || "");
             if (elBaratoNum) elBaratoNum.textContent = "$" + Number(barato.precio_noche || 0).toLocaleString("es-CO");
             if (elBaratoLabel) elBaratoLabel.textContent = "Más barato: " + (barato.nombre || "");
-
-            // Último hospedaje publicado (por fecha_creacion)
-            var conFecha = data.filter(function(item) {
-                return !!item.fecha_creacion;
-            });
-            if (conFecha.length) {
-                var ultimo = conFecha.slice().sort(function(a, b) {
-                    return new Date(b.fecha_creacion) - new Date(a.fecha_creacion);
-                })[0];
-                if (elUltimoNum) elUltimoNum.textContent = fmtDateCorta(ultimo.fecha_creacion);
-                if (elUltimoLabel) elUltimoLabel.textContent = "Último: " + (ultimo.nombre || "");
-            } else {
-                if (elUltimoNum) elUltimoNum.textContent = "—";
-            }
         }
 
         function escapeHtml(value) {
