@@ -1,6 +1,7 @@
 CREATE OR REPLACE FUNCTION fn_estadisticas_clicks(
-    p_id_empresa EMPRESAS.ID_EMPRESA%TYPE DEFAULT NULL,
-    p_pagina INTEGER DEFAULT 1
+    p_id_empresa EMPRESAS.ID_EMPRESA%TYPE,
+    p_pagina INTEGER,
+    p_id_persona_ecommerce PERSONAS_ECOMMERCE.ID_PERSONA_ECOMMERCE%TYPE
 )
 RETURNS JSONB
 AS $$
@@ -19,7 +20,8 @@ BEGIN
     )
     INTO v_resumen
     FROM LOGS_CLICS_WEB_EXTERNOS L
-    WHERE p_id_empresa IS NULL OR L.ID_EMPRESA = p_id_empresa;
+    WHERE (p_id_persona_ecommerce IS NULL OR L.ID_PERSONA_ECOMMERCE = p_id_persona_ecommerce)
+      AND (p_id_persona_ecommerce IS NOT NULL OR p_id_empresa IS NULL OR L.ID_EMPRESA = p_id_empresa);
 
     SELECT COALESCE(
         JSONB_AGG(
@@ -35,7 +37,8 @@ BEGIN
     FROM (
         SELECT L.TIPO_CATEGORIA AS categoria, COUNT(*) AS cantidad
         FROM LOGS_CLICS_WEB_EXTERNOS L
-        WHERE p_id_empresa IS NULL OR L.ID_EMPRESA = p_id_empresa
+        WHERE (p_id_persona_ecommerce IS NULL OR L.ID_PERSONA_ECOMMERCE = p_id_persona_ecommerce)
+          AND (p_id_persona_ecommerce IS NOT NULL OR p_id_empresa IS NULL OR L.ID_EMPRESA = p_id_empresa)
         GROUP BY L.TIPO_CATEGORIA
     ) datos;
 
@@ -75,12 +78,13 @@ BEGIN
         LEFT JOIN PRODUCTOS_ARTESANALES A
             ON L.TIPO_CATEGORIA = 'Artesanía'
            AND A.ID_PRODUCTO::VARCHAR = L.ID_PRODUCTO
-        WHERE p_id_empresa IS NULL OR L.ID_EMPRESA = p_id_empresa
+        WHERE (p_id_persona_ecommerce IS NULL OR L.ID_PERSONA_ECOMMERCE = p_id_persona_ecommerce)
+          AND (p_id_persona_ecommerce IS NOT NULL OR p_id_empresa IS NULL OR L.ID_EMPRESA = p_id_empresa)
         GROUP BY L.TIPO_CATEGORIA, L.ID_PRODUCTO, T.ORIGEN, T.DESTINO,
                  H.NOM_HOSPEDAJE, P.NOM_PLAN_TURISTICO, A.NOM_PRODUCTO
     ) datos;
 
-    IF p_id_empresa IS NULL THEN
+    IF p_id_empresa IS NULL AND p_id_persona_ecommerce IS NULL THEN
         SELECT COALESCE(
             JSONB_AGG(
                 JSONB_BUILD_OBJECT(
@@ -121,7 +125,12 @@ BEGIN
         SELECT
             L.ID_CLICK AS id_click,
             L.FECHA_HORA AS fecha_hora,
-            COALESCE(E.NOM_EMPRESA, 'Contacto artesanal') AS empresa,
+            COALESCE(
+                E.NOM_EMPRESA,
+                NULLIF(CONCAT_WS(' ', PE.NOM_PERSONA_ECOMMERCE, PE.APE_PERSONA_ECOMMERCE), ''),
+                NULLIF(BTRIM(A.PROVEEDOR), ''),
+                'Contacto artesanal'
+            ) AS empresa,
             L.TIPO_CATEGORIA AS categoria,
             L.ID_PRODUCTO AS id_producto,
             COALESCE(
@@ -152,7 +161,10 @@ BEGIN
         LEFT JOIN PRODUCTOS_ARTESANALES A
             ON L.TIPO_CATEGORIA = 'Artesanía'
            AND A.ID_PRODUCTO::VARCHAR = L.ID_PRODUCTO
-        WHERE p_id_empresa IS NULL OR L.ID_EMPRESA = p_id_empresa
+        LEFT JOIN PERSONAS_ECOMMERCE PE
+            ON PE.ID_PERSONA_ECOMMERCE = L.ID_PERSONA_ECOMMERCE
+        WHERE (p_id_persona_ecommerce IS NULL OR L.ID_PERSONA_ECOMMERCE = p_id_persona_ecommerce)
+          AND (p_id_persona_ecommerce IS NOT NULL OR p_id_empresa IS NULL OR L.ID_EMPRESA = p_id_empresa)
         ORDER BY L.FECHA_HORA DESC, L.ID_CLICK DESC
         LIMIT 10
         OFFSET ((GREATEST(COALESCE(p_pagina, 1), 1)::BIGINT - 1) * 10)

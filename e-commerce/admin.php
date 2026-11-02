@@ -52,6 +52,7 @@ $artesanoNombreSesion = $_SESSION['artesano_nombre'] ?? 'Artesano';
     </script>
     <link rel="stylesheet" href="../css/e-comemerce.css" />
     <link rel="stylesheet" href="../css/admin.css" />
+    <link rel="stylesheet" href="../css/click_metrics.css" />
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;500&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
@@ -130,6 +131,12 @@ $artesanoNombreSesion = $_SESSION['artesano_nombre'] ?? 'Artesano';
                 </div>
             </div>
             <div class="stat-card">
+                <div class="stat-icon stat-icon-green"><i class="fa-brands fa-whatsapp"></i></div>
+                <div class="stat-info">
+                    <span class="stat-num" data-clicks-total>Cargando…</span><span class="stat-label">Clics de WhatsApp</span>
+                </div>
+            </div>
+            <div class="stat-card">
                 <div class="stat-icon stat-icon-red"><i class="fa-solid fa-location-dot"></i></div>
                 <div class="stat-info">
                     <span class="stat-num" id="statTopCiudad">Cargando…</span><span class="stat-label">Tu ciudad principal</span>
@@ -145,6 +152,13 @@ $artesanoNombreSesion = $_SESSION['artesano_nombre'] ?? 'Artesano';
 
         <!-- TAB: PRODUCTOS -->
         <div class="panel-content active" id="tab-productos">
+            <section
+                class="click-metrics"
+                data-clicks-dashboard
+                data-clicks-dashboard-template
+                data-title="Clics de WhatsApp"
+                data-description="Revisa cuántas veces las personas abrieron WhatsApp desde tus productos."
+                aria-label="Clics de WhatsApp de mis productos"></section>
             <div class="admin-grid">
                 <div class="form-container">
                     <h2 id="form-title">Registrar Nuevo Producto</h2>
@@ -264,6 +278,8 @@ $artesanoNombreSesion = $_SESSION['artesano_nombre'] ?? 'Artesano';
     </main>
 
     <script src="../componentes/dark-mode-toggle.js"></script>
+    <script src="../componentes/click-metrics-dashboard.js?v=click-metrics-v1"></script>
+    <script src="../js/metricas_clics.js"></script>
     <script src="../js/admin.js"></script>
     <script src="../js/santanderianidad.js"></script>
 </body>

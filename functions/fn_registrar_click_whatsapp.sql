@@ -7,6 +7,7 @@ RETURNS BIGINT
 AS $$
 DECLARE
     v_id_empresa EMPRESAS.ID_EMPRESA%TYPE;
+    v_id_persona_ecommerce PERSONAS_ECOMMERCE.ID_PERSONA_ECOMMERCE%TYPE;
     v_id_click LOGS_CLICS_WEB_EXTERNOS.ID_CLICK%TYPE;
 BEGIN
     IF p_categoria = 'Hospedaje' THEN
@@ -28,8 +29,8 @@ BEGIN
         WHERE T.ID_TRANSPORTE::VARCHAR = p_id_producto
           AND T.DISPONIBILIDAD = TRUE;
     ELSIF p_categoria = 'Artesanía' THEN
-        SELECT NULL::VARCHAR(10)
-        INTO v_id_empresa
+        SELECT P.ID_PERSONA_ECOMMERCE
+        INTO v_id_persona_ecommerce
         FROM PRODUCTOS_ARTESANALES P
         WHERE P.ID_PRODUCTO::VARCHAR = p_id_producto;
     ELSE
@@ -42,11 +43,12 @@ BEGIN
     END IF;
 
     INSERT INTO LOGS_CLICS_WEB_EXTERNOS
-        (FECHA_HORA, ID_EMPRESA, ID_PRODUCTO, TIPO_CATEGORIA, USER_AGENT)
+        (FECHA_HORA, ID_EMPRESA, ID_PERSONA_ECOMMERCE, ID_PRODUCTO, TIPO_CATEGORIA, USER_AGENT)
     VALUES
         (
             CURRENT_TIMESTAMP,
             v_id_empresa,
+            v_id_persona_ecommerce,
             p_id_producto,
             p_categoria,
             LEFT(COALESCE(NULLIF(BTRIM(p_user_agent), ''), 'Desconocido'), 255)

@@ -36,7 +36,7 @@
         title.prepend(icon, document.createTextNode(" "));
         headingContent.append(
             title,
-            element("p", "", dashboard.dataset.description || "Solo se muestran los clics de los servicios de tu empresa.")
+            element("p", "", dashboard.dataset.description || "Solo se muestran los clics de tus productos y servicios.")
         );
         var reload = element("button", "btn-panel-add", "Actualizar");
         reload.type = "button";

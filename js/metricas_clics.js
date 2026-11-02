@@ -63,8 +63,11 @@
     }
 
     function render(data) {
-        document.querySelector("[data-clicks-total]").textContent =
-            Number(data.resumen.total).toLocaleString("es-CO");
+        var total = dashboard.querySelector("[data-clicks-total]") ||
+            document.querySelector("[data-clicks-total]");
+        if (total) {
+            total.textContent = Number(data.resumen.total).toLocaleString("es-CO");
+        }
         dashboard.querySelector("[data-clicks-30-days]").textContent =
             Number(data.resumen.ultimos_30_dias).toLocaleString("es-CO");
 
