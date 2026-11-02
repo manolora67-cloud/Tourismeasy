@@ -127,6 +127,7 @@
         const replaceSessionButton = document.getElementById("btnReplaceSession");
         const forgotLink = document.getElementById("forgotLink");
         const loginEmail = document.getElementById("loginEmail");
+        const loginEmailMsg = document.getElementById("loginEmailMsg");
         let recoveryRequestPending = false;
 
         forgotLink.addEventListener("click", async function (event) {
@@ -135,14 +136,17 @@
             sessionStorage.removeItem("te_recovery_email");
             loginStatus.textContent = "";
             loginStatus.classList.remove("error", "ok");
+            loginEmailMsg.textContent = "";
+            loginEmailMsg.classList.remove("error", "ok");
             if (!email) {
-                loginStatus.textContent = "Escribe tu correo electrónico para solicitar la recuperación.";
-                loginStatus.classList.add("error");
+                loginEmailMsg.textContent = "Escribe tu correo para enviarte el enlace de recuperación.";
+                loginEmailMsg.classList.add("error");
                 loginEmail.focus();
                 return;
             }
             if (!loginEmail.checkValidity()) {
-                loginEmail.reportValidity();
+                loginEmailMsg.textContent = "Revisa que el correo tenga un formato válido.";
+                loginEmailMsg.classList.add("error");
                 return;
             }
             if (recoveryRequestPending) return;
@@ -168,6 +172,10 @@
                 recoveryRequestPending = false;
                 forgotLink.removeAttribute("aria-disabled");
             }
+        });
+        loginEmail.addEventListener("input", function () {
+            loginEmailMsg.textContent = "";
+            loginEmailMsg.classList.remove("error", "ok");
         });
 
         document.querySelectorAll(".toggle-pass[data-target]").forEach((button) => {

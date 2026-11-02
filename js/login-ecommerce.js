@@ -107,21 +107,26 @@
     // ── LOGIN ──
     var replaceSessionButton = document.getElementById('btnReplaceSession');
     var forgotLink = document.getElementById('forgotLink');
+    var loginEmail = document.getElementById('loginEmail');
+    var loginEmailMsg = document.getElementById('loginEmailMsg');
     var recoveryRequestPending = false;
 
     forgotLink.addEventListener('click', function(event) {
         event.preventDefault();
-        var email = document.getElementById('loginEmail').value.trim();
+        var email = loginEmail.value.trim();
         sessionStorage.removeItem('te_recovery_email');
         hideMsg('loginMsg');
-        var emailInput = document.getElementById('loginEmail');
+        loginEmailMsg.textContent = '';
+        loginEmailMsg.className = 'lec-msg';
         if (!email) {
-            showMsg('loginMsg', 'Escribe tu correo electrónico para solicitar la recuperación.', 'error');
-            emailInput.focus();
+            loginEmailMsg.textContent = 'Escribe tu correo para enviarte el enlace de recuperación.';
+            loginEmailMsg.classList.add('error');
+            loginEmail.focus();
             return;
         }
-        if (!emailInput.checkValidity()) {
-            emailInput.reportValidity();
+        if (!loginEmail.checkValidity()) {
+            loginEmailMsg.textContent = 'Revisa que el correo tenga un formato válido.';
+            loginEmailMsg.classList.add('error');
             return;
         }
         if (recoveryRequestPending) return;
@@ -151,6 +156,10 @@
                 recoveryRequestPending = false;
                 forgotLink.removeAttribute('aria-disabled');
             });
+    });
+    loginEmail.addEventListener('input', function() {
+        loginEmailMsg.textContent = '';
+        loginEmailMsg.className = 'lec-msg';
     });
 
     function iniciarSesion(reemplazarSesion) {
