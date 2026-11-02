@@ -90,6 +90,37 @@
         "68867": [6.671239, -73.175398],
         "68872": [6.816660, -73.268653],
     };
+    const ordenMunicipiosRelevantes = [
+        "barichara",
+        "velez",
+        "socorro",
+        "sangil",
+        "barrancabermeja",
+        "curiti",
+        "lossantos",
+        "guadalupe",
+        "zapatoca",
+        "molagavita",
+    ];
+    const comparadorMunicipios = new Intl.Collator("es", { sensitivity: "base" });
+
+    function ordenarMunicipios(entradas, criterio) {
+        const ordenadas = [...entradas];
+        if (criterio === "az") {
+            return ordenadas.sort((a, b) => comparadorMunicipios.compare(a.destino.titulo, b.destino.titulo));
+        }
+        if (criterio === "za") {
+            return ordenadas.sort((a, b) => comparadorMunicipios.compare(b.destino.titulo, a.destino.titulo));
+        }
+
+        const prioridad = new Map(ordenMunicipiosRelevantes.map((key, index) => [key, index]));
+        return ordenadas.sort((a, b) => {
+            const prioridadA = prioridad.get(a.destino.key) ?? Number.MAX_SAFE_INTEGER;
+            const prioridadB = prioridad.get(b.destino.key) ?? Number.MAX_SAFE_INTEGER;
+            return prioridadA - prioridadB
+                || comparadorMunicipios.compare(a.destino.titulo, b.destino.titulo);
+        });
+    }
 
     function crearContenidoPopup(destino) {
         const contenido = document.createElement("div");
@@ -196,12 +227,14 @@
             boton.removeAttribute("aria-current");
         });
         lista.appendChild(boton);
+        return boton;
     }
 
     async function cargarDestinos(mapa, bloque) {
         const estado = bloque.querySelector(".mapa-estado");
         const lista = bloque.querySelector(".mapa-destinos-lista");
         const contador = bloque.querySelector(".mapa-contador-numero");
+        const selectorOrden = bloque.querySelector(".mapa-orden-select");
         estado.textContent = "Cargando municipios…";
         try {
             const destinos = await window.TE_MUNICIPIOS_PROMISE;
@@ -225,15 +258,21 @@
                 return;
             }
 
-            const marcadores = destinos.map((destino) => {
+            const entradasLista = destinos.map((destino) => {
                 const marcador = crearMarcador(destino, coordenadasMunicipios[String(destino.id)], mapa);
-                agregarDestinoAlPanel(destino, marcador, lista, mapa);
-                return marcador;
+                const boton = agregarDestinoAlPanel(destino, marcador, lista, mapa);
+                return { destino, boton, marcador };
             });
+            const actualizarOrden = () => {
+                const ordenadas = ordenarMunicipios(entradasLista, selectorOrden.value);
+                lista.replaceChildren(...ordenadas.map((entrada) => entrada.boton));
+            };
+            selectorOrden.addEventListener("change", actualizarOrden);
+            actualizarOrden();
 
             estado.textContent = "";
             estado.hidden = true;
-            mapa.fitBounds(window.L.featureGroup(marcadores).getBounds(), {
+            mapa.fitBounds(window.L.featureGroup(entradasLista.map((entrada) => entrada.marcador)).getBounds(), {
                 padding: [28, 28],
                 maxZoom: 9,
             });
@@ -298,6 +337,14 @@
                             <p>Selecciona un lugar para ubicarlo</p>
                         </div>
                         <i class="fa-solid fa-map-location-dot" aria-hidden="true"></i>
+                    </div>
+                    <div class="mapa-orden">
+                        <label for="mapa-orden-select">Ordenar por</label>
+                        <select id="mapa-orden-select" class="mapa-orden-select">
+                            <option value="relevantes">Más relevantes</option>
+                            <option value="az">A–Z</option>
+                            <option value="za">Z–A</option>
+                        </select>
                     </div>
                     <div class="mapa-destinos-lista"></div>
                 </aside>
