@@ -39,7 +39,7 @@
                     AD
                 </div>
                 <div class="pu-sidebar-nombre" id="sidebarNombre">
-                    Administrador TourismEasy
+                    Cargando administrador…
                 </div>
                 <div class="pu-sidebar-tipo">
                     <i class="fa-solid fa-shield-halved"></i> Administrador
@@ -121,7 +121,7 @@
                             AD
                         </div>
                         <div class="pu-perfil-info">
-                            <h2 id="perfilNombre">Administrador TourismEasy</h2>
+                            <h2 id="perfilNombre">Cargando…</h2>
                             <p>
                                 <i class="fa-solid fa-envelope"></i> <span id="perfilEmail" aria-live="polite">Cargando correo...</span>
                             </p>
@@ -142,8 +142,7 @@
                         </h3>
                         <div class="pu-field-list">
                             <div class="pu-field">
-                                <span class="pu-field-label">Nombre</span><span class="pu-field-val" id="infoNombre">Administrador
-                                    TourismEasy</span>
+                                <span class="pu-field-label">Nombre</span><span class="pu-field-val" id="infoNombre">Cargando…</span>
                             </div>
                             <div class="pu-field">
                                 <span class="pu-field-label">Rol</span><span class="pu-field-val">Administrador
@@ -153,14 +152,14 @@
                                 <span class="pu-field-label">Correo</span><span class="pu-field-val" id="infoEmail">Cargando correo...</span>
                             </div>
                             <div class="pu-field">
-                                <span class="pu-field-label">Teléfono</span><span class="pu-field-val" id="infoTelefono">+57 317 461 3395</span>
+                                <span class="pu-field-label">Teléfono</span><span class="pu-field-val" id="infoTelefono">Cargando…</span>
                             </div>
                             <div class="pu-field">
                                 <span class="pu-field-label">Ciudad</span><span class="pu-field-val">Bucaramanga,
                                     Santander</span>
                             </div>
                             <div class="pu-field">
-                                <span class="pu-field-label">Activo desde</span><span class="pu-field-val" id="infoActivoDesde">Abril 2026</span>
+                                <span class="pu-field-label">Activo desde</span><span class="pu-field-val" id="infoActivoDesde">Cargando…</span>
                             </div>
                         </div>
                     </div>
@@ -195,13 +194,13 @@
                     </h3>
                     <div class="pu-stats-row">
                         <div class="pu-stat">
-                            <span class="pu-stat-num" id="adminStatEmpresas">—</span><span class="pu-stat-label">Empresas registradas</span>
+                            <span class="pu-stat-num" id="adminStatEmpresas">Cargando…</span><span class="pu-stat-label">Empresas registradas</span>
                         </div>
                         <div class="pu-stat">
-                            <span class="pu-stat-num" id="adminStatCalif">—</span><span class="pu-stat-label">Calificación promedio</span>
+                            <span class="pu-stat-num" id="adminStatCalif">Cargando…</span><span class="pu-stat-label">Calificación promedio</span>
                         </div>
                         <div class="pu-stat">
-                            <span class="pu-stat-num" id="adminStatServicios">—</span><span class="pu-stat-label">Servicios activos</span>
+                            <span class="pu-stat-num" id="adminStatServicios">Cargando…</span><span class="pu-stat-label">Servicios activos</span>
                         </div>
                     </div>
                 </div>
@@ -264,11 +263,11 @@
             var pa = document.getElementById("perfilAvatar");
             var pn = document.getElementById("perfilNombre");
             var ni = document.getElementById("infoNombre");
-            if (av) av.textContent = u.avatar || "AD";
-            if (nm) nm.textContent = u.nombre || "Administrador";
-            if (pa) pa.textContent = u.avatar || "AD";
-            if (pn) pn.textContent = u.nombre || "Administrador TourismEasy";
-            if (ni) ni.textContent = u.nombre || "Administrador TourismEasy";
+            if (av) av.textContent = "AD";
+            if (nm) nm.textContent = "Cargando administrador…";
+            if (pa) pa.textContent = "AD";
+            if (pn) pn.textContent = "Cargando…";
+            if (ni) ni.textContent = "Cargando…";
         })();
 
         // SESSION WIDGET
@@ -279,10 +278,7 @@
             var w = document.createElement("div");
             w.id = "sessionWidget";
             w.className = "session-widget";
-            var ini = user.avatar || ((user.nombre || "AD").trim().split(/\s+/).map(function(x) {
-                return x[0] || "";
-            }).join("").toUpperCase().slice(0, 2) || "AD");
-            w.innerHTML = '<button class="session-trigger" id="sessionTrigger"><div class="session-avatar">' + ini + '</div><div class="session-info"><span class="session-name">' + (user.nombre || "Administrador") + '</span><span class="session-tipo">Administrador</span></div><i class="fa-solid fa-chevron-down session-chevron" id="sessionChevron"></i></button><div class="session-dropdown" id="sessionDropdown"><a class="session-menu-item" href="../index.html">🏠 Ir al sitio</a><a class="session-menu-item session-menu-highlight" href="panel_admin.html">🛡️ Panel Administrador</a><a class="session-menu-item" href="perfil_admin.html">👤 Mi Perfil</a><a class="session-menu-item" href="config_admin.html">⚙️ Configuración</a><a class="session-menu-item" href="festividades_admin.html">📅 Festividades</a><a class="session-menu-item session-menu-danger" id="btnLogout" href="#">🚪 Cerrar Sesión</a></div>';
+            w.innerHTML = '<button class="session-trigger" id="sessionTrigger"><div class="session-avatar">AD</div><div class="session-info"><span class="session-name">Cargando…</span><span class="session-tipo">Administrador</span></div><i class="fa-solid fa-chevron-down session-chevron" id="sessionChevron"></i></button><div class="session-dropdown" id="sessionDropdown"><a class="session-menu-item" href="../index.html">🏠 Ir al sitio</a><a class="session-menu-item session-menu-highlight" href="panel_admin.html">🛡️ Panel Administrador</a><a class="session-menu-item" href="perfil_admin.html">👤 Mi Perfil</a><a class="session-menu-item" href="config_admin.html">⚙️ Configuración</a><a class="session-menu-item" href="festividades_admin.html">📅 Festividades</a><a class="session-menu-item session-menu-danger" id="btnLogout" href="#">🚪 Cerrar Sesión</a></div>';
             slot.appendChild(w);
             var trig = w.querySelector("#sessionTrigger"),
                 drop = w.querySelector("#sessionDropdown"),
@@ -357,7 +353,7 @@
             }
 
             function aplicarDatos(d) {
-                var nombreCompleto = ((d.nombre || "") + " " + (d.apellido || "")).trim() || sesion.nombre || "Administrador TourismEasy";
+                var nombreCompleto = ((d.nombre || "") + " " + (d.apellido || "")).trim() || "Administrador";
                 var email = typeof d.email_login === "string" ? d.email_login.trim() : "";
                 if (!email) throw new Error("El servidor no devolvió el correo del administrador.");
                 var initials = nombreCompleto.split(/\s+/).map(function(w) {
@@ -376,6 +372,10 @@
                 if (sidebarAv) sidebarAv.textContent = initials;
                 var sidebarNm = document.getElementById("sidebarNombre");
                 if (sidebarNm) sidebarNm.textContent = nombreCompleto;
+                var sessionName = document.querySelector("#sessionWidget .session-name");
+                var sessionAvatar = document.querySelector("#sessionWidget .session-avatar");
+                if (sessionName) sessionName.textContent = nombreCompleto;
+                if (sessionAvatar) sessionAvatar.textContent = initials;
 
                 sesion.email = email;
                 var sessionStore = localStorage.getItem("te_session") ? localStorage : sessionStorage;
@@ -405,6 +405,13 @@
                         console.error("No se pudo cargar el perfil del administrador:", err);
                         set("perfilEmail", "No se pudo cargar el correo");
                         set("infoEmail", "No se pudo cargar el correo");
+                        set("perfilNombre", "No disponible");
+                        set("infoNombre", "No disponible");
+                        set("infoTelefono", "No disponible");
+                        set("infoActivoDesde", "No disponible");
+                        set("sidebarNombre", "No disponible");
+                        var sessionName = document.querySelector("#sessionWidget .session-name");
+                        if (sessionName) sessionName.textContent = "No disponible";
                         return false;
                     });
             }
@@ -470,13 +477,18 @@
             cargarUltimaActividad();
 
             function cargarEstadisticas() {
-                fetch(API_BASE + 'get_estadisticas_admin.php')
+                fetch(API_BASE + 'get_estadisticas_admin.php', {
+                    credentials: 'include',
+                    cache: 'no-store'
+                })
                     .then(function(r) {
                         if (!r.ok) throw new Error("HTTP " + r.status);
                         return r.json();
                     })
                     .then(function(data) {
-                        if (!data.ok || !data.estadisticas) return;
+                        if (!data.ok || !data.estadisticas) {
+                            throw new Error(data.error || "La respuesta de estadísticas no es válida.");
+                        }
                         var st = data.estadisticas;
                         set("adminStatEmpresas", (st.empresas_registradas !== null && st.empresas_registradas !== undefined) ? st.empresas_registradas : "—");
                         set("adminStatCalif", st.calificacion_promedio !== null ? st.calificacion_promedio.toFixed(1) : "—");
@@ -484,6 +496,9 @@
                     })
                     .catch(function(err) {
                         console.error("No se pudieron cargar las estadísticas:", err);
+                        set("adminStatEmpresas", "No disponible");
+                        set("adminStatCalif", "No disponible");
+                        set("adminStatServicios", "No disponible");
                     });
             }
             cargarEstadisticas();

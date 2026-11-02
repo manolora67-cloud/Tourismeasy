@@ -107,8 +107,12 @@
 
     function load() {
         var status = dashboard.querySelector("[data-clicks-status]");
+        var total = document.querySelector("[data-clicks-total]");
+        var last30Days = dashboard.querySelector("[data-clicks-30-days]");
+        if (total) total.textContent = "Cargando…";
+        if (last30Days) last30Days.textContent = "Cargando…";
         status.textContent = "Cargando estadísticas de clics…";
-        fetch(endpoint, { credentials: "include" })
+        fetch(endpoint, { credentials: "include", cache: "no-store" })
             .then(function (response) {
                 return response.json().then(function (data) {
                     if (!response.ok || !data.ok) {
@@ -120,6 +124,8 @@
             .then(render)
             .catch(function (error) {
                 console.error("No se pudieron cargar las estadísticas de clics.", error);
+                if (total) total.textContent = "No disponible";
+                if (last30Days) last30Days.textContent = "No disponible";
                 status.textContent = error.message || "No se pudieron cargar las estadísticas de clics.";
                 status.setAttribute("role", "alert");
             });

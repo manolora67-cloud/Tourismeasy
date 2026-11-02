@@ -24,6 +24,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // ── Constantes ──
     const API_URL = '../e-commerce/listar.php?ajax=1';
     const CIUDADES_URL = '../datos_referencia.php?tipo=ciudades';
+    const DEFAULT_PRODUCT_IMAGE = '../img/default-product.jpg';
+    let ciudadesPromise;
+    let productosLoadState = 'loading';
 
     // ── Modal de confirmación (usado antes de cerrar sesión) ──
     // Se inyecta solo (CSS + HTML) la primera vez que se necesita, así no
@@ -87,10 +90,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const raw = localStorage.getItem(SESSION_KEY) || sessionStorage.getItem(SESSION_KEY);
             if (!raw) return null;
             const data = JSON.parse(raw);
+            if (!data || !data.id) return null;
             localStorage.setItem(SESSION_KEY, JSON.stringify(data));
             sessionStorage.removeItem(SESSION_KEY);
-            return data && data.id ? data : null;
-        } catch (e) {
+            return data;
+        } catch (error) {
+            console.error('No se pudo leer la sesión del artesano:', error);
             return null;
         }
     }
@@ -157,17 +162,34 @@ document.addEventListener('DOMContentLoaded', () => {
     // ── Cargar ciudades en el <select id="ubicacion"> ──
     async function loadCiudades() {
         const select = document.getElementById('ubicacion');
-        if (!select) return;
+        if (!select) return false;
+        select.disabled = true;
+        select.replaceChildren(new Option('Cargando ciudades…', ''));
         try {
-            const response = await fetch(CIUDADES_URL);
+            const response = await fetch(CIUDADES_URL, {
+                credentials: 'include',
+                cache: 'no-store'
+            });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
             const result = await response.json();
-            const ciudades = (result.data && result.data.ciudades) || [];
+            const ciudades = result.data && result.data.ciudades;
+            if (!result.ok || !Array.isArray(ciudades)) {
+                throw new Error(result.error || 'La respuesta de ciudades no es válida.');
+            }
 
-            select.innerHTML = '<option value="">Selecciona una ciudad</option>' +
-                ciudades.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
+            select.replaceChildren(new Option('Selecciona una ciudad', ''));
+            ciudades.forEach(ciudad => {
+                select.add(new Option(ciudad.nombre, ciudad.id));
+            });
+            select.disabled = ciudades.length === 0;
+            if (!ciudades.length) {
+                select.replaceChildren(new Option('No hay ciudades disponibles', ''));
+            }
+            return true;
         } catch (error) {
             console.error('Error cargando ciudades:', error);
-            select.innerHTML = '<option value="">No se pudieron cargar las ciudades</option>';
+            select.replaceChildren(new Option('No se pudieron cargar las ciudades', ''));
+            return false;
         }
     }
 
@@ -382,7 +404,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // GET: Obtener todos los productos (solo los del artesano logueado)
     async function fetchProducts() {
         const url = sesion ? `${API_URL}&id_persona=${encodeURIComponent(sesion.id)}` : API_URL;
-        const response = await fetch(url, { credentials: 'include' });
+        const response = await fetch(url, {
+            credentials: 'include',
+            cache: 'no-store'
+        });
         const result = await response.json();
         if (!response.ok || !result.ok || !Array.isArray(result.data)) {
             throw new Error(result.error || `No se pudieron cargar los productos (HTTP ${response.status}).`);
@@ -392,17 +417,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // GET: Obtener un producto por ID
     async function fetchProductById(id) {
-        try {
-            // El id del artesano ya no se manda por la URL: crear.php lo toma
-            // de la sesión de servidor.
-            const response = await fetch(`../e-commerce/crear.php?ajax=1&id=${id}`, { credentials: 'include' });
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            return await response.json();
-        } catch (error) {
-            console.error('Error fetching product:', error);
-            showToast('Error al cargar el producto', 'error');
-            return null;
+        // El id del artesano ya no se manda por la URL: crear.php lo toma
+        // de la sesión de servidor.
+        const response = await fetch(`../e-commerce/crear.php?ajax=1&id=${encodeURIComponent(id)}`, {
+            credentials: 'include',
+            cache: 'no-store'
+        });
+        const product = await response.json();
+        if (!response.ok || !product || String(product.id_producto) !== String(id)) {
+            throw new Error((product && product.error) || `No se pudo cargar el producto (HTTP ${response.status}).`);
         }
+        return product;
     }
 
     // POST: Crear un nuevo producto
@@ -425,11 +450,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 credentials: 'include',
                 body: formData
             });
-            if (!response.ok) {
-                const error = await response.json();
-                throw new Error(error.error || 'Error al crear el producto');
+            const result = await response.json();
+            if (!response.ok || !result.ok) {
+                throw new Error(result.error || `Error al crear el producto (HTTP ${response.status}).`);
             }
-            return await response.json();
+            return result;
         } catch (error) {
             console.error('Error creating product:', error);
             showToast('Error al crear el producto: ' + error.message, 'error');
@@ -458,11 +483,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 credentials: 'include',
                 body: formData
             });
-            if (!response.ok) {
-                const error = await response.json();
-                throw new Error(error.error || 'Error al actualizar el producto');
+            const result = await response.json();
+            if (!response.ok || !result.ok) {
+                throw new Error(result.error || `Error al actualizar el producto (HTTP ${response.status}).`);
             }
-            return await response.json();
+            return result;
         } catch (error) {
             console.error('Error updating product:', error);
             showToast('Error al actualizar el producto: ' + error.message, 'error');
@@ -483,26 +508,31 @@ document.addEventListener('DOMContentLoaded', () => {
                 credentials: 'include',
                 body: formData
             });
-            if (!response.ok) {
-                const error = await response.json();
-                throw new Error(error.error || 'Error al eliminar el producto');
+            const result = await response.json();
+            if (!response.ok || !result.ok) {
+                throw new Error(result.error || `Error al eliminar el producto (HTTP ${response.status}).`);
             }
-            return await response.json();
+            return result;
         } catch (error) {
             console.error('Error deleting product:', error);
-            showToast('Error al eliminar el producto: ' + error.message, 'error');
             throw error;
         }
     }
 
     // ── Renderizar tabla ──
     async function renderAdminTable() {
+        productosLoadState = 'loading';
+        setStatsLoading('Cargando…');
+        if (document.getElementById('tab-estadisticas').classList.contains('active')) {
+            renderEstadisticas();
+        }
         try {
             loadingIndicator.style.display = 'block';
             tableBody.innerHTML = '';
 
             const products = await fetchProducts();
             loadingIndicator.style.display = 'none';
+            productosLoadState = 'loaded';
 
             if (!products || products.length === 0) {
                 tableBody.innerHTML = `
@@ -513,55 +543,76 @@ document.addEventListener('DOMContentLoaded', () => {
                         </td>
                     </tr>
                 `;
+                actualizarStats();
                 return;
             }
 
             products.forEach(product => {
+                if (!product || !product.id_producto) {
+                    throw new Error('El servidor devolvió un producto inválido.');
+                }
+                const price = Number(product.precio_cop);
+                if (!Number.isFinite(price) || price <= 0) {
+                    throw new Error('El servidor devolvió un precio de producto inválido.');
+                }
                 const priceFormatted = new Intl.NumberFormat('es-CO', {
                     style: 'currency',
                     currency: 'COP',
                     minimumFractionDigits: 0
-                }).format(product.precio_cop);
+                }).format(price);
 
                 const ubicacionTexto = product.nom_ciudad ?
                     `${product.nom_ciudad}, ${product.nom_dpto}` : '—';
 
                 const tr = document.createElement('tr');
                 tr.dataset.precio = product.precio_cop || '';
-                tr.innerHTML = `
-                    <td><img src="${product.img_url || '../img/default-product.jpg'}" class="img-preview" alt="${product.nom_producto}" onerror="this.src='../img/default-product.jpg'"></td>
-                    <td>${product.nom_producto}</td>
-                    <td>${product.categoria}</td>
-                    <td>${priceFormatted}</td>
-                    <td>${ubicacionTexto}</td>
-                    <td>
-                        <div class="table-actions">
-                            <button class="btn-edit" data-id="${product.id_producto}" title="Editar"><i class="fa-solid fa-pen"></i></button>
-                            <button class="btn-delete" data-id="${product.id_producto}" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
-                        </div>
-                    </td>
-                `;
+                const imageCell = document.createElement('td');
+                const image = document.createElement('img');
+                image.className = 'img-preview';
+                image.alt = product.nom_producto || 'Producto';
+                image.src = safeProductImageUrl(product.img_url);
+                image.addEventListener('error', () => {
+                    image.src = DEFAULT_PRODUCT_IMAGE;
+                }, { once: true });
+                imageCell.appendChild(image);
+
+                const nameCell = document.createElement('td');
+                nameCell.textContent = product.nom_producto || '';
+                const categoryCell = document.createElement('td');
+                categoryCell.textContent = product.categoria || '';
+                const priceCell = document.createElement('td');
+                priceCell.textContent = priceFormatted;
+                const locationCell = document.createElement('td');
+                locationCell.textContent = ubicacionTexto;
+
+                const actionsCell = document.createElement('td');
+                const actions = document.createElement('div');
+                actions.className = 'table-actions';
+                const editButton = document.createElement('button');
+                editButton.className = 'btn-edit';
+                editButton.dataset.id = product.id_producto;
+                editButton.title = 'Editar';
+                editButton.innerHTML = '<i class="fa-solid fa-pen"></i>';
+                const deleteButton = document.createElement('button');
+                deleteButton.className = 'btn-delete';
+                deleteButton.dataset.id = product.id_producto;
+                deleteButton.title = 'Eliminar';
+                deleteButton.innerHTML = '<i class="fa-solid fa-trash"></i>';
+                actions.append(editButton, deleteButton);
+                actionsCell.appendChild(actions);
+                tr.append(imageCell, nameCell, categoryCell, priceCell, locationCell, actionsCell);
                 tableBody.appendChild(tr);
             });
 
-            // Event listeners para botones
-            document.querySelectorAll('.btn-edit').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const id = btn.dataset.id;
-                    editProduct(id);
-                });
-            });
-
-            document.querySelectorAll('.btn-delete').forEach(btn => {
-                btn.addEventListener('click', async() => {
-                    const id = btn.dataset.id;
-                    await handleDeleteProduct(id);
-                });
-            });
-
+            actualizarStats();
         } catch (error) {
             loadingIndicator.style.display = 'none';
+            productosLoadState = 'error';
+            setStatsLoading('No disponible');
             console.error('Error rendering table:', error);
+            if (document.getElementById('tab-estadisticas').classList.contains('active')) {
+                renderEstadisticas();
+            }
             const row = document.createElement('tr');
             const cell = document.createElement('td');
             cell.colSpan = 6;
@@ -570,6 +621,29 @@ document.addEventListener('DOMContentLoaded', () => {
             row.appendChild(cell);
             tableBody.replaceChildren(row);
         }
+    }
+
+    function safeProductImageUrl(value) {
+        if (!value) return DEFAULT_PRODUCT_IMAGE;
+        try {
+            const url = new URL(String(value), window.location.href);
+            if (url.origin === window.location.origin || url.protocol === 'https:') {
+                return url.href;
+            }
+        } catch (error) {
+            console.warn('Se omitió una URL de imagen inválida.');
+        }
+        return DEFAULT_PRODUCT_IMAGE;
+    }
+
+    function setStatsLoading(value) {
+        ['statTotal', 'statMasCaro', 'statMasBarato', 'statPromedio', 'statTopCategoria', 'statTopCiudad']
+        .forEach(id => {
+            document.getElementById(id).textContent = value;
+        });
+        document.getElementById('badgeTotal').textContent = value;
+        document.getElementById('badgeCategorias').textContent = value;
+        document.getElementById('badgeCiudades').textContent = value;
     }
 
     // ── Manejar eliminación ──
@@ -594,9 +668,11 @@ document.addEventListener('DOMContentLoaded', () => {
     async function editProduct(id) {
         try {
             const product = await fetchProductById(id);
-            if (!product) {
-                showToast('Producto no encontrado', 'error');
-                return;
+            if (!product || product.id_producto == null) {
+                throw new Error('El servidor devolvió un producto inválido.');
+            }
+            if (!await ciudadesPromise) {
+                throw new Error('No se pudieron cargar las ciudades. Recarga la página e inténtalo de nuevo.');
             }
 
             document.getElementById('product-id').value = product.id_producto;
@@ -626,7 +702,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (error) {
             console.error('Error loading product for edit:', error);
-            showToast('Error al cargar el producto para editar', 'error');
+            showToast(error.message || 'Error al cargar el producto para editar', 'error');
         }
     }
 
@@ -652,6 +728,7 @@ document.addEventListener('DOMContentLoaded', () => {
             description: document.getElementById('description').value.trim()
         };
 
+        btnSave.disabled = true;
         try {
             if (id) {
                 await updateProduct(id, productData);
@@ -665,6 +742,8 @@ document.addEventListener('DOMContentLoaded', () => {
             await renderAdminTable();
         } catch (error) {
             console.error('Error saving product:', error);
+        } finally {
+            btnSave.disabled = false;
         }
     });
 
@@ -707,7 +786,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.TEUI.markClean(productForm);
 
     // ── Inicializar ──
-    loadCiudades();
+    ciudadesPromise = loadCiudades();
     renderAdminTable();
 
     // ── Exponer funciones ──
@@ -733,6 +812,16 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
             if (tab.dataset.tab === 'estadisticas') renderEstadisticas();
         });
+    });
+
+    tableBody.addEventListener('click', event => {
+        const editButton = event.target.closest('.btn-edit');
+        const deleteButton = event.target.closest('.btn-delete');
+        if (editButton && tableBody.contains(editButton)) {
+            editProduct(editButton.dataset.id);
+        } else if (deleteButton && tableBody.contains(deleteButton)) {
+            handleDeleteProduct(deleteButton.dataset.id);
+        }
     });
 
     // ── Filtro por categoría (visual, sobre las filas ya renderizadas) ──
@@ -763,22 +852,43 @@ document.addEventListener('DOMContentLoaded', () => {
         entradas.sort((a, b) => b[1] - a[1]);
 
         if (!entradas.length) {
-            el.innerHTML = '<div class="chart-empty"><i class="fa-solid fa-chart-simple"></i><p>Todavía no hay productos para graficar.</p></div>';
+            const empty = document.createElement('div');
+            empty.className = 'chart-empty';
+            const icon = document.createElement('i');
+            icon.className = 'fa-solid fa-chart-simple';
+            const message = document.createElement('p');
+            message.textContent = 'Todavía no hay productos para graficar.';
+            empty.append(icon, message);
+            el.replaceChildren(empty);
             return;
         }
 
         const max = entradas[0][1];
-        el.innerHTML = entradas.map(e => {
-            const pct = Math.round((e[1] / max) * 100);
-            return `<div class="bar-row">
-                <span class="bar-row__label" title="${e[0]}">${e[0]}</span>
-                <div class="bar-row__track"><div class="bar-row__fill" style="width:${pct}%"></div></div>
-                <span class="bar-row__val">${e[1]}</span>
-            </div>`;
-        }).join('');
+        const rows = entradas.map(([label, count]) => {
+            const row = document.createElement('div');
+            row.className = 'bar-row';
+            const labelElement = document.createElement('span');
+            labelElement.className = 'bar-row__label';
+            labelElement.title = label;
+            labelElement.textContent = label;
+            const track = document.createElement('div');
+            track.className = 'bar-row__track';
+            const fill = document.createElement('div');
+            fill.className = 'bar-row__fill';
+            fill.style.width = `${Math.round((count / max) * 100)}%`;
+            track.appendChild(fill);
+            const value = document.createElement('span');
+            value.className = 'bar-row__val';
+            value.textContent = count;
+            row.append(labelElement, track, value);
+            return row;
+        });
+        el.replaceChildren(...rows);
     }
 
     function actualizarStats() {
+        if (productosLoadState !== 'loaded') return;
+
         const filas = filasValidas();
         const total = filas.length;
 
@@ -811,14 +921,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const topCategoria = Object.keys(categorias).sort((a, b) => categorias[b] - categorias[a])[0] || '—';
         const topCiudad = Object.keys(ciudades).sort((a, b) => ciudades[b] - ciudades[a])[0] || '—';
-        const promedio = conteoPrecio ? Math.round(sumaPrecio / conteoPrecio) : 0;
+        const promedio = conteoPrecio ? Math.round(sumaPrecio / conteoPrecio) : null;
 
         productosPrecio.sort((a, b) => b.precio - a.precio);
         const masCaro = productosPrecio[0];
         const masBarato = productosPrecio[productosPrecio.length - 1];
 
         document.getElementById('statTotal').textContent = total;
-        document.getElementById('statPromedio').textContent = '$' + promedio.toLocaleString('es-CO');
+        document.getElementById('statPromedio').textContent = promedio === null ?
+            '—' : '$' + promedio.toLocaleString('es-CO');
         document.getElementById('statTopCategoria').textContent = topCategoria;
         document.getElementById('statTopCiudad').textContent = topCiudad;
         document.getElementById('statMasCaro').textContent = masCaro ?
@@ -836,6 +947,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderEstadisticas() {
+        if (productosLoadState !== 'loaded') {
+            const message = productosLoadState === 'error' ? 'No se pudieron cargar las estadísticas.' : 'Cargando estadísticas…';
+            document.getElementById('chartCategorias').textContent = message;
+            document.getElementById('chartCiudades').textContent = message;
+            document.getElementById('rankPrecios').textContent = message;
+            document.getElementById('rankPreciosEmpty').style.display = 'none';
+            return;
+        }
+
         const cache = window._teStatsCache || { categorias: {}, ciudades: {}, productosPrecio: [] };
         pintarBarras('chartCategorias', cache.categorias);
         pintarBarras('chartCiudades', cache.ciudades);
@@ -852,26 +972,45 @@ document.addEventListener('DOMContentLoaded', () => {
         emptyEl.style.display = 'none';
         const maxPrecio = top5[0].precio;
 
-        rankEl.innerHTML = top5.map((p, i) => {
+        const rows = top5.map((p, i) => {
             const pct = Math.round((p.precio / maxPrecio) * 100);
             const precioFmt = '$' + p.precio.toLocaleString('es-CO');
-            return `<div class="bar-row" style="margin-bottom:12px;">
-                <span class="bar-row__label" style="min-width:170px;" title="${p.nombre}"><span class="rank-num">${i + 1}</span>${p.nombre}</span>
-                <div class="bar-row__track"><div class="bar-row__fill" style="width:${pct}%"></div></div>
-                <span class="bar-row__val">${precioFmt}</span>
-            </div>`;
-        }).join('');
+            const row = document.createElement('div');
+            row.className = 'bar-row';
+            row.style.marginBottom = '12px';
+            const label = document.createElement('span');
+            label.className = 'bar-row__label';
+            label.style.minWidth = '170px';
+            label.title = p.nombre;
+            const rank = document.createElement('span');
+            rank.className = 'rank-num';
+            rank.textContent = i + 1;
+            label.append(rank, document.createTextNode(p.nombre));
+            const track = document.createElement('div');
+            track.className = 'bar-row__track';
+            const fill = document.createElement('div');
+            fill.className = 'bar-row__fill';
+            fill.style.width = `${pct}%`;
+            track.appendChild(fill);
+            const value = document.createElement('span');
+            value.className = 'bar-row__val';
+            value.textContent = precioFmt;
+            row.append(label, track, value);
+            return row;
+        });
+        rankEl.replaceChildren(...rows);
     }
 
     // Recalcula cada vez que renderAdminTable() modifica la tabla (alta, edición, borrado, carga inicial)
     const tbodyObs = new MutationObserver(() => {
         actualizarStats();
-        if (document.getElementById('tab-estadisticas').classList.contains('active')) {
+        if (productosLoadState === 'loaded' &&
+            document.getElementById('tab-estadisticas').classList.contains('active')) {
             renderEstadisticas();
         }
     });
     tbodyObs.observe(tableBody, { childList: true, subtree: true });
 
     // Primer cálculo por si la tabla ya tenía contenido
-    actualizarStats();
+    if (productosLoadState === 'loading') setStatsLoading('Cargando…');
 });

@@ -91,9 +91,9 @@ $artesanoNombreSesion = $_SESSION['artesano_nombre'] ?? 'Artesano';
                 </div>
             </div>
             <div class="panel-header-badges">
-                <span class="panel-badge"><i class="fa-solid fa-box"></i> <span id="badgeTotal">0 productos</span></span>
-                <span class="panel-badge"><i class="fa-solid fa-tags"></i> <span id="badgeCategorias">0 categorías</span></span>
-                <span class="panel-badge"><i class="fa-solid fa-location-dot"></i> <span id="badgeCiudades">0 ciudades</span></span>
+                <span class="panel-badge"><i class="fa-solid fa-box"></i> <span id="badgeTotal">Cargando…</span></span>
+                <span class="panel-badge"><i class="fa-solid fa-tags"></i> <span id="badgeCategorias">Cargando…</span></span>
+                <span class="panel-badge"><i class="fa-solid fa-location-dot"></i> <span id="badgeCiudades">Cargando…</span></span>
             </div>
         </div>
 
@@ -102,37 +102,37 @@ $artesanoNombreSesion = $_SESSION['artesano_nombre'] ?? 'Artesano';
             <div class="stat-card">
                 <div class="stat-icon stat-icon-purple"><i class="fa-solid fa-box-open"></i></div>
                 <div class="stat-info">
-                    <span class="stat-num" id="statTotal">0</span><span class="stat-label">Productos publicados</span>
+                    <span class="stat-num" id="statTotal">Cargando…</span><span class="stat-label">Productos publicados</span>
                 </div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon stat-icon-green"><i class="fa-solid fa-gem"></i></div>
                 <div class="stat-info">
-                    <span class="stat-num" id="statMasCaro">—</span><span class="stat-label">Tu producto más caro</span>
+                    <span class="stat-num" id="statMasCaro">Cargando…</span><span class="stat-label">Tu producto más caro</span>
                 </div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon stat-icon-teal"><i class="fa-solid fa-tag"></i></div>
                 <div class="stat-info">
-                    <span class="stat-num" id="statMasBarato">—</span><span class="stat-label">Tu producto más económico</span>
+                    <span class="stat-num" id="statMasBarato">Cargando…</span><span class="stat-label">Tu producto más económico</span>
                 </div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon stat-icon-blue"><i class="fa-solid fa-sack-dollar"></i></div>
                 <div class="stat-info">
-                    <span class="stat-num" id="statPromedio">$0</span><span class="stat-label">Precio promedio</span>
+                    <span class="stat-num" id="statPromedio">Cargando…</span><span class="stat-label">Precio promedio</span>
                 </div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon stat-icon-orange"><i class="fa-solid fa-crown"></i></div>
                 <div class="stat-info">
-                    <span class="stat-num" id="statTopCategoria">—</span><span class="stat-label">Tu categoría más publicada</span>
+                    <span class="stat-num" id="statTopCategoria">Cargando…</span><span class="stat-label">Tu categoría más publicada</span>
                 </div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon stat-icon-red"><i class="fa-solid fa-location-dot"></i></div>
                 <div class="stat-info">
-                    <span class="stat-num" id="statTopCiudad">—</span><span class="stat-label">Tu ciudad principal</span>
+                    <span class="stat-num" id="statTopCiudad">Cargando…</span><span class="stat-label">Tu ciudad principal</span>
                 </div>
             </div>
         </div>
@@ -172,8 +172,8 @@ $artesanoNombreSesion = $_SESSION['artesano_nombre'] ?? 'Artesano';
                         </div>
                         <div class="form-group">
                             <label>Ubicación</label>
-                            <select id="ubicacion" required>
-                                <option value="">Selecciona una ciudad</option>
+                            <select id="ubicacion" required disabled>
+                                <option value="">Cargando ciudades…</option>
                             </select>
                         </div>
                         <div class="form-group">

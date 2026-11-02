@@ -37,10 +37,11 @@
             <div class="panel-header-info">
                 <div class="panel-empresa-avatar" id="panelAvatar">AD</div>
                 <div>
-                    <h1 class="panel-empresa-nombre" id="panelNombre">
-                        Administrador TourismEasy
+                    <h1 class="panel-empresa-nombre" id="panelNombre" aria-live="polite">
+                        Cargando…
                     </h1>
-                    <p class="panel-empresa-sub">
+                    <p class="panel-empresa-sub" id="adminProfileStatus" aria-live="polite">
+                        Cargando datos del administrador…
                         Panel de administración general · TourismEasy
                     </p>
                 </div>
@@ -59,7 +60,7 @@
                     <i class="fa-solid fa-hourglass-half"></i>
                 </div>
                 <div class="stat-info">
-                    <span class="stat-num" id="statPendientes">3</span><span class="stat-label">Solicitudes
+                    <span class="stat-num" id="statPendientes">Cargando…</span><span class="stat-label">Solicitudes
                         pendientes</span>
                 </div>
             </div>
@@ -68,7 +69,7 @@
                     <i class="fa-solid fa-building"></i>
                 </div>
                 <div class="stat-info">
-                    <span class="stat-num">21</span><span class="stat-label">Empresas registradas</span>
+                    <span class="stat-num" id="statEmpresasTotal">Cargando…</span><span class="stat-label">Empresas registradas</span>
                 </div>
             </div>
             <div class="stat-card">
@@ -76,7 +77,7 @@
                     <i class="fa-solid fa-building-circle-check"></i>
                 </div>
                 <div class="stat-info">
-                    <span class="stat-num">18</span><span class="stat-label">Empresas activas</span>
+                    <span class="stat-num" id="statEmpresasActivas">Cargando…</span><span class="stat-label">Empresas activas</span>
                 </div>
             </div>
             <div class="stat-card">
@@ -84,7 +85,7 @@
                     <i class="fa-solid fa-building-circle-xmark"></i>
                 </div>
                 <div class="stat-info">
-                    <span class="stat-num">3</span><span class="stat-label">Empresas inactivas</span>
+                    <span class="stat-num" id="statEmpresasInactivas">Cargando…</span><span class="stat-label">Empresas inactivas</span>
                 </div>
             </div>
             <div class="stat-card">
@@ -92,7 +93,7 @@
                     <i class="fa-solid fa-clock-rotate-left"></i>
                 </div>
                 <div class="stat-info">
-                    <span class="stat-num">134</span><span class="stat-label">Eventos auditados</span>
+                    <span class="stat-num" id="statEventosAuditoria">Cargando…</span><span class="stat-label">Eventos auditados</span>
                 </div>
             </div>
             <div class="stat-card">
@@ -100,7 +101,7 @@
                     <i class="fa-solid fa-triangle-exclamation"></i>
                 </div>
                 <div class="stat-info">
-                    <span class="stat-num">2</span><span class="stat-label">Alertas de auditoría</span>
+                    <span class="stat-num" id="statAlertasAuditoria">Cargando…</span><span class="stat-label">Alertas de auditoría</span>
                 </div>
             </div>
             <div class="stat-card">
@@ -108,7 +109,7 @@
                     <i class="fa-solid fa-palette"></i>
                 </div>
                 <div class="stat-info">
-                    <span class="stat-num" id="statArtesanosTotal">—</span><span class="stat-label">Artesanos
+                    <span class="stat-num" id="statArtesanosTotal">Cargando…</span><span class="stat-label">Artesanos
                         registrados</span>
                 </div>
             </div>
@@ -117,7 +118,7 @@
                     <i class="fa-solid fa-user-clock"></i>
                 </div>
                 <div class="stat-info">
-                    <span class="stat-num" id="statArtesanosPendientes">—</span><span class="stat-label">Solicitudes
+                    <span class="stat-num" id="statArtesanosPendientes">Cargando…</span><span class="stat-label">Solicitudes
                         artesanos pendientes</span>
                 </div>
             </div>
@@ -441,7 +442,7 @@
 
     <script>
         // ── ESTADO GLOBAL ────────────────────────────────────────────────────
-        var adminUser = "admin@tourismeasy.com";
+        var adminUser = "";
         // ── VERIFICAR SESION ─────────────────────────────────────────────────
         (function() {
             var sess = (localStorage.getItem("te_session") || sessionStorage.getItem("te_session"));
@@ -454,9 +455,8 @@
                 // window.location.href = "../index.html";
                 return;
             }
-            document.getElementById("panelAvatar").textContent = u.avatar || "AD";
-            document.getElementById("panelNombre").textContent = u.nombre || "Administrador";
-            adminUser = u.email || adminUser;
+            document.getElementById("panelAvatar").textContent = "AD";
+            document.getElementById("panelNombre").textContent = "Cargando…";
         })();
 
         // DARK MODE
@@ -489,13 +489,9 @@
             widget.className = "session-widget";
             widget.innerHTML =
                 '<button class="session-trigger" id="sessionTrigger">' +
-                '<div class="session-avatar">' +
-                user.avatar +
-                "</div>" +
+                '<div class="session-avatar">AD</div>' +
                 '<div class="session-info">' +
-                '<span class="session-name">' +
-                user.nombre +
-                "</span>" +
+                '<span class="session-name">Cargando…</span>' +
                 '<span class="session-tipo">Administrador</span>' +
                 "</div>" +
                 '<i class="fa-solid fa-chevron-down session-chevron" id="sessionChevron"></i>' +
@@ -531,14 +527,76 @@
                 });
         })();
 
+        (function() {
+            var rawSession = localStorage.getItem("te_session") || sessionStorage.getItem("te_session");
+            var status = document.getElementById("adminProfileStatus");
+
+            function setUnavailable(error) {
+                console.error("No se pudo cargar el perfil del administrador:", error);
+                document.getElementById("panelNombre").textContent = "No disponible";
+                if (status) status.textContent = "No se pudo cargar el perfil del administrador.";
+                var name = document.querySelector("#sessionWidget .session-name");
+                if (name) name.textContent = "No disponible";
+            }
+
+            var user;
+            try {
+                user = JSON.parse(rawSession || "null");
+            } catch (error) {
+                setUnavailable(error);
+                return;
+            }
+            if (!user || user.tipo !== "admin" || !user.id) {
+                setUnavailable(new Error("No se encontró la sesión del administrador."));
+                return;
+            }
+
+            fetch("../login/get_perfil_admin.php?id=" + encodeURIComponent(user.id), {
+                credentials: "include",
+                cache: "no-store"
+            })
+                .then(function(response) {
+                    if (!response.ok) throw new Error("HTTP " + response.status);
+                    return response.json();
+                })
+                .then(function(data) {
+                    if (!data.ok || !data.admin) {
+                        throw new Error(data.error || "La respuesta del perfil no es válida.");
+                    }
+                    var admin = data.admin;
+                    var nombre = ((admin.nombre || "") + " " + (admin.apellido || "")).trim();
+                    if (!nombre) throw new Error("El servidor no devolvió el nombre del administrador.");
+                    var initials = nombre.split(/\s+/).map(function(word) {
+                        return word[0] || "";
+                    }).join("").toUpperCase().slice(0, 2) || "AD";
+                    document.getElementById("panelAvatar").textContent = initials;
+                    document.getElementById("panelNombre").textContent = nombre;
+                    if (status) status.textContent = "Panel de administración general · TourismEasy";
+                    var sessionName = document.querySelector("#sessionWidget .session-name");
+                    var sessionAvatar = document.querySelector("#sessionWidget .session-avatar");
+                    if (sessionName) sessionName.textContent = nombre;
+                    if (sessionAvatar) sessionAvatar.textContent = initials;
+                    adminUser = admin.email_login || "";
+                    user.nombre = nombre;
+                    user.avatar = initials;
+                    user.email = adminUser;
+                    var sessionStore = localStorage.getItem("te_session") ? localStorage : sessionStorage;
+                    sessionStore.setItem("te_session", JSON.stringify(user));
+                })
+                .catch(setUnavailable);
+        })();
+
 
         var empresasData = [];
+        var empresasCargadas = false;
         var empresasPagina = 1;
         var empresasPorPagina = 20;
 
         var solicitudesData = [];
+        var solicitudesCargadas = false;
 
         var auditoriaData = [];
+        var auditoriaCargada = false;
         var auditoriaPagina = 1;
         var auditoriaPorPagina = 20;
 
@@ -550,14 +608,21 @@
 
         // ── Cargar solicitudes pendientes reales desde la BD ──
         function cargarSolicitudesBD() {
+            solicitudesCargadas = false;
+            document.getElementById("statPendientes").textContent = "Cargando…";
             fetch("../soli_empresas/get_solicitudes.php", {
-                    credentials: "include"
+                    credentials: "include",
+                    cache: "no-store"
                 })
                 .then(function(r) {
+                    if (!r.ok) throw new Error("HTTP " + r.status);
                     return r.json();
                 })
                 .then(function(data) {
-                    if (!data.ok) return;
+                    if (!data.ok || !Array.isArray(data.data)) {
+                        throw new Error(data.error || "La respuesta de solicitudes no es válida.");
+                    }
+                    solicitudesCargadas = true;
                     solicitudesData = data.data.map(function(s) {
                         return {
                             nit: s.nit || "—",
@@ -572,21 +637,31 @@
                     renderSolicitudes();
                     updateStats();
                 })
-                .catch(function() {
-                    console.warn("No se pudieron cargar solicitudes desde la BD.");
+                .catch(function(error) {
+                    console.error("No se pudieron cargar solicitudes desde la BD:", error);
+                    document.getElementById("statPendientes").textContent = "No disponible";
                 });
         }
 
         // ── Cargar empresas reales (activas e inactivas) desde la BD ──
         function cargarEmpresasBD() {
+            empresasCargadas = false;
+            ["statEmpresasTotal", "statEmpresasActivas", "statEmpresasInactivas"].forEach(function(id) {
+                document.getElementById(id).textContent = "Cargando…";
+            });
             fetch("../soli_empresas/get_empresas.php", {
-                    credentials: "include"
+                    credentials: "include",
+                    cache: "no-store"
                 })
                 .then(function(r) {
+                    if (!r.ok) throw new Error("HTTP " + r.status);
                     return r.json();
                 })
                 .then(function(data) {
-                    if (!data.ok) return;
+                    if (!data.ok || !Array.isArray(data.data)) {
+                        throw new Error(data.error || "La respuesta de empresas no es válida.");
+                    }
+                    empresasCargadas = true;
                     empresasData = data.data.map(function(e) {
                         return {
                             nit: e.nit,
@@ -601,8 +676,11 @@
                     renderEmpresas();
                     updateStats();
                 })
-                .catch(function() {
-                    console.warn("No se pudieron cargar empresas desde la BD.");
+                .catch(function(error) {
+                    console.error("No se pudieron cargar empresas desde la BD:", error);
+                    ["statEmpresasTotal", "statEmpresasActivas", "statEmpresasInactivas"].forEach(function(id) {
+                        document.getElementById(id).textContent = "No disponible";
+                    });
                 });
         }
 
@@ -864,14 +942,23 @@
 
         // ── Cargar auditoría real desde la BD ──
         function cargarAuditoriaBD() {
+            auditoriaCargada = false;
+            ["statEventosAuditoria", "statAlertasAuditoria"].forEach(function(id) {
+                document.getElementById(id).textContent = "Cargando…";
+            });
             fetch("../soli_empresas/get_auditoria.php", {
-                    credentials: "include"
+                    credentials: "include",
+                    cache: "no-store"
                 })
                 .then(function(r) {
+                    if (!r.ok) throw new Error("HTTP " + r.status);
                     return r.json();
                 })
                 .then(function(data) {
-                    if (!data.ok) return;
+                    if (!data.ok || !Array.isArray(data.data)) {
+                        throw new Error(data.error || "La respuesta de auditoría no es válida.");
+                    }
+                    auditoriaCargada = true;
                     auditoriaData = data.data.map(function(a) {
                         return {
                             fecha: (a.fecha || "").substring(0, 16).replace("T", " "),
@@ -887,8 +974,11 @@
                     renderAuditoria();
                     updateStats();
                 })
-                .catch(function() {
-                    console.warn("No se pudo cargar la auditoría desde la BD.");
+                .catch(function(error) {
+                    console.error("No se pudo cargar la auditoría desde la BD:", error);
+                    ["statEventosAuditoria", "statAlertasAuditoria"].forEach(function(id) {
+                        document.getElementById(id).textContent = "No disponible";
+                    });
                 });
         }
 
@@ -938,22 +1028,25 @@
 
         // ── STATS ────────────────────────────────────────────────────────────
         function updateStats() {
-            var total = empresasData.length;
-            var activas = empresasData.filter(function(e) {
-                return e.estado === "ACTIVO";
-            }).length;
-            var inactivas = total - activas;
-            var alertas = auditoriaData.filter(function(a) {
-                return esAlertaAuditoria(a);
-            }).length;
-            var pendientes = solicitudesData.length; // ya viene solo con las PENDIENTE
-            var statNums = document.querySelectorAll(".stat-num");
-            statNums[0].textContent = pendientes;
-            statNums[1].textContent = total;
-            statNums[2].textContent = activas;
-            statNums[3].textContent = inactivas;
-            statNums[4].textContent = auditoriaData.length;
-            statNums[5].textContent = alertas;
+            if (solicitudesCargadas) {
+                document.getElementById("statPendientes").textContent = solicitudesData.length;
+            }
+            if (empresasCargadas) {
+                var total = empresasData.length;
+                var activas = empresasData.filter(function(e) {
+                    return e.estado === "ACTIVO";
+                }).length;
+                document.getElementById("statEmpresasTotal").textContent = total;
+                document.getElementById("statEmpresasActivas").textContent = activas;
+                document.getElementById("statEmpresasInactivas").textContent = total - activas;
+            }
+            if (auditoriaCargada) {
+                var alertas = auditoriaData.filter(function(a) {
+                    return esAlertaAuditoria(a);
+                }).length;
+                document.getElementById("statEventosAuditoria").textContent = auditoriaData.length;
+                document.getElementById("statAlertasAuditoria").textContent = alertas;
+            }
         }
 
         function esAlertaAuditoria(evento) {
@@ -1448,7 +1541,7 @@
     <script src="../componentes/destinos.js?v=municipios-4x2-v4"></script>
     <script src="../componentes/articulos.js"></script>
     <script src="../js/contenido-admin.js?v=destinos-v6"></script>
-    <script src="../js/click_metrics.js"></script>
+    <script src="../js/metricas_clics.js"></script>
 
     <!-- Reseñas de la plataforma: carga resenas.js solo cuando el tab está activo -->
     <script>
@@ -1626,7 +1719,9 @@
                         return r.json();
                     })
                     .then(function(data) {
-                        if (!data.ok || !Array.isArray(data.artesanos)) return;
+                        if (!data.ok || !Array.isArray(data.artesanos)) {
+                            throw new Error(data.error || 'La respuesta de artesanos no es válida.');
+                        }
                         var total = data.artesanos.length;
                         var pendientes = data.artesanos.filter(function(a) {
                             return a.estado === 'PENDIENTE';
@@ -1634,7 +1729,11 @@
                         document.getElementById('statArtesanosTotal').textContent = total;
                         document.getElementById('statArtesanosPendientes').textContent = pendientes;
                     })
-                    .catch(function() {});
+                    .catch(function(error) {
+                        console.error('No se pudieron cargar las estadísticas de artesanos:', error);
+                        document.getElementById('statArtesanosTotal').textContent = 'No disponible';
+                        document.getElementById('statArtesanosPendientes').textContent = 'No disponible';
+                    });
             }
             cargarStatsArtesanos();
 

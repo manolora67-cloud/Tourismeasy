@@ -47,7 +47,7 @@
         var summaryCard = element("div", "click-metrics__card");
         summaryCard.append(
             element("span", "", "Últimos 30 días"),
-            element("strong", "", "—")
+            element("strong", "", "Cargando…")
         );
         summaryCard.lastElementChild.setAttribute("data-clicks-30-days", "");
         summary.appendChild(summaryCard);

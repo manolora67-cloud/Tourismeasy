@@ -41,7 +41,7 @@
                     AD
                 </div>
                 <div class="pu-sidebar-nombre" id="sidebarNombre">
-                    Administrador TourismEasy
+                    Cargando administrador…
                 </div>
                 <div class="pu-sidebar-tipo">
                     <i class="fa-solid fa-shield-halved"></i> Administrador
@@ -152,6 +152,7 @@
                         <i class="fa-solid fa-gear"></i> Configuración de Administrador
                     </h1>
                 </div>
+                <div class="pu-card" id="adminProfileError" role="alert" hidden></div>
 
                 <div class="pu-card">
                     <h3 class="pu-card-title">
@@ -278,8 +279,8 @@
             }
             var av = document.getElementById("sidebarAvatar");
             var nm = document.getElementById("sidebarNombre");
-            if (av) av.textContent = u.avatar || "AD";
-            if (nm) nm.textContent = u.nombre || "Administrador";
+            if (av) av.textContent = "AD";
+            if (nm) nm.textContent = "Cargando administrador…";
         })();
 
         // SESSION WIDGET
@@ -290,10 +291,7 @@
             var w = document.createElement("div");
             w.id = "sessionWidget";
             w.className = "session-widget";
-            var ini = user.avatar || ((user.nombre || "AD").trim().split(/\s+/).map(function (x) {
-                return x[0] || "";
-            }).join("").toUpperCase().slice(0, 2) || "AD");
-            w.innerHTML = '<button class="session-trigger" id="sessionTrigger"><div class="session-avatar">' + ini + '</div><div class="session-info"><span class="session-name">' + (user.nombre || "Administrador") + '</span><span class="session-tipo">Administrador</span></div><i class="fa-solid fa-chevron-down session-chevron" id="sessionChevron"></i></button><div class="session-dropdown" id="sessionDropdown"><a class="session-menu-item" href="../index.html">🏠 Ir al sitio</a><a class="session-menu-item session-menu-highlight" href="panel_admin.html">🛡️ Panel Administrador</a><a class="session-menu-item" href="perfil_admin.html">👤 Mi Perfil</a><a class="session-menu-item" href="config_admin.html">⚙️ Configuración</a><a class="session-menu-item" href="festividades_admin.html">📅 Festividades</a><a class="session-menu-item session-menu-danger" id="btnLogout" href="#">🚪 Cerrar Sesión</a></div>';
+            w.innerHTML = '<button class="session-trigger" id="sessionTrigger"><div class="session-avatar">AD</div><div class="session-info"><span class="session-name">Cargando…</span><span class="session-tipo">Administrador</span></div><i class="fa-solid fa-chevron-down session-chevron" id="sessionChevron"></i></button><div class="session-dropdown" id="sessionDropdown"><a class="session-menu-item" href="../index.html">🏠 Ir al sitio</a><a class="session-menu-item session-menu-highlight" href="panel_admin.html">🛡️ Panel Administrador</a><a class="session-menu-item" href="perfil_admin.html">👤 Mi Perfil</a><a class="session-menu-item" href="config_admin.html">⚙️ Configuración</a><a class="session-menu-item" href="festividades_admin.html">📅 Festividades</a><a class="session-menu-item session-menu-danger" id="btnLogout" href="#">🚪 Cerrar Sesión</a></div>';
             slot.appendChild(w);
             var trig = w.querySelector("#sessionTrigger"),
                 drop = w.querySelector("#sessionDropdown"),
@@ -355,21 +353,41 @@
             try {
                 sesion = JSON.parse((localStorage.getItem("te_session") || sessionStorage.getItem("te_session")) || "{}");
             } catch (e) { }
-            if (!sesion.id) return;
 
             var API_BASE = new URL("../login/", window.location.href).href;
+            var errorElement = document.getElementById("adminProfileError");
 
-            // Refrescar nombre/correo/avatar reales desde la BD
-            fetch(API_BASE + 'get_perfil_admin.php?id=' + encodeURIComponent(sesion.id), {
-                    credentials: 'include'
+            function mostrarError(error) {
+                console.error("No se pudo cargar el perfil del administrador:", error);
+                var mensaje = error && error.message ? error.message : "Error desconocido.";
+                if (errorElement) {
+                    errorElement.textContent = "No se pudieron cargar los datos del administrador. " + mensaje;
+                    errorElement.hidden = false;
+                }
+                var sidebarNombre = document.getElementById("sidebarNombre");
+                if (sidebarNombre) sidebarNombre.textContent = "No disponible";
+                var sessionName = document.querySelector("#sessionWidget .session-name");
+                if (sessionName) sessionName.textContent = "No disponible";
+            }
+
+            if (!sesion.id) {
+                mostrarError(new Error("No se encontró la sesión del administrador."));
+            } else {
+
+                fetch(API_BASE + 'get_perfil_admin.php?id=' + encodeURIComponent(sesion.id), {
+                    credentials: 'include',
+                    cache: 'no-store'
                 })
                 .then(function (r) {
+                    if (!r.ok) throw new Error("HTTP " + r.status);
                     return r.json();
                 })
                 .then(function (data) {
-                    if (!data.ok || !data.admin) return;
+                    if (!data.ok || !data.admin) {
+                        throw new Error(data.error || "La respuesta del perfil no es válida.");
+                    }
                     var d = data.admin;
-                    var nombreCompleto = ((d.nombre || "") + " " + (d.apellido || "")).trim() || sesion.nombre || "Administrador";
+                    var nombreCompleto = ((d.nombre || "") + " " + (d.apellido || "")).trim() || "Administrador";
                     var initials = nombreCompleto.split(/\s+/).map(function (w) {
                         return w[0] || "";
                     }).join("").substring(0, 2).toUpperCase() || "AD";
@@ -377,10 +395,16 @@
                     if (av) av.textContent = initials;
                     var nm = document.getElementById("sidebarNombre");
                     if (nm) nm.textContent = nombreCompleto;
+                    var sessionName = document.querySelector("#sessionWidget .session-name");
+                    var sessionAvatar = document.querySelector("#sessionWidget .session-avatar");
+                    if (sessionName) sessionName.textContent = nombreCompleto;
+                    if (sessionAvatar) sessionAvatar.textContent = initials;
+                    if (errorElement) errorElement.hidden = true;
                 })
                 .catch(function (err) {
-                    console.error("No se pudo cargar el perfil del administrador:", err);
+                    mostrarError(err);
                 });
+            }
 
             var modalContrasena = document.getElementById("modalCambiarContrasena");
             var formContrasena = document.getElementById("formCambiarContrasena");

@@ -38,7 +38,7 @@
             <!-- ── SIDEBAR ── -->
             <aside class="pu-sidebar">
                 <div class="pu-sidebar-avatar" id="sidebarAvatar">AV</div>
-                <div class="pu-sidebar-nombre" id="sidebarNombre">Empresa</div>
+                <div class="pu-sidebar-nombre" id="sidebarNombre">Cargando empresa…</div>
                 <div class="pu-sidebar-tipo">
                     <i class="fa-solid fa-bus"></i> Empresa aliada
                 </div>
@@ -222,7 +222,7 @@
                     </h3>
                     <div class="pu-stats-row">
                         <div class="pu-stat">
-                            <span class="pu-stat-num">—</span><span class="pu-stat-label">Servicios publicados</span>
+                            <span class="pu-stat-num">Cargando…</span><span class="pu-stat-label">Servicios publicados</span>
                         </div>
                     </div>
                 </div>
@@ -296,7 +296,10 @@
 
             // ── 4. CARGAR DATOS DESDE LA BD ──────────────────────────────────────
             var perfilUrl = new URL("../soli_empresas/get_perfil_empresa.php", window.location.href);
-            fetch(perfilUrl)
+            fetch(perfilUrl, {
+                    credentials: "include",
+                    cache: "no-store"
+                })
                 .then(function (r) {
                     if (!r.ok) throw new Error("El servidor respondió con HTTP " + r.status);
                     return r.json();
@@ -366,7 +369,7 @@
                 });
                 mostrarValor("empresaEstado", "No disponible");
                 document.querySelectorAll(".pu-stat-num").forEach(function (numEl) {
-                    numEl.textContent = "—";
+                    numEl.textContent = "No disponible";
                 });
             }
 
@@ -589,7 +592,10 @@
 
                 // ── 8b. ESTADÍSTICAS: número real desde la BD ────────────────────────
                 var estadisticasUrl = new URL("../login/get_estadisticas_empresa.php", window.location.href);
-                fetch(estadisticasUrl)
+                fetch(estadisticasUrl, {
+                        credentials: "include",
+                        cache: "no-store"
+                    })
                     .then(function (r) {
                         if (!r.ok) throw new Error("El servidor respondió con HTTP " + r.status);
                         return r.json();
@@ -611,7 +617,7 @@
                     .catch(function (err) {
                         console.error("No se pudieron cargar las estadísticas de la empresa:", err);
                         document.querySelectorAll(".pu-stat-num").forEach(function (numEl) {
-                            numEl.textContent = "—";
+                            numEl.textContent = "No disponible";
                         });
                     });
 
