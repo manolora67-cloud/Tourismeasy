@@ -110,7 +110,7 @@
             <div class="pu-content">
                 <div class="pu-page-header">
                     <h1><i class="fa-solid fa-user"></i> Perfil de Administrador</h1>
-                    <button class="pu-btn-edit" id="btnEditPerfil">
+                    <button class="pu-btn-edit" id="btnEditPerfil" disabled>
                         <i class="fa-solid fa-pen"></i> Editar perfil
                     </button>
                 </div>
@@ -123,7 +123,7 @@
                         <div class="pu-perfil-info">
                             <h2 id="perfilNombre">Administrador TourismEasy</h2>
                             <p>
-                                <i class="fa-solid fa-envelope"></i> <span id="perfilEmail">admin@tourismeasy.com</span>
+                                <i class="fa-solid fa-envelope"></i> <span id="perfilEmail" aria-live="polite">Cargando correo...</span>
                             </p>
                             <p><i class="fa-solid fa-shield-halved"></i> Acceso: Total</p>
                             <p>
@@ -150,7 +150,7 @@
                                     principal</span>
                             </div>
                             <div class="pu-field">
-                                <span class="pu-field-label">Correo</span><span class="pu-field-val" id="infoEmail">admin@tourismeasy.com</span>
+                                <span class="pu-field-label">Correo</span><span class="pu-field-val" id="infoEmail">Cargando correo...</span>
                             </div>
                             <div class="pu-field">
                                 <span class="pu-field-label">Teléfono</span><span class="pu-field-val" id="infoTelefono">+57 317 461 3395</span>
@@ -358,7 +358,8 @@
 
             function aplicarDatos(d) {
                 var nombreCompleto = ((d.nombre || "") + " " + (d.apellido || "")).trim() || sesion.nombre || "Administrador TourismEasy";
-                var email = d.email_login || sesion.email || "admin@tourismeasy.com";
+                var email = typeof d.email_login === "string" ? d.email_login.trim() : "";
+                if (!email) throw new Error("El servidor no devolvió el correo del administrador.");
                 var initials = nombreCompleto.split(/\s+/).map(function(w) {
                     return w[0] || "";
                 }).join("").substring(0, 2).toUpperCase() || "AD";
@@ -375,12 +376,17 @@
                 if (sidebarAv) sidebarAv.textContent = initials;
                 var sidebarNm = document.getElementById("sidebarNombre");
                 if (sidebarNm) sidebarNm.textContent = nombreCompleto;
+
+                sesion.email = email;
+                var sessionStore = localStorage.getItem("te_session") ? localStorage : sessionStorage;
+                sessionStore.setItem("te_session", JSON.stringify(sesion));
             }
 
             function cargarPerfil() {
-                if (!sesion.id) return Promise.resolve();
+                if (!sesion.id) return Promise.reject(new Error("No se encontró la sesión del administrador."));
                 return fetch(API_BASE + 'get_perfil_admin.php?id=' + encodeURIComponent(sesion.id), {
-                        credentials: 'include'
+                        credentials: 'include',
+                        cache: 'no-store'
                     })
                     .then(function(r) {
                         if (!r.ok) throw new Error("HTTP " + r.status);
@@ -390,10 +396,16 @@
                         if (data.ok && data.admin) {
                             adminActual = data.admin;
                             aplicarDatos(adminActual);
+                            btnAbrir.disabled = false;
+                            return true;
                         }
+                        throw new Error(data.error || "La respuesta del perfil no es válida.");
                     })
                     .catch(function(err) {
                         console.error("No se pudo cargar el perfil del administrador:", err);
+                        set("perfilEmail", "No se pudo cargar el correo");
+                        set("infoEmail", "No se pudo cargar el correo");
+                        return false;
                     });
             }
             var perfilPromise = cargarPerfil();
@@ -590,7 +602,9 @@
             });
 
             if (new URLSearchParams(window.location.search).get("editar") === "correo") {
-                perfilPromise.then(abrirModal);
+                perfilPromise.then(function(cargado) {
+                    if (cargado) abrirModal();
+                });
             }
         })();
     </script>
