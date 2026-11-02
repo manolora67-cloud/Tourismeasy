@@ -13,6 +13,7 @@
         rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
+    <script src="../componentes/ui-feedback.js?v=ui-feedback-v2"></script>
 </head>
 
 <body>
@@ -309,22 +310,7 @@
             w.querySelector("#btnLogout").addEventListener("click", function (e) {
                 e.preventDefault();
                 e.stopPropagation();
-                fetch("../login/logout_admin.php", {
-                    method: "POST",
-                    credentials: "include"
-                }).then(function(response) {
-                    return response.json().then(function(result) {
-                        if (!response.ok || !result.ok) {
-                            throw new Error(result.error || "No se pudo cerrar la sesión.");
-                        }
-                        sessionStorage.removeItem("te_session");
-                        localStorage.removeItem("te_session");
-                        window.location.href = "../index.html";
-                    });
-                }).catch(function(error) {
-                    console.error("No se pudo cerrar la sesión en el servidor:", error);
-                    alert(error.message || "No se pudo cerrar la sesión. Intenta de nuevo.");
-                });
+                window.TEUI.logoutAdmin("../login/logout_admin.php", "../index.html");
             });
         })();
 
@@ -358,9 +344,7 @@
         if (logoutBtn) {
             logoutBtn.addEventListener("click", function (e) {
                 e.preventDefault();
-                sessionStorage.removeItem("te_session");
-                localStorage.removeItem("te_session");
-                window.location.href = "../index.html";
+                window.TEUI.logoutAdmin("../login/logout_admin.php", "../index.html");
             });
         }
     </script>
@@ -412,14 +396,19 @@
             }
 
             document.getElementById("btnCambiarContrasena").addEventListener("click", function () {
+                formContrasena.reset();
+                window.TEUI.markClean(formContrasena);
                 modalContrasena.style.display = "flex";
                 document.body.style.overflow = "hidden";
                 document.getElementById("contrasenaActualAdmin").focus();
             });
-            document.getElementById("btnCerrarModalContrasena").addEventListener("click", cerrarModalContrasena);
-            document.getElementById("btnCancelarModalContrasena").addEventListener("click", cerrarModalContrasena);
+            async function solicitarCerrarModalContrasena() {
+                if (await window.TEUI.confirmDiscard(formContrasena)) cerrarModalContrasena();
+            }
+            document.getElementById("btnCerrarModalContrasena").addEventListener("click", solicitarCerrarModalContrasena);
+            document.getElementById("btnCancelarModalContrasena").addEventListener("click", solicitarCerrarModalContrasena);
             modalContrasena.addEventListener("click", function (event) {
-                if (event.target === modalContrasena) cerrarModalContrasena();
+                if (event.target === modalContrasena) solicitarCerrarModalContrasena();
             });
 
             formContrasena.addEventListener("submit", function (event) {
@@ -459,7 +448,7 @@
                         });
                     })
                     .then(function () {
-                        alert("La contraseña se actualizó correctamente.");
+                        window.TEUI.toast("Contraseña actualizada correctamente.");
                         cerrarModalContrasena();
                     })
                     .catch(function (error) {

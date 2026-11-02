@@ -194,8 +194,10 @@
     bottom: 100px;
     /* Justo encima del FAB */
     right: 28px;
-    width: 375px;
-    max-height: 560px;
+    box-sizing: border-box;
+    width: min(375px, calc(100vw - 32px));
+    max-height: min(560px, calc(100vh - 120px));
+    max-height: min(560px, calc(100dvh - 120px));
     background: var(--te-surface);
     border-radius: 22px;
     box-shadow: 0 24px 64px rgba(0, 0, 0, 0.16), 0 4px 16px rgba(0, 0, 0, 0.08);
@@ -281,6 +283,7 @@
 
 .te-header-info {
     flex: 1;
+    min-width: 0;
 }
 
 .te-header-info strong {
@@ -346,6 +349,7 @@
 
 .te-chat-messages {
     flex: 1;
+    min-height: 0;
     overflow-y: auto;
     padding: 16px 14px;
     display: flex;
@@ -706,28 +710,30 @@ body.dark-mode .te-chat-bubble {
 
 /* ══════════════════════════════════════════
    RESPONSIVE MÓVIL
-   En móvil el panel ocupa toda la pantalla desde abajo
+   El panel se ajusta al viewport y queda por encima del botón flotante
 ══════════════════════════════════════════ */
 
-@media (max-width: 480px) {
+@media (max-width: 767px) {
     .te-chat-panel {
-        right: 0;
-        left: 0;
-        bottom: 0;
-        width: 100%;
-        max-height: 72vh;
-        border-radius: 22px 22px 0 0;
-        /* Bordes redondeados solo arriba */
+        right: 12px;
+        left: 12px;
+        bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+        width: auto;
+        height: min(72vh, calc(100vh - 108px));
+        height: min(72dvh, calc(100dvh - 108px - env(safe-area-inset-bottom, 0px)));
+        max-height: min(72vh, calc(100vh - 108px));
+        max-height: min(72dvh, calc(100dvh - 108px - env(safe-area-inset-bottom, 0px)));
+        border-radius: 20px;
     }
 
     .te-chat-fab {
-        bottom: 20px;
+        bottom: calc(16px + env(safe-area-inset-bottom, 0px));
         right: 16px;
     }
 
     .te-chat-bubble {
         right: 16px;
-        bottom: 90px;
+        bottom: calc(88px + env(safe-area-inset-bottom, 0px));
     }
 
     /* Mostrar el botón X dentro del header en móvil */

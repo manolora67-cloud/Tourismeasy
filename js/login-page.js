@@ -44,9 +44,15 @@
 
     const back = document.querySelector(".btn-back-home");
     if (back) {
-        back.addEventListener("click", function (event) {
+        back.addEventListener("click", async function (event) {
             event.preventDefault();
-            if (window.confirm("¿Seguro que deseas salir? Perderás el progreso del formulario.")) {
+            if (await window.TEUI.confirm({
+                title: "Salir del formulario",
+                message: "Perderás el progreso que no hayas guardado.",
+                confirmText: "Salir sin guardar",
+                tone: "primary",
+                icon: "fa-arrow-right-from-bracket"
+            })) {
                 window._loginSuccess = true;
                 window.location.href = "../index.html";
             }

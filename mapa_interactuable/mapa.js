@@ -333,8 +333,8 @@
                 <aside class="mapa-panel-lateral" aria-label="Municipios de Santander">
                     <div class="mapa-panel-cabecera">
                         <div>
-                            <h3>Explora municipios</h3>
-                            <p>Selecciona un lugar para ubicarlo</p>
+                            <h3>Ubica un municipio</h3>
+                            <p>Selecciona uno para verlo en el mapa</p>
                         </div>
                         <i class="fa-solid fa-map-location-dot" aria-hidden="true"></i>
                     </div>

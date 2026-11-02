@@ -14,6 +14,7 @@
         rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
+    <script src="../componentes/ui-feedback.js?v=ui-feedback-v2"></script>
 </head>
 
 <body>
@@ -86,31 +87,7 @@
             </div>
         </div>
 
-        <section class="click-metrics" data-clicks-dashboard aria-labelledby="planesClicksTitle">
-            <div class="click-metrics__heading">
-                <div>
-                    <h2 id="planesClicksTitle"><i class="fa-brands fa-whatsapp"></i> Contactos por WhatsApp</h2>
-                    <p>Solo se muestran los clics de los servicios de tu empresa.</p>
-                </div>
-                <button class="btn-panel-add" type="button" data-clicks-reload>Actualizar</button>
-            </div>
-            <div class="click-metrics__summary">
-                <div class="click-metrics__card"><span>Últimos 30 días</span><strong data-clicks-30-days>—</strong></div>
-            </div>
-            <p class="click-metrics__status" data-clicks-status aria-live="polite">Cargando estadísticas…</p>
-            <div class="click-metrics__block">
-                <h3 data-clicks-breakdown-heading>Clics por producto</h3>
-                <div class="panel-table-wrap">
-                    <table class="panel-table"><thead><tr><th data-clicks-breakdown-column>Producto</th><th>Clics</th></tr></thead><tbody data-clicks-categories></tbody></table>
-                </div>
-            </div>
-            <div class="click-metrics__block">
-                <h3>Últimos clics</h3>
-                <div class="panel-table-wrap">
-                    <table class="panel-table"><thead><tr><th>Fecha</th><th>Producto</th><th>Dispositivo</th></tr></thead><tbody data-clicks-recent></tbody></table>
-                </div>
-            </div>
-        </section>
+        <section class="click-metrics" data-clicks-dashboard data-clicks-dashboard-template aria-label="Contactos por WhatsApp"></section>
 
         <!-- TAB: MIS PLANES -->
         <div class="panel-content active" id="tab-servicios">
@@ -209,25 +186,6 @@
             <div class="vm-footer">
                 <button class="vm-btn-cancel" id="vModal-cancel">Cancelar</button>
                 <button class="vm-btn-save" id="vModal-save"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL: ELIMINAR -->
-    <div id="vDel-overlay" class="vm-overlay" aria-hidden="true">
-        <div class="vm-box vm-box--sm" role="dialog" aria-modal="true">
-            <div class="vm-topbar vm-topbar--red"></div>
-            <div class="vm-header">
-                <h2 class="vm-title vm-title--red"><i class="fa-solid fa-triangle-exclamation"></i> Eliminar plan</h2>
-                <button class="vm-close" id="vDel-close">&times;</button>
-            </div>
-            <div class="vm-body">
-                <p class="vm-del-msg">Seguro de eliminar el plan <strong id="vDel-ruta"></strong>? Esta accion no se
-                    puede deshacer.</p>
-            </div>
-            <div class="vm-footer">
-                <button class="vm-btn-cancel" id="vDel-cancel">Cancelar</button>
-                <button class="vm-btn-del" id="vDel-confirm"><i class="fa-solid fa-trash"></i> Si, eliminar</button>
             </div>
         </div>
     </div>
@@ -368,9 +326,7 @@
             w.querySelector("#btnLogout").addEventListener("click", function (e) {
                 e.preventDefault();
                 e.stopPropagation();
-                sessionStorage.removeItem("te_session");
-                localStorage.removeItem("te_session");
-                window.location.href = "../index.html";
+                window.TEUI.logoutAdmin("../login/logout_admin.php", "../index.html");
             });
         })();
         var ACC_MAP = {
@@ -391,9 +347,7 @@
         };
         var _foto64 = "",
             editRow = null,
-            rowDel = null,
-            _editId = null,
-            _delId = null;
+            _editId = null;
 
         // Cargar selects de referencia
         fetch("../datos_referencia.php?tipo=todos", {
@@ -475,6 +429,7 @@
             }
             document.getElementById("vModal-overlay").classList.add("vm-visible");
             document.getElementById("vModal-overlay").removeAttribute("aria-hidden");
+            window.TEUI.markClean(document.querySelector("#vModal-overlay .vm-box"));
         }
 
         function closeModal() {
@@ -502,8 +457,11 @@
         document.getElementById("btn-nuevo").addEventListener("click", function () {
             openModal(null);
         });
-        document.getElementById("vModal-close").addEventListener("click", closeModal);
-        document.getElementById("vModal-cancel").addEventListener("click", closeModal);
+        async function solicitarCierreModal() {
+            if (await window.TEUI.confirmDiscard(document.querySelector("#vModal-overlay .vm-box"))) closeModal();
+        }
+        document.getElementById("vModal-close").addEventListener("click", solicitarCierreModal);
+        document.getElementById("vModal-cancel").addEventListener("click", solicitarCierreModal);
 
         document.getElementById("vModal-save").addEventListener("click", function () {
             var nombre = document.getElementById("vm-nombre").value.trim();
@@ -515,7 +473,7 @@
             var accVal = document.getElementById("vm-acc").value;
             var estVal = document.getElementById("vm-estado").value;
             if (!nombre || !idCiudad || !duracion || !precioRaw || !idTipoPlan || !incluye) {
-                alert("Completa: Nombre, Ciudad, Duracion, Precio, Tipo de plan e Incluye.");
+                window.TEUI.toast("Completa: nombre, ciudad, duración, precio, tipo de plan e incluye.", "error");
                 return;
             }
             var payload = {
@@ -550,14 +508,15 @@
                     })
                     .then(function (res) {
                         if (!res.ok) {
-                            alert("Error: " + (res.error || "No se pudo guardar."));
+                            window.TEUI.toast(res.error || "No se pudo guardar el plan.", "error");
                             return;
                         }
                         cargarPlanes();
+                        window.TEUI.toast(_editId ? "Plan actualizado correctamente." : "Plan guardado correctamente.");
                         closeModal();
                     })
                     .catch(function () {
-                        alert("Error de conexion al guardar.");
+                        window.TEUI.toast("No se pudo conectar para guardar el plan.", "error");
                     })
                     .finally(function () {
                         btn.disabled = false;
@@ -588,60 +547,24 @@
             }
         });
 
-        function openDel(row) {
-            closeAllVM();
-            rowDel = row;
-            _delId = parseInt(row.dataset.id || "0", 10);
-            document.getElementById("vDel-ruta").textContent = row.querySelectorAll("td")[0].textContent.trim();
-            document.getElementById("vDel-overlay").classList.add("vm-visible");
-            document.getElementById("vDel-overlay").removeAttribute("aria-hidden");
-        }
+        async function openDel(row) {
+            var id = parseInt(row.dataset.id || "0", 10);
+            var nombre = row.querySelectorAll("td")[0].textContent.trim();
+            if (!id) return;
 
-        function closeDel() {
-            document.getElementById("vDel-overlay").classList.remove("vm-visible");
-            document.getElementById("vDel-overlay").setAttribute("aria-hidden", "true");
-            rowDel = null;
-            _delId = null;
+            await window.TEUI.confirmDelete({
+                title: "Eliminar plan",
+                message: '¿Quieres eliminar "' + nombre + '"? Esta acción no se puede deshacer.',
+                endpoint: "../planes/eliminar.php",
+                payload: { id: id },
+                button: row.querySelector(".btn-tbl-del"),
+                successMessage: "Plan eliminado correctamente.",
+                errorMessage: "No se pudo eliminar el plan.",
+                connectionError: "No se pudo conectar para eliminar el plan.",
+                logMessage: "Error eliminando el plan:",
+                onSuccess: cargarPlanes
+            });
         }
-        document.getElementById("vDel-close").addEventListener("click", closeDel);
-        document.getElementById("vDel-cancel").addEventListener("click", closeDel);
-        document.getElementById("vDel-confirm").addEventListener("click", function () {
-            if (!_delId) {
-                closeDel();
-                return;
-            }
-            var btn = document.getElementById("vDel-confirm");
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Eliminando...';
-            fetch("../planes/eliminar.php", {
-                method: "POST",
-                credentials: "include",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    id: _delId
-                })
-            })
-                .then(function (r) {
-                    return r.json();
-                })
-                .then(function (res) {
-                    if (!res.ok) {
-                        alert("Error: " + (res.error || "No se pudo eliminar."));
-                        return;
-                    }
-                    cargarPlanes();
-                    closeDel();
-                })
-                .catch(function () {
-                    alert("Error de conexion al eliminar.");
-                })
-                .finally(function () {
-                    btn.disabled = false;
-                    btn.innerHTML = '<i class="fa-solid fa-trash"></i> Si, eliminar';
-                });
-        });
 
         function openDetalle(row) {
             closeAllVM();
@@ -813,6 +736,7 @@
         }
         cargarPlanes();
     </script>
+    <script src="../componentes/click-metrics-dashboard.js?v=click-metrics-v1"></script>
     <script src="../js/click_metrics.js"></script>
 </body>
 

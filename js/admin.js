@@ -124,7 +124,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (btnLogoutArtesano) {
         btnLogoutArtesano.addEventListener('click', async() => {
-            const confirmado = await confirmarCerrarSesion('¿Seguro que deseas cerrar sesión?');
+            const confirmado = await window.TEUI.confirm({
+                title: 'Cerrar sesión',
+                message: '¿Quieres cerrar tu sesión de TourismLocal?',
+                confirmText: 'Cerrar sesión',
+                tone: 'primary',
+                icon: 'fa-right-from-bracket'
+            });
             if (!confirmado) return;
 
             // Primero destruimos la sesión real de servidor; sessionStorage
@@ -143,7 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.location.replace('../html/e-commerce.html');
             } catch (e) {
                 console.error('Error cerrando sesión en el servidor:', e);
-                alert(e.message || 'No se pudo cerrar la sesión. Intenta de nuevo.');
+                window.TEUI.toast(e.message || 'No se pudo cerrar la sesión. Intenta de nuevo.', 'error');
             }
         });
     }
@@ -368,29 +374,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ── Toast notifications ──
     function showToast(message, type = 'success') {
-        const toast = document.createElement('div');
-        toast.style.cssText = `
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            padding: 12px 24px;
-            border-radius: 8px;
-            color: white;
-            background: ${type === 'success' ? '#22c55e' : '#ef4444'};
-            z-index: 10000;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            animation: slideIn 0.3s ease;
-            font-family: 'Open Sans', sans-serif;
-            font-weight: 500;
-        `;
-        toast.textContent = message;
-        document.body.appendChild(toast);
-
-        setTimeout(() => {
-            toast.style.opacity = '0';
-            toast.style.transition = 'opacity 0.3s';
-            setTimeout(() => toast.remove(), 300);
-        }, 3000);
+        window.TEUI.toast(message, type);
     }
 
     // ── CRUD con Fetch ──
@@ -590,13 +574,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ── Manejar eliminación ──
     async function handleDeleteProduct(id) {
-        if (confirm('¿Estás seguro de eliminar este producto?')) {
+        if (await window.TEUI.confirm({
+            title: 'Eliminar producto',
+            message: '¿Quieres eliminar este producto? Esta acción no se puede deshacer.',
+            confirmText: 'Sí, eliminar'
+        })) {
             try {
                 await deleteProduct(id);
                 await renderAdminTable();
                 showToast('Producto eliminado correctamente', 'success');
             } catch (error) {
                 console.error('Error:', error);
+                window.TEUI.toast(error.message || 'No se pudo eliminar el producto.', 'error');
             }
         }
     }
@@ -632,6 +621,7 @@ document.addEventListener('DOMContentLoaded', () => {
             btnSave.innerText = "Actualizar Cambios";
             btnCancel.style.display = "block";
             clearAllErrors();
+            window.TEUI.markClean(productForm);
             window.scrollTo(0, 0);
 
         } catch (error) {
@@ -689,9 +679,14 @@ document.addEventListener('DOMContentLoaded', () => {
         btnCancel.style.display = "none";
         clearAllErrors();
         precargarProveedor();
+        window.TEUI.markClean(productForm);
     }
 
-    btnCancel.addEventListener('click', resetForm);
+    btnCancel.addEventListener('click', async() => {
+        if (await window.TEUI.confirmDiscard(productForm)) {
+            resetForm();
+        }
+    });
 
     // ── Precargar el campo "Proveedor" con el nombre del artesano logueado ──
     // Ya no tiene sentido escribirlo a mano: el panel es tuyo, tus productos van a tu nombre.
@@ -708,6 +703,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     precargarProveedor();
+    window.TEUI.markClean(productForm);
 
     // ── Inicializar ──
     loadCiudades();

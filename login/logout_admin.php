@@ -11,6 +11,11 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode(['ok' => false, 'error' => 'Método no permitido.']);
     exit;
 }
+if (empty($_SESSION['tipo']) && empty($_SESSION['artesano_id'])) {
+    destruirSesionActual();
+    echo json_encode(['ok' => true, 'already_closed' => true]);
+    exit;
+}
 if (!in_array($_SESSION['tipo'] ?? '', ['admin', 'empresa'], true)) {
     http_response_code(401);
     echo json_encode(['ok' => false, 'error' => 'No hay una sesión activa.']);

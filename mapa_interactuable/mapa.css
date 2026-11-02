@@ -357,6 +357,7 @@
 
 #mapa-turistico .mapa-destino-link {
     display: inline-block;
+    margin-top: 10px;
     padding: 8px 12px;
     border-radius: 8px;
     background: var(--purple);
@@ -439,7 +440,7 @@ body.dark-mode .mapa-titulo {
 
 }
 
-@media (max-width: 700px) {
+@media (max-width: 767px) {
     .destinos-mapa {
         margin-bottom: 32px;
     }

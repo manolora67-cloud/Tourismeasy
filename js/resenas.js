@@ -278,7 +278,11 @@
     }
 
     async function borrarResena(id, button) {
-        if (!window.confirm("¿Eliminar esta reseña? Esta acción no se puede deshacer.")) return;
+        if (!await window.TEUI.confirm({
+            title: "Eliminar reseña",
+            message: "¿Quieres eliminar esta reseña? Esta acción no se puede deshacer.",
+            confirmText: "Sí, eliminar"
+        })) return;
 
         button.disabled = true;
         try {
@@ -295,9 +299,10 @@
 
             cargarResenas();
             window.dispatchEvent(new Event("teResenasActualizadas"));
+            window.TEUI.toast("Reseña eliminada correctamente.");
         } catch (error) {
             button.disabled = false;
-            window.alert(error.message || "No se pudo eliminar la reseña. Intenta de nuevo.");
+            window.TEUI.toast(error.message || "No se pudo eliminar la reseña. Intenta de nuevo.", "error");
         }
     }
 
@@ -421,7 +426,7 @@
             return;
         }
         if (textoOriginal.length < 10) {
-            alert("El comentario debe tener al menos 10 caracteres.");
+            window.TEUI.toast("El comentario debe tener al menos 10 caracteres.", "error");
             textarea.focus();
             return;
         }
@@ -443,7 +448,7 @@
             .then(function (r) { return r.json(); })
             .then(function (res) {
                 submitBtn.disabled = false;
-                if (!res.ok) { alert(res.error || "Error al publicar reseña."); return; }
+                if (!res.ok) { window.TEUI.toast(res.error || "No se pudo publicar la reseña.", "error"); return; }
 
                 var nueva = {
                     id: res.id_resena,
@@ -474,7 +479,7 @@
             })
             .catch(function () {
                 submitBtn.disabled = false;
-                alert("Error de conexión. Intenta de nuevo.");
+                window.TEUI.toast("Error de conexión. Intenta de nuevo.", "error");
             });
     });
 

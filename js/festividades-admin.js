@@ -119,15 +119,21 @@
         form.elements.bg_card.value = existente ? festividad.bg_card.trim() : "#1e293b";
         form.elements.id_ciudad.value = existente && festividad.id_ciudad ? festividad.id_ciudad : "";
         form.dataset.idActual = existente ? festividad.id_festividad : "";
+        window.TEUI.markClean(form);
         dialog.showModal();
     }
 
     async function eliminarFestividad(festividad) {
-        if (!window.confirm('¿Eliminar "' + festividad.titulo + '"? Esta acción no se puede deshacer.')) return;
+        if (!await window.TEUI.confirm({
+            title: "Eliminar festividad",
+            message: '¿Quieres eliminar "' + festividad.titulo + '"? Esta acción no se puede deshacer.',
+            confirmText: "Sí, eliminar"
+        })) return;
         limpiarError();
         try {
             await enviar({ action: "delete", id: festividad.id_festividad });
             await cargarFestividades();
+            window.TEUI.toast("Festividad eliminada correctamente.");
         } catch (error) {
             mostrarError(error.message);
         }
@@ -181,8 +187,10 @@
                 id: form.dataset.idActual,
                 festividad: festivalData
             });
+            window.TEUI.markClean(form);
             dialog.close();
             await cargarFestividades();
+            window.TEUI.toast(editing ? "Festividad actualizada correctamente." : "Festividad guardada correctamente.");
         } catch (error) {
             mostrarError(error.message);
         } finally {
@@ -193,11 +201,14 @@
     document.getElementById("btnAgregarFestividad").addEventListener("click", function() {
         abrirFormulario(null);
     });
-    document.getElementById("btnCerrarDialogo").addEventListener("click", function() {
-        dialog.close();
-    });
-    document.getElementById("btnCancelarFestividad").addEventListener("click", function() {
-        dialog.close();
+    async function cerrarFormulario() {
+        if (await window.TEUI.confirmDiscard(form)) dialog.close();
+    }
+    document.getElementById("btnCerrarDialogo").addEventListener("click", cerrarFormulario);
+    document.getElementById("btnCancelarFestividad").addEventListener("click", cerrarFormulario);
+    dialog.addEventListener("cancel", function(event) {
+        event.preventDefault();
+        cerrarFormulario();
     });
 
     document.getElementById("darkModeToggle").addEventListener("click", function() {
@@ -282,22 +293,7 @@
 
     async function cerrarSesion(event) {
         event.preventDefault();
-        try {
-            const response = await fetch("../login/logout_admin.php", {
-                method: "POST",
-                credentials: "include"
-            });
-            const result = await response.json();
-            if (!response.ok || !result.ok) {
-                throw new Error(result.error || "No se pudo cerrar la sesión.");
-            }
-            sessionStorage.removeItem("te_session");
-            localStorage.removeItem("te_session");
-            window.location.href = "../index.html";
-        } catch (error) {
-            console.warn("No se pudo confirmar el cierre de sesión en el servidor.", error);
-            alert(error.message || "No se pudo cerrar la sesión. Intenta de nuevo.");
-        }
+        await window.TEUI.logoutAdmin("../login/logout_admin.php", "../index.html");
     }
 
     document.getElementById("btnLogout").addEventListener("click", cerrarSesion);

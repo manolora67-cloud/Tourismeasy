@@ -13,6 +13,7 @@
         rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
+    <script src="../componentes/ui-feedback.js?v=ui-feedback-v2"></script>
 </head>
 
 <body>
@@ -435,6 +436,7 @@
                 document.getElementById("editarPerfilEmailInstitucional").value = empresaActual.email_inst || "";
                 document.getElementById("editarPerfilEmailAcceso").value = empresaActual.email_login || "";
                 document.getElementById("editarPerfilContacto").value = empresaActual.contacto || "";
+                window.TEUI.markClean(formEditarPerfil);
                 estadoFormularioPerfil.hidden = true;
                 estadoFormularioPerfil.textContent = "";
                 var proximaFecha = formatearProximaEdicion(empresaActual.proxima_edicion);
@@ -449,6 +451,7 @@
                     .then(function (select) {
                         select.value = empresaActual.id_ciudad || "";
                         btnGuardarPerfil.disabled = !perfilEditable;
+                        window.TEUI.markClean(formEditarPerfil);
                     })
                     .catch(function (error) {
                         console.error("No se pudo cargar la lista de municipios:", error);
@@ -456,11 +459,14 @@
                     });
             });
 
-            document.getElementById("btnCerrarEditarPerfil").addEventListener("click", function () {
-                modalEditarPerfil.close();
-            });
-            document.getElementById("btnCancelarEditarPerfil").addEventListener("click", function () {
-                modalEditarPerfil.close();
+            async function solicitarCierrePerfil() {
+                if (await window.TEUI.confirmDiscard(formEditarPerfil)) modalEditarPerfil.close();
+            }
+            document.getElementById("btnCerrarEditarPerfil").addEventListener("click", solicitarCierrePerfil);
+            document.getElementById("btnCancelarEditarPerfil").addEventListener("click", solicitarCierrePerfil);
+            modalEditarPerfil.addEventListener("cancel", function (event) {
+                event.preventDefault();
+                solicitarCierrePerfil();
             });
 
             formEditarPerfil.addEventListener("submit", function (event) {
@@ -504,9 +510,11 @@
                         u.email = datos.email_acceso;
                         localStorage.setItem("te_session", JSON.stringify(u));
                         mostrarEstadoFormulario(data.mensaje || "Perfil actualizado.");
+                        window.TEUI.markClean(formEditarPerfil);
+                        window.TEUI.toast("Perfil actualizado correctamente.");
                         setTimeout(function () {
                             window.location.reload();
-                        }, 700);
+                        }, 1800);
                     })
                     .catch(function (error) {
                         console.error("No se pudo actualizar el perfil:", error);
@@ -675,9 +683,7 @@
             w.querySelector("#btnLogout").addEventListener("click", function (e) {
                 e.preventDefault();
                 e.stopPropagation();
-                sessionStorage.removeItem("te_session");
-                localStorage.removeItem("te_session");
-                window.location.href = "../index.html";
+                window.TEUI.logoutAdmin("../login/logout_admin.php", "../index.html");
             });
         })();
 
@@ -703,9 +709,7 @@
             .getElementById("sidebarLogout")
             .addEventListener("click", function (e) {
                 e.preventDefault();
-                sessionStorage.removeItem("te_session");
-                localStorage.removeItem("te_session");
-                window.location.href = "../index.html";
+                window.TEUI.logoutAdmin("../login/logout_admin.php", "../index.html");
             });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>

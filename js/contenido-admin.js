@@ -293,7 +293,10 @@
             videoPreview.hidden = true;
             videoRemove.hidden = true;
         }
-        document.getElementById('pdCancel').addEventListener('click', () => editorDialog.close());
+        window.TEUI.markClean(form);
+        document.getElementById('pdCancel').addEventListener('click', async () => {
+            if (await window.TEUI.confirmDiscard(form)) editorDialog.close();
+        });
         document.getElementById('pdFile').addEventListener('change', uploadImage);
         document.getElementById('paVideoFile').addEventListener('change', uploadVideo);
         videoRemove.addEventListener('click', () => {
@@ -453,8 +456,10 @@
             else destinos[index] = { ...result.data, municipio: original.municipio, persistido: true };
             destinos.sort((a, b) => a.orden - b.orden || a.titulo.localeCompare(b.titulo));
             render();
+            window.TEUI.markClean(document.getElementById('portadaForm'));
             editorDialog.close();
             showStatus('Destino guardado. La portada pública ya mostrará los cambios.');
+            window.TEUI.toast(original.persistido ? 'Destino actualizado correctamente.' : 'Destino guardado correctamente.');
         } catch (error) {
             showStatus(error.message, true);
         } finally {
@@ -464,7 +469,11 @@
 
     async function deleteDestination(key) {
         const item = destinos.find((destination) => destination.key === key);
-        if (!item || !item.persistido || !window.confirm(`¿Eliminar definitivamente el contenido de “${item.titulo}” de la portada? El municipio seguirá en la base de datos y podrás volver a crear su contenido editándolo.`)) return;
+        if (!item || !item.persistido || !await window.TEUI.confirm({
+            title: 'Eliminar contenido de portada',
+            message: `¿Eliminar definitivamente el contenido de “${item.titulo}” de la portada? El municipio seguirá en la base de datos y podrás volver a crear su contenido editándolo.`,
+            confirmText: 'Sí, eliminar'
+        })) return;
         try {
             await request(API, {
                 method: 'POST',
@@ -511,6 +520,10 @@
     previewDialog.querySelector('[data-preview-close]').addEventListener('click', closePreview);
     editorDialog.addEventListener('cancel', (event) => {
         event.preventDefault();
+        const form = document.getElementById('portadaForm');
+        window.TEUI.confirmDiscard(form).then((confirmed) => {
+            if (confirmed) editorDialog.close();
+        });
     });
     editorDialog.addEventListener('mousedown', (event) => {
         if (event.target === editorDialog) {

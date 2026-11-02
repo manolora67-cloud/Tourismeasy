@@ -14,6 +14,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;500&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
+    <script src="../componentes/ui-feedback.js?v=ui-feedback-v2"></script>
 </head>
 
 <body>
@@ -531,22 +532,7 @@
                 .addEventListener("click", async function(e) {
                     e.preventDefault();
                     e.stopPropagation();
-                    try {
-                        var response = await fetch("../login/logout_admin.php", {
-                            method: "POST",
-                            credentials: "include"
-                        });
-                        var result = await response.json();
-                        if (!response.ok || !result.ok) {
-                            throw new Error(result.error || "No se pudo cerrar la sesión.");
-                        }
-                        sessionStorage.removeItem("te_session");
-                        localStorage.removeItem("te_session");
-                        window.location.href = "../index.html";
-                    } catch (error) {
-                        console.error("No se pudo cerrar la sesión en el servidor:", error);
-                        alert(error.message || "No se pudo cerrar la sesión. Intenta de nuevo.");
-                    }
+                    await window.TEUI.logoutAdmin("../login/logout_admin.php", "../index.html");
                 });
         })();
 
@@ -1755,11 +1741,18 @@
                     });
             }
 
-            function accionArtesano(id, accion) {
+            async function accionArtesano(id, accion) {
                 var confirmMsg = accion === 'aprobar' ?
                     '¿Aprobar este artesano? Podrá iniciar sesión y publicar productos.' :
                     '¿Rechazar este artesano? No podrá acceder a la plataforma.';
-                if (!confirm(confirmMsg)) return;
+                var confirmado = await window.TEUI.confirm({
+                    title: accion === 'aprobar' ? 'Aprobar artesano' : 'Rechazar artesano',
+                    message: confirmMsg,
+                    confirmText: accion === 'aprobar' ? 'Sí, aprobar' : 'Sí, rechazar',
+                    tone: accion === 'aprobar' ? 'primary' : undefined,
+                    icon: accion === 'aprobar' ? 'fa-circle-check' : 'fa-ban'
+                });
+                if (!confirmado) return;
 
                 fetch(API, {
                         method: 'POST',
@@ -1779,12 +1772,13 @@
                         if (data.ok) {
                             cargarArtesanos(estadoActual);
                             cargarStatsArtesanos();
+                            window.TEUI.toast(accion === 'aprobar' ? 'Artesano aprobado correctamente.' : 'Solicitud rechazada.');
                         } else {
-                            alert('Error: ' + (data.error || 'Intenta de nuevo.'));
+                            window.TEUI.toast(data.error || 'No se pudo completar la acción.', 'error');
                         }
                     })
                     .catch(function() {
-                        alert('No se pudo conectar con el servidor.');
+                        window.TEUI.toast('No se pudo conectar con el servidor.', 'error');
                     });
             }
         })();

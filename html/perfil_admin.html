@@ -11,6 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;500&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
+    <script src="../componentes/ui-feedback.js?v=ui-feedback-v2"></script>
 </head>
 
 <body>
@@ -298,22 +299,7 @@
             w.querySelector("#btnLogout").addEventListener("click", function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                fetch("../login/logout_admin.php", {
-                    method: "POST",
-                    credentials: "include"
-                }).then(function(response) {
-                    return response.json().then(function(result) {
-                        if (!response.ok || !result.ok) {
-                            throw new Error(result.error || "No se pudo cerrar la sesión.");
-                        }
-                        sessionStorage.removeItem("te_session");
-                        localStorage.removeItem("te_session");
-                        window.location.href = "../index.html";
-                    });
-                }).catch(function(error) {
-                    console.error("No se pudo cerrar la sesión en el servidor:", error);
-                    alert(error.message || "No se pudo cerrar la sesión. Intenta de nuevo.");
-                });
+                window.TEUI.logoutAdmin("../login/logout_admin.php", "../index.html");
             });
         })();
 
@@ -339,9 +325,7 @@
         if (logoutBtn) {
             logoutBtn.addEventListener("click", function(e) {
                 e.preventDefault();
-                sessionStorage.removeItem("te_session");
-                localStorage.removeItem("te_session");
-                window.location.href = "../index.html";
+                window.TEUI.logoutAdmin("../login/logout_admin.php", "../index.html");
             });
         }
     </script>
@@ -506,6 +490,7 @@
                 document.getElementById("editNombreAdmin").value = nombreCompleto;
                 document.getElementById("editEmailAdmin").value = adminActual.email_login || sesion.email || "";
                 document.getElementById("editTelAdmin").value = adminActual.celular || "";
+                window.TEUI.markClean(modal);
                 modal.style.display = "flex";
                 toast.style.display = "none";
                 document.body.style.overflow = "hidden";
@@ -517,10 +502,13 @@
             }
 
             btnAbrir.addEventListener("click", abrirModal);
-            btnCerrar.addEventListener("click", cerrarModal);
-            btnCancelar.addEventListener("click", cerrarModal);
+            async function solicitarCierreModal() {
+                if (await window.TEUI.confirmDiscard(modal)) cerrarModal();
+            }
+            btnCerrar.addEventListener("click", solicitarCierreModal);
+            btnCancelar.addEventListener("click", solicitarCierreModal);
             modal.addEventListener("click", function(e) {
-                if (e.target === modal) cerrarModal();
+                if (e.target === modal) solicitarCierreModal();
             });
 
             btnGuardar.addEventListener("click", function() {
@@ -562,7 +550,7 @@
                     .then(function(data) {
                         btnGuardar.disabled = false;
                         if (!data.ok) {
-                            alert(data.error || "No se pudo actualizar el perfil.");
+                            window.TEUI.toast(data.error || "No se pudo actualizar el perfil.", "error");
                             return;
                         }
 
@@ -577,7 +565,8 @@
                         var sessionStore = localStorage.getItem("te_session") ? localStorage : sessionStorage;
                         sessionStore.setItem("te_session", JSON.stringify(sesion));
 
-                        toast.style.display = "block";
+                        window.TEUI.markClean(modal);
+                        window.TEUI.toast("Perfil actualizado correctamente.");
                         setTimeout(function() {
                             cerrarModal();
                         }, 1400);
@@ -585,7 +574,7 @@
                     .catch(function(err) {
                         btnGuardar.disabled = false;
                         console.error("Error al actualizar el perfil:", err);
-                        alert("No se pudo actualizar el perfil. Intenta de nuevo.");
+                        window.TEUI.toast("No se pudo actualizar el perfil. Intenta de nuevo.", "error");
                     });
             });
 

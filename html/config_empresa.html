@@ -14,6 +14,7 @@
         rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
+    <script src="../componentes/ui-feedback.js?v=ui-feedback-v2"></script>
 </head>
 
 <body>
@@ -273,9 +274,7 @@
             w.querySelector("#btnLogout").addEventListener("click", function (e) {
                 e.preventDefault();
                 e.stopPropagation();
-                sessionStorage.removeItem("te_session");
-                localStorage.removeItem("te_session");
-                window.location.href = "../index.html";
+                window.TEUI.logoutAdmin("../login/logout_admin.php", "../index.html");
             });
         })();
 
@@ -461,9 +460,7 @@
             .getElementById("sidebarLogout")
             .addEventListener("click", function (e) {
                 e.preventDefault();
-                sessionStorage.removeItem("te_session");
-                localStorage.removeItem("te_session");
-                window.location.href = "../index.html";
+                window.TEUI.logoutAdmin("../login/logout_admin.php", "../index.html");
             });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>

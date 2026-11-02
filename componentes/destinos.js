@@ -700,8 +700,7 @@
     </article>`;
     }
 
-    function renderPages(destinations) {
-        const pageSize = 8;
+    function renderPages(destinations, pageSize) {
         const pages = [];
         for (let index = 0; index < destinations.length; index += pageSize) {
             pages.push(destinations.slice(index, index + pageSize));
@@ -709,7 +708,8 @@
         return pages;
     }
 
-    function updateCarousel(track, previous, next, pageIndex, pageCount) {
+    function updateCarousel(track, previous, next, pagination, pageIndex, pageSize, total) {
+        const pageCount = track.children.length;
         track.style.transform = `translateX(-${pageIndex * 100}%)`;
         Array.from(track.children).forEach((page, index) => {
             page.setAttribute("aria-hidden", index === pageIndex ? "false" : "true");
@@ -717,6 +717,9 @@
         });
         previous.disabled = pageIndex === 0;
         next.disabled = pageIndex >= pageCount - 1;
+        const firstMunicipality = pageIndex * pageSize + 1;
+        const lastMunicipality = Math.min((pageIndex + 1) * pageSize, total);
+        pagination.textContent = `Página ${pageIndex + 1} · Municipios ${firstMunicipality}–${lastMunicipality} de ${total}`;
     }
 
     function renderDestinos(destinations) {
@@ -731,9 +734,9 @@
       <div class="section-container">
         <div class="section-header">
           <div>
-            <h2 class="section-title">Municipios de Santander</h2>
+            <h2 class="section-title">Descubre los municipios</h2>
             <p class="section-desc">
-              Explora los municipios de Santander. Usa las flechas para recorrer todos los destinos.
+              Conoce sus destinos y planea tu próxima visita.
             </p>
           </div>
         </div>
@@ -743,34 +746,44 @@
           </button>
           <div class="destinos-viewport" aria-label="Carrusel de municipios">
             <div class="destinos-track">
-              ${renderPages(publicDestinations).map((page, index) => `
-                <div class="destinos-page" role="group" aria-label="Municipios ${index * 8 + 1} a ${Math.min((index + 1) * 8, publicDestinations.length)}">
-                  ${page.map(cardTemplate).join("")}
-                </div>
-              `).join("")}
             </div>
           </div>
           <button class="destinos-arrow destinos-arrow-next" type="button" aria-label="Ver municipios siguientes">
             <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
           </button>
         </div>
+        <p class="destinos-paginacion" aria-live="polite"></p>
       </div>
     </section>`;
 
         const track = mount.querySelector(".destinos-track");
         const previous = mount.querySelector(".destinos-arrow-prev");
         const next = mount.querySelector(".destinos-arrow-next");
-        const pageCount = track.children.length;
+        const pagination = mount.querySelector(".destinos-paginacion");
+        const mobileLayout = window.matchMedia("(max-width: 767px)");
+        let pageSize = mobileLayout.matches ? 4 : 8;
         let pageIndex = 0;
-        const update = () => updateCarousel(track, previous, next, pageIndex, pageCount);
+        const renderCarousel = (firstMunicipality = 0) => {
+            pageSize = mobileLayout.matches ? 4 : 8;
+            const pages = renderPages(publicDestinations, pageSize);
+            track.innerHTML = pages.map((page, index) => `
+                <div class="destinos-page" role="group" aria-label="Municipios ${index * pageSize + 1} a ${Math.min((index + 1) * pageSize, publicDestinations.length)}">
+                  ${page.map(cardTemplate).join("")}
+                </div>
+              `).join("");
+            pageIndex = Math.min(Math.floor(firstMunicipality / pageSize), pages.length - 1);
+            updateCarousel(track, previous, next, pagination, pageIndex, pageSize, publicDestinations.length);
+        };
+        const update = () => updateCarousel(track, previous, next, pagination, pageIndex, pageSize, publicDestinations.length);
         const changePage = (direction) => {
-            pageIndex = Math.max(0, Math.min(pageCount - 1, pageIndex + direction));
+            pageIndex = Math.max(0, Math.min(track.children.length - 1, pageIndex + direction));
             update();
         };
 
         previous.addEventListener("click", () => changePage(-1));
         next.addEventListener("click", () => changePage(1));
-        update();
+        renderCarousel();
+        mobileLayout.addEventListener("change", () => renderCarousel(pageIndex * pageSize));
     }
 
     const citiesPromise = fetch(`${basePath}datos_referencia.php?tipo=ciudades`)
