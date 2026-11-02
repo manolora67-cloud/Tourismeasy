@@ -151,10 +151,14 @@ function actualizarBotonWhatsApp(btn) {
     }
 
     function filterHospedajes() {
+        var currentRequest = ++requestId;
         var adults = inputAdultos.valueAsNumber;
         var children = inputNinos.valueAsNumber;
         if (!inputAdultos.validity.valid || !inputNinos.validity.valid ||
             !Number.isInteger(adults) || !Number.isInteger(children)) {
+            pagination.hidden = true;
+            noResults.style.display = "none";
+            grid.replaceChildren();
             setSearchStatus("Indica una cantidad válida de adultos y niños.", true);
             return;
         }
@@ -163,7 +167,6 @@ function actualizarBotonWhatsApp(btn) {
         if (inputDestino.value) params.set("id_ciudad", inputDestino.value);
         if (inputAccesibilidad.value) params.set("accesibilidad", inputAccesibilidad.value);
         params.set("capacidad", String(adults + children));
-        var currentRequest = ++requestId;
         pagination.hidden = true;
         noResults.style.display = "none";
         setSearchStatus("Buscando hospedajes…");
