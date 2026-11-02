@@ -10,7 +10,12 @@
     var charCount = document.getElementById("resenaCharCount");
     var submitBtn = document.getElementById("resenaSubmit");
     var sliderTrack = document.getElementById("sliderTrack");
+    var resenasStatus = document.createElement("p");
     var rating = 0;
+    var resenasRequestId = 0;
+    resenasStatus.setAttribute("role", "status");
+    resenasStatus.setAttribute("aria-live", "polite");
+    sliderTrack.parentNode.insertBefore(resenasStatus, sliderTrack);
 
     // ── Rutas a los PHP ──
     var _enHtml = window.location.pathname.includes("/html/");
@@ -295,10 +300,12 @@
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(body)
                 })
-                    .then(function (r) { return r.json(); })
+                    .then(function (r) {
+                        if (!r.ok) throw new Error("No se pudo actualizar el me gusta.");
+                        return r.json();
+                    })
                     .then(function (res) {
-                        btn.disabled = false;
-                        if (!res.ok) { return; }
+                        if (!res.ok) throw new Error(res.error || "No se pudo actualizar el me gusta.");
                         var nuevoLiked = !yaLiked;
                         btn.dataset.liked = nuevoLiked ? "1" : "0";
                         btn.querySelector(".like-icon").textContent = nuevoLiked ? "♥" : "♡";
@@ -309,7 +316,12 @@
                             btn.classList.remove("liked");
                         }
                     })
-                    .catch(function () { btn.disabled = false; });
+                    .catch(function (error) {
+                        window.TEUI.toast(error.message || "No se pudo actualizar el me gusta.", "error");
+                    })
+                    .finally(function () {
+                        btn.disabled = false;
+                    });
             });
         }
 
@@ -348,22 +360,42 @@
     // ── Cargar reseñas desde la BD ────────────────────────────────────────
 
     function cargarResenas() {
+        var requestId = ++resenasRequestId;
         var params = new URLSearchParams();
         params.set("visitor_id", getVisitorId());
         var url = URL_GET + "?" + params.toString();
 
+        sliderTrack.setAttribute("aria-busy", "true");
+        sliderTrack.replaceChildren();
+        resenasStatus.textContent = "Cargando reseñas…";
+
         fetch(url)
-            .then(function (r) { return r.json(); })
+            .then(function (r) {
+                if (!r.ok) throw new Error("No se pudieron cargar las reseñas.");
+                return r.json();
+            })
             .then(function (data) {
-                if (!data.ok) return;
-                sliderTrack.innerHTML = "";
+                if (requestId !== resenasRequestId) return;
+                if (!data.ok || !Array.isArray(data.data)) {
+                    throw new Error(data.error || "El servidor devolvió una respuesta inválida.");
+                }
                 data.data.forEach(function (r) {
                     sliderTrack.appendChild(buildCard(r));
                 });
+                resenasStatus.textContent = data.data.length ? "" : "Aún no hay reseñas.";
                 window.dispatchEvent(new Event("resenasListas"));
             })
-            .catch(function () {
-                console.warn("[TourismEasy] No se pudieron cargar las reseñas.");
+            .catch(function (error) {
+                if (requestId !== resenasRequestId) return;
+                console.error("[TourismEasy] No se pudieron cargar las reseñas:", error);
+                sliderTrack.replaceChildren();
+                resenasStatus.textContent = "No se pudieron cargar las reseñas. Intenta recargar la página.";
+                window.dispatchEvent(new Event("resenasListas"));
+            })
+            .finally(function () {
+                if (requestId === resenasRequestId) {
+                    sliderTrack.removeAttribute("aria-busy");
+                }
             });
     }
 
@@ -472,55 +504,57 @@
 
         // Aplicamos el filtro de censura (inglés + español) antes de armar el envío
         submitBtn.disabled = true;
-        var texto = await limpiarTexto(textoOriginal);
-
-        var body = { accion: "CREAR", rating: rating, texto: texto };
-        body.nombre_anonimo = nombreAnonimo;
-
+        var ratingEnviado = rating;
         var nombreParaMostrar = nombreAnonimo;
-
-        fetch(URL_ACCION, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(body)
-        })
-            .then(function (r) { return r.json(); })
-            .then(function (res) {
-                submitBtn.disabled = false;
-                if (!res.ok) { window.TEUI.toast(res.error || "No se pudo publicar la reseña.", "error"); return; }
-
-                var nueva = {
-                    id: res.id_resena,
-                    nombre: nombreParaMostrar,
-                    rating: rating,
+        try {
+            var texto = await limpiarTexto(textoOriginal);
+            var response = await fetch(URL_ACCION, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    accion: "CREAR",
+                    rating: ratingEnviado,
                     texto: texto,
-                    fecha: res.fecha || new Date().toISOString(),
-                    likes: 0
-                };
-                window.TEUI.toast("Reseña publicada correctamente.");
-                sliderTrack.insertBefore(buildCard(nueva), sliderTrack.firstChild);
-                window.dispatchEvent(new Event("resenasListas"));
-
-                // Resetear formulario
-                textarea.value = "";
-                charCount.textContent = "0 / 140";
-                rating = 0;
-                stars.forEach(function (s) { s.classList.remove("selected", "hovered"); });
-
-                // Mensaje de agradecimiento
-                formBox.style.display = "none";
-                gracias.style.display = "flex";
-                document.getElementById("resenaNombreGracias").textContent =
-                    nombreParaMostrar.split(" ")[0];
-                setTimeout(function () {
-                    gracias.style.display = "none";
-                    formBox.style.display = "block";
-                }, 4000);
-            })
-            .catch(function () {
-                submitBtn.disabled = false;
-                window.TEUI.toast("Error de conexión. Intenta de nuevo.", "error");
+                    nombre_anonimo: nombreParaMostrar
+                })
             });
+            if (!response.ok) throw new Error("No se pudo publicar la reseña.");
+            var res = await response.json();
+            if (!res.ok) throw new Error(res.error || "No se pudo publicar la reseña.");
+
+            var nueva = {
+                id: res.id_resena,
+                nombre: nombreParaMostrar,
+                rating: ratingEnviado,
+                texto: texto,
+                fecha: res.fecha || new Date().toISOString(),
+                likes: 0
+            };
+            window.TEUI.toast("Reseña publicada correctamente.");
+            resenasRequestId++;
+            sliderTrack.removeAttribute("aria-busy");
+            sliderTrack.insertBefore(buildCard(nueva), sliderTrack.firstChild);
+            resenasStatus.textContent = "";
+            window.dispatchEvent(new Event("resenasListas"));
+
+            textarea.value = "";
+            charCount.textContent = "0 / 140";
+            rating = 0;
+            stars.forEach(function (s) { s.classList.remove("selected", "hovered"); });
+
+            formBox.style.display = "none";
+            gracias.style.display = "flex";
+            document.getElementById("resenaNombreGracias").textContent =
+                nombreParaMostrar.split(" ")[0];
+            setTimeout(function () {
+                gracias.style.display = "none";
+                formBox.style.display = "block";
+            }, 4000);
+        } catch (error) {
+            window.TEUI.toast(error.message || "Error de conexión. Intenta de nuevo.", "error");
+        } finally {
+            submitBtn.disabled = false;
+        }
     });
 
 })();

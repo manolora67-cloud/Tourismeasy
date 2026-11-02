@@ -219,6 +219,11 @@ function cargarCiudadesTransporte() {
     var destino = document.getElementById('tDestino');
     if (!origen || !destino) return;
 
+    [origen, destino].forEach(function (select) {
+        select.disabled = true;
+        select.replaceChildren(new Option('Cargando municipios...', ''));
+    });
+
     fetch('../datos_referencia.php?tipo=ciudades', {
         credentials: 'include'
     })
@@ -235,17 +240,21 @@ function cargarCiudadesTransporte() {
                 { select: origen, placeholder: 'Cualquier origen' },
                 { select: destino, placeholder: 'Cualquier destino' }
             ].forEach(function (item) {
-                item.select.innerHTML = '<option value="">' + item.placeholder + '</option>';
+                item.select.replaceChildren(new Option(item.placeholder, ''));
                 result.data.ciudades.forEach(function (ciudad) {
                     var option = document.createElement('option');
                     option.value = ciudad.id;
                     option.textContent = ciudad.nombre;
                     item.select.appendChild(option);
                 });
+                item.select.disabled = false;
             });
         })
         .catch(function (error) {
             console.error('Error cargando municipios de transporte:', error);
+            [origen, destino].forEach(function (select) {
+                select.replaceChildren(new Option('No se pudieron cargar los municipios', ''));
+            });
         });
 }
 
@@ -260,24 +269,26 @@ function cargarClasesTransporte() {
     // no hacemos nada.
     if (!select) return;
 
+    select.disabled = true;
+    select.replaceChildren(new Option('Cargando clases...', ''));
 
     fetch('../transporte/clases.php', {
         credentials: 'include'
     })
 
         .then(function (r) {
+            if (!r.ok) throw new Error('No se pudieron cargar las clases de transporte.');
             return r.json();
         })
 
         .then(function (res) {
 
             if (!res.ok || !Array.isArray(res.data)) {
-                return;
+                throw new Error(res.error || 'Respuesta inválida al cargar las clases.');
             }
 
 
-            select.innerHTML =
-                '<option value="">Todas las clases</option>';
+            select.replaceChildren(new Option('Todas las clases', ''));
 
 
             res.data.forEach(function (clase) {
@@ -292,6 +303,7 @@ function cargarClasesTransporte() {
                 select.appendChild(option);
 
             });
+            select.disabled = false;
 
         })
 
@@ -301,6 +313,7 @@ function cargarClasesTransporte() {
                 'Error cargando clases de transporte:',
                 error
             );
+            select.replaceChildren(new Option('No se pudieron cargar las clases', ''));
 
         });
 
@@ -442,6 +455,7 @@ function buscarTransporte() {
 
 
     var solicitudId = ++busquedaTransporteId;
+    emptyBox.style.display = 'none';
 
     if (
         !origenTexto &&
@@ -927,6 +941,13 @@ document
         var solicitudId = ++busquedaTransporteId;
         transportePaginaActual = 1;
         ocultarPaginacionTransporte();
+        document.getElementById('transporteEmpty').style.display = 'none';
+        document.getElementById('transporteStatus').style.display = 'none';
+        grid.innerHTML =
+            '<div style="grid-column:1/-1;text-align:center;padding:48px;color:#94a3b8">' +
+            '<i class="fa-solid fa-spinner fa-spin fa-2x"></i>' +
+            '<p style="margin-top:12px">Cargando rutas disponibles...</p>' +
+            '</div>';
 
         fetch(
             "../transporte/listar.php",
@@ -936,20 +957,22 @@ document
         )
 
             .then(function (r) {
+                if (!r.ok) {
+                    throw new Error('No se pudieron cargar las rutas disponibles.');
+                }
                 return r.json();
             })
 
             .then(function (res) {
                 if (solicitudId !== busquedaTransporteId) return;
+                if (!res.ok || !Array.isArray(res.data)) {
+                    throw new Error(res.error || 'El servidor devolvió una respuesta inválida.');
+                }
 
                 grid.innerHTML = "";
 
 
-                if (
-                    !res.ok ||
-                    !res.data ||
-                    !res.data.length
-                ) {
+                if (!res.data.length) {
 
                     grid.innerHTML =
                         '<div style="grid-column:1/-1;text-align:center;padding:48px;color:#94a3b8">' +
@@ -972,14 +995,15 @@ document
                 actualizarPaginacionTransporte();
             })
 
-            .catch(function () {
+            .catch(function (error) {
                 if (solicitudId !== busquedaTransporteId) return;
                 ocultarPaginacionTransporte();
+                console.error('Error cargando rutas de transporte:', error);
 
-                grid.innerHTML =
-                    '<div style="grid-column:1/-1;text-align:center;padding:48px;color:#ef4444">' +
-                    'Error al cargar las rutas. Intenta recargar la página.' +
-                    '</div>';
+                var errorMessage = document.createElement('p');
+                errorMessage.textContent = error.message || 'Error al cargar las rutas. Intenta recargar la página.';
+                errorMessage.style.cssText = 'grid-column:1/-1;text-align:center;padding:48px;color:#ef4444';
+                grid.replaceChildren(errorMessage);
 
             });
 

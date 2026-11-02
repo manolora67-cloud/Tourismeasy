@@ -46,7 +46,10 @@ function actualizarBotonWhatsApp(plan) {
 function mostrarDetallePlan(plan) {
     var titulo = plan.titulo || "";
     var image = document.getElementById("plan-img");
-    image.src = getPlanImageUrl(plan.img);
+    var imageUrl = getPlanImageUrl(plan.img);
+    image.hidden = !imageUrl;
+    if (imageUrl) image.src = imageUrl;
+    else image.removeAttribute("src");
     image.alt = titulo;
     document.getElementById("plan-titulo").textContent = titulo;
     document.getElementById("plan-categoria").textContent = plan.categoria || "";
