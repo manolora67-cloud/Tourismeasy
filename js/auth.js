@@ -163,8 +163,12 @@
                 if (!response.ok || !result.success) {
                     throw new Error(result.message || "No se pudo solicitar la recuperación.");
                 }
-                loginStatus.textContent = result.message;
-                loginStatus.classList.add("ok");
+                await window.TEUI.alert({
+                    title: "Revisa tu correo",
+                    message: "Si ese correo está registrado, recibirás allí el enlace para recuperar tu contraseña.",
+                    confirmText: "Entendido",
+                    tone: "success"
+                });
             } catch (error) {
                 loginStatus.textContent = error.message || "No se pudo conectar para solicitar la recuperación.";
                 loginStatus.classList.add("error");

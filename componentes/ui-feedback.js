@@ -33,6 +33,10 @@
             color: #6d28d9;
             background: #f3e8ff;
         }
+        .te-ui-dialog__icon--success {
+            color: #15803d;
+            background: #dcfce7;
+        }
         .te-ui-dialog h2 {
             margin: 0 0 8px;
             color: #1e293b;
@@ -173,6 +177,58 @@
         });
     }
 
+    function alertDialog(options) {
+        const settings = typeof options === "string" ? { message: options } : options || {};
+        const dialog = document.createElement("dialog");
+        dialog.className = "te-ui-dialog";
+        dialog.setAttribute("aria-labelledby", "te-ui-dialog-title");
+        dialog.setAttribute("aria-describedby", "te-ui-dialog-message");
+
+        const icon = document.createElement("div");
+        const tone = settings.tone === "success" ? "success" : "info";
+        icon.className = `te-ui-dialog__icon te-ui-dialog__icon--${tone}`;
+        icon.setAttribute("aria-hidden", "true");
+        const iconElement = document.createElement("i");
+        iconElement.className = `fa-solid ${settings.icon || (tone === "success" ? "fa-circle-check" : "fa-circle-info")}`;
+        icon.appendChild(iconElement);
+
+        const title = document.createElement("h2");
+        title.id = "te-ui-dialog-title";
+        title.textContent = settings.title || "Información";
+
+        const message = document.createElement("p");
+        message.id = "te-ui-dialog-message";
+        message.textContent = settings.message || "";
+
+        const actions = document.createElement("div");
+        actions.className = "te-ui-dialog__actions";
+        const accept = document.createElement("button");
+        accept.className = "te-ui-dialog__confirm te-ui-dialog__confirm--primary";
+        accept.type = "button";
+        accept.textContent = settings.confirmText || "Entendido";
+        actions.appendChild(accept);
+        dialog.append(icon, title, message, actions);
+        document.body.appendChild(dialog);
+
+        return new Promise((resolve) => {
+            const finish = () => {
+                dialog.close();
+                dialog.remove();
+                resolve();
+            };
+            accept.addEventListener("click", finish);
+            dialog.addEventListener("cancel", (event) => {
+                event.preventDefault();
+                finish();
+            });
+            dialog.addEventListener("click", (event) => {
+                if (event.target === dialog) finish();
+            });
+            dialog.showModal();
+            accept.focus();
+        });
+    }
+
     function toast(message, type) {
         let stack = document.querySelector(".te-ui-toast-stack");
         if (!stack) {
@@ -303,5 +359,5 @@
         }
     }
 
-    window.TEUI = { confirm, confirmDelete, toast, notifyClosed, markClean, confirmDiscard, logoutAdmin };
+    window.TEUI = { confirm, alert: alertDialog, confirmDelete, toast, notifyClosed, markClean, confirmDiscard, logoutAdmin };
 })();

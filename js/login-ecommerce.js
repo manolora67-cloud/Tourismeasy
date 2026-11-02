@@ -146,8 +146,13 @@
                     return result;
                 });
             })
-            .then(function(result) {
-                showMsg('loginMsg', result.message, 'success');
+            .then(function() {
+                return window.TEUI.alert({
+                    title: 'Revisa tu correo',
+                    message: 'Si ese correo está registrado, recibirás allí el enlace para recuperar tu contraseña.',
+                    confirmText: 'Entendido',
+                    tone: 'success'
+                });
             })
             .catch(function(error) {
                 showMsg('loginMsg', error.message || 'No se pudo conectar para solicitar la recuperación.', 'error');
