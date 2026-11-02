@@ -106,6 +106,52 @@
 
     // ── LOGIN ──
     var replaceSessionButton = document.getElementById('btnReplaceSession');
+    var forgotLink = document.getElementById('forgotLink');
+    var recoveryRequestPending = false;
+
+    forgotLink.addEventListener('click', function(event) {
+        event.preventDefault();
+        var email = document.getElementById('loginEmail').value.trim();
+        sessionStorage.removeItem('te_recovery_email');
+        hideMsg('loginMsg');
+        var emailInput = document.getElementById('loginEmail');
+        if (!email) {
+            showMsg('loginMsg', 'Escribe tu correo electrónico para solicitar la recuperación.', 'error');
+            emailInput.focus();
+            return;
+        }
+        if (!emailInput.checkValidity()) {
+            emailInput.reportValidity();
+            return;
+        }
+        if (recoveryRequestPending) return;
+
+        recoveryRequestPending = true;
+        forgotLink.setAttribute('aria-disabled', 'true');
+        fetch('../recuperacion/solicitar_recuperacion.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: email, origen: 'ecommerce' })
+        })
+            .then(function(response) {
+                return response.json().then(function(result) {
+                    if (!response.ok || !result.success) {
+                        throw new Error(result.message || 'No se pudo solicitar la recuperación.');
+                    }
+                    return result;
+                });
+            })
+            .then(function(result) {
+                showMsg('loginMsg', result.message, 'success');
+            })
+            .catch(function(error) {
+                showMsg('loginMsg', error.message || 'No se pudo conectar para solicitar la recuperación.', 'error');
+            })
+            .finally(function() {
+                recoveryRequestPending = false;
+                forgotLink.removeAttribute('aria-disabled');
+            });
+    });
 
     function iniciarSesion(reemplazarSesion) {
         hideMsg('loginMsg');

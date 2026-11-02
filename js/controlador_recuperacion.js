@@ -28,7 +28,9 @@
         loginLink.href = recoveryOrigin === "ecommerce" ? "login_ecommerce.html" : "login.html";
 
         const emailFromLogin = parameters.get("email");
-        if (emailFromLogin) emailInput.value = emailFromLogin;
+        const emailFromSession = sessionStorage.getItem("te_recovery_email");
+        if (emailFromSession) sessionStorage.removeItem("te_recovery_email");
+        emailInput.value = emailFromLogin || emailFromSession || "";
 
         requestForm.addEventListener("submit", async function (event) {
             event.preventDefault();

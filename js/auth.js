@@ -125,6 +125,50 @@
         const loginStatus = document.getElementById("loginStatus");
         const registerStatus = document.getElementById("registerStatus");
         const replaceSessionButton = document.getElementById("btnReplaceSession");
+        const forgotLink = document.getElementById("forgotLink");
+        const loginEmail = document.getElementById("loginEmail");
+        let recoveryRequestPending = false;
+
+        forgotLink.addEventListener("click", async function (event) {
+            event.preventDefault();
+            const email = loginEmail.value.trim();
+            sessionStorage.removeItem("te_recovery_email");
+            loginStatus.textContent = "";
+            loginStatus.classList.remove("error", "ok");
+            if (!email) {
+                loginStatus.textContent = "Escribe tu correo electrónico para solicitar la recuperación.";
+                loginStatus.classList.add("error");
+                loginEmail.focus();
+                return;
+            }
+            if (!loginEmail.checkValidity()) {
+                loginEmail.reportValidity();
+                return;
+            }
+            if (recoveryRequestPending) return;
+
+            recoveryRequestPending = true;
+            forgotLink.setAttribute("aria-disabled", "true");
+            try {
+                const response = await fetch(apiBase + "recuperacion/solicitar_recuperacion.php", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email: email })
+                });
+                const result = await response.json();
+                if (!response.ok || !result.success) {
+                    throw new Error(result.message || "No se pudo solicitar la recuperación.");
+                }
+                loginStatus.textContent = result.message;
+                loginStatus.classList.add("ok");
+            } catch (error) {
+                loginStatus.textContent = error.message || "No se pudo conectar para solicitar la recuperación.";
+                loginStatus.classList.add("error");
+            } finally {
+                recoveryRequestPending = false;
+                forgotLink.removeAttribute("aria-disabled");
+            }
+        });
 
         document.querySelectorAll(".toggle-pass[data-target]").forEach((button) => {
             button.addEventListener("click", () => {
