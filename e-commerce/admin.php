@@ -53,6 +53,7 @@ $artesanoNombreSesion = $_SESSION['artesano_nombre'] ?? 'Artesano';
     <link rel="stylesheet" href="../css/e-comemerce.css" />
     <link rel="stylesheet" href="../css/admin.css" />
     <link rel="stylesheet" href="../css/click_metrics.css" />
+    <link rel="stylesheet" href="../css/agente-ia.css?v=mobile-layout-v2" />
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;500&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
@@ -278,11 +279,12 @@ $artesanoNombreSesion = $_SESSION['artesano_nombre'] ?? 'Artesano';
     </main>
 
     <script src="../componentes/dark-mode-toggle.js"></script>
-    <script src="../componentes/click-metrics-dashboard.js?v=click-metrics-v1"></script>
+    <script src="../componentes/click-metrics-dashboard.js?v=click-metrics-v2"></script>
     <script src="../js/metricas_clics.js"></script>
     <script src="../js/admin.js"></script>
     <script src="../js/santanderianidad.js"></script>
-    <script src="../menu_accesibilidad/menu.js?v=a11y-v12"></script>
+    <script src="../componentes/agente-ia.js?v=tooltip-sue-v1"></script>
+    <script src="../menu_accesibilidad/menu.js?v=a11y-v14"></script>
 </body>
 
 </html>

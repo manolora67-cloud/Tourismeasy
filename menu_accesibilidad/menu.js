@@ -217,6 +217,23 @@
         const selection = window.getSelection ? window.getSelection().toString().trim() : "";
         if (selection) return selection;
 
+        const chatPanel = document.getElementById("teChatPanel");
+        if (chatPanel && chatPanel.classList.contains("open")) {
+            const userLabel = document.documentElement.lang === "en" ? "You: " : "Tú: ";
+            const messages = Array.from(chatPanel.querySelectorAll(".te-msg"))
+                .map((message) => {
+                    const text = String(message.innerText || message.textContent || "")
+                        .replace(/\s+/g, " ")
+                        .trim()
+                        .replace(/[.!?…]+$/u, "");
+                    if (!text) return "";
+                    return (message.classList.contains("user") ? userLabel : "Sue: ") + text;
+                })
+                .filter(Boolean);
+
+            if (messages.length) return messages.join(". ");
+        }
+
         const content = document.querySelector("main")
             || document.getElementById("site-content")
             || document.body;

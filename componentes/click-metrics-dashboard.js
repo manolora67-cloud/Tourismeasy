@@ -38,7 +38,10 @@
             title,
             element("p", "", dashboard.dataset.description || "Solo se muestran los clics de tus productos y servicios.")
         );
-        var reload = element("button", "btn-panel-add", "Actualizar");
+        var reload = element("button", "click-metrics__reload");
+        var reloadIcon = element("i", "fa-solid fa-rotate");
+        reloadIcon.setAttribute("aria-hidden", "true");
+        reload.append(reloadIcon, document.createTextNode(" Actualizar"));
         reload.type = "button";
         reload.setAttribute("data-clicks-reload", "");
         heading.append(headingContent, reload);

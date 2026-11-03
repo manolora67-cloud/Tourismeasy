@@ -33,6 +33,39 @@
     font-size: .9rem;
 }
 
+.click-metrics__reload {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 40px;
+    padding: 9px 18px;
+    border: 0;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--purple, #7c3aed), #a855f7);
+    box-shadow: 0 4px 12px rgba(124, 58, 237, .2);
+    color: #fff;
+    font: 700 .88rem var(--font-head, Montserrat, sans-serif);
+    cursor: pointer;
+    transition: box-shadow .2s, transform .2s, opacity .2s;
+}
+
+.click-metrics__reload:hover:not(:disabled) {
+    box-shadow: 0 7px 16px rgba(124, 58, 237, .28);
+    transform: translateY(-1px);
+}
+
+.click-metrics__reload:focus-visible {
+    outline: 3px solid rgba(124, 58, 237, .3);
+    outline-offset: 3px;
+}
+
+.click-metrics__reload:disabled {
+    cursor: wait;
+    opacity: .7;
+}
+
 .click-metrics__summary {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
@@ -300,6 +333,10 @@ body.dark-mode .company-monthly-report__status[data-state="loading"] {
 
     .click-metrics__heading {
         flex-direction: column;
+    }
+
+    .click-metrics__reload {
+        width: 100%;
     }
 
     .click-metrics__pagination {
