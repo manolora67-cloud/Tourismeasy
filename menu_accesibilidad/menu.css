@@ -1,0 +1,298 @@
+.te-accessibility {
+    position: fixed;
+    left: 20px;
+    bottom: 20px;
+    z-index: 10000;
+    font-family: Arial, sans-serif;
+}
+
+body.welcome-active .te-accessibility {
+    z-index: 2147483647;
+}
+
+.te-accessibility button {
+    min-height: 44px;
+    border: 2px solid #fff;
+    border-radius: 999px;
+    background: #4c1d95;
+    color: #fff;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, .28);
+}
+
+.te-accessibility button:focus-visible {
+    outline: 3px solid #f59e0b;
+    outline-offset: 3px;
+}
+
+.te-accessibility-toggle {
+    display: grid;
+    width: 48px;
+    height: 48px;
+    min-height: 48px !important;
+    place-items: center;
+    padding: 0;
+    font-size: 1.5rem !important;
+}
+
+.te-accessibility-toggle > span:first-child {
+    line-height: 1;
+}
+
+.te-accessibility-panel {
+    position: absolute;
+    left: 0;
+    bottom: 58px;
+    width: min(320px, calc(100vw - 32px));
+    max-height: calc(100vh - 92px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    max-height: calc(100dvh - 92px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    padding: 18px;
+    border: 1px solid #cbd5e1;
+    border-radius: 16px;
+    background: #fff;
+    color: #111827;
+    box-shadow: 0 12px 36px rgba(15, 23, 42, .25);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.te-accessibility-panel[hidden] {
+    display: none;
+}
+
+.te-accessibility-heading,
+.te-accessibility-language,
+.te-accessibility-size-controls,
+.te-accessibility-reader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.te-accessibility-reader {
+    align-items: stretch;
+    flex-direction: column;
+}
+
+.te-accessibility-reader-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.te-accessibility-language {
+    margin-bottom: 14px;
+}
+
+.te-accessibility-language > div {
+    display: flex;
+    gap: 6px;
+}
+
+.te-accessibility .te-accessibility-language button {
+    min-height: 40px;
+    padding: 0 10px;
+    font-size: .9rem;
+}
+
+.te-accessibility .te-accessibility-language button[aria-pressed="true"] {
+    background: #111827;
+}
+
+.te-accessibility-heading {
+    margin-bottom: 16px;
+}
+
+.te-accessibility-heading h2 {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.te-accessibility .te-accessibility-close {
+    width: 40px;
+    min-height: 40px;
+    padding: 0;
+    font-size: 1.5rem;
+}
+
+.te-accessibility-size {
+    display: grid;
+    gap: 8px;
+    margin-bottom: 14px;
+    font-weight: 600;
+}
+
+.te-accessibility .te-accessibility-size-controls button {
+    min-width: 48px;
+    padding: 0 10px;
+}
+
+.te-accessibility-scale {
+    min-width: 48px;
+    text-align: center;
+    font-weight: 700;
+}
+
+.te-accessibility .te-accessibility-contrast,
+.te-accessibility-reader button {
+    width: 100%;
+    padding: 0 12px;
+}
+
+.te-accessibility .te-accessibility-contrast {
+    margin-bottom: 10px;
+}
+
+.te-accessibility .te-accessibility-contrast[aria-pressed="true"] {
+    background: #111827;
+    color: #fff;
+    outline: 2px solid #f59e0b;
+}
+
+.te-accessibility-reader button:disabled {
+    cursor: not-allowed;
+    opacity: .55;
+}
+
+.te-accessibility .te-accessibility-reader button {
+    flex: 1;
+    width: auto;
+    min-height: 44px;
+    padding: 6px;
+    font-size: .88rem;
+}
+
+.te-accessibility .te-accessibility-hover-read {
+    width: 100%;
+}
+
+.te-accessibility-status {
+    min-height: 1.25em;
+    margin: 12px 0 0;
+    color: #334155;
+    font-size: .9rem;
+}
+
+body.te-accessibility-high-contrast {
+    color: #000 !important;
+    background: #fff !important;
+}
+
+body.te-accessibility-high-contrast *:not(.te-accessibility):not(.te-accessibility *) {
+    color: #000 !important;
+    background-color: #fff !important;
+    border-color: #000 !important;
+    box-shadow: none !important;
+}
+
+body.te-accessibility-high-contrast a:not(.te-accessibility a) {
+    color: #000 !important;
+    background-color: #ff0 !important;
+    text-decoration: underline !important;
+    text-decoration-thickness: 2px !important;
+}
+
+body.te-accessibility-high-contrast button:not(.te-accessibility button),
+body.te-accessibility-high-contrast input[type="button"],
+body.te-accessibility-high-contrast input[type="submit"] {
+    color: #ff0 !important;
+    background-color: #000 !important;
+}
+
+body.te-accessibility-high-contrast :focus-visible {
+    outline: 4px solid #f00 !important;
+    outline-offset: 3px !important;
+}
+
+body.te-accessibility-high-contrast #welcomeScreen {
+    color: #fff !important;
+    background: #000 !important;
+}
+
+body.te-accessibility-high-contrast #welcomeScreen *:not(img) {
+    color: #fff !important;
+    background-color: transparent !important;
+    border-color: #fff !important;
+}
+
+body.te-accessibility-high-contrast #welcomeScreen .welcome-overlay {
+    background: #000 !important;
+}
+
+body.te-accessibility-high-contrast #welcomeScreen .welcome-button {
+    color: #000 !important;
+    background-color: #ff0 !important;
+}
+
+body.te-accessibility-high-contrast .te-accessibility-panel,
+body.te-accessibility-high-contrast .te-accessibility-panel * {
+    color: #000;
+    background-color: #fff;
+    border-color: #000;
+}
+
+@media (max-width: 480px) {
+    .te-accessibility {
+        left: max(12px, env(safe-area-inset-left));
+        bottom: calc(16px + env(safe-area-inset-bottom));
+    }
+
+    .te-accessibility-panel {
+        width: min(320px, calc(100vw - 24px - env(safe-area-inset-left) - env(safe-area-inset-right)));
+        padding: 14px;
+        border-radius: 14px;
+    }
+
+    .te-accessibility-reader-actions {
+        flex-direction: column;
+    }
+
+    .te-accessibility .te-accessibility-reader-actions button {
+        width: 100%;
+    }
+}
+
+@media (max-height: 520px) {
+    .te-accessibility-panel {
+        bottom: 54px;
+        max-height: calc(100vh - 74px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+        max-height: calc(100dvh - 74px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+        padding: 12px;
+    }
+
+    .te-accessibility-heading {
+        margin-bottom: 10px;
+    }
+
+    .te-accessibility-language {
+        margin-bottom: 10px;
+    }
+
+    .te-accessibility-size {
+        gap: 5px;
+        margin-bottom: 10px;
+    }
+
+    .te-accessibility-status {
+        margin-top: 8px;
+    }
+}
+
+@media (max-width: 767px) and (max-height: 520px) {
+    .te-accessibility {
+        bottom: calc(16px + env(safe-area-inset-bottom));
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .te-accessibility *,
+    .te-accessibility *::before,
+    .te-accessibility *::after {
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+    }
+}

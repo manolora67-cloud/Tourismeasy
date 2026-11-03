@@ -114,7 +114,6 @@
     forgotLink.addEventListener('click', function(event) {
         event.preventDefault();
         var email = loginEmail.value.trim();
-        sessionStorage.removeItem('te_recovery_email');
         hideMsg('loginMsg');
         loginEmailMsg.textContent = '';
         loginEmailMsg.className = 'lec-msg';

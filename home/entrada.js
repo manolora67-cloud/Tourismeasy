@@ -34,7 +34,9 @@
 
     function makeBackgroundInert() {
         Array.from(document.body.children).forEach(function (element) {
-            if (element !== welcomeScreen) element.inert = true;
+            if (element !== welcomeScreen && !element.hasAttribute("data-te-accessibility")) {
+                element.inert = true;
+            }
         });
     }
 

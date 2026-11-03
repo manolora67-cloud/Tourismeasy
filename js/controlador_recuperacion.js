@@ -19,58 +19,6 @@
         });
     }
 
-    const requestForm = document.getElementById("formSolicitud");
-    if (requestForm) {
-        const parameters = new URLSearchParams(window.location.search);
-        const emailInput = document.getElementById("email");
-        const recoveryOrigin = parameters.get("origen") === "ecommerce" ? "ecommerce" : "general";
-        const loginLink = document.getElementById("linkVolverLogin");
-        loginLink.href = recoveryOrigin === "ecommerce" ? "login_ecommerce.html" : "login.html";
-
-        const emailFromLogin = parameters.get("email");
-        const emailFromSession = sessionStorage.getItem("te_recovery_email");
-        if (emailFromSession) sessionStorage.removeItem("te_recovery_email");
-        emailInput.value = emailFromLogin || emailFromSession || "";
-
-        requestForm.addEventListener("submit", async function (event) {
-            event.preventDefault();
-            if (!requestForm.reportValidity()) return;
-
-            const button = document.getElementById("btnEnviar");
-            const message = document.getElementById("mensaje");
-            const messageText = document.getElementById("mensajeTexto");
-            button.classList.add("loading");
-            button.disabled = true;
-            message.className = "rec-mensaje";
-
-            try {
-                const response = await fetch("../recuperacion/solicitar_recuperacion.php", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        email: emailInput.value.trim(),
-                        origen: recoveryOrigin
-                    })
-                });
-                const result = await response.json();
-                if (!response.ok || !result.success) {
-                    throw new Error(result.message || "No se pudo solicitar la recuperación.");
-                }
-
-                messageText.textContent = result.message;
-                message.querySelector("i").className = "fa-solid fa-circle-check";
-                message.classList.add("show", "ok");
-            } catch (error) {
-                messageText.textContent = error.message || "Error de conexión. Intenta de nuevo.";
-                message.querySelector("i").className = "fa-solid fa-circle-exclamation";
-                message.classList.add("show", "error");
-            } finally {
-                button.classList.remove("loading");
-                button.disabled = false;
-            }
-        });
-    }
-
     const resetForm = document.getElementById("formRestablecer");
     if (!resetForm) return;
 

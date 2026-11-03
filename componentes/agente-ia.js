@@ -77,7 +77,7 @@
       <div class="te-chat-bubble" id="teBubble">¿Planeas un viaje por Santander? 🌿</div>
 
       <!-- Botón flotante que abre/cierra el chat -->
-      <button class="te-chat-fab" id="teFab" aria-label="Abrir chat con Sue de TourismEasy">
+      <button class="te-chat-fab" id="teFab" aria-label="Abrir asistente turístico Sue" title="Abrir asistente turístico Sue">
         <!-- Ícono de chat (visible cuando el chat está cerrado) -->
         <svg class="te-fab-open" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
           <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 10H6V10h12v2zm0-3H6V7h12v2z"/>

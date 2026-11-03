@@ -40,7 +40,7 @@
                     <div class="field-wrap has-toggle"><i class="fa-solid fa-lock field-icon"></i><input type="password" id="loginPass" autocomplete="current-password" required><button type="button" class="toggle-pass" data-target="loginPass" aria-label="Mostrar contraseña"><i class="fa-solid fa-eye"></i></button></div>
           <span class="field-msg" id="loginPassMsg"></span>
         </div>
-        <div class="forgot-link"><a href="${pageBase}restablecer_contrasena.html" id="forgotLink">¿Olvidaste tu contraseña?</a></div>
+        <div class="forgot-link"><a href="#" id="forgotLink">¿Olvidaste tu contraseña?</a></div>
         <button type="submit" class="btn-auth" id="btnLogin"><span class="btn-text">Iniciar sesión</span><div class="btn-spinner"></div></button>
         <p class="field-msg" id="loginStatus" role="status"></p>
         <button type="button" class="btn-auth" id="btnReplaceSession" style="display:none">Cerrar la otra sesión e iniciar aquí</button>
@@ -133,7 +133,6 @@
         forgotLink.addEventListener("click", async function (event) {
             event.preventDefault();
             const email = loginEmail.value.trim();
-            sessionStorage.removeItem("te_recovery_email");
             loginStatus.textContent = "";
             loginStatus.classList.remove("error", "ok");
             loginEmailMsg.textContent = "";
