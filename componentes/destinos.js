@@ -729,7 +729,7 @@
         return `
     <article class="card">
       <div class="card-img">
-        <img src="${escapeHtml(destination.img)}" alt="${escapeHtml(destination.alt)}" loading="lazy" decoding="async" />
+        <img data-src="${escapeHtml(destination.img)}" alt="${escapeHtml(destination.alt)}" loading="lazy" decoding="async" />
         ${destination.badge ? `<span class="card-badge">${escapeHtml(destination.badge)}</span>` : ""}
       </div>
       <div class="card-body">
@@ -760,6 +760,16 @@
         const firstMunicipality = pageIndex * pageSize + 1;
         const lastMunicipality = Math.min((pageIndex + 1) * pageSize, total);
         pagination.textContent = `Página ${pageIndex + 1} · Municipios ${firstMunicipality}–${lastMunicipality} de ${total}`;
+    }
+
+    function cargarImagenesPagina(track, pageIndex) {
+        const page = track.children[pageIndex];
+        if (!page) return;
+
+        page.querySelectorAll("img[data-src]").forEach((image) => {
+            image.src = image.dataset.src;
+            image.removeAttribute("data-src");
+        });
     }
 
     function renderDestinos(destinations) {
@@ -812,9 +822,13 @@
                 </div>
               `).join("");
             pageIndex = Math.min(Math.floor(firstMunicipality / pageSize), pages.length - 1);
+            cargarImagenesPagina(track, pageIndex);
             updateCarousel(track, previous, next, pagination, pageIndex, pageSize, publicDestinations.length);
         };
-        const update = () => updateCarousel(track, previous, next, pagination, pageIndex, pageSize, publicDestinations.length);
+        const update = () => {
+            cargarImagenesPagina(track, pageIndex);
+            updateCarousel(track, previous, next, pagination, pageIndex, pageSize, publicDestinations.length);
+        };
         const changePage = (direction) => {
             pageIndex = Math.max(0, Math.min(track.children.length - 1, pageIndex + direction));
             update();
