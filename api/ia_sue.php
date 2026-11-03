@@ -90,14 +90,64 @@ function buscarMunicipiosMencionados(string $question): array
         if (
             preg_match(
                 '/(?<![\p{L}\p{N}])' . $nombreNormalizado . '(?![\p{L}\p{N}])/u',
-                $preguntaNormalizada
+                $preguntaNormalizada,
+                $coincidencia,
+                PREG_OFFSET_CAPTURE
             ) === 1
         ) {
-            $mencionados[] = $nombre;
+            $mencionados[] = [
+                'nombre' => $nombre,
+                'posicion' => $coincidencia[0][1],
+            ];
         }
     }
 
-    return array_values(array_unique($mencionados));
+    usort($mencionados, static fn(array $a, array $b): int => $a['posicion'] <=> $b['posicion']);
+
+    return array_values(array_unique(array_column($mencionados, 'nombre')));
+}
+
+function cargarTransportesPorRuta(?string $origen, ?string $destino): array
+{
+    require_once __DIR__ . '/../con_db/db.php';
+
+    $filtros = [];
+    $parametros = [];
+
+    if ($origen !== null) {
+        $filtros[] = 'LOWER(BTRIM(co.NOM_CIUDAD)) = LOWER(BTRIM(:origen))';
+        $parametros['origen'] = $origen;
+    }
+
+    if ($destino !== null) {
+        $filtros[] = 'LOWER(BTRIM(cd.NOM_CIUDAD)) = LOWER(BTRIM(:destino))';
+        $parametros['destino'] = $destino;
+    }
+
+    $stmt = $pdo->prepare(
+        'SELECT
+            t.ORIGEN AS origen,
+            t.DESTINO AS destino,
+            t.FECHA_SALIDA AS fecha_salida,
+            t.HORA_SALIDA AS hora_salida,
+            t.PRECIO AS precio,
+            e.NOM_EMPRESA AS empresa,
+            cst.NOMBRE_CLASE AS nombre_clase
+        FROM TRANSPORTE t
+        JOIN EMPRESAS e ON e.ID_EMPRESA = t.ID_EMPRESA
+        JOIN CIUDADES co ON co.ID_CIUDAD = t.ID_CIUDAD_ORIGEN
+        JOIN CIUDADES cd ON cd.ID_CIUDAD = t.ID_CIUDAD_DESTINO
+        LEFT JOIN TRANSPORTE_CLASE tc ON tc.ID_TRANSPORTE = t.ID_TRANSPORTE
+        LEFT JOIN CLASE_SERVICIO_TRANSPORTE cst ON cst.ID_CLASE = tc.ID_CLASE
+        WHERE t.DISPONIBILIDAD = TRUE
+          AND t.FECHA_SALIDA >= CURRENT_DATE
+          AND ' . implode("\n          AND ", $filtros) . '
+        ORDER BY t.FECHA_SALIDA, t.HORA_SALIDA
+        LIMIT 6'
+    );
+    $stmt->execute($parametros);
+
+    return $stmt->fetchAll();
 }
 
 function respuestaMunicipiosSantander(array $municipios): string
@@ -110,10 +160,12 @@ function respuestaMunicipiosSantander(array $municipios): string
         " de Santander, Colombia. En TourismEasy puedo ayudarte a consultar opciones de transporte, hospedaje y planes turísticos para esos destinos.";
 }
 
-function formatearDatosCatalogo(string $categoria, array $resultados): string
+function formatearDatosCatalogo(string $categoria, array $resultados, ?string $contexto = null): string
 {
     if ($resultados === []) {
-        return 'No encontré opciones disponibles para esa categoría.';
+        return $contexto === null
+            ? 'No encontré opciones disponibles para esa categoría.'
+            : "No encontré opciones disponibles {$contexto}.";
     }
 
     $etiquetasCategoria = [
@@ -148,7 +200,9 @@ function formatearDatosCatalogo(string $categoria, array $resultados): string
     $etiquetaCategoria = $etiquetasCategoria[$categoria] ?? 'opciones turísticas';
     $campos = $camposVisibles[$categoria] ?? [];
     $cantidadVisible = min(count($resultados), 5);
-    $respuesta = "Encontré estas opciones de {$etiquetaCategoria}:\n";
+    $respuesta = $contexto === null
+        ? "Encontré estas opciones de {$etiquetaCategoria}:\n"
+        : "Encontré estas opciones de {$etiquetaCategoria} {$contexto}:\n";
 
     foreach (array_slice($resultados, 0, 5) as $resultado) {
         $detalles = [];
@@ -211,9 +265,36 @@ if (
 }
 
 $datosCatalogo = null;
+$contextoCatalogo = null;
 if ($categoriaCatalogo !== null) {
     try {
-        $datosCatalogo = cargarDatosCatalogo($categoriaCatalogo);
+        if ($categoriaCatalogo === 'transportes') {
+            $municipiosMencionados = buscarMunicipiosMencionados($question);
+            if ($municipiosMencionados !== []) {
+                $preguntaNormalizada = normalizarTextoMunicipio($question);
+                $primerMunicipio = $municipiosMencionados[0];
+                $nombreNormalizado = normalizarTextoMunicipio($primerMunicipio);
+                $posicionMunicipio = mb_strpos($preguntaNormalizada, $nombreNormalizado, 0, 'UTF-8');
+                $prefijoMunicipio = $posicionMunicipio === false
+                    ? ''
+                    : mb_substr($preguntaNormalizada, 0, $posicionMunicipio, 'UTF-8');
+                $origen = preg_match('/\b(desde|saliendo de|partiendo de|origen|de)\s*$/u', $prefijoMunicipio) === 1
+                    ? $primerMunicipio
+                    : null;
+                $destino = $origen === null ? $primerMunicipio : $municipiosMencionados[1] ?? null;
+
+                $datosCatalogo = cargarTransportesPorRuta($origen, $destino);
+                $contextoCatalogo = $origen === null
+                    ? "con destino a {$destino}"
+                    : ($destino === null
+                        ? "con origen en {$origen}"
+                        : "desde {$origen} hacia {$destino}");
+            } else {
+                $datosCatalogo = cargarDatosCatalogo($categoriaCatalogo);
+            }
+        } else {
+            $datosCatalogo = cargarDatosCatalogo($categoriaCatalogo);
+        }
     } catch (Throwable $e) {
         error_log('[TourismEasy IA] No se pudo consultar el catálogo: ' . $e->getMessage());
         echo json_encode([
@@ -225,7 +306,7 @@ if ($categoriaCatalogo !== null) {
 
     echo json_encode([
         'success' => true,
-        'response' => formatearDatosCatalogo($categoriaCatalogo, $datosCatalogo),
+        'response' => formatearDatosCatalogo($categoriaCatalogo, $datosCatalogo, $contextoCatalogo),
     ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
     exit;
 }
