@@ -11,7 +11,7 @@
 
     const style = document.createElement("link");
     style.rel = "stylesheet";
-    style.href = new URL("menu.css?v=a11y-v14", scriptUrl).href;
+    style.href = new URL("menu.css?v=a11y-v15", scriptUrl).href;
     document.head.appendChild(style);
 
     const minScale = 80;
@@ -139,18 +139,29 @@
         status.textContent = "Lectura detenida.";
     }
 
+    function formatCurrencyForSpeech(text, language) {
+        return text.replace(/\bCOP\s*\$?\s*([\d.,]+)|\$\s*([\d.,]+)/gi, (match, copAmount, dollarAmount) => {
+            const amount = (copAmount || dollarAmount).replace(/[.,]/g, "");
+            return language === "en"
+                ? amount + " Colombian pesos"
+                : amount + " pesos colombianos";
+        });
+    }
+
     function speakText(text) {
         if (!speechAvailable || !text) return;
 
         window.speechSynthesis.cancel();
         const requestId = ++speechRequestId;
-        const utterance = new SpeechSynthesisUtterance(text);
-        const voiceLanguage = document.documentElement.lang === "en" ? "en-US" : "es-ES";
-        utterance.lang = voiceLanguage;
+        const language = document.documentElement.lang === "en" ? "en" : "es";
+        const voiceLanguage = language === "en" ? "en-US" : "es-CO";
+        const utterance = new SpeechSynthesisUtterance(formatCurrencyForSpeech(text, language));
         const voices = window.speechSynthesis.getVoices();
-        utterance.voice = voices.find((voice) => voice.lang.toLowerCase() === voiceLanguage.toLowerCase())
-            || voices.find((voice) => voice.lang.toLowerCase().startsWith(voiceLanguage.slice(0, 2).toLowerCase()))
+        const voice = voices.find((item) => item.lang.toLowerCase() === voiceLanguage.toLowerCase())
+            || voices.find((item) => item.lang.toLowerCase().startsWith(voiceLanguage.slice(0, 2).toLowerCase()))
             || null;
+        utterance.voice = voice;
+        utterance.lang = voice ? voice.lang : voiceLanguage;
         utterance.onstart = () => {
             if (requestId !== speechRequestId) return;
             readButton.disabled = false;
