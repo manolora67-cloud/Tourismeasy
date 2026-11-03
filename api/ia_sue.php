@@ -19,11 +19,15 @@ $history = array_values(array_filter(
             && preg_match('/base\s+de\s+datos|datos?\s+registrad[oa]s?\s+en\s+la\s+base/iu', $message['content']) === 1
         )
 ));
-$history = array_slice($history, -10);
+$history = array_slice($history, -30);
 
 function identificarCategoriaCatalogo(string $question): ?string
 {
     $question = mb_strtolower($question, 'UTF-8');
+
+    if (preg_match('/\b(empresas?|operadores?)\b/u', $question) === 1) {
+        return 'empresas';
+    }
 
     $categorias = [
         'transportes' => '/\b(transportes?|rutas?|buses?|autobuses?)\b/u',
@@ -31,7 +35,6 @@ function identificarCategoriaCatalogo(string $question): ?string
         'planes' => '/\b(planes?|tours?|paquetes?|excursiones?|experiencias?|actividades?)\b/u',
         'productos' => '/\b(productos?|artesan[ií]as?|bisuter[ií]a|alfarer[ií]a|talleres?)\b/u',
         'artesanos' => '/\b(artesanos?|artesanas?)\b/u',
-        'empresas' => '/\b(empresas?|operadores?)\b/u',
         'festividades' => '/\b(festividades?|fiestas?|festivales?|ferias?)\b/u',
         'municipios' => '/\b(municipios?|ciudades?|pueblos?|destinos?)\b/u',
     ];
@@ -45,21 +48,70 @@ function identificarCategoriaCatalogo(string $question): ?string
     return null;
 }
 
-function cargarDatosCatalogo(string $categoria): array
+function identificarTipoServicioEmpresa(string $question): ?string
 {
-    global $pdo;
-    require_once __DIR__ . '/../con_db/db.php';
+    $question = normalizarTextoMunicipio($question);
 
-    $stmt = $pdo->prepare('SELECT fn_consultar_catalogo_sue(:categoria)');
-    $stmt->execute(['categoria' => $categoria]);
-    $datos = $stmt->fetchColumn();
-    $resultados = json_decode((string)$datos, true);
-
-    if (!is_array($resultados)) {
-        throw new RuntimeException('La consulta de catálogo devolvió una respuesta inválida.');
+    if (preg_match('/\b(transportes?|rutas?|buses?|autobuses?)\b/u', $question) === 1) {
+        return 'TRANSPORTE';
+    }
+    if (preg_match('/\b(hospedajes?|hoteles?|alojamientos?|hostales?|posadas?)\b/u', $question) === 1) {
+        return 'HOSPEDAJE';
+    }
+    if (preg_match('/\b(planes?|tours?|paquetes?|excursiones?|experiencias?|actividades?)\b/u', $question) === 1) {
+        return 'PLANES';
     }
 
-    return $resultados;
+    return null;
+}
+
+function preguntaSolicitaMasResultados(string $question): bool
+{
+    $question = normalizarTextoMunicipio($question);
+
+    return preg_match(
+        '/\b(otras?|otros?|siguientes?|restantes)\s+(?:5|cinco|opciones|resultados)?\b|\b(?:muestrame|dame|ver)\s+(?:las?\s+)?(?:otras?|otros?|siguientes?)\b|\bmas\s+(?:opciones|resultados)\b/u',
+        $question
+    ) === 1;
+}
+
+function recuperarConsultaPaginada(array $history, string $question): ?array
+{
+    if (!preguntaSolicitaMasResultados($question)) {
+        return null;
+    }
+
+    $offset = 5;
+    for ($i = count($history) - 1; $i >= 0; $i--) {
+        $message = $history[$i];
+        if (($message['role'] ?? null) !== 'user') {
+            continue;
+        }
+
+        $contenido = (string)$message['content'];
+        if (preguntaSolicitaMasResultados($contenido)) {
+            $offset += 5;
+            continue;
+        }
+
+        $categoria = identificarCategoriaCatalogo($contenido);
+        if ($categoria !== null) {
+            return [
+                'question' => $contenido,
+                'categoria' => $categoria,
+                'offset' => $offset,
+            ];
+        }
+
+        return null;
+    }
+
+    return null;
+}
+
+function cargarDatosCatalogo(string $categoria): array
+{
+    return cargarDatosCatalogoPorMunicipio($categoria);
 }
 
 function normalizarTextoMunicipio(string $texto): string
@@ -73,6 +125,18 @@ function normalizarTextoMunicipio(string $texto): string
         'ú' => 'u',
         'ü' => 'u',
     ]);
+}
+
+function preguntaSolicitaMunicipio(string $question, string $categoria): bool
+{
+    $question = normalizarTextoMunicipio($question);
+    $patron = '\b(en|hacia|con destino a|para ir a|para viajar a)\b';
+
+    if ($categoria === 'transportes') {
+        $patron .= '|\b(para|hasta|desde|saliendo de|partiendo de|origen)\b';
+    }
+
+    return preg_match('/(?:' . $patron . ')/u', $question) === 1;
 }
 
 function buscarMunicipiosMencionados(string $question): array
@@ -108,12 +172,22 @@ function buscarMunicipiosMencionados(string $question): array
     return array_values(array_unique(array_column($mencionados, 'nombre')));
 }
 
-function cargarTransportesPorRuta(?string $origen, ?string $destino): array
+function cargarTransportesPorRuta(?string $origen, ?string $destino, int $offset = 0): array
 {
     global $pdo;
     require_once __DIR__ . '/../con_db/db.php';
 
-    $filtros = [];
+    $filtros = [
+        't.DISPONIBILIDAD = TRUE',
+        't.FECHA_SALIDA >= CURRENT_DATE',
+        'e.TIPO_SERVICIO = \'TRANSPORTE\'',
+        'EXISTS (
+            SELECT 1
+            FROM USUARIOS_EMPRESA ue
+            WHERE ue.ID_EMPRESA = e.ID_EMPRESA
+              AND ue.ESTADO = \'ACTIVO\'
+        )',
+    ];
     $parametros = [];
 
     if ($origen !== null) {
@@ -141,15 +215,203 @@ function cargarTransportesPorRuta(?string $origen, ?string $destino): array
         JOIN CIUDADES cd ON cd.ID_CIUDAD = t.ID_CIUDAD_DESTINO
         LEFT JOIN TRANSPORTE_CLASE tc ON tc.ID_TRANSPORTE = t.ID_TRANSPORTE
         LEFT JOIN CLASE_SERVICIO_TRANSPORTE cst ON cst.ID_CLASE = tc.ID_CLASE
-        WHERE t.DISPONIBILIDAD = TRUE
-          AND t.FECHA_SALIDA >= CURRENT_DATE
-          AND ' . implode("\n          AND ", $filtros) . '
-        ORDER BY t.FECHA_SALIDA, t.HORA_SALIDA
-        LIMIT 6'
+        WHERE ' . implode("\n          AND ", $filtros) . '
+        ORDER BY t.FECHA_SALIDA, t.HORA_SALIDA, t.ID_TRANSPORTE
+        LIMIT 6 OFFSET :offset'
     );
+    $parametros['offset'] = $offset;
     $stmt->execute($parametros);
 
     return $stmt->fetchAll();
+}
+
+function cargarDatosCatalogoPorMunicipio(
+    string $categoria,
+    ?string $municipio = null,
+    ?string $tipoEmpresa = null
+): array
+{
+    global $pdo;
+    require_once __DIR__ . '/../con_db/db.php';
+
+    $idCiudad = null;
+    if ($municipio !== null) {
+        $stmtCiudad = $pdo->prepare(
+            'SELECT ID_CIUDAD FROM CIUDADES WHERE LOWER(BTRIM(NOM_CIUDAD)) = LOWER(BTRIM(:municipio))'
+        );
+        $stmtCiudad->execute(['municipio' => $municipio]);
+        $idCiudad = $stmtCiudad->fetchColumn();
+
+        if ($idCiudad === false) {
+            return [];
+        }
+    }
+
+    switch ($categoria) {
+        case 'planes':
+            $stmt = $pdo->prepare('SELECT fn_buscar_planes_publicos(:id_ciudad, NULL, NULL)');
+            $stmt->execute(['id_ciudad' => $idCiudad]);
+            $resultados = json_decode((string)$stmt->fetchColumn(), true);
+            break;
+
+        case 'hospedajes':
+            $stmt = $pdo->prepare('SELECT fn_buscar_hospedaje_publico(:id_ciudad, NULL, NULL)');
+            $stmt->execute(['id_ciudad' => $idCiudad]);
+            $resultados = json_decode((string)$stmt->fetchColumn(), true);
+            break;
+
+        case 'productos':
+            $stmt = $pdo->prepare(
+                'SELECT p.*
+                 FROM fn_buscar_productos_publicos(NULL, NULL, :id_ciudad) p
+                 WHERE (NOT EXISTS (
+                     SELECT 1
+                     FROM PRODUCTOS_ARTESANALES pa
+                     WHERE pa.ID_PRODUCTO = p.id_producto
+                       AND pa.ID_PERSONA_ECOMMERCE IS NOT NULL
+                 )
+                 OR EXISTS (
+                     SELECT 1
+                     FROM PRODUCTOS_ARTESANALES pa
+                     JOIN USUARIOS_ECOMMERCE ue
+                       ON ue.ID_PERSONA_ECOMMERCE = pa.ID_PERSONA_ECOMMERCE
+                     WHERE pa.ID_PRODUCTO = p.id_producto
+                       AND ue.ESTADO = \'ACTIVO\'
+                 ))
+                 ORDER BY p.fecha_registro DESC, p.id_producto DESC'
+            );
+            $stmt->execute(['id_ciudad' => $idCiudad]);
+            $resultados = array_map(
+                static fn(array $producto): array => [
+                    'nombre' => $producto['nom_producto'],
+                    'artesano' => $producto['proveedor'],
+                    'categoria' => $producto['categoria'],
+                    'precio' => $producto['precio_cop'],
+                    'descripcion' => $producto['descripcion'],
+                    'municipio' => $producto['nom_ciudad'],
+                ],
+                $stmt->fetchAll()
+            );
+            break;
+
+        case 'artesanos':
+            $filtroCiudad = $idCiudad === null ? '' : ' AND producto.ID_CIUDAD = :id_ciudad';
+            $joinProducto = $idCiudad === null ? 'LEFT JOIN' : 'JOIN';
+            $stmt = $pdo->prepare(
+                'SELECT
+                    CONCAT_WS(\' \', persona.NOM_PERSONA_ECOMMERCE, persona.APE_PERSONA_ECOMMERCE) AS artesano,
+                    COUNT(DISTINCT producto.ID_PRODUCTO) AS productos,
+                    STRING_AGG(DISTINCT ciudad.NOM_CIUDAD, \', \' ORDER BY ciudad.NOM_CIUDAD) AS municipios
+                 FROM PERSONAS_ECOMMERCE persona
+                 JOIN USUARIOS_ECOMMERCE usuario
+                   ON usuario.ID_PERSONA_ECOMMERCE = persona.ID_PERSONA_ECOMMERCE
+                  AND usuario.ESTADO = \'ACTIVO\'
+                 ' . $joinProducto . ' PRODUCTOS_ARTESANALES producto
+                   ON producto.ID_PERSONA_ECOMMERCE = persona.ID_PERSONA_ECOMMERCE
+                  ' . $filtroCiudad . '
+                 LEFT JOIN CIUDADES ciudad ON ciudad.ID_CIUDAD = producto.ID_CIUDAD
+                 GROUP BY persona.ID_PERSONA_ECOMMERCE, persona.NOM_PERSONA_ECOMMERCE, persona.APE_PERSONA_ECOMMERCE
+                 ORDER BY persona.NOM_PERSONA_ECOMMERCE, persona.APE_PERSONA_ECOMMERCE, persona.ID_PERSONA_ECOMMERCE'
+            );
+            $stmt->execute($idCiudad === null ? [] : ['id_ciudad' => $idCiudad]);
+            $resultados = $stmt->fetchAll();
+            break;
+
+        case 'empresas':
+            $filtrosEmpresa = [];
+            $parametrosEmpresa = [];
+            if ($idCiudad !== null) {
+                $filtrosEmpresa[] = 'empresa.ID_CIUDAD = :id_ciudad';
+                $parametrosEmpresa['id_ciudad'] = $idCiudad;
+            }
+            if ($tipoEmpresa !== null) {
+                $filtrosEmpresa[] = 'empresa.TIPO_SERVICIO = :tipo_servicio';
+                $parametrosEmpresa['tipo_servicio'] = $tipoEmpresa;
+            }
+            $whereEmpresa = $filtrosEmpresa === []
+                ? ''
+                : 'WHERE ' . implode(' AND ', $filtrosEmpresa);
+            $stmt = $pdo->prepare(
+                'SELECT
+                    empresa.NOM_EMPRESA AS empresa,
+                    empresa.ID_EMPRESA AS id_empresa,
+                    empresa.TIPO_SERVICIO AS servicio,
+                    ciudad.NOM_CIUDAD AS municipio,
+                    departamento.NOM_DPTO AS departamento,
+                    empresa.EMAIL_INSTITU_EMPRESA AS correo,
+                    empresa.NUM_CONTACTO_EMPRESA AS telefono
+                 FROM EMPRESAS empresa
+                 JOIN USUARIOS_EMPRESA usuario
+                   ON usuario.ID_EMPRESA = empresa.ID_EMPRESA
+                  AND usuario.ESTADO = \'ACTIVO\'
+                 JOIN CIUDADES ciudad
+                   ON ciudad.ID_CIUDAD = empresa.ID_CIUDAD
+                 JOIN DEPARTAMENTOS departamento
+                   ON departamento.ID_DPTO = ciudad.ID_DPTO
+                 ' . $whereEmpresa . '
+                 ORDER BY empresa.NOM_EMPRESA, empresa.ID_EMPRESA'
+            );
+            $stmt->execute($parametrosEmpresa);
+            $resultados = $stmt->fetchAll();
+            break;
+
+        case 'festividades':
+            $filtroCiudad = $idCiudad === null ? '' : ' WHERE festividad.ID_CIUDAD = :id_ciudad';
+            $stmt = $pdo->prepare(
+                'SELECT
+                    festividad.FECHA_CLAVE AS fecha,
+                    festividad.TITULO AS titulo,
+                    festividad.SUBTITULO AS detalle,
+                    festividad.FRASE AS descripcion,
+                    festividad.TIPO AS tipo,
+                    ciudad.NOM_CIUDAD AS municipio
+                 FROM FESTIVIDADES_SANTANDER festividad
+                 LEFT JOIN CIUDADES ciudad ON ciudad.ID_CIUDAD = festividad.ID_CIUDAD
+                 ' . $filtroCiudad . '
+                 ORDER BY SUBSTRING(festividad.FECHA_CLAVE FROM 1 FOR 2),
+                          SUBSTRING(festividad.FECHA_CLAVE FROM 4 FOR 2),
+                          festividad.ID_FESTIVIDAD'
+            );
+            $stmt->execute($idCiudad === null ? [] : ['id_ciudad' => $idCiudad]);
+            $resultados = $stmt->fetchAll();
+            break;
+
+        case 'municipios':
+            $filtroCiudad = $idCiudad === null ? '' : ' WHERE ciudad.ID_CIUDAD = :id_ciudad';
+            $stmt = $pdo->prepare(
+                'SELECT ciudad.NOM_CIUDAD AS municipio, departamento.NOM_DPTO AS departamento
+                 FROM CIUDADES ciudad
+                 JOIN DEPARTAMENTOS departamento ON departamento.ID_DPTO = ciudad.ID_DPTO'
+                    . $filtroCiudad
+                    . ' ORDER BY ciudad.NOM_CIUDAD, ciudad.ID_CIUDAD'
+            );
+            if ($idCiudad !== null) {
+                $stmt->execute(['id_ciudad' => $idCiudad]);
+            } else {
+                $stmt->execute();
+            }
+            $resultados = $stmt->fetchAll();
+            break;
+
+        default:
+            return [];
+    }
+
+    if (!is_array($resultados)) {
+        throw new RuntimeException('La consulta del catálogo por municipio devolvió una respuesta inválida.');
+    }
+
+    if (in_array($categoria, ['planes', 'hospedajes'], true)) {
+        $campoPrecio = $categoria === 'planes' ? 'precio' : 'precio_noche';
+        usort($resultados, static function (array $a, array $b) use ($campoPrecio): int {
+            $comparacionPrecio = (float)($a[$campoPrecio] ?? 0) <=> (float)($b[$campoPrecio] ?? 0);
+            return $comparacionPrecio !== 0
+                ? $comparacionPrecio
+                : (int)($a['id'] ?? 0) <=> (int)($b['id'] ?? 0);
+        });
+    }
+
+    return $resultados;
 }
 
 function respuestaMunicipiosSantander(array $municipios): string
@@ -162,9 +424,24 @@ function respuestaMunicipiosSantander(array $municipios): string
         " de Santander, Colombia. En TourismEasy puedo ayudarte a consultar opciones de transporte, hospedaje y planes turísticos para esos destinos.";
 }
 
-function formatearDatosCatalogo(string $categoria, array $resultados, ?string $contexto = null): string
+function formatearDatosCatalogo(
+    string $categoria,
+    array $resultados,
+    ?string $contexto = null,
+    int $offset = 0,
+    bool $resultadosPaginados = false
+): string
 {
-    if ($resultados === []) {
+    if ($resultados === [] && $offset > 0) {
+        return $contexto === null
+            ? 'Ya te mostré todas las opciones disponibles de esa categoría.'
+            : "Ya te mostré todas las opciones disponibles {$contexto}.";
+    }
+
+    $pagina = $resultadosPaginados
+        ? array_slice($resultados, 0, 5)
+        : array_slice($resultados, $offset, 5);
+    if ($pagina === []) {
         return $contexto === null
             ? 'No encontré opciones disponibles para esa categoría.'
             : "No encontré opciones disponibles {$contexto}.";
@@ -201,12 +478,14 @@ function formatearDatosCatalogo(string $categoria, array $resultados, ?string $c
     ];
     $etiquetaCategoria = $etiquetasCategoria[$categoria] ?? 'opciones turísticas';
     $campos = $camposVisibles[$categoria] ?? [];
-    $cantidadVisible = min(count($resultados), 5);
+    $hayMasResultados = $resultadosPaginados
+        ? count($resultados) > 5
+        : count($resultados) > $offset + count($pagina);
     $respuesta = $contexto === null
         ? "Encontré estas opciones de {$etiquetaCategoria}:\n"
         : "Encontré estas opciones de {$etiquetaCategoria} {$contexto}:\n";
 
-    foreach (array_slice($resultados, 0, 5) as $resultado) {
+    foreach ($pagina as $resultado) {
         $detalles = [];
         foreach ($campos as $campo) {
             $valor = $resultado[$campo] ?? null;
@@ -229,8 +508,8 @@ function formatearDatosCatalogo(string $categoria, array $resultados, ?string $c
         $respuesta .= "\n• " . implode(' · ', $detalles);
     }
 
-    if (count($resultados) > $cantidadVisible) {
-        $respuesta .= "\n\nTe muestro las primeras {$cantidadVisible} opciones.";
+    if ($hayMasResultados) {
+        $respuesta .= "\n\nHay más opciones. Dime «otras 5» para mostrarte las siguientes.";
     }
 
     return $respuesta;
@@ -244,16 +523,29 @@ if ($question === '') {
     exit;
 }
 
-$categoriaCatalogo = identificarCategoriaCatalogo($question);
+$consultaPaginada = recuperarConsultaPaginada($history, $question);
+$questionCatalogo = $consultaPaginada['question'] ?? $question;
+$categoriaCatalogo = $consultaPaginada['categoria'] ?? identificarCategoriaCatalogo($question);
+$offsetCatalogo = $consultaPaginada['offset'] ?? 0;
+$tipoEmpresaCatalogo = $categoriaCatalogo === 'empresas'
+    ? identificarTipoServicioEmpresa($questionCatalogo)
+    : null;
+if (preguntaSolicitaMasResultados($question) && $consultaPaginada === null && $categoriaCatalogo === null) {
+    echo json_encode([
+        'success' => true,
+        'response' => 'Dime de qué categoría quieres ver opciones: transporte, hospedaje, planes, productos artesanales, artesanos o empresas.',
+    ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+    exit;
+}
 if (
     $categoriaCatalogo === null
     && (
-        preg_match('/\b(sobre|municipios?|ciudades?|pueblos?|destinos?|en|de|visitar|conocer|viajar)\b/ui', $question) === 1
-        || preg_match('/^\W*[\p{L}\p{M}][\p{L}\p{M}\s,.-]{2,40}\W*$/u', $question) === 1
+        preg_match('/\b(sobre|municipios?|ciudades?|pueblos?|destinos?|en|de|visitar|conocer|viajar)\b/ui', $questionCatalogo) === 1
+        || preg_match('/^\W*[\p{L}\p{M}][\p{L}\p{M}\s,.-]{2,40}\W*$/u', $questionCatalogo) === 1
     )
 ) {
     try {
-        $municipiosMencionados = buscarMunicipiosMencionados($question);
+        $municipiosMencionados = buscarMunicipiosMencionados($questionCatalogo);
         if ($municipiosMencionados !== []) {
             echo json_encode([
                 'success' => true,
@@ -273,34 +565,112 @@ if ($categoriaCatalogo !== null) {
     try {
         if ($categoriaCatalogo === 'transportes') {
             $etapaConsulta = 'municipios';
-            $municipiosMencionados = buscarMunicipiosMencionados($question);
+            $municipiosMencionados = buscarMunicipiosMencionados($questionCatalogo);
             if ($municipiosMencionados !== []) {
-                $preguntaNormalizada = normalizarTextoMunicipio($question);
+                $preguntaNormalizada = normalizarTextoMunicipio($questionCatalogo);
                 $primerMunicipio = $municipiosMencionados[0];
                 $nombreNormalizado = normalizarTextoMunicipio($primerMunicipio);
                 $posicionMunicipio = mb_strpos($preguntaNormalizada, $nombreNormalizado, 0, 'UTF-8');
                 $prefijoMunicipio = $posicionMunicipio === false
                     ? ''
                     : mb_substr($preguntaNormalizada, 0, $posicionMunicipio, 'UTF-8');
-                $origen = preg_match('/\b(desde|saliendo de|partiendo de|origen|de)\s*$/u', $prefijoMunicipio) === 1
+                $origen = preg_match('/\b(desde|saliendo de|partiendo de|origen)\s*$/u', $prefijoMunicipio) === 1
                     ? $primerMunicipio
                     : null;
                 $destino = $origen === null ? $primerMunicipio : $municipiosMencionados[1] ?? null;
 
                 $etapaConsulta = 'rutas';
-                $datosCatalogo = cargarTransportesPorRuta($origen, $destino);
+                $datosCatalogo = cargarTransportesPorRuta($origen, $destino, $offsetCatalogo);
                 $contextoCatalogo = $origen === null
                     ? "con destino a {$destino}"
                     : ($destino === null
                         ? "con origen en {$origen}"
                         : "desde {$origen} hacia {$destino}");
+            } elseif (preguntaSolicitaMunicipio($questionCatalogo, $categoriaCatalogo)) {
+                echo json_encode([
+                    'success' => true,
+                    'response' => 'No logré identificar ese municipio de Santander. Dime el nombre del municipio y busco las rutas disponibles.',
+                ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+                exit;
+            } else {
+                $etapaConsulta = 'rutas';
+                $datosCatalogo = cargarTransportesPorRuta(null, null, $offsetCatalogo);
+            }
+        } elseif ($categoriaCatalogo !== 'municipios') {
+            $etapaConsulta = 'municipios';
+            $municipiosMencionados = buscarMunicipiosMencionados($questionCatalogo);
+            if ($municipiosMencionados !== []) {
+                $etapaConsulta = 'catalogo_filtrado';
+                if (count($municipiosMencionados) > 3) {
+                    echo json_encode([
+                        'success' => true,
+                        'response' => 'Mencionaste varios municipios. Para darte resultados precisos, dime hasta tres lugares por consulta.',
+                    ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+                    exit;
+                }
+                $municipiosConsultados = $municipiosMencionados;
+                $datosCatalogo = [];
+                foreach ($municipiosConsultados as $municipio) {
+                    $datosCatalogo = array_merge(
+                        $datosCatalogo,
+                        cargarDatosCatalogoPorMunicipio(
+                            $categoriaCatalogo,
+                            $municipio,
+                            $tipoEmpresaCatalogo
+                        )
+                    );
+                }
+                $contextoCatalogo = 'en ' . implode(' y ', $municipiosConsultados);
+                if ($tipoEmpresaCatalogo !== null) {
+                    $contextoCatalogo .= ' de ' . strtolower($tipoEmpresaCatalogo);
+                }
+            } elseif (preguntaSolicitaMunicipio($questionCatalogo, $categoriaCatalogo)) {
+                echo json_encode([
+                    'success' => true,
+                    'response' => 'No logré identificar ese municipio de Santander. Dime el nombre del municipio y busco opciones solo para ese lugar.',
+                ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+                exit;
+            } else {
+                $etapaConsulta = 'catalogo';
+                $datosCatalogo = cargarDatosCatalogoPorMunicipio(
+                    $categoriaCatalogo,
+                    null,
+                    $tipoEmpresaCatalogo
+                );
+                if ($tipoEmpresaCatalogo !== null) {
+                    $contextoCatalogo = 'de ' . strtolower($tipoEmpresaCatalogo);
+                }
+            }
+        } else {
+            $etapaConsulta = 'municipios';
+            $municipiosMencionados = buscarMunicipiosMencionados($questionCatalogo);
+            if ($municipiosMencionados !== []) {
+                if (count($municipiosMencionados) > 3) {
+                    echo json_encode([
+                        'success' => true,
+                        'response' => 'Mencionaste varios municipios. Para darte resultados precisos, dime hasta tres lugares por consulta.',
+                    ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+                    exit;
+                }
+                $etapaConsulta = 'catalogo_filtrado';
+                $datosCatalogo = [];
+                foreach ($municipiosMencionados as $municipio) {
+                    $datosCatalogo = array_merge(
+                        $datosCatalogo,
+                        cargarDatosCatalogoPorMunicipio($categoriaCatalogo, $municipio)
+                    );
+                }
+                $contextoCatalogo = 'en ' . implode(' y ', $municipiosMencionados);
+            } elseif (preguntaSolicitaMunicipio($questionCatalogo, $categoriaCatalogo)) {
+                echo json_encode([
+                    'success' => true,
+                    'response' => 'No logré identificar ese municipio de Santander. Dime cuál buscas y te ayudo a ubicarlo.',
+                ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+                exit;
             } else {
                 $etapaConsulta = 'catalogo';
                 $datosCatalogo = cargarDatosCatalogo($categoriaCatalogo);
             }
-        } else {
-            $etapaConsulta = 'catalogo';
-            $datosCatalogo = cargarDatosCatalogo($categoriaCatalogo);
         }
     } catch (Throwable $e) {
         error_log('[TourismEasy IA] No se pudo consultar el catálogo: ' . $e->getMessage());
@@ -334,7 +704,13 @@ if ($categoriaCatalogo !== null) {
 
     echo json_encode([
         'success' => true,
-        'response' => formatearDatosCatalogo($categoriaCatalogo, $datosCatalogo, $contextoCatalogo),
+        'response' => formatearDatosCatalogo(
+            $categoriaCatalogo,
+            $datosCatalogo,
+            $contextoCatalogo,
+            $offsetCatalogo,
+            $categoriaCatalogo === 'transportes'
+        ),
     ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
     exit;
 }
