@@ -33,8 +33,9 @@ BEGIN
 
     IF p_id_clase IS NOT NULL
        AND NOT EXISTS (
-           SELECT 1 FROM CLASE_SERVICIO_TRANSPORTE
-           WHERE ID_CLASE = p_id_clase
+           SELECT 1
+           FROM CLASE_SERVICIO_TRANSPORTE AS clase
+           WHERE clase.ID_CLASE = p_id_clase
        ) THEN
         RETURN;
     END IF;
