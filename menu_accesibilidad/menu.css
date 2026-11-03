@@ -186,11 +186,30 @@ body.te-accessibility-high-contrast {
     background: #fff !important;
 }
 
-body.te-accessibility-high-contrast *:not(.te-accessibility):not(.te-accessibility *) {
+body.te-accessibility-high-contrast *:not(.te-accessibility):not(.te-accessibility *):not(.hero-content):not(.hero-content *):not(.art-hero-overlay):not(.art-hero-overlay *) {
     color: #000 !important;
     background-color: #fff !important;
     border-color: #000 !important;
     box-shadow: none !important;
+}
+
+body.te-accessibility-high-contrast .hero-content,
+body.te-accessibility-high-contrast .hero-content h1,
+body.te-accessibility-high-contrast .hero-content p {
+    color: #fff !important;
+}
+
+body.te-accessibility-high-contrast .hero::before {
+    background: linear-gradient(rgba(0, 0, 0, .8), rgba(0, 0, 0, .8)) !important;
+}
+
+body.te-accessibility-high-contrast .art-hero-overlay {
+    background: linear-gradient(to top, rgba(0, 0, 0, .95) 0%, rgba(0, 0, 0, .55) 60%, transparent 100%) !important;
+}
+
+body.te-accessibility-high-contrast .art-hero-overlay,
+body.te-accessibility-high-contrast .art-hero-overlay * {
+    color: #fff !important;
 }
 
 body.te-accessibility-high-contrast a:not(.te-accessibility a) {
