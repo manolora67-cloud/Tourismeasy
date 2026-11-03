@@ -11,7 +11,7 @@
 
     const style = document.createElement("link");
     style.rel = "stylesheet";
-    style.href = new URL("menu.css?v=a11y-v10", scriptUrl).href;
+    style.href = new URL("menu.css?v=a11y-v12", scriptUrl).href;
     document.head.appendChild(style);
 
     const minScale = 80;
@@ -65,6 +65,7 @@
                     <output class="te-accessibility-scale" aria-live="polite"></output>
                     <button class="te-accessibility-increase" type="button" aria-label="Aumentar tamaño del texto">A+</button>
                 </div>
+                <button class="te-accessibility-reset-size" type="button">Restablecer tamaño</button>
             </div>
             <button class="te-accessibility-contrast" type="button" aria-pressed="false">Aumentar contraste</button>
             <div class="te-accessibility-reader" role="group" aria-label="Lectura en voz alta">
@@ -83,6 +84,7 @@
     const panel = root.querySelector(".te-accessibility-panel");
     const close = root.querySelector(".te-accessibility-close");
     const scaleOutput = root.querySelector(".te-accessibility-scale");
+    const resetScaleButton = root.querySelector(".te-accessibility-reset-size");
     const status = root.querySelector(".te-accessibility-status");
     const readButton = root.querySelector(".te-accessibility-read");
     const hoverReadButton = root.querySelector(".te-accessibility-hover-read");
@@ -224,6 +226,9 @@
     root.querySelector(".te-accessibility-increase").addEventListener("click", () => {
         applyScale(scale + step, true);
     });
+    resetScaleButton.addEventListener("click", () => {
+        applyScale(defaultScale, true);
+    });
     contrastButton.addEventListener("click", () => {
         const enabled = contrastButton.getAttribute("aria-pressed") !== "true";
         document.body.classList.toggle("te-accessibility-high-contrast", enabled);
@@ -300,7 +305,7 @@
     });
 
     const translatorScript = document.createElement("script");
-    translatorScript.src = new URL("../translate/traductor.js?v=i18n-v6", scriptUrl).href;
+    translatorScript.src = new URL("../translate/traductor.js?v=i18n-v7", scriptUrl).href;
     translatorScript.onerror = () => {
         console.error("[TourismEasy] No se pudo cargar el traductor del sitio.");
     };

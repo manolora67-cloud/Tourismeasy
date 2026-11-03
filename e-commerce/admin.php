@@ -282,7 +282,7 @@ $artesanoNombreSesion = $_SESSION['artesano_nombre'] ?? 'Artesano';
     <script src="../js/metricas_clics.js"></script>
     <script src="../js/admin.js"></script>
     <script src="../js/santanderianidad.js"></script>
-    <script src="../menu_accesibilidad/menu.js?v=a11y-v10"></script>
+    <script src="../menu_accesibilidad/menu.js?v=a11y-v12"></script>
 </body>
 
 </html>

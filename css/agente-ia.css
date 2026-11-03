@@ -140,8 +140,8 @@
 
 .te-chat-bubble {
     position: fixed;
-    bottom: 98px;
-    /* Justo encima del FAB */
+    bottom: 156px;
+    /* Encima de los botones flotantes */
     right: 28px;
     background: #fff;
     color: var(--te-primary-dark);
@@ -733,7 +733,7 @@ body.dark-mode .te-chat-bubble {
 
     .te-chat-bubble {
         right: 16px;
-        bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+        bottom: calc(144px + env(safe-area-inset-bottom, 0px));
     }
 
     /* Mostrar el botón X dentro del header en móvil */

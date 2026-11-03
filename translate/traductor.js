@@ -8,6 +8,7 @@
         "Tamaño del texto": "Text size",
         "Disminuir tamaño del texto": "Decrease text size",
         "Aumentar tamaño del texto": "Increase text size",
+        "Restablecer tamaño": "Reset text size",
         "Aumentar contraste": "Increase contrast",
         "Leer página": "Read page",
         "Leer al pasar el cursor": "Read on hover",

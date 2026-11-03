@@ -1,7 +1,7 @@
 .te-accessibility {
     position: fixed;
-    left: 20px;
-    bottom: 20px;
+    right: 34px;
+    bottom: 100px;
     z-index: 10000;
     font-family: Arial, sans-serif;
 }
@@ -43,7 +43,7 @@ body.welcome-active .te-accessibility {
 
 .te-accessibility-panel {
     position: absolute;
-    left: 0;
+    right: 0;
     bottom: 58px;
     width: min(320px, calc(100vw - 32px));
     max-height: calc(100vh - 92px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
@@ -127,6 +127,12 @@ body.welcome-active .te-accessibility {
 .te-accessibility .te-accessibility-size-controls button {
     min-width: 48px;
     padding: 0 10px;
+}
+
+.te-accessibility .te-accessibility-reset-size {
+    width: 100%;
+    min-height: 40px;
+    padding: 0 12px;
 }
 
 .te-accessibility-scale {
@@ -235,11 +241,12 @@ body.te-accessibility-high-contrast .te-accessibility-panel * {
 
 @media (max-width: 480px) {
     .te-accessibility {
-        left: max(12px, env(safe-area-inset-left));
-        bottom: calc(16px + env(safe-area-inset-bottom));
+        right: calc(22px + env(safe-area-inset-right));
+        bottom: calc(88px + env(safe-area-inset-bottom));
     }
 
     .te-accessibility-panel {
+        right: 0;
         width: min(320px, calc(100vw - 24px - env(safe-area-inset-left) - env(safe-area-inset-right)));
         padding: 14px;
         border-radius: 14px;
