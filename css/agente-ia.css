@@ -203,7 +203,7 @@
     box-shadow: 0 24px 64px rgba(0, 0, 0, 0.16), 0 4px 16px rgba(0, 0, 0, 0.08);
     display: flex;
     flex-direction: column;
-    z-index: 9999;
+    z-index: 10001;
     overflow: hidden;
     /* Empieza pequeño y desplazado abajo, luego escala a su posición */
     transform: scale(0.88) translateY(24px);
