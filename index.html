@@ -8,16 +8,9 @@
     <script>
         let welcomeAlreadySeen = false;
         try {
-            welcomeAlreadySeen = localStorage.getItem("tourismeasy_welcome_seen") === "1";
+            welcomeAlreadySeen = sessionStorage.getItem("tourismeasy_welcome_seen") === "1";
         } catch (error) {
-            console.warn("[TourismEasy] No se pudo comprobar el estado guardado de la bienvenida:", error);
-        }
-        if (!welcomeAlreadySeen) {
-            try {
-                welcomeAlreadySeen = sessionStorage.getItem("tourismeasy_welcome_seen") === "1";
-            } catch (error) {
-                console.warn("[TourismEasy] No se pudo comprobar el estado de sesión de la bienvenida:", error);
-            }
+            console.warn("[TourismEasy] No se pudo comprobar el estado de sesión de la bienvenida:", error);
         }
         if (welcomeAlreadySeen) {
             document.documentElement.classList.add("welcome-seen");
@@ -135,7 +128,7 @@
     <div id="site-footer"></div>
     </div>
 
-    <script src="home/entrada.js"></script>
+    <script src="home/entrada.js?v=session-welcome-v1"></script>
     <script src="componentes/navbar.js"></script>
     <script src="componentes/btn-acceder.js"></script>
     <script src="componentes/dark-mode-toggle.js"></script>

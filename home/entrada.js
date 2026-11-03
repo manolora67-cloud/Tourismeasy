@@ -10,30 +10,18 @@
 
     function yaSeMostroBienvenida() {
         try {
-            return window.localStorage.getItem(WELCOME_SEEN_KEY) === "1";
+            return window.sessionStorage.getItem(WELCOME_SEEN_KEY) === "1";
         } catch (error) {
-            console.warn("[TourismEasy] No se pudo comprobar si ya se mostró la bienvenida:", error);
-            try {
-                return window.sessionStorage.getItem(WELCOME_SEEN_KEY) === "1";
-            } catch (sessionError) {
-                console.error("[TourismEasy] No se pudo leer el estado de la bienvenida:", sessionError);
-                return false;
-            }
+            console.error("[TourismEasy] No se pudo leer el estado de sesión de la bienvenida:", error);
+            return false;
         }
     }
 
     function guardarBienvenidaMostrada() {
         try {
-            window.localStorage.setItem(WELCOME_SEEN_KEY, "1");
-            return;
-        } catch (error) {
-            console.warn("[TourismEasy] No se pudo guardar la bienvenida en el navegador:", error);
-        }
-
-        try {
             window.sessionStorage.setItem(WELCOME_SEEN_KEY, "1");
         } catch (error) {
-            console.error("[TourismEasy] No se pudo guardar el estado de la bienvenida:", error);
+            console.error("[TourismEasy] No se pudo guardar el estado de sesión de la bienvenida:", error);
         }
     }
 
