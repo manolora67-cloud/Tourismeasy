@@ -11,7 +11,7 @@
 
     const style = document.createElement("link");
     style.rel = "stylesheet";
-    style.href = new URL("menu.css?v=a11y-v13", scriptUrl).href;
+    style.href = new URL("menu.css?v=a11y-v14", scriptUrl).href;
     document.head.appendChild(style);
 
     const minScale = 80;
