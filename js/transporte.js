@@ -794,11 +794,14 @@ document
 
         var imageUrl =
             getTransportImageUrl(item.img_url);
+        var cardImageUrl = window.TEImagenCloudinary
+            ? window.TEImagenCloudinary.tarjeta(imageUrl)
+            : imageUrl;
 
         var imgHtml =
-            imageUrl
+            cardImageUrl
                 ? '<img loading="lazy" decoding="async" src="' +
-                escapeTransportHtml(imageUrl) +
+                escapeTransportHtml(cardImageUrl) +
                 '" class="card-banner" alt="Transporte ' +
                 escapeTransportHtml(titulo) +
                 '">'

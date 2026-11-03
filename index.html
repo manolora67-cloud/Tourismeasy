@@ -132,7 +132,8 @@
     <script src="componentes/navbar.js"></script>
     <script src="componentes/btn-acceder.js"></script>
     <script src="componentes/dark-mode-toggle.js"></script>
-    <script src="componentes/destinos.js?v=municipios-paginados-v8"></script>
+    <script src="js/imagen-cloudinary.js?v=cloudinary-delivery-v1"></script>
+    <script src="componentes/destinos.js?v=municipios-paginados-v9"></script>
     <script>
         (function () {
             const mount = document.getElementById("site-destinos");
@@ -156,7 +157,7 @@
                 started = true;
                 try {
                     await loadScript("https://unpkg.com/leaflet@1.9.4/dist/leaflet.js");
-                    await loadScript("mapa_interactuable/mapa.js?v=mapa-todos-municipios-v5");
+                    await loadScript("mapa_interactuable/mapa.js?v=mapa-todos-municipios-v6");
                 } catch (error) {
                     console.error("[TourismEasy] No se pudo iniciar el mapa.", error);
                     const notice = document.createElement("p");
@@ -180,7 +181,7 @@
             observer.observe(mount);
         })();
     </script>
-    <script src="componentes/articulos.js?v=municipios-info-v2"></script>
+    <script src="componentes/articulos.js?v=municipios-info-v3"></script>
     <script src="componentes/footer.js"></script>
 
     <script src="js/captcha.js"></script>

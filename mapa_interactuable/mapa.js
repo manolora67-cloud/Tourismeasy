@@ -128,7 +128,9 @@
 
         const imagen = document.createElement("img");
         imagen.className = "mapa-popup-imagen";
-        imagen.dataset.src = destino.img;
+        imagen.dataset.src = window.TEImagenCloudinary
+            ? window.TEImagenCloudinary.popup(destino.img)
+            : destino.img;
         imagen.alt = destino.alt || destino.titulo;
         imagen.loading = "lazy";
         imagen.decoding = "async";

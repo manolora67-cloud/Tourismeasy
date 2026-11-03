@@ -243,7 +243,9 @@ function mostrarDetallePlan(plan) {
             image.className = "card-banner";
             image.loading = "lazy";
             image.decoding = "async";
-            image.src = imageUrl;
+            image.src = window.TEImagenCloudinary
+                ? window.TEImagenCloudinary.tarjeta(imageUrl)
+                : imageUrl;
             image.alt = nombre;
             card.appendChild(image);
         } else {

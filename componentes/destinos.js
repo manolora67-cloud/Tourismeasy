@@ -726,10 +726,13 @@
     }
 
     function cardTemplate(destination) {
+        const imageUrl = window.TEImagenCloudinary
+            ? window.TEImagenCloudinary.tarjeta(destination.img)
+            : destination.img;
         return `
     <article class="card">
       <div class="card-img">
-        <img data-src="${escapeHtml(destination.img)}" alt="${escapeHtml(destination.alt)}" loading="lazy" decoding="async" />
+        <img data-src="${escapeHtml(imageUrl)}" alt="${escapeHtml(destination.alt)}" loading="lazy" decoding="async" />
         ${destination.badge ? `<span class="card-badge">${escapeHtml(destination.badge)}</span>` : ""}
       </div>
       <div class="card-body">

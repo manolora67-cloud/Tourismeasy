@@ -256,10 +256,14 @@ function actualizarBotonWhatsApp(btn) {
         var servicios = escapeHtml(item.servicios_txt || "—");
         var empresa = escapeHtml(item.empresa || "");
         var whatsapp = escapeHtml(item.whatsapp || item.telefono || item.num_contacto_empresa || "");
-        var imagen = escapeHtml(safeImageUrl(item.img_url));
+        var imagenOriginal = safeImageUrl(item.img_url);
+        var imagen = escapeHtml(imagenOriginal);
+        var imagenTarjeta = escapeHtml(window.TEImagenCloudinary
+            ? window.TEImagenCloudinary.tarjeta(imagenOriginal)
+            : imagenOriginal);
         var precioDisplay = item.precio_noche ? "$" + parseInt(item.precio_noche).toLocaleString("es-CO") + " / noche" : "Consultar";
         var imgHtml = imagen ?
-            '<img loading="lazy" decoding="async" src="' + imagen + '" class="card-banner" alt="' + nombre + '">' :
+            '<img loading="lazy" decoding="async" src="' + imagenTarjeta + '" class="card-banner" alt="' + nombre + '">' :
             '<div class="card-banner" style="background:linear-gradient(135deg,#1e1b4b,#4c1d95);display:flex;align-items:center;justify-content:center;height:200px;"><i class="fa-solid fa-hotel" style="font-size:3rem;color:#a855f7;"></i></div>';
         var card = document.createElement("article");
         card.className = "card-item card-item--empresa";

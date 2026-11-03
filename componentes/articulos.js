@@ -1930,7 +1930,9 @@
                 ...base,
                 ...custom,
                 key: municipio.key,
-                poster: municipio.img,
+                poster: window.TEImagenCloudinary
+                    ? window.TEImagenCloudinary.portada(municipio.img)
+                    : municipio.img,
                 titulo: custom.titulo || municipio.titulo,
                 subtitulo: custom.subtitulo !== undefined ? custom.subtitulo : base.subtitulo,
                 datos: Array.isArray(custom.datos) ? custom.datos : base.datos,

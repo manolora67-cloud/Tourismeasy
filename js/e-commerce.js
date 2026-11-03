@@ -290,7 +290,9 @@ function renderProducts() {
             const image = document.createElement("img");
             image.loading = "lazy";
             image.decoding = "async";
-            image.src = imageUrl;
+            image.src = window.TEImagenCloudinary
+                ? window.TEImagenCloudinary.tarjeta(imageUrl)
+                : imageUrl;
             image.alt = String(product.name || "");
             card.appendChild(image);
         } else {
