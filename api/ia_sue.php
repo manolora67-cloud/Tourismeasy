@@ -21,22 +21,37 @@ $history = array_values(array_filter(
 ));
 $history = array_slice($history, -30);
 
+function preguntaEnIngles(string $question): bool
+{
+    $question = mb_strtolower($question, 'UTF-8');
+    $englishSignals = preg_match_all(
+        '/\b(hello|hi|hey|good\s+morning|good\s+afternoon|where|what|when|how|who|which|can|could|does|do|is|are|the|from|to|with|please|show|me|my|i|find|need|want|looking|for|recommend|options|accessible|transport|transportation|route|routes|bus|buses|accommodation|lodging|stay|stays|hotel|hotels|hostel|hostels|package|packages|tour|tours|activity|activities|excursion|excursions|experience|experiences|product|products|handicrafts|crafts|artisan|artisans|festival|festivals|town|towns|city|cities|municipality|municipalities|destination|destinations|company|companies|operator|operators|thanks|thank|you)\b/u',
+        $question
+    );
+    $spanishSignals = preg_match_all(
+        '/\b(hola|buenas|donde|dónde|que|qué|cuando|cuándo|como|cómo|quien|quién|cual|cuál|puedo|puedes|podría|hay|es|son|el|la|los|las|del|desde|hacia|por|para|con|necesito|quiero|busco|transporte|hospedaje|alojamiento|ruta|rutas|autobus|autobús|albergue|plan|planes|actividad|actividades|excursion|excursión|experiencia|experiencias|producto|productos|artesania|artesanía|artesano|artesanos|festividad|festividades|municipio|municipios|ciudad|ciudades|destino|destinos|empresa|empresas|gracias|accesibilidad|accesible)\b/u',
+        $question
+    );
+
+    return $englishSignals > $spanishSignals;
+}
+
 function identificarCategoriaCatalogo(string $question): ?string
 {
     $question = mb_strtolower($question, 'UTF-8');
 
-    if (preg_match('/\b(empresas?|operadores?)\b/u', $question) === 1) {
+    if (preg_match('/\b(empresas?|company|companies|operadores?|operators?)\b/u', $question) === 1) {
         return 'empresas';
     }
 
     $categorias = [
-        'transportes' => '/\b(transportes?|rutas?|buses?|autobuses?)\b/u',
-        'hospedajes' => '/\b(hospedajes?|hoteles?|alojamientos?|hostales?|posadas?)\b/u',
-        'planes' => '/\b(planes?|tours?|paquetes?|excursiones?|experiencias?|actividades?)\b/u',
-        'productos' => '/\b(productos?|artesan[ií]as?|bisuter[ií]a|alfarer[ií]a|talleres?)\b/u',
-        'artesanos' => '/\b(artesanos?|artesanas?)\b/u',
-        'festividades' => '/\b(festividades?|fiestas?|festivales?|ferias?)\b/u',
-        'municipios' => '/\b(municipios?|ciudades?|pueblos?|destinos?)\b/u',
+        'transportes' => '/\b(transportes?|transport|transportation|rutas?|routes?|buses?|autobuses?)\b/u',
+        'hospedajes' => '/\b(hospedajes?|hoteles?|hotels?|alojamientos?|accommodations?|lodgings?|stays?|hostales?|hostels?|posadas?)\b/u',
+        'planes' => '/\b(plan(?:es|s)?|tours?|paquetes?|packages?|excursiones?|excursions?|experiencias?|experiences?|actividades?|activities?)\b/u',
+        'productos' => '/\b(productos?|products?|handicrafts?|crafts?|artesan[ií]as?|bisuter[ií]a|alfarer[ií]a|talleres?)\b/u',
+        'artesanos' => '/\b(artesanos?|artesanas?|artisans?)\b/u',
+        'festividades' => '/\b(festividades?|fiestas?|festivales?|festivals?|ferias?)\b/u',
+        'municipios' => '/\b(municipios?|municipalities|ciudades?|cities|pueblos?|towns?|destinos?|destinations?)\b/u',
     ];
 
     foreach ($categorias as $categoria => $patron) {
@@ -52,13 +67,13 @@ function identificarTipoServicioEmpresa(string $question): ?string
 {
     $question = normalizarTextoMunicipio($question);
 
-    if (preg_match('/\b(transportes?|rutas?|buses?|autobuses?)\b/u', $question) === 1) {
+    if (preg_match('/\b(transportes?|transport|transportation|rutas?|routes?|buses?|autobuses?)\b/u', $question) === 1) {
         return 'TRANSPORTE';
     }
-    if (preg_match('/\b(hospedajes?|hoteles?|alojamientos?|hostales?|posadas?)\b/u', $question) === 1) {
+    if (preg_match('/\b(hospedajes?|hoteles?|hotels?|accommodations?|lodgings?|hostales?|hostels?|posadas?)\b/u', $question) === 1) {
         return 'HOSPEDAJE';
     }
-    if (preg_match('/\b(planes?|tours?|paquetes?|excursiones?|experiencias?|actividades?)\b/u', $question) === 1) {
+    if (preg_match('/\b(plan(?:es|s)?|tours?|paquetes?|packages?|excursiones?|excursions?|experiencias?|experiences?|actividades?|activities?)\b/u', $question) === 1) {
         return 'PLANES';
     }
 
@@ -70,7 +85,7 @@ function preguntaSolicitaMasResultados(string $question): bool
     $question = normalizarTextoMunicipio($question);
 
     return preg_match(
-        '/\b(otras?|otros?|siguientes?|restantes)\s+(?:5|cinco|opciones|resultados)?\b|\b(?:muestrame|dame|ver)\s+(?:las?\s+)?(?:otras?|otros?|siguientes?)\b|\bmas\s+(?:opciones|resultados)\b/u',
+        '/\b(otras?|otros?|siguientes?|restantes|more|next|other)\s+(?:5|cinco|opciones|resultados|options|results)?\b|\b(?:muestrame|dame|ver|show\s+me|give\s+me|show)\s+(?:las?\s+)?(?:otras?|otros?|siguientes?|more|next|other)\b|\bmas\s+(?:opciones|resultados)\b|\bmore\s+(?:options|results)\b/u',
         $question
     ) === 1;
 }
@@ -130,10 +145,10 @@ function normalizarTextoMunicipio(string $texto): string
 function preguntaSolicitaMunicipio(string $question, string $categoria): bool
 {
     $question = normalizarTextoMunicipio($question);
-    $patron = '\b(en|hacia|con destino a|para ir a|para viajar a)\b';
+    $patron = '\b(en|hacia|con destino a|para ir a|para viajar a|in|to|toward|towards|near)\b';
 
     if ($categoria === 'transportes') {
-        $patron .= '|\b(para|hasta|desde|saliendo de|partiendo de|origen)\b';
+        $patron .= '|\b(para|hasta|desde|saliendo de|partiendo de|origen|from|leaving from)\b';
     }
 
     return preg_match('/(?:' . $patron . ')/u', $question) === 1;
@@ -414,11 +429,16 @@ function cargarDatosCatalogoPorMunicipio(
     return $resultados;
 }
 
-function respuestaMunicipiosSantander(array $municipios): string
+function respuestaMunicipiosSantander(array $municipios, bool $english = false): string
 {
     $nombres = count($municipios) > 1
         ? implode(', ', array_slice($municipios, 0, -1)) . ' y ' . end($municipios)
         : $municipios[0];
+
+    if ($english) {
+        return "{$nombres} " . (count($municipios) > 1 ? 'are towns' : 'is a town') .
+            " in Santander, Colombia. TourismEasy can help you find transportation, accommodation, and tour options for those destinations.";
+    }
 
     return "{$nombres} " . (count($municipios) > 1 ? 'son municipios' : 'es un municipio') .
         " de Santander, Colombia. En TourismEasy puedo ayudarte a consultar opciones de transporte, hospedaje y planes turísticos para esos destinos.";
@@ -429,10 +449,16 @@ function formatearDatosCatalogo(
     array $resultados,
     ?string $contexto = null,
     int $offset = 0,
-    bool $resultadosPaginados = false
+    bool $resultadosPaginados = false,
+    bool $english = false
 ): string
 {
     if ($resultados === [] && $offset > 0) {
+        if ($english) {
+            return $contexto === null
+                ? 'I have shown you all the available options in that category.'
+                : "I have shown you all the available options {$contexto}.";
+        }
         return $contexto === null
             ? 'Ya te mostré todas las opciones disponibles de esa categoría.'
             : "Ya te mostré todas las opciones disponibles {$contexto}.";
@@ -442,6 +468,11 @@ function formatearDatosCatalogo(
         ? array_slice($resultados, 0, 5)
         : array_slice($resultados, $offset, 5);
     if ($pagina === []) {
+        if ($english) {
+            return $contexto === null
+                ? 'I could not find any available options in that category.'
+                : "I could not find any available options {$contexto}.";
+        }
         return $contexto === null
             ? 'No encontré opciones disponibles para esa categoría.'
             : "No encontré opciones disponibles {$contexto}.";
@@ -476,14 +507,65 @@ function formatearDatosCatalogo(
         'tipo' => 'tipo',
         'incluye' => 'incluye',
     ];
-    $etiquetaCategoria = $etiquetasCategoria[$categoria] ?? 'opciones turísticas';
+    if ($english) {
+        $etiquetasCampo = [
+            'origen' => 'origin',
+            'destino' => 'destination',
+            'fecha_salida' => 'departure date',
+            'hora_salida' => 'departure time',
+            'precio' => 'price',
+            'empresa' => 'company',
+            'nombre_clase' => 'class',
+            'nombre' => 'name',
+            'tipo' => 'type',
+            'ciudad' => 'town',
+            'precio_noche' => 'per night',
+            'accesibilidad' => 'accessibility',
+            'capacidad_max' => 'capacity',
+            'servicios' => 'services',
+            'duracion' => 'duration',
+            'incluye' => 'includes',
+            'descripcion' => 'description',
+            'categoria' => 'category',
+            'municipio' => 'town',
+            'artesano' => 'artisan',
+            'productos' => 'products',
+            'municipios' => 'towns',
+            'servicio' => 'service',
+            'departamento' => 'department',
+            'correo' => 'email',
+            'telefono' => 'phone',
+            'fecha' => 'date',
+            'titulo' => 'title',
+            'detalle' => 'details',
+        ];
+    }
+    if ($english) {
+        $etiquetasCategoria = [
+            'transportes' => 'transportation options',
+            'hospedajes' => 'accommodations',
+            'planes' => 'tour packages',
+            'productos' => 'handcrafted products',
+            'artesanos' => 'artisans',
+            'empresas' => 'tourism companies',
+            'festividades' => 'festivals',
+            'municipios' => 'towns',
+        ];
+    }
+    $etiquetaCategoria = $etiquetasCategoria[$categoria] ?? ($english ? 'tourism options' : 'opciones turísticas');
     $campos = $camposVisibles[$categoria] ?? [];
     $hayMasResultados = $resultadosPaginados
         ? count($resultados) > 5
         : count($resultados) > $offset + count($pagina);
-    $respuesta = $contexto === null
-        ? "Encontré estas opciones de {$etiquetaCategoria}:\n"
-        : "Encontré estas opciones de {$etiquetaCategoria} {$contexto}:\n";
+    if ($english) {
+        $respuesta = $contexto === null
+            ? "Here are some {$etiquetaCategoria}:\n"
+            : "Here are some {$etiquetaCategoria} {$contexto}:\n";
+    } else {
+        $respuesta = $contexto === null
+            ? "Encontré estas opciones de {$etiquetaCategoria}:\n"
+            : "Encontré estas opciones de {$etiquetaCategoria} {$contexto}:\n";
+    }
 
     foreach ($pagina as $resultado) {
         $detalles = [];
@@ -509,7 +591,9 @@ function formatearDatosCatalogo(
     }
 
     if ($hayMasResultados) {
-        $respuesta .= "\n\nHay más opciones. Dime «otras 5» para mostrarte las siguientes.";
+        $respuesta .= $english
+            ? "\n\nThere are more options. Ask me for the next 5 to see them."
+            : "\n\nHay más opciones. Dime «otras 5» para mostrarte las siguientes.";
     }
 
     return $respuesta;
@@ -523,6 +607,7 @@ if ($question === '') {
     exit;
 }
 
+$english = preguntaEnIngles($question);
 $consultaPaginada = recuperarConsultaPaginada($history, $question);
 $questionCatalogo = $consultaPaginada['question'] ?? $question;
 $categoriaCatalogo = $consultaPaginada['categoria'] ?? identificarCategoriaCatalogo($question);
@@ -533,14 +618,16 @@ $tipoEmpresaCatalogo = $categoriaCatalogo === 'empresas'
 if (preguntaSolicitaMasResultados($question) && $consultaPaginada === null && $categoriaCatalogo === null) {
     echo json_encode([
         'success' => true,
-        'response' => 'Dime de qué categoría quieres ver opciones: transporte, hospedaje, planes, productos artesanales, artesanos o empresas.',
+        'response' => $english
+            ? 'Which category would you like to explore: transportation, accommodation, tour packages, handcrafted products, artisans, or tourism companies?'
+            : 'Dime de qué categoría quieres ver opciones: transporte, hospedaje, planes, productos artesanales, artesanos o empresas.',
     ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
     exit;
 }
 if (
     $categoriaCatalogo === null
     && (
-        preg_match('/\b(sobre|municipios?|ciudades?|pueblos?|destinos?|en|de|visitar|conocer|viajar)\b/ui', $questionCatalogo) === 1
+        preg_match('/\b(sobre|municipios?|ciudades?|pueblos?|destinos?|en|de|visitar|conocer|viajar|about|towns?|cities|destinations?|in|visit|travel|tell\s+me)\b/ui', $questionCatalogo) === 1
         || preg_match('/^\W*[\p{L}\p{M}][\p{L}\p{M}\s,.-]{2,40}\W*$/u', $questionCatalogo) === 1
     )
 ) {
@@ -549,7 +636,7 @@ if (
         if ($municipiosMencionados !== []) {
             echo json_encode([
                 'success' => true,
-                'response' => respuestaMunicipiosSantander($municipiosMencionados),
+                'response' => respuestaMunicipiosSantander($municipiosMencionados, $english),
             ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
             exit;
         }
@@ -561,6 +648,8 @@ if (
 $datosCatalogo = null;
 $contextoCatalogo = null;
 $etapaConsulta = 'catalogo';
+$configuracion = require __DIR__ . '/config.php';
+$groqKey = $configuracion['groq_key'] ?? null;
 if ($categoriaCatalogo !== null) {
     try {
         if ($categoriaCatalogo === 'transportes') {
@@ -574,22 +663,28 @@ if ($categoriaCatalogo !== null) {
                 $prefijoMunicipio = $posicionMunicipio === false
                     ? ''
                     : mb_substr($preguntaNormalizada, 0, $posicionMunicipio, 'UTF-8');
-                $origen = preg_match('/\b(desde|saliendo de|partiendo de|origen)\s*$/u', $prefijoMunicipio) === 1
+                $origen = preg_match('/\b(desde|saliendo de|partiendo de|origen|from|leaving from)\s*$/u', $prefijoMunicipio) === 1
                     ? $primerMunicipio
                     : null;
                 $destino = $origen === null ? $primerMunicipio : $municipiosMencionados[1] ?? null;
 
                 $etapaConsulta = 'rutas';
                 $datosCatalogo = cargarTransportesPorRuta($origen, $destino, $offsetCatalogo);
-                $contextoCatalogo = $origen === null
-                    ? "con destino a {$destino}"
-                    : ($destino === null
-                        ? "con origen en {$origen}"
-                        : "desde {$origen} hacia {$destino}");
+                $contextoCatalogo = $english
+                    ? ($origen === null
+                        ? "to {$destino}"
+                        : ($destino === null ? "from {$origen}" : "from {$origen} to {$destino}"))
+                    : ($origen === null
+                        ? "con destino a {$destino}"
+                        : ($destino === null
+                            ? "con origen en {$origen}"
+                            : "desde {$origen} hacia {$destino}"));
             } elseif (preguntaSolicitaMunicipio($questionCatalogo, $categoriaCatalogo)) {
                 echo json_encode([
                     'success' => true,
-                    'response' => 'No logré identificar ese municipio de Santander. Dime el nombre del municipio y busco las rutas disponibles.',
+                    'response' => $english
+                        ? 'I could not identify that town in Santander. Tell me its name and I will look for available routes.'
+                        : 'No logré identificar ese municipio de Santander. Dime el nombre del municipio y busco las rutas disponibles.',
                 ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
                 exit;
             } else {
@@ -604,7 +699,9 @@ if ($categoriaCatalogo !== null) {
                 if (count($municipiosMencionados) > 3) {
                     echo json_encode([
                         'success' => true,
-                        'response' => 'Mencionaste varios municipios. Para darte resultados precisos, dime hasta tres lugares por consulta.',
+                        'response' => $english
+                            ? 'You mentioned several towns. For accurate results, please ask about up to three places at a time.'
+                            : 'Mencionaste varios municipios. Para darte resultados precisos, dime hasta tres lugares por consulta.',
                     ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
                     exit;
                 }
@@ -620,14 +717,17 @@ if ($categoriaCatalogo !== null) {
                         )
                     );
                 }
-                $contextoCatalogo = 'en ' . implode(' y ', $municipiosConsultados);
+                $contextoCatalogo = ($english ? 'in ' : 'en ') .
+                    implode($english ? ' and ' : ' y ', $municipiosConsultados);
                 if ($tipoEmpresaCatalogo !== null) {
-                    $contextoCatalogo .= ' de ' . strtolower($tipoEmpresaCatalogo);
+                    $contextoCatalogo .= ($english ? ' for ' : ' de ') . strtolower($tipoEmpresaCatalogo);
                 }
             } elseif (preguntaSolicitaMunicipio($questionCatalogo, $categoriaCatalogo)) {
                 echo json_encode([
                     'success' => true,
-                    'response' => 'No logré identificar ese municipio de Santander. Dime el nombre del municipio y busco opciones solo para ese lugar.',
+                    'response' => $english
+                        ? 'I could not identify that town in Santander. Tell me which town you mean and I will look for options there.'
+                        : 'No logré identificar ese municipio de Santander. Dime el nombre del municipio y busco opciones solo para ese lugar.',
                 ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
                 exit;
             } else {
@@ -638,7 +738,14 @@ if ($categoriaCatalogo !== null) {
                     $tipoEmpresaCatalogo
                 );
                 if ($tipoEmpresaCatalogo !== null) {
-                    $contextoCatalogo = 'de ' . strtolower($tipoEmpresaCatalogo);
+                    $etiquetaServicio = $english
+                        ? [
+                            'TRANSPORTE' => 'transportation',
+                            'HOSPEDAJE' => 'accommodation',
+                            'PLANES' => 'tour packages',
+                        ][$tipoEmpresaCatalogo] ?? strtolower($tipoEmpresaCatalogo)
+                        : strtolower($tipoEmpresaCatalogo);
+                    $contextoCatalogo = ($english ? 'for ' : 'de ') . $etiquetaServicio;
                 }
             }
         } else {
@@ -648,7 +755,9 @@ if ($categoriaCatalogo !== null) {
                 if (count($municipiosMencionados) > 3) {
                     echo json_encode([
                         'success' => true,
-                        'response' => 'Mencionaste varios municipios. Para darte resultados precisos, dime hasta tres lugares por consulta.',
+                        'response' => $english
+                            ? 'You mentioned several towns. For accurate results, please ask about up to three places at a time.'
+                            : 'Mencionaste varios municipios. Para darte resultados precisos, dime hasta tres lugares por consulta.',
                     ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
                     exit;
                 }
@@ -664,7 +773,9 @@ if ($categoriaCatalogo !== null) {
             } elseif (preguntaSolicitaMunicipio($questionCatalogo, $categoriaCatalogo)) {
                 echo json_encode([
                     'success' => true,
-                    'response' => 'No logré identificar ese municipio de Santander. Dime cuál buscas y te ayudo a ubicarlo.',
+                    'response' => $english
+                        ? 'I could not identify that town in Santander. Tell me which one you are looking for and I will help you find it.'
+                        : 'No logré identificar ese municipio de Santander. Dime cuál buscas y te ayudo a ubicarlo.',
                 ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
                 exit;
             } else {
@@ -695,87 +806,109 @@ if ($categoriaCatalogo !== null) {
 
         echo json_encode([
             'success' => true,
-            'response' => 'No pude consultar esa información ahora mismo. Inténtalo de nuevo más tarde.',
+            'response' => $english
+                ? 'I could not retrieve that information right now. Please try again later.'
+                : 'No pude consultar esa información ahora mismo. Inténtalo de nuevo más tarde.',
             'diagnostic_code' => $codigoDiagnostico,
             'diagnostic_stage' => $etapaConsulta,
         ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
         exit;
     }
 
-    echo json_encode([
-        'success' => true,
-        'response' => formatearDatosCatalogo(
-            $categoriaCatalogo,
-            $datosCatalogo,
-            $contextoCatalogo,
-            $offsetCatalogo,
-            $categoriaCatalogo === 'transportes'
-        ),
-    ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
-    exit;
+    if (!$groqKey || !$english) {
+        echo json_encode([
+            'success' => true,
+            'response' => formatearDatosCatalogo(
+                $categoriaCatalogo,
+                $datosCatalogo,
+                $contextoCatalogo,
+                $offsetCatalogo,
+                $categoriaCatalogo === 'transportes',
+                $english
+            ),
+        ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+        exit;
+    }
 }
-
-$groqKey = require __DIR__ . '/config.php';
-$groqKey = $groqKey['groq_key'] ?? null;
 
 function fallbackResponse(string $question): array
 {
     $question = mb_strtolower($question, 'UTF-8');
+    $english = preguntaEnIngles($question);
 
-    if (preg_match('/\b(hola|buenas|buenos dias|buenas tardes|buenas noches|hey)\b/u', $question)) {
+    if (preg_match('/\b(hola|buenas|buenos dias|buenas tardes|buenas noches|hey|hello|hi)\b/u', $question)) {
         return [
             'success' => true,
-            'response' => '¡Hola! 👋 Soy Sue, tu asistente para viajes inclusivos en Santander. ¿En qué puedo ayudarte hoy?',
+            'response' => $english
+                ? 'Hello! 👋 I am Sue, your inclusive travel assistant for Santander. How can I help you today?'
+                : '¡Hola! 👋 Soy Sue, tu asistente para viajes inclusivos en Santander. ¿En qué puedo ayudarte hoy?',
         ];
     }
 
-    if (preg_match('/\b(transporte|terminal|bus|autobus|ruta|boleto|viajar|llegar|salida|movi)\b/u', $question)) {
+    if (preg_match('/\b(transporte|transportation|terminal|bus|autobus|ruta|route|routes|boleto|viajar|travel|llegar|salida|movi)\b/u', $question)) {
         return [
             'success' => true,
-            'response' => 'En Santander puedes tomar transporte intermunicipal desde la Terminal de Bucaramanga a destinos como San Gil, Barichara, Socorro y Giron. TourismEasy también te ayuda con opciones de transporte adaptado y guías para movilidad reducida.',
+            'response' => $english
+                ? 'In Santander, you can take intercity transportation from Bucaramanga Terminal to destinations such as San Gil, Barichara, Socorro, and Girón. TourismEasy can also help you find accessible transportation and mobility support.'
+                : 'En Santander puedes tomar transporte intermunicipal desde la Terminal de Bucaramanga a destinos como San Gil, Barichara, Socorro y Giron. TourismEasy también te ayuda con opciones de transporte adaptado y guías para movilidad reducida.',
         ];
     }
 
-    if (preg_match('/\b(hospedaje|hotel|alojamiento|posada|hostal|habitacion|cama|reserva)\b/u', $question)) {
+    if (preg_match('/\b(hospedaje|accommodation|lodging|stay|hotel|alojamiento|posada|hostal|hostel|habitacion|cama|reserva|booking)\b/u', $question)) {
         return [
             'success' => true,
-            'response' => 'En la plataforma encontrarás hospedajes accesibles con rampas, baños adaptados y opciones inclusivas. Selecciona la sección de hospedaje y filtra por accesibilidad para ver las mejores opciones.',
+            'response' => $english
+                ? 'You can find accessible accommodations on the platform. Open the accommodation section and filter by accessibility to explore the available options.'
+                : 'En la plataforma encontrarás hospedajes accesibles con rampas, baños adaptados y opciones inclusivas. Selecciona la sección de hospedaje y filtra por accesibilidad para ver las mejores opciones.',
         ];
     }
 
-    if (preg_match('/\b(destino|destinos|barichara|canon|canyon|san gil|bucaramanga|santander|giron|velez|los santos|socorro)\b/u', $question)) {
+    if (preg_match('/\b(destino|destination|destinations|barichara|canon|canyon|san gil|bucaramanga|santander|giron|velez|los santos|socorro)\b/u', $question)) {
         return [
             'success' => true,
-            'response' => 'Santander tiene destinos como Barichara para turismo colonial, San Gil para aventura adaptada y el Cañon del Chicamocha para vistas accesibles. Puedes explorar planes en la plataforma según tu necesidad.',
+            'response' => $english
+                ? 'Santander offers destinations such as Barichara for colonial tourism, San Gil for accessible adventures, and Chicamocha Canyon for scenic views. You can explore tour options on the platform.'
+                : 'Santander tiene destinos como Barichara para turismo colonial, San Gil para aventura adaptada y el Cañon del Chicamocha para vistas accesibles. Puedes explorar planes en la plataforma según tu necesidad.',
         ];
     }
 
-    if (preg_match('/\b(plan|planes|tour|actividad|paquete|excursion|experiencia)\b/u', $question)) {
+    if (preg_match('/\b(plan|plans|planes|tour|activity|activities|package|packages|excursion|experience)\b/u', $question)) {
         return [
             'success' => true,
-            'response' => 'TourismEasy ofrece planes turísticos inclusivos con guías especializados y actividades adaptadas. Elige el tipo de experiencia que buscas y te guiaré a la mejor opción.',
+            'response' => $english
+                ? 'TourismEasy offers inclusive tours with specialized guides and adapted activities. Tell me what kind of experience you are looking for and I will help you explore the options.'
+                : 'TourismEasy ofrece planes turísticos inclusivos con guías especializados y actividades adaptadas. Elige el tipo de experiencia que buscas y te guiaré a la mejor opción.',
         ];
     }
 
-    if (preg_match('/\b(discapacidad|accesibilidad|inclusivo|inclusiva|silla de ruedas|visual|auditiva)\b/u', $question)) {
+    if (preg_match('/\b(discapacidad|accesibilidad|accessibility|accessible|inclusive|inclusivo|inclusiva|silla de ruedas|wheelchair|visual|auditiva)\b/u', $question)) {
         return [
             'success' => true,
-            'response' => 'Puedes encontrar servicios accesibles en transporte, hospedaje y planes. Si necesitas apoyo especial, pregunta por opciones para movilidad reducida, discapacidad visual o auditiva.',
+            'response' => $english
+                ? 'You can find accessible transportation, accommodation, and tours. If you need specific support, ask about mobility, visual, or hearing accessibility.'
+                : 'Puedes encontrar servicios accesibles en transporte, hospedaje y planes. Si necesitas apoyo especial, pregunta por opciones para movilidad reducida, discapacidad visual o auditiva.',
         ];
     }
 
     return [
         'success' => true,
-        'response' => 'Lo siento, no tengo una respuesta exacta para eso ahora mismo. Pregunta sobre transporte, hospedaje, destinos, planes o accesibilidad en Santander.',
+        'response' => $english
+            ? 'Sorry, I do not have an exact answer for that right now. Ask me about transportation, accommodation, destinations, tours, or accessibility in Santander.'
+            : 'Lo siento, no tengo una respuesta exacta para eso ahora mismo. Pregunta sobre transporte, hospedaje, destinos, planes o accesibilidad en Santander.',
     ];
 }
 
-function respuestaConDatosOFallback(string $question, ?array $datosCatalogo, ?string $categoria): array
+function respuestaConDatosOFallback(
+    string $question,
+    ?array $datosCatalogo,
+    ?string $categoria,
+    bool $english = false
+): array
 {
     if ($datosCatalogo !== null && $categoria !== null) {
         return [
             'success' => true,
-            'response' => formatearDatosCatalogo($categoria, $datosCatalogo),
+            'response' => formatearDatosCatalogo($categoria, $datosCatalogo, null, 0, false, $english),
         ];
     }
 
@@ -784,15 +917,15 @@ function respuestaConDatosOFallback(string $question, ?array $datosCatalogo, ?st
 
 if (!$groqKey) {
     echo json_encode(
-        respuestaConDatosOFallback($question, $datosCatalogo, $categoriaCatalogo),
+        respuestaConDatosOFallback($question, $datosCatalogo, $categoriaCatalogo, $english),
         JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE
     );
     exit;
 }
 
-$promptAsistente = 'Eres Sue, la asistente virtual de TourismEasy, enfocada exclusivamente en turismo, viajes, destinos y servicios turísticos de Santander, Colombia. Responde siempre en español, con amabilidad, brevedad y empatía. Limita tus respuestas a esos temas y a las funciones de TourismEasy. Si preguntan sobre fútbol, política, tareas, cultura general u otro tema ajeno al turismo, explica amablemente que solo puedes ayudar con turismo y ofrece orientar sobre destinos, transporte, hospedaje, planes, artesanías, festividades, municipios o accesibilidad. No menciones bases de datos, consultas, fuentes internas ni detalles técnicos de cómo obtienes la información. No inventes datos de servicios ni contradigas la información proporcionada. Máximo tres párrafos cortos.';
+$promptAsistente = 'Eres Sue, la asistente virtual de TourismEasy, enfocada exclusivamente en turismo, viajes, destinos y servicios turísticos de Santander, Colombia. Responde en el mismo idioma de la pregunta más reciente: si está en inglés, responde en inglés; si está en español, responde en español. Mantén un tono amable, breve y empático. Limita tus respuestas a esos temas y a las funciones de TourismEasy. Si preguntan sobre fútbol, política, tareas, cultura general u otro tema ajeno al turismo, explica amablemente en el idioma de la pregunta que solo puedes ayudar con turismo y ofrece orientar sobre destinos, transporte, hospedaje, planes, artesanías, festividades, municipios o accesibilidad. No menciones bases de datos, consultas, fuentes internas ni detalles técnicos de cómo obtienes la información. No inventes datos de servicios ni contradigas la información proporcionada. Máximo tres párrafos cortos.';
 if ($datosCatalogo !== null && $categoriaCatalogo !== null) {
-    $promptAsistente .= "\n\nInformación disponible sobre {$categoriaCatalogo}:\n";
+    $promptAsistente .= "\n\nInformación disponible sobre {$categoriaCatalogo} (los nombres y textos de los registros pueden estar en español; responde en el idioma de la pregunta y conserva sin cambios los nombres propios, precios y datos concretos):\n";
     $promptAsistente .= json_encode($datosCatalogo, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
     $promptAsistente .= "\nUsa solo esta información para responder sobre esos servicios. No inventes ni completes información que no aparezca aquí.";
 }
@@ -855,7 +988,7 @@ if ($response === false) {
 if ($response === false || $httpCode !== 200) {
     error_log("[TourismEasy IA] Groq error HTTP {$httpCode}: {$curlError}");
     echo json_encode(
-        respuestaConDatosOFallback($question, $datosCatalogo, $categoriaCatalogo),
+        respuestaConDatosOFallback($question, $datosCatalogo, $categoriaCatalogo, $english),
         JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE
     );
     exit;
@@ -865,7 +998,7 @@ $data = json_decode($response, true);
 if (!isset($data['choices'][0]['message']['content'])) {
     error_log("[TourismEasy IA] Respuesta inválida de Groq: " . $response);
     echo json_encode(
-        respuestaConDatosOFallback($question, $datosCatalogo, $categoriaCatalogo),
+        respuestaConDatosOFallback($question, $datosCatalogo, $categoriaCatalogo, $english),
         JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE
     );
     exit;
@@ -878,7 +1011,7 @@ if (
     || preg_match('/base\s+de\s+datos|datos?\s+registrad[oa]s?\s+en\s+la\s+base/iu', $answer) === 1
 ) {
     echo json_encode(
-        respuestaConDatosOFallback($question, $datosCatalogo, $categoriaCatalogo),
+        respuestaConDatosOFallback($question, $datosCatalogo, $categoriaCatalogo, $english),
         JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE
     );
     exit;

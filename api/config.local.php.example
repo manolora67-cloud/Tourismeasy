@@ -1,0 +1,5 @@
+<?php
+return [
+    'groq_key' => null,
+    'mymemory_email' => null,
+];
