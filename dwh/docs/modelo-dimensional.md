@@ -1,29 +1,52 @@
 # Modelo dimensional de Oro
 
-El DWH conserva todas las tablas originales en Bronce. Por ahora, Plata y Oro preparan y analizan únicamente hospedajes disponibles.
+Oro analiza las cuatro clases de oferta de TourismEasy. Cada oferta conserva las versiones que se encuentran en su historial de OLTP y su versión actual, si está disponible.
 
-## Dimensiones
+## Dimensiones compartidas
 
-| Tabla | Contenido e historial |
+| Tabla | Contenido |
 | --- | --- |
-| `oro.dim_departamento` | Catálogo de departamentos. |
-| `oro.dim_ciudad` | Ciudades relacionadas con su departamento. Se actualiza como dimensión tipo 1 porque OLTP no conserva cambios históricos de ciudades. |
-| `oro.dim_hospedaje` | Versiones SCD tipo 2 de los hospedajes disponibles en cada versión, con inicio, fin y estado actual. Las versiones anteriores se obtienen del historial capturado por OLTP. La vigencia indica el período de validez de una versión; no es el indicador de disponibilidad. |
-| `oro.dim_rango_capacidad` | Segmentos de capacidad: `1-10`, `11-20` y `21+`. |
+| `oro.dim_departamento` | Código y nombre del departamento. |
+| `oro.dim_ciudad` | Código y nombre de la ciudad y su departamento. |
+| `oro.dim_empresa` | Identificador, nombre, tipo de servicio y ciudad de la empresa que publica hospedajes, transportes o planes. |
+| `oro.dim_artesano` | Identificador y nombre de la persona artesana que publica productos. No incluye teléfono, correo ni credenciales. |
+
+Las dimensiones de oferta guardan los identificadores de empresa, artesano y ciudad. En Power BI se pueden relacionar con estas dimensiones por sus identificadores.
+
+## Dimensiones de oferta e historial
+
+| Tabla | Datos de la oferta |
+| --- | --- |
+| `oro.dim_hospedaje` | Nombre, tipo, empresa, ciudad y vigencia de cada versión del hospedaje. |
+| `oro.dim_transporte` | Empresa, origen, destino, ciudades, fecha y hora de salida, clase de servicio y vigencia. |
+| `oro.dim_plan_turistico` | Nombre, duración, contenido incluido, tipo de plan, empresa, ciudad y vigencia. |
+| `oro.dim_producto_artesanal` | Nombre, proveedor, categoría, ciudad, persona artesana y vigencia. |
+| `oro.dim_rango_capacidad` | Rangos de capacidad `1-10`, `11-20` y `21+` para hospedajes. |
+
+Cada dimensión de oferta usa una clave sustituta (`SK_...`), conserva el identificador de OLTP y guarda `VIGENTE_DESDE`, `VIGENTE_HASTA` y `ES_ACTUAL`. El historial de versiones es SCD tipo 2: una versión anterior se conserva y se cierra, en vez de reemplazarla.
 
 ## Hechos y grano
 
-| Tabla | Grano | Medidas |
+| Tabla | Una fila representa | Valores medibles |
 | --- | --- | --- |
-| `oro.hecho_capacidad_hospedaje` | Una fila por versión histórica disponible de un hospedaje. | Capacidad máxima, precio por noche, acción histórica y usuario registrado por el trigger. |
+| `oro.hecho_capacidad_hospedaje` | Una versión de un hospedaje. | Capacidad máxima y precio por noche. |
+| `oro.hecho_transporte` | Una versión de un transporte. | Precio del transporte. |
+| `oro.hecho_plan_turistico` | Una versión de un plan turístico. | Precio del plan. |
+| `oro.hecho_producto_artesanal` | Una versión de un producto artesanal. | Precio en pesos colombianos. |
 
-La capacidad exacta se guarda como medida numérica y el rango como dimensión analítica; no se pierde el valor original al clasificarlo. El historial conserva cada versión según sus fechas reales de vigencia SCD2; por ahora no se crean reportes separados al cierre diario, mensual o trimestral.
+Los hechos tienen una fila por versión de su dimensión y se relacionan usando la clave `SK_...`. La acción histórica y el usuario que registró el cambio se conservan cuando están disponibles en el historial. No son medidas de ventas.
 
-El modelo analítico solo carga hospedajes disponibles. Si un hospedaje deja de estar disponible, la última versión disponible permanece como historia y se cierra; no se agrega una versión no disponible al catálogo analítico.
+La fecha y hora de salida del transporte se guardan como atributos de `dim_transporte`; no se generan hechos por día o por viaje. Tampoco se calculan agregados diarios, mensuales o trimestrales.
 
-El usuario de `HECHO_CAPACIDAD_HOSPEDAJE` es el valor guardado por el trigger de OLTP y corresponde al usuario de base de datos que registró el evento; no necesariamente identifica a la persona final que usó la aplicación. No se almacena una fecha de proceso; las fechas de los cambios proceden del historial y de la vigencia SCD2.
+## Tratamiento por tipo de oferta
+
+- **Hospedajes, transportes y planes:** Plata carga los registros actuales con `DISPONIBILIDAD = TRUE`. También procesa snapshots históricos que estaban disponibles. Cuando una oferta deja de estar disponible, la última versión disponible permanece como historia y se cierra.
+- **Productos artesanales:** la tabla fuente no tiene una columna de disponibilidad. Plata carga los productos existentes y todos los snapshots del historial de productos, incluso si corresponden a una eliminación.
+- **Publicación de productos:** el identificador de artesano sale de `ID_PERSONA_ECOMMERCE`. Plata toma el nombre de `PERSONAS_ECOMMERCE`, y Oro lo guarda en `dim_artesano`. La tabla de productos permite que ese identificador sea nulo; esas filas deben revisarse antes de interpretar el análisis por artesano.
 
 ## Límites interpretativos
 
-- Los rangos de capacidad preservan los límites ya usados por el modelo; los usuarios deben confirmar si son categorías útiles para el negocio.
-- La historia de hospedajes depende de las filas existentes en `HISTORICO_HOSPEDAJE` y de que el trigger haya estado activo cuando ocurrió el cambio.
+- El DWH analiza catálogo, precios, disponibilidad e historial de ofertas; las fuentes actuales no contienen transacciones de reserva o compra en este flujo.
+- La relación de componentes entre planes, hospedajes y transportes se conserva en Bronce. No se convierte en un hecho de Oro en esta versión.
+- El historial depende de las filas registradas por los triggers de OLTP. Si no se capturó un cambio, el DWH no inventa una versión ni su fecha.
+- Los rangos de capacidad conservan la clasificación que ya estaba en el modelo; se deben confirmar con los usuarios antes de tratarlos como una regla definitiva.

@@ -1,30 +1,51 @@
 # Decisiones y limitaciones
 
-## Alcance del DWH
+## Alcance
 
-El objetivo de Oro es responder preguntas analíticas que no son simples consultas operativas del OLTP. Las búsquedas de catálogo y la operación diaria permanecen en la aplicación transaccional. Power BI consulta hechos, dimensiones y vistas consolidadas; la limpieza y las reglas de transformación se ejecutan antes, en Bronce y Plata.
+La primera versión de Plata y Oro cubre hospedajes, transportes, planes turísticos y productos artesanales. Bronce copia las tablas completas de `public`, mientras Plata y Oro solo exponen los datos necesarios para analizar esas cuatro clases de oferta.
 
-Bronce copia todas las tablas de `public` sin cambiar sus filas ni columnas. Plata limpia y selecciona atributos; Oro no consulta directamente las tablas de `public` o Bronce.
-No se almacena `FECHA_PROCESO`: el ETL no crea una fecha de negocio. El análisis temporal de hospedajes usa las fechas reales de modificación y del historial de OLTP.
+El objetivo es analizar ofertas, precios, disponibilidad e historial. El DWH no calcula ventas ni reservas porque este flujo no cuenta con tablas fuente para esas transacciones.
 
-## Historial SCD tipo 2
+## Proceso por capas
 
-- `oro.dim_hospedaje` utiliza los snapshots anteriores de `bronce.historico_hospedaje`, transformados en `plata.hist_cambios_hospedaje`, y el estado actual de `plata.hospedajes_disponibles`. Al cambiar o dejar de estar disponible un hospedaje, se cierra la versión disponible y se conserva el historial.
-- `oro.dim_ciudad` y `oro.dim_departamento` son catálogos tipo 1. La base OLTP no conserva un historial de sus cambios.
-- La historia disponible depende de que las tablas y triggers de OLTP hayan registrado los cambios. No se fabrican versiones ni fechas que la fuente no tenga.
+- **Bronce** copia las tablas de `public` sin limpiar ni cambiar valores.
+- **Plata** prepara ciudades, departamentos, las personas artesanas, ofertas disponibles e historiales.
+- **Oro** organiza dimensiones y hechos para Power BI. Oro se carga desde Plata, no directamente desde las tablas OLTP.
 
-## Granularidad y consolidación
+Los scripts usan `TRIM` para quitar espacios, `CAST` para convertir tipos y `->>` para leer campos de los snapshots JSON. Las fechas se toman de OLTP; no se agrega una fecha artificial de proceso.
 
-El hecho de capacidad tiene una fila por versión histórica del hospedaje. El valor exacto de capacidad se conserva y se clasifica en rangos ya usados por el modelo: `1-10`, `11-20` y `21+`. Esos rangos son una propuesta técnica pendiente de validación con los usuarios.
+## Historial tipo 2
 
-El historial conserva cada versión del hospedaje con sus fechas reales SCD2. Por ahora no se crean reportes separados de capacidad al cierre diario, mensual o trimestral; se pueden agregar cuando los usuarios confirmen qué consolidación necesitan.
+Las dimensiones `dim_hospedaje`, `dim_transporte`, `dim_plan_turistico` y `dim_producto_artesanal` guardan versiones históricas con una clave sustituta, fechas de vigencia y un indicador de versión actual.
 
-Por ahora, Oro conserva el estado y el historial SCD2 de hospedajes. Los análisis estadísticos y las consolidaciones se definirán más adelante con los usuarios.
+- En hospedajes, transportes y planes, solo se analizan las ofertas disponibles. El snapshot anterior se conserva si estaba disponible; si deja de estarlo, la última versión disponible se cierra.
+- En productos artesanales no existe una columna de disponibilidad. Se cargan los productos que existen y los snapshots registrados en `historico_producto_artesanal`.
+- La fecha inicial se obtiene de `fecha_modificacion` o `fecha_creacion` del snapshot. Si faltan, se usa la fecha del registro histórico. La fecha final es la fecha registrada por el historial de OLTP.
+- La historia depende de que los triggers estén activos y hayan guardado los cambios. No se crean snapshots ni fechas que no existan en la fuente.
 
-## Privacidad y acceso
+Las dimensiones de ciudad, departamento, empresa y artesano se actualizan como tipo 1: se conserva el dato más reciente, pues el flujo no crea historial para esos catálogos.
 
-Bronce copia todas las columnas de las tablas de `public`, entre ellas algunos datos de contacto y snapshots históricos. Restringe el acceso a ese esquema. Plata y Oro no deben exponer credenciales, contactos ni datos que no hagan falta para las preguntas analíticas.
+## Publicación artesanal
 
-## Límites de negocio
+`productos_artesanales.id_persona_ecommerce` relaciona el producto con la persona que lo publica. Plata prepara esa persona desde `personas_ecommerce`; Oro la expone en `dim_artesano`. La tabla de productos permite que el identificador de persona sea nulo. El control de validación lo reporta para revisión.
 
-- La extracción de Bronce es completa. Al agregar una tabla en `public`, ejecuta de nuevo la creación de tablas de Bronce y la extracción. Solo agrega una transformación en Plata si esa tabla se necesita para el análisis.
+Las dimensiones de Oro no copian correo, teléfono ni contraseña de la persona artesana. Bronce sí copia las columnas originales, por lo cual su acceso debe restringirse.
+
+## Granularidad y cálculos
+
+Cada hecho tiene una fila por versión de una oferta:
+
+- hospedaje: precio por noche y capacidad;
+- transporte: precio;
+- plan turístico: precio;
+- producto artesanal: precio en pesos colombianos.
+
+El transporte guarda su fecha y hora de salida en la dimensión de transporte. No se crean agregados por día, mes o trimestre ni métricas estadísticas adicionales. Los rangos de capacidad `1-10`, `11-20` y `21+` mantienen los límites actuales del modelo y requieren confirmación del negocio.
+
+## Relaciones de planes
+
+Bronce incluye `plan_componentes`, pero esa relación no se transforma en Oro en esta versión. La tabla define componentes de tipo hospedaje o transporte, pero su modelo OLTP actual solo tiene una columna de referencia para hospedaje. Por eso, los análisis de Oro describen el plan y su precio, no la lista de transportes u hospedajes que lo componen.
+
+## Power BI y permisos
+
+Power BI debe consultar Oro; no reemplaza el proceso de extracción y transformación SQL. Antes de publicar el DWH, configura en PostgreSQL los permisos necesarios para que el usuario de reportes pueda leer Oro sin modificar las capas.
