@@ -130,7 +130,8 @@
         imagen.className = "mapa-popup-imagen";
         imagen.src = destino.img;
         imagen.alt = destino.alt || destino.titulo;
-        imagen.loading = "eager";
+        imagen.loading = "lazy";
+        imagen.decoding = "async";
         contenido.appendChild(imagen);
 
         const cuerpo = document.createElement("div");

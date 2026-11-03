@@ -655,6 +655,46 @@
         return {};
     }
 
+    function fetchMunicipalitiesCached(url) {
+        const cacheKey = "tourismeasy_public_cities_v1";
+        const cacheDuration = 30 * 60 * 1000;
+
+        try {
+            const cached = JSON.parse(window.sessionStorage.getItem(cacheKey) || "null");
+            if (
+                cached
+                && cached.expiresAt > Date.now()
+                && Array.isArray(cached.data)
+            ) {
+                return Promise.resolve(cached.data);
+            }
+            if (cached) window.sessionStorage.removeItem(cacheKey);
+        } catch (error) {
+            console.warn("[TourismEasy] No se pudo leer la caché de municipios; se consultará el servidor.", error);
+        }
+
+        return fetch(url)
+            .then((response) => {
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return response.json();
+            })
+            .then((result) => {
+                if (!result.ok || !result.data || !Array.isArray(result.data.ciudades)) {
+                    throw new Error(result.error || "La lista de municipios no tiene el formato esperado.");
+                }
+                const cities = result.data.ciudades.filter((city) => String(city.id).startsWith("68"));
+                try {
+                    window.sessionStorage.setItem(cacheKey, JSON.stringify({
+                        expiresAt: Date.now() + cacheDuration,
+                        data: cities,
+                    }));
+                } catch (error) {
+                    console.warn("[TourismEasy] No se pudo guardar la caché de municipios.", error);
+                }
+                return cities;
+            });
+    }
+
     function createMunicipalities(cities, content, initialized) {
         return cities.map((city, index) => {
             const slug = slugify(city.nombre);
@@ -786,17 +826,7 @@
         mobileLayout.addEventListener("change", () => renderCarousel(pageIndex * pageSize));
     }
 
-    const citiesPromise = fetch(`${basePath}datos_referencia.php?tipo=ciudades`)
-        .then((response) => {
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            return response.json();
-        })
-        .then((result) => {
-            if (!result.ok || !result.data || !Array.isArray(result.data.ciudades)) {
-                throw new Error(result.error || "La lista de municipios no tiene el formato esperado.");
-            }
-            return result.data.ciudades.filter((city) => String(city.id).startsWith("68"));
-        });
+    const citiesPromise = fetchMunicipalitiesCached(`${basePath}datos_referencia.php?tipo=ciudades`);
 
     const contentPromise = fetch(`${basePath}admin/contenido_portada.php`)
         .then((response) => {

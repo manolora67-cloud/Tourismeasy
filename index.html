@@ -132,9 +132,54 @@
     <script src="componentes/navbar.js"></script>
     <script src="componentes/btn-acceder.js"></script>
     <script src="componentes/dark-mode-toggle.js"></script>
-    <script src="componentes/destinos.js?v=municipios-paginados-v6"></script>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="mapa_interactuable/mapa.js?v=mapa-todos-municipios-v3"></script>
+    <script src="componentes/destinos.js?v=municipios-paginados-v7"></script>
+    <script>
+        (function () {
+            const mount = document.getElementById("site-destinos");
+            if (!mount) return;
+
+            let started = false;
+            const loadScript = function (src) {
+                return new Promise(function (resolve, reject) {
+                    const script = document.createElement("script");
+                    script.src = src;
+                    script.onload = resolve;
+                    script.onerror = function () {
+                        reject(new Error("No se pudo cargar " + src));
+                    };
+                    document.body.appendChild(script);
+                });
+            };
+
+            const loadMap = async function () {
+                if (started) return;
+                started = true;
+                try {
+                    await loadScript("https://unpkg.com/leaflet@1.9.4/dist/leaflet.js");
+                    await loadScript("mapa_interactuable/mapa.js?v=mapa-todos-municipios-v4");
+                } catch (error) {
+                    console.error("[TourismEasy] No se pudo iniciar el mapa.", error);
+                    const notice = document.createElement("p");
+                    notice.className = "destinos-error";
+                    notice.setAttribute("role", "alert");
+                    notice.textContent = "No se pudo cargar el mapa. Puedes explorar los municipios en las tarjetas.";
+                    mount.appendChild(notice);
+                }
+            };
+
+            if (!("IntersectionObserver" in window)) {
+                loadMap();
+                return;
+            }
+
+            const observer = new IntersectionObserver(function (entries) {
+                if (!entries.some(function (entry) { return entry.isIntersecting; })) return;
+                observer.disconnect();
+                loadMap();
+            }, { rootMargin: "700px 0px" });
+            observer.observe(mount);
+        })();
+    </script>
     <script src="componentes/articulos.js?v=municipios-info-v2"></script>
     <script src="componentes/footer.js"></script>
 
