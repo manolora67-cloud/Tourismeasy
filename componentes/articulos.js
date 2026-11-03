@@ -1857,8 +1857,8 @@
     </div>`;
 
     const videoHTML = (a) => a.video ? `
-          <video class="art-video-bg" poster="${escapeHtml(a.poster || "")}" muted loop playsinline preload="metadata">
-            <source src="${escapeHtml(a.video)}" />
+          <video class="art-video-bg" data-poster="${escapeHtml(a.poster || "")}" muted loop playsinline preload="none">
+            <source data-src="${escapeHtml(a.video)}" />
           </video>
           <button class="art-btn-sound" onclick="toggleArtSound(this)">🔇</button>` : "";
 
@@ -1899,6 +1899,22 @@
         mount.innerHTML = articulos.map(overlayHTML).join("");
     }
 
+    function prepararArtVideo(video) {
+        if (!video) return;
+
+        const source = video.querySelector("source[data-src]");
+        if (source) {
+            source.src = source.dataset.src;
+            source.removeAttribute("data-src");
+            video.load();
+        }
+
+        if (video.dataset.poster) {
+            video.poster = video.dataset.poster;
+            delete video.dataset.poster;
+        }
+    }
+
     renderArticulos(ARTICULOS);
     const municipiosPromise = window.TE_MUNICIPIOS_PROMISE || Promise.resolve([]);
     municipiosPromise.then((municipios) => {
@@ -1932,7 +1948,10 @@
                 overlay.classList.add("open");
                 document.body.style.overflow = "hidden";
                 const video = overlay.querySelector(".art-video-bg");
-                if (video) video.play().catch(() => {});
+                if (video) {
+                    prepararArtVideo(video);
+                    video.play().catch(() => {});
+                }
             }
         }
     }).catch((error) => {
@@ -1971,6 +1990,7 @@
             if (modal) modal.scrollTop = 0;
             const video = overlay.querySelector(".art-video-bg");
             if (video) {
+                prepararArtVideo(video);
                 video.currentTime = 0;
                 video.play().catch(() => {});
             }
