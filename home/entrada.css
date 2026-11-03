@@ -12,6 +12,10 @@
     transition: opacity 450ms ease, visibility 450ms ease;
 }
 
+.welcome-screen[hidden] {
+    display: none;
+}
+
 body.welcome-active {
     overflow: hidden;
 }

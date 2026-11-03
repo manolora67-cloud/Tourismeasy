@@ -297,9 +297,17 @@ if ($categoriaCatalogo !== null) {
         }
     } catch (Throwable $e) {
         error_log('[TourismEasy IA] No se pudo consultar el catálogo: ' . $e->getMessage());
+        $codigoDiagnostico = $e instanceof PDOException && isset($e->errorInfo[0])
+            ? (string)$e->errorInfo[0]
+            : 'SERVER_ERROR';
+        if (preg_match('/^[0-9A-Z]{5}$/D', $codigoDiagnostico) !== 1) {
+            $codigoDiagnostico = 'SERVER_ERROR';
+        }
+
         echo json_encode([
             'success' => true,
             'response' => 'No pude consultar esa información ahora mismo. Inténtalo de nuevo más tarde.',
+            'diagnostic_code' => $codigoDiagnostico,
         ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
         exit;
     }

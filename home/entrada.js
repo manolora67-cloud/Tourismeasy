@@ -1,10 +1,47 @@
 (function () {
+    const WELCOME_SEEN_KEY = "tourismeasy_welcome_seen";
     const welcomeScreen = document.getElementById("welcomeScreen");
     const welcomeButton = document.getElementById("welcomeButton");
     const siteContent = document.getElementById("site-content");
 
     if (!welcomeScreen || !welcomeButton || !siteContent) {
         throw new Error("No se pudo iniciar la pantalla de bienvenida de TourismEasy.");
+    }
+
+    function yaSeMostroBienvenida() {
+        try {
+            return window.localStorage.getItem(WELCOME_SEEN_KEY) === "1";
+        } catch (error) {
+            console.warn("[TourismEasy] No se pudo comprobar si ya se mostró la bienvenida:", error);
+            try {
+                return window.sessionStorage.getItem(WELCOME_SEEN_KEY) === "1";
+            } catch (sessionError) {
+                console.error("[TourismEasy] No se pudo leer el estado de la bienvenida:", sessionError);
+                return false;
+            }
+        }
+    }
+
+    function guardarBienvenidaMostrada() {
+        try {
+            window.localStorage.setItem(WELCOME_SEEN_KEY, "1");
+            return;
+        } catch (error) {
+            console.warn("[TourismEasy] No se pudo guardar la bienvenida en el navegador:", error);
+        }
+
+        try {
+            window.sessionStorage.setItem(WELCOME_SEEN_KEY, "1");
+        } catch (error) {
+            console.error("[TourismEasy] No se pudo guardar el estado de la bienvenida:", error);
+        }
+    }
+
+    if (yaSeMostroBienvenida()) {
+        welcomeScreen.hidden = true;
+        siteContent.inert = false;
+        document.body.classList.remove("welcome-active");
+        return;
     }
 
     function makeBackgroundInert() {
@@ -22,6 +59,7 @@
     function dismissWelcome() {
         if (welcomeScreen.classList.contains("is-leaving")) return;
 
+        guardarBienvenidaMostrada();
         welcomeButton.disabled = true;
         welcomeScreen.classList.add("is-leaving");
         let isDismissed = false;
@@ -57,5 +95,4 @@
     }
 
     welcomeButton.addEventListener("click", dismissWelcome);
-
 })();
