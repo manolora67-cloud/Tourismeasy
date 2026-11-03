@@ -28,6 +28,7 @@
             <ul>
               <li><a href="#" data-modal="privacidad">Política de Privacidad</a></li>
               <li><a href="#" data-modal="terminos">Términos de Servicio</a></li>
+              <li><a href="#" data-modal="accesibilidad">Declaración de Accesibilidad</a></li>
             </ul>
           </div>
           <div class="footer-col">
@@ -46,12 +47,12 @@
       </div>
     </footer>
 
-    <div class="modal-overlay" id="modalOverlay">
-      <div class="modal-box" id="modalBox">
-        <button class="modal-close" id="modalClose">&times;</button>
+    <div class="modal-overlay" id="modalOverlay" aria-hidden="true" inert>
+      <section class="modal-box" id="modalBox" role="dialog" aria-modal="true" aria-labelledby="modalTitle" tabindex="-1">
+        <button class="modal-close" id="modalClose" type="button" aria-label="Cerrar ventana">&times;</button>
         <h2 id="modalTitle"></h2>
         <div id="modalContent"></div>
-      </div>
+      </section>
     </div>
   `;
 
@@ -157,19 +158,44 @@
         <h3>4. Responsabilidad</h3>
         <p>Actuamos como intermediario tecnológico. Las condiciones específicas de cada servicio son responsabilidad de cada empresa aliada.</p>`,
         },
+        accesibilidad: {
+            title: "Declaración de Accesibilidad",
+            content: `<p>En TourismEasy trabajamos para que más personas puedan consultar y utilizar la plataforma, con independencia de sus capacidades o de la tecnología que utilicen. Seguimos mejorando la accesibilidad; esta declaración no constituye una certificación de conformidad ni garantiza que todas las secciones cumplan completamente con una norma.</p>
+        <h3>Herramientas de accesibilidad</h3>
+        <p>El menú flotante de accesibilidad permite cambiar el idioma de la interfaz, aumentar o disminuir el tamaño del texto y restablecerlo al 100 %, activar alto contraste y usar lectura en voz alta cuando el navegador lo admite. El panel se abre desde el botón con el símbolo de accesibilidad.</p>
+        <h3>Teclado y tecnologías de asistencia</h3>
+        <p>Los controles interactivos se están adaptando para su uso con teclado y tecnologías de asistencia. La navegación y la compatibilidad pueden variar según la sección, el navegador y el dispositivo. La disponibilidad de la lectura en voz alta también depende de las voces instaladas.</p>
+        <h3>Marco de referencia</h3>
+        <p>Tomamos como referencia la <a href="https://www.funcionpublica.gov.co/eva/gestornormativo/norma.php?i=52081" target="_blank" rel="noopener noreferrer">Ley 1618 de 2013</a>, los lineamientos de accesibilidad web de la Resolución 1519 de 2020 y las pautas WCAG 2.1 nivel AA del W3C, en cuanto resulten aplicables. Esta referencia no significa que TourismEasy haya sido auditado o certificado bajo esas normas.</p>
+        <h3>¿Encontraste una barrera?</h3>
+        <p>Cuéntanos qué página y qué función te dieron dificultad para que podamos revisarlo. Escríbenos a <a href="mailto:tourismeasyadso@gmail.com">tourismeasyadso@gmail.com</a> o al <a href="https://wa.me/573174613395" target="_blank" rel="noopener noreferrer">+57 317 461 3395</a>.</p>`,
+        },
     };
 
     const overlay = document.getElementById("modalOverlay");
     const modalTitle = document.getElementById("modalTitle");
     const modalContent = document.getElementById("modalContent");
     const modalClose = document.getElementById("modalClose");
+    const modalBox = document.getElementById("modalBox");
+    let modalTrigger = null;
 
     function openModal(key) {
         const data = modalData[key];
         if (!data) return;
+        modalTrigger = document.activeElement;
         modalTitle.textContent = data.title;
         modalContent.innerHTML = data.content;
+        overlay.inert = false;
+        overlay.setAttribute("aria-hidden", "false");
         overlay.classList.add("active");
+        modalClose.focus();
+    }
+
+    function closeModal() {
+        overlay.classList.remove("active");
+        overlay.inert = true;
+        overlay.setAttribute("aria-hidden", "true");
+        if (modalTrigger instanceof HTMLElement) modalTrigger.focus();
     }
 
     // Delegación de eventos: funciona con cualquier link [data-modal] presente
@@ -181,8 +207,29 @@
         openModal(trigger.getAttribute("data-modal"));
     });
 
-    modalClose.addEventListener("click", () => overlay.classList.remove("active"));
+    modalClose.addEventListener("click", closeModal);
     overlay.addEventListener("click", (e) => {
-        if (e.target === overlay) overlay.classList.remove("active");
+        if (e.target === overlay) closeModal();
+    });
+    document.addEventListener("keydown", (e) => {
+        if (!overlay.classList.contains("active")) return;
+        if (e.key === "Escape") {
+            closeModal();
+            return;
+        }
+        if (e.key !== "Tab") return;
+
+        const focusable = modalBox.querySelectorAll(
+            'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        );
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+            e.preventDefault();
+            last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+            e.preventDefault();
+            first.focus();
+        }
     });
 })();

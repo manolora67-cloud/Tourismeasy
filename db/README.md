@@ -152,6 +152,10 @@ La conexión PDO se encuentra en [`../con_db/db.php`](../con_db/db.php). Actualm
 
 El nombre de base de datos usado actualmente por la configuración es `tourismeasy`, con el puerto PostgreSQL habitual `5432`. La disponibilidad de las funciones del sistema depende de haber importado también los scripts SQL necesarios de `functions/`.
 
+## Accesibilidad y base de datos
+
+El menú de accesibilidad y la declaración emergente del pie de página son funciones de la interfaz y no requieren tablas, funciones SQL ni migraciones de PostgreSQL. Las preferencias de tamaño de texto, contraste, lectura y selección de idioma se guardan en el almacenamiento local del navegador; no se guardan en esta base de datos. Para revisar qué herramientas ofrece el menú y el alcance informativo de la declaración, consulta la sección de accesibilidad del [README principal](../README.md).
+
 ## Organización del modelo
 
 El esquema reúne entidades para:
