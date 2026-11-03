@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>TourismEasy -Ojos, oidos y pasos libres</title>
     <link rel="stylesheet" href="css/index.css?v=navbar-sticky-v1" />
+    <link rel="stylesheet" href="home/entrada.css?v=responsive-v1" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="mapa_interactuable/mapa.css?v=mapa-popup-espaciado-v4" />
     <link rel="stylesheet" href="css/login.css" />
@@ -20,9 +21,28 @@
     <script src="componentes/ui-feedback.js?v=ui-feedback-v3"></script>
 </head>
 
-<body>
-    <!-- NAVBAR: se rellena solo con js/components/navbar.js -->
-    <div id="site-navbar" data-context="root" data-active="inicio"></div>
+<body class="welcome-active">
+    <section class="welcome-screen" id="welcomeScreen" role="dialog" aria-modal="true" aria-labelledby="welcomeTitle" aria-describedby="welcomeDescription">
+        <img class="welcome-image" src="img/home.jpeg" alt="" fetchpriority="high" />
+        <div class="welcome-overlay"></div>
+        <div class="welcome-content">
+            <img class="welcome-logo" src="img/TURISMEASY.png" alt="TourismEasy" />
+            <p class="welcome-eyebrow">Turismo inclusivo · Santander, Colombia</p>
+            <h1 id="welcomeTitle">¡Hola, bienvenido a TourismEasy!</h1>
+            <p class="welcome-description" id="welcomeDescription">
+                Explora Santander a tu ritmo. Descubre destinos, experiencias y servicios turísticos accesibles para todos.
+            </p>
+            <button class="welcome-button" id="welcomeButton" type="button">Comenzar a explorar <span aria-hidden="true">&rarr;</span></button>
+        </div>
+        <div class="welcome-footer">
+            <p>Un destino para todos</p>
+            <p class="welcome-credit">Hecho por talento santandereano</p>
+        </div>
+    </section>
+
+    <div id="site-content" inert>
+        <!-- NAVBAR: se rellena solo con js/components/navbar.js -->
+        <div id="site-navbar" data-context="root" data-active="inicio"></div>
 
     <!-- HERO -->
     <section class="hero">
@@ -95,7 +115,9 @@
     <div id="site-articulos"></div>
 
     <div id="site-footer"></div>
+    </div>
 
+    <script src="home/entrada.js"></script>
     <script src="componentes/navbar.js"></script>
     <script src="componentes/btn-acceder.js"></script>
     <script src="componentes/dark-mode-toggle.js"></script>
