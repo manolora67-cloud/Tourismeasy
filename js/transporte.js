@@ -797,7 +797,7 @@ document
 
         var imgHtml =
             imageUrl
-                ? '<img src="' +
+                ? '<img loading="lazy" decoding="async" src="' +
                 escapeTransportHtml(imageUrl) +
                 '" class="card-banner" alt="Transporte ' +
                 escapeTransportHtml(titulo) +

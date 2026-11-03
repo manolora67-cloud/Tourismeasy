@@ -241,6 +241,8 @@ function mostrarDetallePlan(plan) {
         if (imageUrl) {
             var image = document.createElement("img");
             image.className = "card-banner";
+            image.loading = "lazy";
+            image.decoding = "async";
             image.src = imageUrl;
             image.alt = nombre;
             card.appendChild(image);

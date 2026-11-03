@@ -288,6 +288,8 @@ function renderProducts() {
         const imageUrl = productImageUrl(product.img);
         if (imageUrl) {
             const image = document.createElement("img");
+            image.loading = "lazy";
+            image.decoding = "async";
             image.src = imageUrl;
             image.alt = String(product.name || "");
             card.appendChild(image);
