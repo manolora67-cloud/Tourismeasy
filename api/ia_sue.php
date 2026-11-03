@@ -266,9 +266,11 @@ if (
 
 $datosCatalogo = null;
 $contextoCatalogo = null;
+$etapaConsulta = 'catalogo';
 if ($categoriaCatalogo !== null) {
     try {
         if ($categoriaCatalogo === 'transportes') {
+            $etapaConsulta = 'municipios';
             $municipiosMencionados = buscarMunicipiosMencionados($question);
             if ($municipiosMencionados !== []) {
                 $preguntaNormalizada = normalizarTextoMunicipio($question);
@@ -283,6 +285,7 @@ if ($categoriaCatalogo !== null) {
                     : null;
                 $destino = $origen === null ? $primerMunicipio : $municipiosMencionados[1] ?? null;
 
+                $etapaConsulta = 'rutas';
                 $datosCatalogo = cargarTransportesPorRuta($origen, $destino);
                 $contextoCatalogo = $origen === null
                     ? "con destino a {$destino}"
@@ -290,24 +293,39 @@ if ($categoriaCatalogo !== null) {
                         ? "con origen en {$origen}"
                         : "desde {$origen} hacia {$destino}");
             } else {
+                $etapaConsulta = 'catalogo';
                 $datosCatalogo = cargarDatosCatalogo($categoriaCatalogo);
             }
         } else {
+            $etapaConsulta = 'catalogo';
             $datosCatalogo = cargarDatosCatalogo($categoriaCatalogo);
         }
     } catch (Throwable $e) {
         error_log('[TourismEasy IA] No se pudo consultar el catálogo: ' . $e->getMessage());
-        $codigoDiagnostico = $e instanceof PDOException && isset($e->errorInfo[0])
-            ? (string)$e->errorInfo[0]
-            : 'SERVER_ERROR';
+        $codigoDiagnostico = 'SERVER_ERROR';
+        if ($e instanceof PDOException) {
+            $codigoDiagnostico = (string)($e->errorInfo[0] ?? $e->getCode());
+            if (preg_match('/^[0-9A-Z]{5}$/D', $codigoDiagnostico) !== 1) {
+                $codigoDiagnostico = 'DB_ERROR';
+            }
+        } else {
+            $tipoError = (new ReflectionClass($e))->getShortName();
+            if (preg_match('/^[A-Za-z]+$/D', $tipoError) === 1) {
+                $codigoDiagnostico = 'PHP_' . strtoupper($tipoError);
+            }
+        }
         if (preg_match('/^[0-9A-Z]{5}$/D', $codigoDiagnostico) !== 1) {
-            $codigoDiagnostico = 'SERVER_ERROR';
+            if (!in_array($codigoDiagnostico, ['DB_ERROR'], true)
+                && preg_match('/^PHP_[A-Z]+$/D', $codigoDiagnostico) !== 1) {
+                $codigoDiagnostico = 'SERVER_ERROR';
+            }
         }
 
         echo json_encode([
             'success' => true,
             'response' => 'No pude consultar esa información ahora mismo. Inténtalo de nuevo más tarde.',
             'diagnostic_code' => $codigoDiagnostico,
+            'diagnostic_stage' => $etapaConsulta,
         ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
         exit;
     }

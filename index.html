@@ -5,6 +5,24 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>TourismEasy -Ojos, oidos y pasos libres</title>
+    <script>
+        let welcomeAlreadySeen = false;
+        try {
+            welcomeAlreadySeen = localStorage.getItem("tourismeasy_welcome_seen") === "1";
+        } catch (error) {
+            console.warn("[TourismEasy] No se pudo comprobar el estado guardado de la bienvenida:", error);
+        }
+        if (!welcomeAlreadySeen) {
+            try {
+                welcomeAlreadySeen = sessionStorage.getItem("tourismeasy_welcome_seen") === "1";
+            } catch (error) {
+                console.warn("[TourismEasy] No se pudo comprobar el estado de sesión de la bienvenida:", error);
+            }
+        }
+        if (welcomeAlreadySeen) {
+            document.documentElement.classList.add("welcome-seen");
+        }
+    </script>
     <link rel="stylesheet" href="css/index.css?v=navbar-sticky-v1" />
     <link rel="stylesheet" href="home/entrada.css?v=responsive-v1" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />

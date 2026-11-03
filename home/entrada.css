@@ -16,6 +16,10 @@
     display: none;
 }
 
+html.welcome-seen .welcome-screen {
+    display: none;
+}
+
 body.welcome-active {
     overflow: hidden;
 }
