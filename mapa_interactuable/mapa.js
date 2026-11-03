@@ -128,7 +128,7 @@
 
         const imagen = document.createElement("img");
         imagen.className = "mapa-popup-imagen";
-        imagen.src = destino.img;
+        imagen.dataset.src = destino.img;
         imagen.alt = destino.alt || destino.titulo;
         imagen.loading = "lazy";
         imagen.decoding = "async";
@@ -166,7 +166,7 @@
             popupAnchor: [0, -40],
         });
 
-        return window.L.marker(coordenadas, {
+        const marcador = window.L.marker(coordenadas, {
             icon: icono,
             title: destino.titulo,
             alt: `Ver ${destino.titulo} en el mapa`,
@@ -175,6 +175,17 @@
             minWidth: 240,
             className: "destino-popup",
         });
+
+        marcador.on("popupopen", () => {
+            const elementoPopup = marcador.getPopup().getElement();
+            const imagen = elementoPopup && elementoPopup.querySelector(".mapa-popup-imagen");
+            if (!imagen || !imagen.dataset.src) return;
+
+            imagen.src = imagen.dataset.src;
+            delete imagen.dataset.src;
+        });
+
+        return marcador;
     }
 
     function agregarDestinoAlPanel(destino, marcador, lista, mapa) {
