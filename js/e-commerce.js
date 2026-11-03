@@ -9,12 +9,12 @@ let currentPage = 1;
 const productsPerPage = 10;
 let productsLoading = true;
 let productsLoadError = false;
+let productFiltersLoaded = false;
 let productSearchTimer = null;
 
 // Productos publicados en la base de datos.
 let dbProducts = [];
 
-const PRODUCTOS_API_URL = "../e-commerce/listar.php?ajax=1";
 const PRODUCTOS_BUSCAR_API_URL = "../e-commerce/buscar.php";
 let productSearchRequestId = 0;
 
@@ -57,23 +57,7 @@ function productImageUrl(image) {
  * Trae los productos publicados desde la base de datos.
  */
 async function loadDbProducts() {
-    try {
-        const response = await fetch(PRODUCTOS_API_URL);
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        const result = await response.json();
-        if (!result.ok || !Array.isArray(result.data)) {
-            throw new Error(result.error || "El servidor devolvió una respuesta inválida.");
-        }
-        dbProducts = result.data.map(mapDbProduct);
-        populateProductFilters();
-        await searchProducts();
-    } catch (error) {
-        console.error("Error cargando productos desde el servidor:", error);
-        productsLoadError = true;
-        dbProducts = [];
-        productsLoading = false;
-        renderProducts();
-    }
+    await searchProducts();
 }
 
 async function searchProducts() {
@@ -89,14 +73,20 @@ async function searchProducts() {
     renderProducts();
 
     try {
-        const response = await fetch(`${PRODUCTOS_BUSCAR_API_URL}?${params.toString()}`);
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        const result = await response.json();
+        const result = await window.TECatalogCache.fetchJson(
+            `${PRODUCTOS_BUSCAR_API_URL}?${params.toString()}`,
+            undefined,
+            "No se pudieron cargar los productos."
+        );
         if (requestId !== productSearchRequestId) return;
         if (!result.ok || !Array.isArray(result.data)) {
             throw new Error(result.error || "El servidor devolvió una respuesta inválida.");
         }
         dbProducts = result.data.map(mapDbProduct);
+        if (!productFiltersLoaded) {
+            populateProductFilters();
+            productFiltersLoaded = true;
+        }
         productsLoading = false;
         renderProducts();
     } catch (error) {

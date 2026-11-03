@@ -224,13 +224,9 @@ function cargarCiudadesTransporte() {
         select.replaceChildren(new Option('Cargando municipios...', ''));
     });
 
-    fetch('../datos_referencia.php?tipo=ciudades', {
+    window.TECatalogCache.fetchJson('../datos_referencia.php?tipo=ciudades', {
         credentials: 'include'
-    })
-        .then(function (response) {
-            if (!response.ok) throw new Error('No se pudieron cargar los municipios.');
-            return response.json();
-        })
+    }, 'No se pudieron cargar los municipios.')
         .then(function (result) {
             if (!result.ok || !result.data || !Array.isArray(result.data.ciudades)) {
                 throw new Error(result.error || 'Respuesta inválida al cargar municipios.');
@@ -272,14 +268,9 @@ function cargarClasesTransporte() {
     select.disabled = true;
     select.replaceChildren(new Option('Cargando clases...', ''));
 
-    fetch('../transporte/clases.php', {
+    window.TECatalogCache.fetchJson('../transporte/clases.php', {
         credentials: 'include'
-    })
-
-        .then(function (r) {
-            if (!r.ok) throw new Error('No se pudieron cargar las clases de transporte.');
-            return r.json();
-        })
+    }, 'No se pudieron cargar las clases de transporte.')
 
         .then(function (res) {
 
@@ -526,20 +517,14 @@ function buscarTransporte() {
     }
 
 
-    fetch(
+    window.TECatalogCache.fetchJson(
         '../transporte/buscar.php?' +
         params.toString(),
         {
             credentials: 'include'
-        }
+        },
+        'No se pudo buscar el transporte. Intenta de nuevo.'
     )
-
-        .then(function (r) {
-            if (!r.ok) {
-                throw new Error('No se pudo buscar el transporte. Intenta de nuevo.');
-            }
-            return r.json();
-        })
 
         .then(function (res) {
             if (solicitudId !== busquedaTransporteId) return;
@@ -952,19 +937,13 @@ document
             '<p style="margin-top:12px">Cargando rutas disponibles...</p>' +
             '</div>';
 
-        fetch(
+        window.TECatalogCache.fetchJson(
             "../transporte/listar.php",
             {
                 credentials: "include"
-            }
+            },
+            'No se pudieron cargar las rutas disponibles.'
         )
-
-            .then(function (r) {
-                if (!r.ok) {
-                    throw new Error('No se pudieron cargar las rutas disponibles.');
-                }
-                return r.json();
-            })
 
             .then(function (res) {
                 if (solicitudId !== busquedaTransporteId) return;

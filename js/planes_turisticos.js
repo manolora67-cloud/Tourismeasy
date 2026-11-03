@@ -196,11 +196,11 @@ function mostrarDetallePlan(plan) {
         setSearchStatus("Buscando planes turísticos…");
         grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:48px;color:#94a3b8"><i class="fa-solid fa-spinner fa-spin fa-2x"></i><p style="margin-top:12px">Buscando planes turísticos…</p></div>';
 
-        fetch("../planes/buscar.php?" + params.toString(), { credentials: "include" })
-            .then(function (response) {
-                if (!response.ok) throw new Error("No se pudieron buscar los planes turísticos.");
-                return response.json();
-            })
+        window.TECatalogCache.fetchJson(
+            "../planes/buscar.php?" + params.toString(),
+            { credentials: "include" },
+            "No se pudieron buscar los planes turísticos."
+        )
             .then(function (result) {
                 if (currentRequest !== requestId) return;
                 if (!result.ok || !Array.isArray(result.data)) {

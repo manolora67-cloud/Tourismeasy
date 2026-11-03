@@ -172,11 +172,11 @@ function actualizarBotonWhatsApp(btn) {
         setSearchStatus("Buscando hospedajes…");
         grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:48px;color:#94a3b8"><i class="fa-solid fa-spinner fa-spin fa-2x"></i><p style="margin-top:12px">Buscando hospedajes…</p></div>';
 
-        fetch("../hospedaje/buscar.php?" + params.toString(), { credentials: "include" })
-            .then(function(response) {
-                if (!response.ok) throw new Error("No se pudo buscar hospedajes.");
-                return response.json();
-            })
+        window.TECatalogCache.fetchJson(
+            "../hospedaje/buscar.php?" + params.toString(),
+            { credentials: "include" },
+            "No se pudo buscar hospedajes."
+        )
             .then(function(result) {
                 if (currentRequest !== requestId) return;
                 if (!result.ok || !Array.isArray(result.data)) {
@@ -310,11 +310,11 @@ function actualizarBotonWhatsApp(btn) {
     function cargarHospedajes() {
         var currentRequest = ++requestId;
         grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:48px;color:#94a3b8"><i class="fa-solid fa-spinner fa-spin fa-2x"></i><p style="margin-top:12px">Cargando hospedajes disponibles...</p></div>';
-        fetch("../hospedaje/buscar.php", { credentials: "include" })
-            .then(function(response) {
-                if (!response.ok) throw new Error("No se pudieron cargar los hospedajes.");
-                return response.json();
-            })
+        window.TECatalogCache.fetchJson(
+            "../hospedaje/buscar.php",
+            { credentials: "include" },
+            "No se pudieron cargar los hospedajes."
+        )
             .then(function(result) {
                 if (currentRequest !== requestId) return;
                 if (!result.ok || !Array.isArray(result.data)) {
