@@ -47,6 +47,7 @@ function identificarCategoriaCatalogo(string $question): ?string
 
 function cargarDatosCatalogo(string $categoria): array
 {
+    global $pdo;
     require_once __DIR__ . '/../con_db/db.php';
 
     $stmt = $pdo->prepare('SELECT fn_consultar_catalogo_sue(:categoria)');
@@ -109,6 +110,7 @@ function buscarMunicipiosMencionados(string $question): array
 
 function cargarTransportesPorRuta(?string $origen, ?string $destino): array
 {
+    global $pdo;
     require_once __DIR__ . '/../con_db/db.php';
 
     $filtros = [];
