@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="../js/control_tiempo_sesion.js?v=control-tiempo-v1"></script>
     <title>Acceder – TourismLocal</title>
     <link rel="stylesheet" href="../css/e-comemerce.css" />
     <link rel="stylesheet" href="../css/login-ecommerce.css" />
@@ -58,9 +59,13 @@
                 <button type="submit" class="lec-btn" id="btnLogin">
                     <i class="fa-solid fa-right-to-bracket"></i> Ingresar
                 </button>
-                <button type="button" class="lec-btn" id="btnReplaceSession" style="display:none">
-                    Cerrar la otra sesión e iniciar aquí
-                </button>
+                <div id="approvalCodeSection" style="display:none">
+                    <div class="lec-field">
+                        <label for="approvalCode">Código de confirmación</label>
+                        <input type="text" id="approvalCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" />
+                    </div>
+                    <button type="button" class="lec-btn" id="btnVerifyApproval">Confirmar código e iniciar sesión</button>
+                </div>
             </form>
 
             <!-- ── FORMULARIO REGISTRO ── -->
@@ -130,7 +135,7 @@
 
     <script src="../componentes/ui-feedback.js?v=ui-feedback-v4"></script>
     <script src="../componentes/dark-mode-toggle.js"></script>
-    <script src="../js/login-ecommerce.js"></script>
+    <script src="../js/login-ecommerce.js?v=device-approval-v1"></script>
     <script src="../js/captcha.js"></script>
     <script src="../js/santanderianidad.js"></script>
     <script src="../menu_accesibilidad/menu.js?v=a11y-v14"></script>

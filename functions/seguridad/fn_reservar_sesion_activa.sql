@@ -21,14 +21,17 @@ BEGIN
     END IF;
 
     INSERT INTO SESIONES_ACTIVAS (
-        TIPO_CUENTA, ID_CUENTA, TOKEN_DISPOSITIVO_HASH, ID_SESION_HASH
+        TIPO_CUENTA, ID_CUENTA, TOKEN_DISPOSITIVO_HASH, ID_SESION_HASH,
+        FECHA_ULTIMA_ACTIVIDAD
     )
     VALUES (
-        p_tipo_cuenta, p_id_cuenta, p_token_dispositivo_hash, p_id_sesion_hash
+        p_tipo_cuenta, p_id_cuenta, p_token_dispositivo_hash, p_id_sesion_hash,
+        NOW()
     )
     ON CONFLICT (TIPO_CUENTA, ID_CUENTA) DO UPDATE SET
         ID_SESION_HASH = EXCLUDED.ID_SESION_HASH,
-        FECHA_INICIO = NOW()
+        FECHA_INICIO = NOW(),
+        FECHA_ULTIMA_ACTIVIDAD = NOW()
     WHERE SESIONES_ACTIVAS.TOKEN_DISPOSITIVO_HASH = EXCLUDED.TOKEN_DISPOSITIVO_HASH;
 
     GET DIAGNOSTICS v_filas = ROW_COUNT;

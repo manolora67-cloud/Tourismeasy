@@ -123,6 +123,11 @@ BEGIN
         RETURN;
     END IF;
 
+    DELETE FROM SESIONES_ACTIVAS
+    WHERE TIPO_CUENTA = p_tipo
+      AND ID_CUENTA = v_id
+      AND FECHA_ULTIMA_ACTIVIDAD <= NOW() - INTERVAL '10 minutes';
+
     v_sesion_reservada := fn_reservar_sesion_activa(
         p_tipo, v_id, p_token_dispositivo_hash, p_id_sesion_hash
     );
@@ -139,8 +144,8 @@ BEGIN
         RETURN QUERY SELECT
             'SESION_ACTIVA'::VARCHAR(20), FALSE,
             'Esta cuenta tiene una sesión abierta en otro navegador.'::TEXT,
-            FALSE, 0, NULL::VARCHAR(10), NULL::VARCHAR, NULL::TEXT,
-            NULL::TEXT, NULL::VARCHAR(10), NULL::VARCHAR(20), NULL::VARCHAR(10);
+            FALSE, 0, v_id, v_email_login, v_nombre,
+            v_apellido, v_rol, v_tipo_servicio, v_estado;
         RETURN;
     END IF;
 

@@ -5,6 +5,7 @@
     const apiBase = inHtml ? "../" : "";
     const pageBase = inHtml ? "" : "html/";
     const loginPage = document.getElementById("loginPageCard");
+    const sessionTimeoutMs = 10 * 60 * 1000;
 
     const modal = `
 <div class="auth-overlay" id="authOverlay" role="dialog" aria-modal="true" aria-labelledby="authDialogTitle">
@@ -43,7 +44,12 @@
         <div class="forgot-link"><a href="#" id="forgotLink">¿Olvidaste tu contraseña?</a></div>
         <button type="submit" class="btn-auth" id="btnLogin"><span class="btn-text">Iniciar sesión</span><div class="btn-spinner"></div></button>
         <p class="field-msg" id="loginStatus" role="status"></p>
-        <button type="button" class="btn-auth" id="btnReplaceSession" style="display:none">Cerrar la otra sesión e iniciar aquí</button>
+        <div id="approvalCodeSection" style="display:none">
+          <p>Aprueba el intento desde el correo de la cuenta. Después, escribe aquí el código de 6 dígitos que recibirás.</p>
+          <label for="approvalCode">Código de confirmación</label>
+          <input id="approvalCode" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}">
+          <button type="button" class="btn-auth" id="btnVerifyApproval">Confirmar código e iniciar sesión</button>
+        </div>
       </form>
       <form class="auth-form" id="formRegister" novalidate>
                 <div class="register-intro">
@@ -124,7 +130,11 @@
         const tabRegister = document.getElementById("tabRegister");
         const loginStatus = document.getElementById("loginStatus");
         const registerStatus = document.getElementById("registerStatus");
-        const replaceSessionButton = document.getElementById("btnReplaceSession");
+        const approvalCodeSection = document.getElementById("approvalCodeSection");
+        const approvalCodeInput = document.getElementById("approvalCode");
+        const verifyApprovalButton = document.getElementById("btnVerifyApproval");
+        const approvalStorageKey = "te_login_approval";
+        let pendingApproval = sessionStorage.getItem(approvalStorageKey) || "";
         const forgotLink = document.getElementById("forgotLink");
         const loginEmail = document.getElementById("loginEmail");
         const loginEmailMsg = document.getElementById("loginEmailMsg");
@@ -234,11 +244,11 @@
                 document.getElementById("eUbicacionMsg").classList.add("error");
             });
 
-        async function iniciarSesion(reemplazarSesion) {
+        async function iniciarSesion(solicitudAprobacion, codigoAprobacion) {
             loginStatus.textContent = "";
             loginStatus.classList.remove("error", "ok");
             if (!loginForm.reportValidity()) return;
-            if (window.TeCaptcha && !window.TeCaptcha.isVerified()) {
+            if (!solicitudAprobacion && window.TeCaptcha && !window.TeCaptcha.isVerified()) {
                 loginStatus.textContent = "Completa la verificación de seguridad.";
                 loginStatus.classList.add("error");
                 return;
@@ -246,7 +256,7 @@
 
             const button = document.getElementById("btnLogin");
             button.disabled = true;
-            replaceSessionButton.disabled = true;
+            verifyApprovalButton.disabled = true;
             button.classList.add("loading");
             try {
                 const response = await fetch(apiBase + "login/login.php", {
@@ -257,19 +267,23 @@
                         email: document.getElementById("loginEmail").value.trim(),
                         password: document.getElementById("loginPass").value,
                         tipo: document.getElementById("loginType").value,
-                        reemplazar_sesion: reemplazarSesion,
-                        captcha_token: window.TeCaptcha ? window.TeCaptcha.getToken() : ""
+                        solicitud_aprobacion: solicitudAprobacion || "",
+                        codigo_aprobacion: codigoAprobacion || "",
+                        captcha_token: !solicitudAprobacion && window.TeCaptcha ? window.TeCaptcha.getToken() : ""
                     })
                 });
                 const result = await response.json();
-                if (response.status === 409 && result.code === "SESION_ACTIVA") {
-                    loginStatus.textContent = result.error + " Puedes cerrar la sesión anterior e iniciar aquí.";
-                    loginStatus.classList.add("error");
-                    replaceSessionButton.style.display = "flex";
+                if (response.status === 409 && result.code === "APROBACION_REQUERIDA") {
+                    pendingApproval = result.solicitud;
+                    sessionStorage.setItem(approvalStorageKey, pendingApproval);
+                    approvalCodeSection.style.display = "block";
+                    loginStatus.textContent = result.error;
+                    loginStatus.classList.add("ok");
                     return;
                 }
                 if (!response.ok || !result.ok) throw new Error(result.error || "No se pudo iniciar sesión.");
-                replaceSessionButton.style.display = "none";
+                sessionStorage.removeItem(approvalStorageKey);
+                result.session.ultimaActividad = Date.now();
                 localStorage.setItem("te_session", JSON.stringify(result.session));
                 const destino = result.session.tipo === "admin" ?
                     "panel_admin.html" :
@@ -279,19 +293,28 @@
             } catch (error) {
                 loginStatus.textContent = error.message;
                 loginStatus.classList.add("error");
-                if (window.TeCaptcha) window.TeCaptcha.invalidateOnFailedLogin();
+                if (!solicitudAprobacion && window.TeCaptcha) window.TeCaptcha.invalidateOnFailedLogin();
             } finally {
                 button.disabled = false;
-                replaceSessionButton.disabled = false;
+                verifyApprovalButton.disabled = false;
                 button.classList.remove("loading");
             }
         }
 
         loginForm.addEventListener("submit", (event) => {
             event.preventDefault();
-            iniciarSesion(false);
+            iniciarSesion("", "");
         });
-        replaceSessionButton.addEventListener("click", () => iniciarSesion(true));
+        verifyApprovalButton.addEventListener("click", () => {
+            const codigo = approvalCodeInput.value.trim();
+            if (!pendingApproval || !/^[0-9]{6}$/.test(codigo)) {
+                loginStatus.textContent = "Escribe el código de 6 dígitos enviado al correo de la cuenta.";
+                loginStatus.classList.add("error");
+                return;
+            }
+            iniciarSesion(pendingApproval, codigo);
+        });
+        if (pendingApproval) approvalCodeSection.style.display = "block";
 
         registerForm.addEventListener("submit", async(event) => {
             event.preventDefault();
@@ -346,6 +369,11 @@
             const storedSession = localStorage.getItem("te_session") || sessionStorage.getItem("te_session");
             const session = JSON.parse(storedSession || "null");
             if (session) {
+                const ultimaActividad = Number(session.ultimaActividad);
+                if (!Number.isFinite(ultimaActividad) || Date.now() - ultimaActividad >= sessionTimeoutMs) {
+                    clearSession();
+                    return null;
+                }
                 localStorage.setItem("te_session", JSON.stringify(session));
                 sessionStorage.removeItem("te_session");
             }
@@ -447,4 +475,32 @@
     window.addEventListener("pageshow", (event) => {
         if (event.persisted && guardCompanyPage()) applySession();
     });
+
+    function registrarActividadSesion() {
+        try {
+            const storedSession = localStorage.getItem("te_session") || sessionStorage.getItem("te_session");
+            const session = JSON.parse(storedSession || "null");
+            if (!session || !["admin", "empresa"].includes(session.tipo)) return;
+            const ultimaActividad = Number(session.ultimaActividad);
+            if (!Number.isFinite(ultimaActividad) || Date.now() - ultimaActividad >= sessionTimeoutMs) {
+                clearSession();
+                applySession();
+                return;
+            }
+            session.ultimaActividad = Date.now();
+            localStorage.setItem("te_session", JSON.stringify(session));
+            sessionStorage.removeItem("te_session");
+        } catch (error) {
+            console.error("No se pudo actualizar la actividad de la sesión:", error);
+            clearSession();
+        }
+    }
+
+    ["pointerdown", "keydown", "touchstart", "input", "scroll"].forEach((eventName) => {
+        document.addEventListener(eventName, registrarActividadSesion, { passive: true });
+    });
+    window.addEventListener("te-session-expired", applySession);
+    window.setInterval(() => {
+        if (!getSession()) applySession();
+    }, 30 * 1000);
 })();

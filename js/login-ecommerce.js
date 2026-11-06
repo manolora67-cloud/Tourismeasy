@@ -20,6 +20,12 @@
     try {
         var storedSession = localStorage.getItem('te_ecommerce_session') || sessionStorage.getItem('te_ecommerce_session');
         var sess = JSON.parse(storedSession || 'null');
+        var ultimaActividad = sess ? Number(sess.ultimaActividad) : 0;
+        if (sess && (!Number.isFinite(ultimaActividad) || Date.now() - ultimaActividad >= 10 * 60 * 1000)) {
+            sessionStorage.removeItem('te_ecommerce_session');
+            localStorage.removeItem('te_ecommerce_session');
+            sess = null;
+        }
         if (sess && sess.tipo === 'artesano' && sess.estado === 'ACTIVO') {
             localStorage.setItem('te_ecommerce_session', JSON.stringify(sess));
             sessionStorage.removeItem('te_ecommerce_session');
@@ -105,7 +111,11 @@
     }
 
     // ── LOGIN ──
-    var replaceSessionButton = document.getElementById('btnReplaceSession');
+    var approvalCodeSection = document.getElementById('approvalCodeSection');
+    var approvalCodeInput = document.getElementById('approvalCode');
+    var verifyApprovalButton = document.getElementById('btnVerifyApproval');
+    var approvalStorageKey = 'te_ecommerce_login_approval';
+    var pendingApproval = sessionStorage.getItem(approvalStorageKey) || '';
     var forgotLink = document.getElementById('forgotLink');
     var loginEmail = document.getElementById('loginEmail');
     var loginEmailMsg = document.getElementById('loginEmailMsg');
@@ -166,12 +176,12 @@
         loginEmailMsg.className = 'lec-msg';
     });
 
-    function iniciarSesion(reemplazarSesion) {
+    function iniciarSesion(solicitudAprobacion, codigoAprobacion) {
         hideMsg('loginMsg');
         if (!formLogin.reportValidity()) return;
         var btn = document.getElementById('btnLogin');
         btn.disabled = true;
-        replaceSessionButton.disabled = true;
+        verifyApprovalButton.disabled = true;
         btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verificando...';
 
         fetch(API_BASE + '/login_artesano.php', {
@@ -183,8 +193,9 @@
                 body: JSON.stringify({
                     email: document.getElementById('loginEmail').value.trim(),
                     password: document.getElementById('loginPassword').value,
-                    reemplazar_sesion: reemplazarSesion,
-                    captcha_token: window.TeCaptcha ? window.TeCaptcha.getToken() : ''
+                    solicitud_aprobacion: solicitudAprobacion || '',
+                    codigo_aprobacion: codigoAprobacion || '',
+                    captcha_token: !solicitudAprobacion && window.TeCaptcha ? window.TeCaptcha.getToken() : ''
                 })
             })
             .then(function(response) {
@@ -194,20 +205,21 @@
             })
             .then(function(result) {
                 var data = result.data;
-                if (result.response.status === 409 && data.code === 'SESION_ACTIVA') {
-                    showMsg('loginMsg', data.error + ' Puedes cerrar la sesión anterior e iniciar aquí.', 'error');
-                    replaceSessionButton.style.display = 'block';
+                if (result.response.status === 409 && data.code === 'APROBACION_REQUERIDA') {
+                    pendingApproval = data.solicitud;
+                    sessionStorage.setItem(approvalStorageKey, pendingApproval);
+                    approvalCodeSection.style.display = 'block';
+                    showMsg('loginMsg', data.error, 'success');
                     return;
                 }
                 if (!data.ok) {
                     showMsg('loginMsg', data.error || 'Error al iniciar sesión.', 'error');
-                    // El login falló: aunque el CAPTCHA ya estuviera resuelto, obligamos a
-                    // resolverlo de nuevo antes de permitir otro intento.
-                    if (window.TeCaptcha) window.TeCaptcha.invalidateOnFailedLogin();
+                    if (!solicitudAprobacion && window.TeCaptcha) window.TeCaptcha.invalidateOnFailedLogin();
                     return;
                 }
-                replaceSessionButton.style.display = 'none';
+                sessionStorage.removeItem(approvalStorageKey);
                 // Guardar sesión artesano
+                data.session.ultimaActividad = Date.now();
                 localStorage.setItem('te_ecommerce_session', JSON.stringify(data.session));
                 window.location.href = '../e-commerce/admin.php';
             })
@@ -217,17 +229,23 @@
             .finally(function() {
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Ingresar';
-                replaceSessionButton.disabled = false;
+                verifyApprovalButton.disabled = false;
             });
     }
 
     formLogin.addEventListener('submit', function(e) {
         e.preventDefault();
-        iniciarSesion(false);
+        iniciarSesion('', '');
     });
-    replaceSessionButton.addEventListener('click', function() {
-        iniciarSesion(true);
+    verifyApprovalButton.addEventListener('click', function() {
+        var codigo = approvalCodeInput.value.trim();
+        if (!pendingApproval || !/^[0-9]{6}$/.test(codigo)) {
+            showMsg('loginMsg', 'Escribe el código de 6 dígitos enviado al correo de la cuenta.', 'error');
+            return;
+        }
+        iniciarSesion(pendingApproval, codigo);
     });
+    if (pendingApproval) approvalCodeSection.style.display = 'block';
 
     // ── REGISTRO ──
     formRegister.addEventListener('submit', function(e) {

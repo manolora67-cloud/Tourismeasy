@@ -147,6 +147,24 @@ function validarSesionActivaEnBD($pdo): void
         return;
     }
 
+    $ultimaActividad = $_SESSION['te_ultima_actividad'] ?? 0;
+    if (!is_int($ultimaActividad) || time() - $ultimaActividad >= 600) {
+        $cerrarExpirada = $pdo->prepare(
+            'DELETE FROM SESIONES_ACTIVAS
+             WHERE TIPO_CUENTA = :tipo
+               AND ID_CUENTA = :id
+               AND ID_SESION_HASH = :sesion'
+        );
+        $cerrarExpirada->execute([
+            ':tipo' => $tipo,
+            ':id' => $id,
+            ':sesion' => hash('sha256', session_id()),
+        ]);
+        $_SESSION = [];
+        session_regenerate_id(true);
+        return;
+    }
+
     $stmt = $pdo->prepare(
         'SELECT EXISTS (SELECT 1 FROM SESIONES_ACTIVAS WHERE TIPO_CUENTA = :tipo AND ID_CUENTA = :id AND ID_SESION_HASH = :sesion)'
     );
@@ -158,7 +176,23 @@ function validarSesionActivaEnBD($pdo): void
 
     if (!in_array($stmt->fetchColumn(), [true, 't', 'true', '1', 1], true)) {
         destruirSesionActual(false);
+        return;
     }
+
+    $actividad = $pdo->prepare(
+        'UPDATE SESIONES_ACTIVAS
+         SET FECHA_ULTIMA_ACTIVIDAD = NOW()
+         WHERE TIPO_CUENTA = :tipo
+           AND ID_CUENTA = :id
+           AND ID_SESION_HASH = :sesion'
+    );
+    $actividad->execute([
+        ':tipo' => $tipo,
+        ':id' => $id,
+        ':sesion' => hash('sha256', session_id()),
+    ]);
+    $_SESSION['te_ultima_actividad'] = time();
+    renovarCookieSesionPersistente();
 }
 
 function cerrarSesionActiva($pdo): bool
