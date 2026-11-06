@@ -1,0 +1,24 @@
+CREATE OR REPLACE FUNCTION fn_obtener_meta_edicion_perfil_empresa(
+    p_id USUARIOS_EMPRESA.ID_EMPRESA%TYPE
+)
+RETURNS TABLE (
+    ultima_edicion_perfil USUARIOS_EMPRESA.FECHA_ULTIMA_EDICION_PERFIL%TYPE,
+    puede_editar_perfil BOOLEAN,
+    proxima_edicion TIMESTAMP
+)
+LANGUAGE sql
+AS $$
+    SELECT
+        u.FECHA_ULTIMA_EDICION_PERFIL,
+        CASE
+            WHEN u.FECHA_ULTIMA_EDICION_PERFIL IS NULL THEN TRUE
+            ELSE DATE_TRUNC('month', u.FECHA_ULTIMA_EDICION_PERFIL)
+                 < DATE_TRUNC('month', CURRENT_TIMESTAMP::TIMESTAMP)
+        END,
+        CASE
+            WHEN u.FECHA_ULTIMA_EDICION_PERFIL IS NULL THEN NULL
+            ELSE (DATE_TRUNC('month', u.FECHA_ULTIMA_EDICION_PERFIL) + INTERVAL '1 month')::TIMESTAMP
+        END
+    FROM USUARIOS_EMPRESA u
+    WHERE u.ID_EMPRESA = p_id;
+$$;

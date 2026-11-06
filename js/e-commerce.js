@@ -253,6 +253,11 @@ function renderProducts() {
     noResults.style.display = "none";
     storeStatus.classList.remove("error");
 
+    const hasActiveFilters = Boolean(currentSearch.trim() || currentLocation || currentCategory !== "all");
+    if (!hasActiveFilters) {
+        storeStatus.textContent = "";
+    }
+
     const totalPages = Math.ceil(dbProducts.length / productsPerPage);
     currentPage = Math.max(1, Math.min(currentPage, totalPages));
     const start = (currentPage - 1) * productsPerPage;
@@ -335,7 +340,12 @@ function renderProducts() {
     previousPage.disabled = currentPage === 1;
     nextPage.disabled = currentPage === totalPages;
     pagination.hidden = totalPages <= 1;
-    storeStatus.textContent = `${dbProducts.length} ${dbProducts.length === 1 ? "producto encontrado." : "productos encontrados."}`;
+
+    if (hasActiveFilters) {
+        storeStatus.textContent = `${dbProducts.length} ${dbProducts.length === 1 ? "producto encontrado." : "productos encontrados."}`;
+    } else {
+        storeStatus.textContent = "";
+    }
 }
 
 document.addEventListener("DOMContentLoaded", () => {

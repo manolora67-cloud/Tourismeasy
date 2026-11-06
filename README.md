@@ -95,11 +95,23 @@ Los componentes se cargan desde las páginas que los usan; no requieren un proce
 | --- | --- |
 | [componentes/ui-feedback.js](componentes/ui-feedback.js) | Diálogos de confirmación, notificaciones, comprobación de formularios modificados y cierre de sesión para las páginas integradas. |
 | [componentes/panel-modals.js](componentes/panel-modals.js) | Apertura, cierre y confirmación de salida de los modales de edición de hospedaje, planes y transporte. |
+| [componentes/modal.js](componentes/modal.js) | Modal reutilizable con apertura/cierre y control de atributos ARIA para cualquier vista. |
+| [componentes/toast.js](componentes/toast.js) | Sistema de notificaciones flotantes tipo toast para mensajes de éxito, error o información. |
+| [componentes/boton-accion.js](componentes/boton-accion.js) | Botones de acción reutilizables con eventos personalizados para acciones de CTA. |
+| [componentes/lista-tarjetas.js](componentes/lista-tarjetas.js) | Renderer genérico para listas de tarjetas y contenido dinámico en páginas de catálogo. |
+| [componentes/panel-filtros.js](componentes/panel-filtros.js) | Panel de filtros reutilizable que captura el formulario y dispara eventos de búsqueda/filtro. |
 | [componentes/panel_empresa_servicios.css](componentes/panel_empresa_servicios.css) | Estilos compartidos de los paneles de servicios de empresas. |
 | [componentes/click-metrics-dashboard.js](componentes/click-metrics-dashboard.js) | Plantilla del tablero de clics de WhatsApp reutilizada por los paneles compatibles. |
 | [componentes/destinos.js](componentes/destinos.js) y [componentes/articulos.js](componentes/articulos.js) | Contenido descriptivo de destinos y fichas de municipios. |
 | [componentes/footer.js](componentes/footer.js) | Pie de página compartido y ventanas emergentes informativas, incluida la declaración de accesibilidad. |
 | [menu_accesibilidad/menu.js](menu_accesibilidad/menu.js) y [menu_accesibilidad/menu.css](menu_accesibilidad/menu.css) | Menú flotante de accesibilidad, preferencias de presentación y carga del traductor local. |
+
+### Convención de organización
+
+- La capa de base de datos sigue en [functions/](functions/) como funciones PostgreSQL y SQL reutilizables.
+- Los elementos repetidos de interfaz quedan en [componentes/](componentes/), sin crear capas extra de servicios o repositorios innecesarias.
+- Las páginas de negocio viven en sus carpetas específicas, como [e-commerce/](e-commerce/), [hospedaje/](hospedaje/), [planes/](planes/), [transporte/](transporte/) y [admin/](admin/).
+- La lógica de navegador y UI compartida no se duplica; se reutiliza desde un mismo componente base para mantener el proyecto claro y mantenible.
 
 El panel artesanal reutiliza el tablero de clics, con datos limitados por la sesión de artesano. Para una base nueva, el esquema y las funciones relacionados se describen en [db/README.md](db/README.md); las funciones SQL no se ejecutan automáticamente al cargar PHP.
 

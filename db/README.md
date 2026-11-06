@@ -77,7 +77,42 @@ Reemplaza `postgres` y `tourismeasy` por los valores de tu instalación. `fn_lis
 
 Los endpoints PHP invocan las funciones definidas en `functions/`; están organizadas en carpetas `crud_planes`, `crud_hospedaje`, `crud_transporte`, `crud_productos`, `crud_empresas`, `crud_artesanos`, `crud_resenas`, `crud_portada`, `crud_festividades`, `crud_administracion`, `crud_metricas`, `crud_referencias`, `seguridad` y `funciones_comunes`. Hay que instalarlas todas para disponer del proyecto completo. Ejecuta el bloque siguiente en PowerShell **desde la raíz del repositorio**, después de importar el esquema en una base vacía. Instala primero auditoría, luego los scripts restantes y, al final, los wrappers que dependen de otras funciones y el inicializador de portada. Los triggers se instalan después de todas las funciones. `ON_ERROR_STOP` hace que el proceso se detenga si un archivo falla. Este procedimiento no es una migración y no debe usarse sobre una base existente.
 
-Sue consulta sus datos mediante `functions/crud_referencias/fn_consultar_catalogo_sue.sql`, que reúne información pública de transportes, hospedajes, planes, empresas, artesanos, productos artesanales, festividades y municipios. En una base existente, basta con instalar esta función para habilitar las consultas de Sue.
+Las búsquedas de Sue están separadas por categoría en archivos `fn_sue_buscar_*.sql` dentro de `functions/crud_referencias/`; `fn_sue_consultar_catalogo.sql` coordina las llamadas:
+
+- Si recibe un municipio, primero busca su ID en `CIUDADES`. Si el nombre no existe, devuelve una lista vacía. Las categorías que admiten ese filtro reciben el ID y hacen su búsqueda específica.
+- La categoría `municipios` es distinta del filtro anterior: llama a `fn_sue_buscar_municipios` para listar municipios, opcionalmente filtrados por el ID resuelto.
+- `transportes` usa `fn_sue_buscar_transportes_ruta` con origen y destino vacíos; la búsqueda por ruta se hace directamente con esa función, no con el filtro de municipio de la coordinadora.
+- Las festividades admiten filtros por municipio, mes y texto del nombre o descripción, para que una pregunta por las celebraciones del mes o por una festividad concreta no use la lista general.
+- Una categoría no reconocida devuelve una lista vacía.
+
+Si ya tienes una base instalada, carga las funciones nuevas desde la raíz del repositorio y después de sus dependencias existentes:
+
+```powershell
+$db = 'tourismeasy'
+$user = 'postgres'
+$archivos = @(
+	'.\functions\crud_empresas\fn_obtener_meta_edicion_perfil_empresa.sql',
+	'.\functions\seguridad\fn_obtener_nombre_recuperacion.sql',
+	'.\functions\crud_referencias\fn_sue_buscar_transportes_ruta.sql',
+	'.\functions\seguridad\fn_operaciones_sesion_activa.sql',
+	'.\functions\seguridad\fn_operaciones_solicitud_dispositivo.sql',
+	'.\functions\crud_referencias\fn_sue_buscar_planes.sql',
+	'.\functions\crud_referencias\fn_sue_buscar_hospedajes.sql',
+	'.\functions\crud_referencias\fn_sue_buscar_productos.sql',
+	'.\functions\crud_referencias\fn_sue_buscar_artesanos.sql',
+	'.\functions\crud_referencias\fn_sue_buscar_empresas.sql',
+	'.\functions\crud_referencias\fn_sue_buscar_festividades.sql',
+	'.\functions\crud_referencias\fn_sue_buscar_municipios.sql',
+	'.\functions\crud_referencias\fn_sue_consultar_catalogo.sql'
+)
+
+foreach ($archivo in $archivos) {
+	& psql -v ON_ERROR_STOP=1 -U $user -d $db -f $archivo
+	if ($LASTEXITCODE -ne 0) { throw "Falló $archivo" }
+}
+```
+
+No ejecutes `DB_TOURISMEASY.sql` sobre una base existente.
 
 Las empresas pueden actualizar razón social, correo institucional, correo de acceso, teléfono y municipio una vez por mes calendario. El correo de acceso se guarda en `USUARIOS_EMPRESA.EMAIL_LOGIN` y se usa para iniciar sesión. El NIT y el sector no se pueden cambiar desde el perfil.
 
@@ -91,7 +126,8 @@ $finales = @(
 	'fn_guardar_hospedaje.sql',
 	'fn_guardar_producto.sql',
 	'fn_inicializar_contenido_portada.sql',
-	'fn_procesar_login.sql'
+	'fn_procesar_login.sql',
+	'fn_sue_consultar_catalogo.sql'
 )
 
 $auditoria = $archivosFuncion | Where-Object { $_.Name -eq 'fn_registrar_auditoria.sql' } | Select-Object -First 1

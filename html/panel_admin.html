@@ -17,6 +17,16 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
     <script src="../componentes/ui-feedback.js?v=ui-feedback-v3"></script>
+    <script src="../componentes/modal.js"></script>
+    <script src="../componentes/toast.js"></script>
+    <script src="../componentes/boton-accion.js"></script>
+    <script src="../componentes/lista-tarjetas.js"></script>
+    <script src="../componentes/panel-filtros.js"></script>
+    <script src="../componentes/tabla-datos.js"></script>
+    <script src="../componentes/filtro-chips.js"></script>
+    <script src="../componentes/estado-badge.js"></script>
+    <script src="../componentes/barra-busqueda.js"></script>
+    <script src="../componentes/paginacion.js"></script>
 </head>
 
 <body>
@@ -1086,8 +1096,8 @@
                 var servicioLabel = _svcLabel[emp.servicio] || emp.servicio;
                 var activa = emp.estado === "ACTIVO";
                 var estadoHtml = activa ?
-                    '<span class="estado-activo">Activa</span>' :
-                    '<span class="estado-inactivo">Inactiva</span>';
+                    '<span class="status-badge status-badge--active">Activa</span>' :
+                    '<span class="status-badge status-badge--inactive">Inactiva</span>';
                 var toggleIcon = activa ?
                     '<i class="fa-solid fa-ban"></i>' :
                     '<i class="fa-solid fa-circle-check"></i>';
@@ -1150,7 +1160,7 @@
                     '<td>' + sol.sede + '</td>' +
                     '<td><span class="badge-acc"><i class="fa-solid ' + icono + '"></i> ' + servicioLabel + '</span></td>' +
                     '<td><code>' + sol.fecha + '</code></td>' +
-                    '<td><span class="estado-pendiente"><i class="fa-solid fa-hourglass-half"></i> Pendiente</span></td>' +
+                    '<td><span class="status-badge status-badge--warning"><i class="fa-solid fa-hourglass-half"></i> Pendiente</span></td>' +
                     '<td><div class="table-actions">' +
                     '<button class="btn-tbl-accept" title="Aceptar" data-nit="' + sol.nit + '"><i class="fa-solid fa-check"></i> Aceptar</button>' +
                     '<button class="btn-tbl-reject" title="Rechazar" data-nit="' + sol.nit + '"><i class="fa-solid fa-xmark"></i> Rechazar</button>' +

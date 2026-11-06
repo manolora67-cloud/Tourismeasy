@@ -150,10 +150,7 @@ function validarSesionActivaEnBD($pdo): void
     $ultimaActividad = $_SESSION['te_ultima_actividad'] ?? 0;
     if (!is_int($ultimaActividad) || time() - $ultimaActividad >= 600) {
         $cerrarExpirada = $pdo->prepare(
-            'DELETE FROM SESIONES_ACTIVAS
-             WHERE TIPO_CUENTA = :tipo
-               AND ID_CUENTA = :id
-               AND ID_SESION_HASH = :sesion'
+            'SELECT fn_cerrar_sesion_activa(:tipo, :id, NULL, :sesion)'
         );
         $cerrarExpirada->execute([
             ':tipo' => $tipo,
@@ -166,7 +163,7 @@ function validarSesionActivaEnBD($pdo): void
     }
 
     $stmt = $pdo->prepare(
-        'SELECT EXISTS (SELECT 1 FROM SESIONES_ACTIVAS WHERE TIPO_CUENTA = :tipo AND ID_CUENTA = :id AND ID_SESION_HASH = :sesion)'
+        'SELECT fn_sesion_activa_existe(:tipo, :id, :sesion)'
     );
     $stmt->execute([
         ':tipo' => $tipo,
@@ -180,11 +177,7 @@ function validarSesionActivaEnBD($pdo): void
     }
 
     $actividad = $pdo->prepare(
-        'UPDATE SESIONES_ACTIVAS
-         SET FECHA_ULTIMA_ACTIVIDAD = NOW()
-         WHERE TIPO_CUENTA = :tipo
-           AND ID_CUENTA = :id
-           AND ID_SESION_HASH = :sesion'
+        'SELECT fn_actualizar_actividad_sesion_activa(:tipo, :id, :sesion)'
     );
     $actividad->execute([
         ':tipo' => $tipo,

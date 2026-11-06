@@ -52,17 +52,11 @@ function crearSolicitudAprobacionDispositivo(
         $pdo->beginTransaction();
 
         $etapa = 'limpiando_solicitudes_antiguas';
-        $eliminarAntiguas = $pdo->prepare(
-            "DELETE FROM SOLICITUDES_INICIO_SESION
-             WHERE FECHA_CREACION < NOW() - INTERVAL '30 days'"
-        );
-        $eliminarAntiguas->execute();
+        $pdo->query('SELECT fn_limpiar_solicitudes_dispositivo_antiguas()');
 
         $etapa = 'bloqueando_sesion_actual';
         $bloquearCuenta = $pdo->prepare(
-            'SELECT 1 FROM SESIONES_ACTIVAS
-             WHERE TIPO_CUENTA = :tipo AND ID_CUENTA = :id
-             FOR UPDATE'
+            'SELECT fn_bloquear_sesion_dispositivo(:tipo, :id)'
         );
         $bloquearCuenta->execute([':tipo' => $tipo, ':id' => $idCuenta]);
         if (!$bloquearCuenta->fetchColumn()) {
@@ -71,22 +65,13 @@ function crearSolicitudAprobacionDispositivo(
 
         $etapa = 'cancelando_solicitudes_vencidas';
         $limpiar = $pdo->prepare(
-            "UPDATE SOLICITUDES_INICIO_SESION
-             SET ESTADO = 'cancelada'
-             WHERE TIPO_CUENTA = :tipo
-               AND ID_CUENTA = :id
-               AND ESTADO IN ('pendiente', 'aprobada')
-               AND FECHA_EXPIRA <= NOW()"
+            'SELECT fn_cancelar_solicitudes_dispositivo_vencidas(:tipo, :id)'
         );
         $limpiar->execute([':tipo' => $tipo, ':id' => $idCuenta]);
 
         $etapa = 'contando_solicitudes_recientes';
         $limite = $pdo->prepare(
-            "SELECT COUNT(*)
-             FROM SOLICITUDES_INICIO_SESION
-             WHERE TIPO_CUENTA = :tipo
-               AND ID_CUENTA = :id
-               AND FECHA_CREACION > NOW() - INTERVAL '15 minutes'"
+            'SELECT fn_contar_solicitudes_dispositivo_recientes(:tipo, :id)'
         );
         $limite->execute([':tipo' => $tipo, ':id' => $idCuenta]);
         if ((int)$limite->fetchColumn() >= 3) {
@@ -95,21 +80,13 @@ function crearSolicitudAprobacionDispositivo(
 
         $etapa = 'cancelando_solicitudes_previas';
         $cancelar = $pdo->prepare(
-            "UPDATE SOLICITUDES_INICIO_SESION
-             SET ESTADO = 'cancelada'
-             WHERE TIPO_CUENTA = :tipo
-               AND ID_CUENTA = :id
-               AND ESTADO IN ('pendiente', 'aprobada')"
+            'SELECT fn_cancelar_solicitudes_dispositivo_previas(:tipo, :id)'
         );
         $cancelar->execute([':tipo' => $tipo, ':id' => $idCuenta]);
 
         $etapa = 'insertando_solicitud';
         $insertar = $pdo->prepare(
-            "INSERT INTO SOLICITUDES_INICIO_SESION
-                (TOKEN_HASH, TIPO_CUENTA, ID_CUENTA, EMAIL, TOKEN_DISPOSITIVO_HASH, FECHA_EXPIRA)
-             VALUES
-                (:token, :tipo, :id, :email, :dispositivo, NOW() + INTERVAL '10 minutes')
-             RETURNING ID_SOLICITUD"
+            'SELECT fn_crear_solicitud_dispositivo(:token, :tipo, :id, :email, :dispositivo)'
         );
         $insertar->execute([
             ':token' => $hashToken,
@@ -139,9 +116,7 @@ function crearSolicitudAprobacionDispositivo(
         enviarCorreoSolicitudDispositivo($email, $nombre, $token, $ip, $agente);
     } catch (Throwable $error) {
         try {
-            $cancelar = $pdo->prepare(
-                "UPDATE SOLICITUDES_INICIO_SESION SET ESTADO = 'cancelada' WHERE ID_SOLICITUD = :id"
-            );
+            $cancelar = $pdo->prepare('SELECT fn_cancelar_solicitud_dispositivo(:id)');
             $cancelar->execute([':id' => $idSolicitud]);
         } catch (Throwable $errorCancelacion) {
             throw new ErrorAprobacionDispositivo('cancelando_solicitud', $errorCancelacion);
@@ -162,10 +137,7 @@ function confirmarSolicitudAprobacionDispositivo(PDO $pdo, string $token, bool $
     $pdo->beginTransaction();
     try {
         $buscar = $pdo->prepare(
-            'SELECT ID_SOLICITUD, EMAIL, ESTADO
-             FROM SOLICITUDES_INICIO_SESION
-             WHERE TOKEN_HASH = :token
-             FOR UPDATE'
+            'SELECT * FROM fn_obtener_solicitud_dispositivo(:token)'
         );
         $buscar->execute([':token' => hash('sha256', $token)]);
         $solicitud = $buscar->fetch(PDO::FETCH_ASSOC);
@@ -188,33 +160,21 @@ function confirmarSolicitudAprobacionDispositivo(PDO $pdo, string $token, bool $
             if ($hashCodigo === false) {
                 throw new RuntimeException('No se pudo generar el código de aprobación.');
             }
-            $actualizar = $pdo->prepare(
-                "UPDATE SOLICITUDES_INICIO_SESION
-                 SET ESTADO = 'aprobada',
-                     HASH_CODIGO = :codigo,
-                     INTENTOS_CODIGO = 0,
-                     FECHA_CONFIRMACION = NOW(),
-                     FECHA_EXPIRA = NOW() + INTERVAL '5 minutes'
-                 WHERE ID_SOLICITUD = :id
-                   AND FECHA_EXPIRA > NOW()"
-            );
-            $actualizar->execute([':codigo' => $hashCodigo, ':id' => $solicitud['id_solicitud']]);
-            if ($actualizar->rowCount() !== 1) {
-                $pdo->commit();
-                return 'expirada';
-            }
         } else {
-            $actualizar = $pdo->prepare(
-                "UPDATE SOLICITUDES_INICIO_SESION
-                 SET ESTADO = 'rechazada', FECHA_CONFIRMACION = NOW()
-                 WHERE ID_SOLICITUD = :id
-                   AND FECHA_EXPIRA > NOW()"
-            );
-            $actualizar->execute([':id' => $solicitud['id_solicitud']]);
-            if ($actualizar->rowCount() !== 1) {
-                $pdo->commit();
-                return 'expirada';
-            }
+            $hashCodigo = null;
+        }
+
+        $actualizar = $pdo->prepare(
+            'SELECT fn_decidir_solicitud_dispositivo(:id, :aprobar, :codigo)'
+        );
+        $actualizar->execute([
+            ':id' => $solicitud['id_solicitud'],
+            ':aprobar' => $aprobar,
+            ':codigo' => $hashCodigo,
+        ]);
+        if (!in_array($actualizar->fetchColumn(), [true, 't', 'true', '1', 1], true)) {
+            $pdo->commit();
+            return 'expirada';
         }
         $pdo->commit();
     } catch (Throwable $error) {
@@ -233,9 +193,7 @@ function confirmarSolicitudAprobacionDispositivo(PDO $pdo, string $token, bool $
         enviarCodigoInicioSesion((string)$solicitud['email'], $nombre, $codigo);
     } catch (Throwable $error) {
         $rechazar = $pdo->prepare(
-            "UPDATE SOLICITUDES_INICIO_SESION
-             SET ESTADO = 'rechazada', HASH_CODIGO = NULL
-             WHERE ID_SOLICITUD = :id AND ESTADO = 'aprobada'"
+            'SELECT fn_rechazar_solicitud_dispositivo_aprobada(:id)'
         );
         $rechazar->execute([':id' => $solicitud['id_solicitud']]);
         throw $error;
@@ -259,11 +217,7 @@ function validarCodigoAprobacionDispositivo(
     $pdo->beginTransaction();
     try {
         $buscar = $pdo->prepare(
-            'SELECT ID_SOLICITUD, ID_CUENTA, EMAIL, TIPO_CUENTA, TOKEN_DISPOSITIVO_HASH,
-                    ESTADO, HASH_CODIGO, INTENTOS_CODIGO, FECHA_EXPIRA
-             FROM SOLICITUDES_INICIO_SESION
-             WHERE TOKEN_HASH = :token
-             FOR UPDATE'
+            'SELECT * FROM fn_obtener_solicitud_dispositivo_codigo(:token)'
         );
         $buscar->execute([':token' => hash('sha256', $token)]);
         $solicitud = $buscar->fetch(PDO::FETCH_ASSOC);
@@ -291,9 +245,7 @@ function validarCodigoAprobacionDispositivo(
             $intentos = (int)$solicitud['intentos_codigo'] + 1;
             $estado = $intentos >= 5 ? 'bloqueada' : 'aprobada';
             $actualizar = $pdo->prepare(
-                'UPDATE SOLICITUDES_INICIO_SESION
-                 SET INTENTOS_CODIGO = :intentos, ESTADO = :estado
-                 WHERE ID_SOLICITUD = :id'
+                'SELECT fn_actualizar_intentos_codigo_dispositivo(:id, :intentos, :estado)'
             );
             $actualizar->execute([
                 ':intentos' => $intentos,
@@ -320,12 +272,10 @@ function validarCodigoAprobacionDispositivo(
 function consumirSolicitudAprobacionDispositivo(PDO $pdo, int $idSolicitud): void
 {
     $actualizar = $pdo->prepare(
-        "UPDATE SOLICITUDES_INICIO_SESION
-         SET ESTADO = 'consumida', HASH_CODIGO = NULL
-         WHERE ID_SOLICITUD = :id AND ESTADO = 'aprobada'"
+        'SELECT fn_consumir_solicitud_dispositivo(:id)'
     );
     $actualizar->execute([':id' => $idSolicitud]);
-    if ($actualizar->rowCount() !== 1) {
+    if (!in_array($actualizar->fetchColumn(), [true, 't', 'true', '1', 1], true)) {
         throw new RuntimeException('La solicitud de acceso ya no está disponible.');
     }
 }

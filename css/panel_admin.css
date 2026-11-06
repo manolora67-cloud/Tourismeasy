@@ -2993,6 +2993,151 @@ body.dark-mode .btn-tbl-reject {
     box-shadow: 0 4px 12px rgba(168, 85, 247, .3);
 }
 
+.search-toolbar {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    width: 100%;
+    max-width: 560px;
+    background: rgba(255, 255, 255, 0.86);
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    border-radius: 999px;
+    padding: .7rem 1rem;
+    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
+}
+
+.search-toolbar input[data-search-input] {
+    width: 100%;
+    border: none;
+    background: transparent;
+    font: inherit;
+    color: var(--gray-800);
+    outline: none;
+}
+
+.search-toolbar input[data-search-input]::placeholder {
+    color: var(--gray-500);
+}
+
+.search-toolbar button[data-search-clear] {
+    border: none;
+    background: transparent;
+    color: var(--gray-600);
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    border: 1px solid transparent;
+}
+
+.status-badge--pending {
+    background: #fef3c7;
+    color: #92400e;
+    border-color: #fcd34d;
+}
+
+.status-badge--active {
+    background: #dcfce7;
+    color: #166534;
+    border-color: #86efac;
+}
+
+.status-badge--inactive {
+    background: #fee2e2;
+    color: #991b1b;
+    border-color: #fca5a5;
+}
+
+.status-badge--warning {
+    background: #fff7ed;
+    color: #9a5b00;
+    border-color: #fdba74;
+}
+
+.status-badge--info {
+    background: #eef2ff;
+    color: #3730a3;
+    border-color: #c7d2fe;
+}
+
+.status-badge--neutral {
+    background: #f1f5f9;
+    color: #334155;
+    border-color: #cbd5e1;
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .75rem;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.pagination button {
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    background: #fff;
+    color: var(--gray-700);
+    border-radius: 999px;
+    padding: 0.5rem 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.pagination button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.filter-chip-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    justify-content: center;
+    margin: 1rem 0;
+}
+
+.filter-chip {
+    padding: .5rem 1rem;
+    border-radius: 999px;
+    border: 1.5px solid rgba(148, 163, 184, 0.35);
+    background: #fff;
+    color: var(--gray-600);
+    font-weight: 700;
+    cursor: pointer;
+    transition: all .2s ease;
+}
+
+.filter-chip.active {
+    background: #a855f7;
+    border-color: #a855f7;
+    color: #fff;
+}
+
+body.dark-mode .search-toolbar,
+body.dark-mode .filter-chip,
+body.dark-mode .pagination button {
+    background: #0f172a;
+    border-color: #334155;
+    color: #e2e8f0;
+}
+
+body.dark-mode .status-badge--neutral {
+    background: #1e293b;
+    color: #e2e8f0;
+    border-color: #334155;
+}
+
 
 /* ── MODAL EDITAR PERFIL (admin) ──────────────────── */
 

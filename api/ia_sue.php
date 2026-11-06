@@ -124,9 +124,19 @@ function recuperarConsultaPaginada(array $history, string $question): ?array
     return null;
 }
 
-function cargarDatosCatalogo(string $categoria): array
+function cargarDatosCatalogo(
+    string $categoria,
+    ?int $mesFestividad = null,
+    ?string $busquedaFestividad = null
+): array
 {
-    return cargarDatosCatalogoPorMunicipio($categoria);
+    return cargarDatosCatalogoPorMunicipio(
+        $categoria,
+        null,
+        null,
+        $mesFestividad,
+        $busquedaFestividad
+    );
 }
 
 function normalizarTextoMunicipio(string $texto): string
@@ -140,6 +150,64 @@ function normalizarTextoMunicipio(string $texto): string
         'ú' => 'u',
         'ü' => 'u',
     ]);
+}
+
+function identificarMesFestividades(string $question): ?int
+{
+    $question = normalizarTextoMunicipio($question);
+    if (preg_match('/\b(este mes|this month|mes actual|current month)\b/u', $question) === 1) {
+        return (int)date('n');
+    }
+    if (
+        preg_match('/\b(in|during|for|month of)\s+may\b|\bmay\s+(festivals?|events?)\b/u', $question) === 1
+    ) {
+        return 5;
+    }
+
+    $meses = [
+        'enero' => 1, 'january' => 1,
+        'febrero' => 2, 'february' => 2,
+        'marzo' => 3, 'march' => 3,
+        'abril' => 4, 'april' => 4,
+        'mayo' => 5,
+        'junio' => 6, 'june' => 6,
+        'julio' => 7, 'july' => 7,
+        'agosto' => 8, 'august' => 8,
+        'septiembre' => 9, 'setiembre' => 9, 'september' => 9,
+        'octubre' => 10, 'october' => 10,
+        'noviembre' => 11, 'november' => 11,
+        'diciembre' => 12, 'december' => 12,
+    ];
+
+    foreach ($meses as $nombre => $numero) {
+        if (preg_match('/\b' . preg_quote($nombre, '/') . '\b/u', $question) === 1) {
+            return $numero;
+        }
+    }
+
+    return null;
+}
+
+function extraerBusquedaFestividad(string $question, ?int $mes): ?string
+{
+    $question = normalizarTextoMunicipio($question);
+    if ($mes === 5) {
+        $question = preg_replace('/\bmay\b/u', ' ', $question);
+    }
+    $question = preg_replace(
+        '/\b(enero|january|febrero|february|marzo|march|abril|april|mayo|may|junio|june|julio|july|agosto|august|septiembre|setiembre|september|octubre|october|noviembre|november|diciembre|december)\b/u',
+        ' ',
+        $question
+    );
+    $question = preg_replace(
+        '/\b(festividades?|festivals?|fiestas?|celebraciones?|que|cuales|son|hay|este|esta|mes|actual|del|de|las|los|la|el|en|para|por|favor|dime|dame|quiero|quisiera|saber|ver|mostrar|muestrame|cuentame|hablame|podrias|puedes|decirme|dices|decir|informacion|sobre|cuando|es|ocurre|celebra|celebracion|especifico|especifica|this|month|current|what|which|are|there|tell|me|about|show|give|information|specific)\b/u',
+        ' ',
+        $question
+    );
+    $busqueda = trim(preg_replace('/[^\p{L}\p{N}]+/u', ' ', $question));
+    $busqueda = preg_replace('/\s+/u', ' ', $busqueda);
+
+    return $busqueda === '' ? null : mb_substr($busqueda, 0, 120, 'UTF-8');
 }
 
 function preguntaSolicitaMunicipio(string $question, string $categoria): bool
@@ -192,50 +260,14 @@ function cargarTransportesPorRuta(?string $origen, ?string $destino, int $offset
     global $pdo;
     require_once __DIR__ . '/../con_db/db.php';
 
-    $filtros = [
-        't.DISPONIBILIDAD = TRUE',
-        't.FECHA_SALIDA >= CURRENT_DATE',
-        'e.TIPO_SERVICIO = \'TRANSPORTE\'',
-        'EXISTS (
-            SELECT 1
-            FROM USUARIOS_EMPRESA ue
-            WHERE ue.ID_EMPRESA = e.ID_EMPRESA
-              AND ue.ESTADO = \'ACTIVO\'
-        )',
-    ];
-    $parametros = [];
-
-    if ($origen !== null) {
-        $filtros[] = 'LOWER(BTRIM(co.NOM_CIUDAD)) = LOWER(BTRIM(:origen))';
-        $parametros['origen'] = $origen;
-    }
-
-    if ($destino !== null) {
-        $filtros[] = 'LOWER(BTRIM(cd.NOM_CIUDAD)) = LOWER(BTRIM(:destino))';
-        $parametros['destino'] = $destino;
-    }
-
     $stmt = $pdo->prepare(
-        'SELECT
-            t.ORIGEN AS origen,
-            t.DESTINO AS destino,
-            t.FECHA_SALIDA AS fecha_salida,
-            t.HORA_SALIDA AS hora_salida,
-            t.PRECIO AS precio,
-            e.NOM_EMPRESA AS empresa,
-            cst.NOMBRE_CLASE AS nombre_clase
-        FROM TRANSPORTE t
-        JOIN EMPRESAS e ON e.ID_EMPRESA = t.ID_EMPRESA
-        JOIN CIUDADES co ON co.ID_CIUDAD = t.ID_CIUDAD_ORIGEN
-        JOIN CIUDADES cd ON cd.ID_CIUDAD = t.ID_CIUDAD_DESTINO
-        LEFT JOIN TRANSPORTE_CLASE tc ON tc.ID_TRANSPORTE = t.ID_TRANSPORTE
-        LEFT JOIN CLASE_SERVICIO_TRANSPORTE cst ON cst.ID_CLASE = tc.ID_CLASE
-        WHERE ' . implode("\n          AND ", $filtros) . '
-        ORDER BY t.FECHA_SALIDA, t.HORA_SALIDA, t.ID_TRANSPORTE
-        LIMIT 6 OFFSET :offset'
+        'SELECT * FROM fn_sue_buscar_transportes_ruta(:origen, :destino, :offset)'
     );
-    $parametros['offset'] = $offset;
-    $stmt->execute($parametros);
+    $stmt->execute([
+        ':origen' => $origen,
+        ':destino' => $destino,
+        ':offset' => $offset,
+    ]);
 
     return $stmt->fetchAll();
 }
@@ -243,174 +275,25 @@ function cargarTransportesPorRuta(?string $origen, ?string $destino, int $offset
 function cargarDatosCatalogoPorMunicipio(
     string $categoria,
     ?string $municipio = null,
-    ?string $tipoEmpresa = null
+    ?string $tipoEmpresa = null,
+    ?int $mesFestividad = null,
+    ?string $busquedaFestividad = null
 ): array
 {
     global $pdo;
     require_once __DIR__ . '/../con_db/db.php';
 
-    $idCiudad = null;
-    if ($municipio !== null) {
-        $stmtCiudad = $pdo->prepare(
-            'SELECT ID_CIUDAD FROM CIUDADES WHERE LOWER(BTRIM(NOM_CIUDAD)) = LOWER(BTRIM(:municipio))'
-        );
-        $stmtCiudad->execute(['municipio' => $municipio]);
-        $idCiudad = $stmtCiudad->fetchColumn();
-
-        if ($idCiudad === false) {
-            return [];
-        }
-    }
-
-    switch ($categoria) {
-        case 'planes':
-            $stmt = $pdo->prepare('SELECT fn_buscar_planes_publicos(:id_ciudad, NULL, NULL)');
-            $stmt->execute(['id_ciudad' => $idCiudad]);
-            $resultados = json_decode((string)$stmt->fetchColumn(), true);
-            break;
-
-        case 'hospedajes':
-            $stmt = $pdo->prepare('SELECT fn_buscar_hospedaje_publico(:id_ciudad, NULL, NULL)');
-            $stmt->execute(['id_ciudad' => $idCiudad]);
-            $resultados = json_decode((string)$stmt->fetchColumn(), true);
-            break;
-
-        case 'productos':
-            $stmt = $pdo->prepare(
-                'SELECT p.*
-                 FROM fn_buscar_productos_publicos(NULL, NULL, :id_ciudad) p
-                 WHERE (NOT EXISTS (
-                     SELECT 1
-                     FROM PRODUCTOS_ARTESANALES pa
-                     WHERE pa.ID_PRODUCTO = p.id_producto
-                       AND pa.ID_PERSONA_ECOMMERCE IS NOT NULL
-                 )
-                 OR EXISTS (
-                     SELECT 1
-                     FROM PRODUCTOS_ARTESANALES pa
-                     JOIN USUARIOS_ECOMMERCE ue
-                       ON ue.ID_PERSONA_ECOMMERCE = pa.ID_PERSONA_ECOMMERCE
-                     WHERE pa.ID_PRODUCTO = p.id_producto
-                       AND ue.ESTADO = \'ACTIVO\'
-                 ))
-                 ORDER BY p.fecha_registro DESC, p.id_producto DESC'
-            );
-            $stmt->execute(['id_ciudad' => $idCiudad]);
-            $resultados = array_map(
-                static fn(array $producto): array => [
-                    'nombre' => $producto['nom_producto'],
-                    'artesano' => $producto['proveedor'],
-                    'categoria' => $producto['categoria'],
-                    'precio' => $producto['precio_cop'],
-                    'descripcion' => $producto['descripcion'],
-                    'municipio' => $producto['nom_ciudad'],
-                ],
-                $stmt->fetchAll()
-            );
-            break;
-
-        case 'artesanos':
-            $filtroCiudad = $idCiudad === null ? '' : ' AND producto.ID_CIUDAD = :id_ciudad';
-            $joinProducto = $idCiudad === null ? 'LEFT JOIN' : 'JOIN';
-            $stmt = $pdo->prepare(
-                'SELECT
-                    CONCAT_WS(\' \', persona.NOM_PERSONA_ECOMMERCE, persona.APE_PERSONA_ECOMMERCE) AS artesano,
-                    COUNT(DISTINCT producto.ID_PRODUCTO) AS productos,
-                    STRING_AGG(DISTINCT ciudad.NOM_CIUDAD, \', \' ORDER BY ciudad.NOM_CIUDAD) AS municipios
-                 FROM PERSONAS_ECOMMERCE persona
-                 JOIN USUARIOS_ECOMMERCE usuario
-                   ON usuario.ID_PERSONA_ECOMMERCE = persona.ID_PERSONA_ECOMMERCE
-                  AND usuario.ESTADO = \'ACTIVO\'
-                 ' . $joinProducto . ' PRODUCTOS_ARTESANALES producto
-                   ON producto.ID_PERSONA_ECOMMERCE = persona.ID_PERSONA_ECOMMERCE
-                  ' . $filtroCiudad . '
-                 LEFT JOIN CIUDADES ciudad ON ciudad.ID_CIUDAD = producto.ID_CIUDAD
-                 GROUP BY persona.ID_PERSONA_ECOMMERCE, persona.NOM_PERSONA_ECOMMERCE, persona.APE_PERSONA_ECOMMERCE
-                 ORDER BY persona.NOM_PERSONA_ECOMMERCE, persona.APE_PERSONA_ECOMMERCE, persona.ID_PERSONA_ECOMMERCE'
-            );
-            $stmt->execute($idCiudad === null ? [] : ['id_ciudad' => $idCiudad]);
-            $resultados = $stmt->fetchAll();
-            break;
-
-        case 'empresas':
-            $filtrosEmpresa = [];
-            $parametrosEmpresa = [];
-            if ($idCiudad !== null) {
-                $filtrosEmpresa[] = 'empresa.ID_CIUDAD = :id_ciudad';
-                $parametrosEmpresa['id_ciudad'] = $idCiudad;
-            }
-            if ($tipoEmpresa !== null) {
-                $filtrosEmpresa[] = 'empresa.TIPO_SERVICIO = :tipo_servicio';
-                $parametrosEmpresa['tipo_servicio'] = $tipoEmpresa;
-            }
-            $whereEmpresa = $filtrosEmpresa === []
-                ? ''
-                : 'WHERE ' . implode(' AND ', $filtrosEmpresa);
-            $stmt = $pdo->prepare(
-                'SELECT
-                    empresa.NOM_EMPRESA AS empresa,
-                    empresa.ID_EMPRESA AS id_empresa,
-                    empresa.TIPO_SERVICIO AS servicio,
-                    ciudad.NOM_CIUDAD AS municipio,
-                    departamento.NOM_DPTO AS departamento,
-                    empresa.EMAIL_INSTITU_EMPRESA AS correo,
-                    empresa.NUM_CONTACTO_EMPRESA AS telefono
-                 FROM EMPRESAS empresa
-                 JOIN USUARIOS_EMPRESA usuario
-                   ON usuario.ID_EMPRESA = empresa.ID_EMPRESA
-                  AND usuario.ESTADO = \'ACTIVO\'
-                 JOIN CIUDADES ciudad
-                   ON ciudad.ID_CIUDAD = empresa.ID_CIUDAD
-                 JOIN DEPARTAMENTOS departamento
-                   ON departamento.ID_DPTO = ciudad.ID_DPTO
-                 ' . $whereEmpresa . '
-                 ORDER BY empresa.NOM_EMPRESA, empresa.ID_EMPRESA'
-            );
-            $stmt->execute($parametrosEmpresa);
-            $resultados = $stmt->fetchAll();
-            break;
-
-        case 'festividades':
-            $filtroCiudad = $idCiudad === null ? '' : ' WHERE festividad.ID_CIUDAD = :id_ciudad';
-            $stmt = $pdo->prepare(
-                'SELECT
-                    festividad.FECHA_CLAVE AS fecha,
-                    festividad.TITULO AS titulo,
-                    festividad.SUBTITULO AS detalle,
-                    festividad.FRASE AS descripcion,
-                    festividad.TIPO AS tipo,
-                    ciudad.NOM_CIUDAD AS municipio
-                 FROM FESTIVIDADES_SANTANDER festividad
-                 LEFT JOIN CIUDADES ciudad ON ciudad.ID_CIUDAD = festividad.ID_CIUDAD
-                 ' . $filtroCiudad . '
-                 ORDER BY SUBSTRING(festividad.FECHA_CLAVE FROM 1 FOR 2),
-                          SUBSTRING(festividad.FECHA_CLAVE FROM 4 FOR 2),
-                          festividad.ID_FESTIVIDAD'
-            );
-            $stmt->execute($idCiudad === null ? [] : ['id_ciudad' => $idCiudad]);
-            $resultados = $stmt->fetchAll();
-            break;
-
-        case 'municipios':
-            $filtroCiudad = $idCiudad === null ? '' : ' WHERE ciudad.ID_CIUDAD = :id_ciudad';
-            $stmt = $pdo->prepare(
-                'SELECT ciudad.NOM_CIUDAD AS municipio, departamento.NOM_DPTO AS departamento
-                 FROM CIUDADES ciudad
-                 JOIN DEPARTAMENTOS departamento ON departamento.ID_DPTO = ciudad.ID_DPTO'
-                    . $filtroCiudad
-                    . ' ORDER BY ciudad.NOM_CIUDAD, ciudad.ID_CIUDAD'
-            );
-            if ($idCiudad !== null) {
-                $stmt->execute(['id_ciudad' => $idCiudad]);
-            } else {
-                $stmt->execute();
-            }
-            $resultados = $stmt->fetchAll();
-            break;
-
-        default:
-            return [];
-    }
+    $stmt = $pdo->prepare(
+        'SELECT fn_sue_consultar_catalogo(:categoria, :municipio, :tipo_empresa, :mes, :busqueda)::TEXT'
+    );
+    $stmt->execute([
+        ':categoria' => $categoria,
+        ':municipio' => $municipio,
+        ':tipo_empresa' => $tipoEmpresa,
+        ':mes' => $mesFestividad,
+        ':busqueda' => $busquedaFestividad,
+    ]);
+    $resultados = json_decode((string)$stmt->fetchColumn(), true);
 
     if (!is_array($resultados)) {
         throw new RuntimeException('La consulta del catálogo por municipio devolvió una respuesta inválida.');
@@ -612,6 +495,12 @@ $consultaPaginada = recuperarConsultaPaginada($history, $question);
 $questionCatalogo = $consultaPaginada['question'] ?? $question;
 $categoriaCatalogo = $consultaPaginada['categoria'] ?? identificarCategoriaCatalogo($question);
 $offsetCatalogo = $consultaPaginada['offset'] ?? 0;
+$mesFestividad = $categoriaCatalogo === 'festividades'
+    ? identificarMesFestividades($questionCatalogo)
+    : null;
+$busquedaFestividad = $categoriaCatalogo === 'festividades'
+    ? extraerBusquedaFestividad($questionCatalogo, $mesFestividad)
+    : null;
 $tipoEmpresaCatalogo = $categoriaCatalogo === 'empresas'
     ? identificarTipoServicioEmpresa($questionCatalogo)
     : null;
@@ -713,7 +602,9 @@ if ($categoriaCatalogo !== null) {
                         cargarDatosCatalogoPorMunicipio(
                             $categoriaCatalogo,
                             $municipio,
-                            $tipoEmpresaCatalogo
+                            $tipoEmpresaCatalogo,
+                            $mesFestividad,
+                            $busquedaFestividad
                         )
                     );
                 }
@@ -735,7 +626,9 @@ if ($categoriaCatalogo !== null) {
                 $datosCatalogo = cargarDatosCatalogoPorMunicipio(
                     $categoriaCatalogo,
                     null,
-                    $tipoEmpresaCatalogo
+                    $tipoEmpresaCatalogo,
+                    $mesFestividad,
+                    $busquedaFestividad
                 );
                 if ($tipoEmpresaCatalogo !== null) {
                     $etiquetaServicio = $english
@@ -766,7 +659,13 @@ if ($categoriaCatalogo !== null) {
                 foreach ($municipiosMencionados as $municipio) {
                     $datosCatalogo = array_merge(
                         $datosCatalogo,
-                        cargarDatosCatalogoPorMunicipio($categoriaCatalogo, $municipio)
+                        cargarDatosCatalogoPorMunicipio(
+                            $categoriaCatalogo,
+                            $municipio,
+                            null,
+                            $mesFestividad,
+                            $busquedaFestividad
+                        )
                     );
                 }
                 $contextoCatalogo = 'en ' . implode(' y ', $municipiosMencionados);
@@ -780,7 +679,11 @@ if ($categoriaCatalogo !== null) {
                 exit;
             } else {
                 $etapaConsulta = 'catalogo';
-                $datosCatalogo = cargarDatosCatalogo($categoriaCatalogo);
+                $datosCatalogo = cargarDatosCatalogo(
+                    $categoriaCatalogo,
+                    $mesFestividad,
+                    $busquedaFestividad
+                );
             }
         }
     } catch (Throwable $e) {

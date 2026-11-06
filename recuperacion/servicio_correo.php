@@ -13,27 +13,7 @@ use PHPMailer\PHPMailer\Exception;
 function obtenerNombreRecuperacion(PDO $pdo, string $email): string
 {
     try {
-        $stmt = $pdo->prepare(
-            "SELECT nombre, tipo
-             FROM (
-                 SELECT 'admin' AS tipo,
-                        CONCAT_WS(' ', NULLIF(BTRIM(u.NOM_PERSONA), ''), NULLIF(BTRIM(u.APE_PERSONA), '')) AS nombre,
-                        u.EMAIL_LOGIN AS email
-                 FROM USUARIOS u
-                 UNION ALL
-                 SELECT 'empresa' AS tipo, e.NOM_EMPRESA AS nombre, ue.EMAIL_LOGIN AS email
-                 FROM USUARIOS_EMPRESA ue
-                 JOIN EMPRESAS e ON e.ID_EMPRESA = ue.ID_EMPRESA
-                 UNION ALL
-                 SELECT 'artesano' AS tipo,
-                        CONCAT_WS(' ', NULLIF(BTRIM(p.NOM_PERSONA_ECOMMERCE), ''), NULLIF(BTRIM(p.APE_PERSONA_ECOMMERCE), '')) AS nombre,
-                        u.EMAIL_LOGIN AS email
-                 FROM USUARIOS_ECOMMERCE u
-                 JOIN PERSONAS_ECOMMERCE p ON p.ID_PERSONA_ECOMMERCE = u.ID_PERSONA_ECOMMERCE
-             ) cuentas
-             WHERE LOWER(cuentas.email) = LOWER(:email)
-             LIMIT 1"
-        );
+        $stmt = $pdo->prepare('SELECT * FROM fn_obtener_nombre_recuperacion(:email)');
         $stmt->execute([':email' => $email]);
         $cuenta = $stmt->fetch(PDO::FETCH_ASSOC);
         $nombre = trim((string)($cuenta['nombre'] ?? ''));
