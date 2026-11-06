@@ -2,6 +2,40 @@
 
 require_once __DIR__ . '/../recuperacion/servicio_correo.php';
 
+class ErrorAprobacionDispositivo extends RuntimeException
+{
+    private string $etapa;
+    private string $causa;
+
+    public function __construct(string $etapa, Throwable $error)
+    {
+        $this->etapa = $etapa;
+        $sqlState = $error instanceof PDOException
+            ? (string)($error->errorInfo[0] ?? $error->getCode())
+            : '';
+        $this->causa = [
+            '42P01' => 'tabla_no_encontrada',
+            '42703' => 'columna_no_encontrada',
+            '23514' => 'restriccion_check',
+            '23502' => 'valor_requerido',
+            '23503' => 'relacion_no_encontrada',
+            '23505' => 'duplicado',
+            '42501' => 'permiso_insuficiente',
+        ][$sqlState] ?? ($error instanceof PDOException ? 'error_base_de_datos' : 'error_interno');
+        parent::__construct($error->getMessage(), 0, $error);
+    }
+
+    public function obtenerEtapa(): string
+    {
+        return $this->etapa;
+    }
+
+    public function obtenerCausa(): string
+    {
+        return $this->causa;
+    }
+}
+
 function crearSolicitudAprobacionDispositivo(
     PDO $pdo,
     string $tipo,
@@ -13,14 +47,18 @@ function crearSolicitudAprobacionDispositivo(
 ): string {
     $token = bin2hex(random_bytes(32));
     $hashToken = hash('sha256', $token);
-    $pdo->beginTransaction();
+    $etapa = 'iniciando_transaccion';
     try {
+        $pdo->beginTransaction();
+
+        $etapa = 'limpiando_solicitudes_antiguas';
         $eliminarAntiguas = $pdo->prepare(
             "DELETE FROM SOLICITUDES_INICIO_SESION
              WHERE FECHA_CREACION < NOW() - INTERVAL '30 days'"
         );
         $eliminarAntiguas->execute();
 
+        $etapa = 'bloqueando_sesion_actual';
         $bloquearCuenta = $pdo->prepare(
             'SELECT 1 FROM SESIONES_ACTIVAS
              WHERE TIPO_CUENTA = :tipo AND ID_CUENTA = :id
@@ -31,6 +69,7 @@ function crearSolicitudAprobacionDispositivo(
             throw new RuntimeException('La sesión activa ya no está disponible.');
         }
 
+        $etapa = 'cancelando_solicitudes_vencidas';
         $limpiar = $pdo->prepare(
             "UPDATE SOLICITUDES_INICIO_SESION
              SET ESTADO = 'cancelada'
@@ -41,6 +80,7 @@ function crearSolicitudAprobacionDispositivo(
         );
         $limpiar->execute([':tipo' => $tipo, ':id' => $idCuenta]);
 
+        $etapa = 'contando_solicitudes_recientes';
         $limite = $pdo->prepare(
             "SELECT COUNT(*)
              FROM SOLICITUDES_INICIO_SESION
@@ -53,6 +93,7 @@ function crearSolicitudAprobacionDispositivo(
             throw new OverflowException('Hay demasiadas solicitudes recientes. Intenta de nuevo más tarde.');
         }
 
+        $etapa = 'cancelando_solicitudes_previas';
         $cancelar = $pdo->prepare(
             "UPDATE SOLICITUDES_INICIO_SESION
              SET ESTADO = 'cancelada'
@@ -62,6 +103,7 @@ function crearSolicitudAprobacionDispositivo(
         );
         $cancelar->execute([':tipo' => $tipo, ':id' => $idCuenta]);
 
+        $etapa = 'insertando_solicitud';
         $insertar = $pdo->prepare(
             "INSERT INTO SOLICITUDES_INICIO_SESION
                 (TOKEN_HASH, TIPO_CUENTA, ID_CUENTA, EMAIL, TOKEN_DISPOSITIVO_HASH, FECHA_EXPIRA)
@@ -77,23 +119,34 @@ function crearSolicitudAprobacionDispositivo(
             ':dispositivo' => $hashDispositivo,
         ]);
         $idSolicitud = (int)$insertar->fetchColumn();
+
+        $etapa = 'confirmando_transaccion';
         $pdo->commit();
-    } catch (Throwable $error) {
+    } catch (OverflowException $error) {
         if ($pdo->inTransaction()) {
             $pdo->rollBack();
         }
         throw $error;
+    } catch (Throwable $error) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        throw new ErrorAprobacionDispositivo($etapa, $error);
     }
 
     try {
         $nombre = obtenerNombreRecuperacion($pdo, $email);
         enviarCorreoSolicitudDispositivo($email, $nombre, $token, $ip, $agente);
     } catch (Throwable $error) {
-        $cancelar = $pdo->prepare(
-            "UPDATE SOLICITUDES_INICIO_SESION SET ESTADO = 'cancelada' WHERE ID_SOLICITUD = :id"
-        );
-        $cancelar->execute([':id' => $idSolicitud]);
-        throw $error;
+        try {
+            $cancelar = $pdo->prepare(
+                "UPDATE SOLICITUDES_INICIO_SESION SET ESTADO = 'cancelada' WHERE ID_SOLICITUD = :id"
+            );
+            $cancelar->execute([':id' => $idSolicitud]);
+        } catch (Throwable $errorCancelacion) {
+            throw new ErrorAprobacionDispositivo('cancelando_solicitud', $errorCancelacion);
+        }
+        throw new ErrorAprobacionDispositivo('enviando_correo', $error);
     }
 
     return $token;

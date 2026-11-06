@@ -2,6 +2,7 @@
     "use strict";
 
     const timeoutMs = 10 * 60 * 1000;
+    const heartbeatIntervalMs = 10 * 1000;
     const adminSessionKey = "te_session";
     const artisanSessionKey = "te_ecommerce_session";
     const privatePage = /\/(?:panel_[^/]+|perfil_(?:admin|empresa)\.html|config_(?:admin|empresa)\.html|festividades_admin\.html|e-commerce\/admin\.php)$/i
@@ -87,8 +88,8 @@
         return stored;
     }
 
-    function validateWithServer(stored) {
-        if (heartbeatPending || Date.now() - lastHeartbeat < 60 * 1000) return;
+    function validateWithServer(stored, force) {
+        if (heartbeatPending || (!force && Date.now() - lastHeartbeat < heartbeatIntervalMs)) return;
         heartbeatPending = true;
         lastHeartbeat = Date.now();
         fetch(heartbeatUrl.href, {
@@ -143,11 +144,17 @@
         if (stored) validateWithServer(stored);
     });
 
+    document.addEventListener("visibilitychange", function () {
+        if (document.visibilityState !== "visible") return;
+        const stored = checkSession();
+        if (stored) validateWithServer(stored, true);
+    });
+
     window.setInterval(function () {
         const stored = checkSession();
         if (!stored) return;
         if (Date.now() - Number(stored.session.ultimaActividad) < 60 * 1000) {
             validateWithServer(stored);
         }
-    }, 30 * 1000);
+    }, heartbeatIntervalMs);
 })();

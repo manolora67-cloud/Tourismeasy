@@ -43,13 +43,25 @@
         </div>
         <div class="forgot-link"><a href="#" id="forgotLink">¿Olvidaste tu contraseña?</a></div>
         <button type="submit" class="btn-auth" id="btnLogin"><span class="btn-text">Iniciar sesión</span><div class="btn-spinner"></div></button>
-        <p class="field-msg" id="loginStatus" role="status"></p>
-        <div id="approvalCodeSection" style="display:none">
-          <p>Aprueba el intento desde el correo de la cuenta. Después, escribe aquí el código de 6 dígitos que recibirás.</p>
-          <label for="approvalCode">Código de confirmación</label>
-          <input id="approvalCode" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}">
-          <button type="button" class="btn-auth" id="btnVerifyApproval">Confirmar código e iniciar sesión</button>
-        </div>
+        <p class="field-msg" id="loginStatus" role="status" aria-live="polite"></p>
+        <section class="approval-code-card" id="approvalCodeSection" aria-labelledby="approvalCodeTitle" hidden>
+          <div class="approval-code-heading">
+            <span class="approval-code-icon" aria-hidden="true"><i class="fa-solid fa-shield-halved"></i></span>
+            <div>
+              <span class="approval-code-eyebrow">Verificación de seguridad</span>
+              <h3 id="approvalCodeTitle">Confirma este dispositivo</h3>
+            </div>
+          </div>
+          <p class="approval-code-copy">Aprueba el intento desde el correo de tu cuenta. Luego escribe aquí el código que te enviamos.</p>
+          <ol class="approval-code-steps" aria-label="Pasos para confirmar el acceso">
+            <li><span>1</span>Revisa tu correo</li>
+            <li><span>2</span>Ingresa el código</li>
+          </ol>
+          <label class="approval-code-label" for="approvalCode">Código de seis dígitos</label>
+          <input class="approval-code-input" id="approvalCode" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" placeholder="000000" aria-label="Código de confirmación de seis dígitos">
+          <button type="button" class="btn-auth approval-code-submit" id="btnVerifyApproval"><i class="fa-solid fa-arrow-right-to-bracket" aria-hidden="true"></i><span>Verificar e iniciar sesión</span></button>
+          <p class="approval-code-footnote"><i class="fa-regular fa-clock" aria-hidden="true"></i> El código vence en 5 minutos y solo se puede usar una vez.</p>
+        </section>
       </form>
       <form class="auth-form" id="formRegister" novalidate>
                 <div class="register-intro">
@@ -135,10 +147,23 @@
         const verifyApprovalButton = document.getElementById("btnVerifyApproval");
         const approvalStorageKey = "te_login_approval";
         let pendingApproval = sessionStorage.getItem(approvalStorageKey) || "";
+        const sessionExpiredByDevice = new URLSearchParams(window.location.search).get("sesion_expirada") === "1";
         const forgotLink = document.getElementById("forgotLink");
         const loginEmail = document.getElementById("loginEmail");
         const loginEmailMsg = document.getElementById("loginEmailMsg");
         let recoveryRequestPending = false;
+
+        if (sessionExpiredByDevice) {
+            for (const storage of [localStorage, sessionStorage]) {
+                storage.removeItem("te_session");
+                storage.removeItem("te_ecommerce_session");
+                storage.removeItem(approvalStorageKey);
+            }
+            pendingApproval = "";
+            loginStatus.textContent = "La sesión de este equipo se cerró porque se autorizó el acceso desde otro dispositivo. Puedes volver a iniciar sesión aquí.";
+            loginStatus.classList.add("info");
+            window.history.replaceState({}, "", window.location.pathname);
+        }
 
         forgotLink.addEventListener("click", async function (event) {
             event.preventDefault();
@@ -276,9 +301,10 @@
                 if (response.status === 409 && result.code === "APROBACION_REQUERIDA") {
                     pendingApproval = result.solicitud;
                     sessionStorage.setItem(approvalStorageKey, pendingApproval);
-                    approvalCodeSection.style.display = "block";
+                    approvalCodeSection.hidden = false;
                     loginStatus.textContent = result.error;
                     loginStatus.classList.add("ok");
+                    approvalCodeInput.focus();
                     return;
                 }
                 if (!response.ok || !result.ok) throw new Error(result.error || "No se pudo iniciar sesión.");
@@ -314,7 +340,12 @@
             }
             iniciarSesion(pendingApproval, codigo);
         });
-        if (pendingApproval) approvalCodeSection.style.display = "block";
+        approvalCodeInput.addEventListener("input", () => {
+            approvalCodeInput.value = approvalCodeInput.value.replace(/\D/g, "").slice(0, 6);
+        });
+        if (pendingApproval) {
+            approvalCodeSection.hidden = false;
+        }
 
         registerForm.addEventListener("submit", async(event) => {
             event.preventDefault();

@@ -133,6 +133,9 @@ try {
                 obtenerIpCliente(),
                 (string)($_SERVER['HTTP_USER_AGENT'] ?? 'No identificado')
             );
+        } catch (ErrorAprobacionDispositivo $e) {
+            $etapaDiagnostico = 'solicitud_' . $e->obtenerEtapa();
+            throw $e;
         } catch (OverflowException $e) {
             http_response_code(429);
             echo json_encode(["ok" => false, "error" => $e->getMessage()]);
@@ -248,6 +251,9 @@ try {
         "diagnostico" => [
             "referencia" => $referenciaDiagnostico,
             "etapa" => $etapaDiagnostico,
+            "causa" => $e instanceof ErrorAprobacionDispositivo
+                ? $e->obtenerCausa()
+                : "error_interno",
         ],
     ]);
 }

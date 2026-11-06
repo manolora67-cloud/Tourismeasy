@@ -9,9 +9,11 @@
     // siguiente bloque (¿ya hay sesión activa?) seguiría viendo los datos viejos
     // y nos volvería a mandar para admin.php, armando un loop infinito de
     // redirecciones entre esta página y admin.php.
-    if (new URLSearchParams(window.location.search).get('sesion_expirada') === '1') {
+    var sessionExpiredByDevice = new URLSearchParams(window.location.search).get('sesion_expirada') === '1';
+    if (sessionExpiredByDevice) {
         sessionStorage.removeItem('te_ecommerce_session');
         localStorage.removeItem('te_ecommerce_session');
+        sessionStorage.removeItem('te_ecommerce_login_approval');
         // Limpiamos el parámetro de la URL para que no quede ahí si el usuario recarga
         window.history.replaceState({}, '', window.location.pathname);
     }
@@ -86,6 +88,10 @@
 
     function hideMsg(id) {
         document.getElementById(id).className = 'lec-msg';
+    }
+
+    if (sessionExpiredByDevice) {
+        showMsg('loginMsg', 'La sesión de este equipo se cerró porque se autorizó el acceso desde otro dispositivo. Puedes volver a iniciar sesión aquí.', 'info');
     }
 
     // ── Cargar tipos de documento (hardcodeados de la BD) ──
@@ -208,8 +214,9 @@
                 if (result.response.status === 409 && data.code === 'APROBACION_REQUERIDA') {
                     pendingApproval = data.solicitud;
                     sessionStorage.setItem(approvalStorageKey, pendingApproval);
-                    approvalCodeSection.style.display = 'block';
+                    approvalCodeSection.hidden = false;
                     showMsg('loginMsg', data.error, 'success');
+                    approvalCodeInput.focus();
                     return;
                 }
                 if (!data.ok) {
@@ -245,7 +252,10 @@
         }
         iniciarSesion(pendingApproval, codigo);
     });
-    if (pendingApproval) approvalCodeSection.style.display = 'block';
+    approvalCodeInput.addEventListener('input', function() {
+        approvalCodeInput.value = approvalCodeInput.value.replace(/\D/g, '').slice(0, 6);
+    });
+    if (pendingApproval) approvalCodeSection.hidden = false;
 
     // ── REGISTRO ──
     formRegister.addEventListener('submit', function(e) {

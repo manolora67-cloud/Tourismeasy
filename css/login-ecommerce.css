@@ -332,3 +332,168 @@ body.dark-mode .lec-msg.info {
     background: rgba(168, 85, 247, .15);
     color: #c4b5fd;
 }
+
+.approval-code-card {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 4px;
+    padding: 20px;
+    border: 1px solid rgba(168, 85, 247, .22);
+    border-radius: 18px;
+    background: linear-gradient(145deg, #faf8ff, #f3edff);
+}
+
+.approval-code-card[hidden] {
+    display: none;
+}
+
+.approval-code-heading {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.approval-code-icon {
+    display: grid;
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
+    place-items: center;
+    border-radius: 14px;
+    background: #ede9fe;
+    color: #7c3aed;
+    font-size: 1.15rem;
+}
+
+.approval-code-eyebrow {
+    color: #7c3aed;
+    font-size: .68rem;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.approval-code-heading h3 {
+    margin: 3px 0 0;
+    color: #1e1b4b;
+    font-size: 1rem;
+}
+
+.approval-code-copy,
+.approval-code-footnote {
+    margin: 0;
+    color: #64748b;
+    font-size: .82rem;
+    line-height: 1.55;
+}
+
+.approval-code-steps {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.approval-code-steps li {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    color: #475569;
+    font-size: .74rem;
+    font-weight: 700;
+}
+
+.approval-code-steps li span {
+    display: grid;
+    width: 22px;
+    height: 22px;
+    flex: 0 0 22px;
+    place-items: center;
+    border-radius: 50%;
+    background: #ddd6fe;
+    color: #6d28d9;
+    font-size: .68rem;
+}
+
+.approval-code-card .lec-field label {
+    margin-bottom: 0;
+}
+
+.approval-code-input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 13px 12px !important;
+    border: 1.5px solid #c4b5fd !important;
+    border-radius: 12px !important;
+    background: #fff !important;
+    color: #312e81 !important;
+    font-size: 1.5rem !important;
+    font-weight: 800;
+    letter-spacing: .42em;
+    text-align: center;
+}
+
+.approval-code-input::placeholder {
+    color: #c4b5fd;
+    opacity: 1;
+}
+
+.approval-code-input:focus {
+    border-color: #7c3aed !important;
+    box-shadow: 0 0 0 4px rgba(124, 58, 237, .14);
+}
+
+.lec-btn.approval-code-submit {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    margin-top: 0;
+}
+
+.approval-code-footnote {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: .72rem;
+}
+
+body.dark-mode .approval-code-card {
+    border-color: rgba(168, 85, 247, .35);
+    background: linear-gradient(145deg, #211735, #1e1b2e);
+}
+
+body.dark-mode .approval-code-icon,
+body.dark-mode .approval-code-steps li span {
+    background: #3b2762;
+    color: #ddd6fe;
+}
+
+body.dark-mode .approval-code-heading h3 {
+    color: #f5f3ff;
+}
+
+body.dark-mode .approval-code-copy,
+body.dark-mode .approval-code-footnote,
+body.dark-mode .approval-code-steps li {
+    color: #cbd5e1;
+}
+
+body.dark-mode .approval-code-input {
+    border-color: #6d5aa8 !important;
+    background: #0f172a !important;
+    color: #f5f3ff !important;
+}
+
+@media (max-width: 420px) {
+    .approval-code-card {
+        padding: 16px;
+    }
+
+    .approval-code-input {
+        letter-spacing: .3em;
+    }
+}
