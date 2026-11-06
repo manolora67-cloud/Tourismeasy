@@ -233,6 +233,9 @@ try {
     }
 
     renovarCookieSesionPersistente();
+    if (!session_write_close()) {
+        throw new RuntimeException('No se pudo guardar la sesión de acceso.');
+    }
     echo json_encode(["ok" => true, "session" => $datos_sesion]);
 } catch (Throwable $e) {
     if ($pdo->inTransaction()) {

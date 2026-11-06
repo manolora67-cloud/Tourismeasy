@@ -30,6 +30,8 @@ $tokenValido = preg_match('/^[a-f0-9]{64}$/D', $token) === 1;
 $mensajes = [
     'aprobada' => 'Aprobaste el inicio de sesión. Enviamos un código de seis dígitos a este correo. Escríbelo en el dispositivo donde solicitaste el acceso. La sesión actual seguirá activa hasta que el código se use.',
     'rechazada' => 'Rechazaste el inicio de sesión. No se generó ningún código y la sesión actual sigue activa.',
+    'rechazada_previamente' => 'Ya elegiste “No soy yo” para esta solicitud. Fue anulada y no se puede aprobar después. Tu sesión actual sigue activa.',
+    'decision_previamente' => 'Esta solicitud ya fue respondida y no se puede cambiar. Tu sesión actual sigue activa.',
     'expirada' => 'Esta solicitud ya venció o fue utilizada. Tu sesión actual no se ha cerrado.',
 ];
 $contenido = $resultado !== null

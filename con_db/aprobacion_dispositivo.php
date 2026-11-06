@@ -169,9 +169,17 @@ function confirmarSolicitudAprobacionDispositivo(PDO $pdo, string $token, bool $
         );
         $buscar->execute([':token' => hash('sha256', $token)]);
         $solicitud = $buscar->fetch(PDO::FETCH_ASSOC);
-        if (!$solicitud || $solicitud['estado'] !== 'pendiente') {
+        if (!$solicitud) {
             $pdo->commit();
             return 'expirada';
+        }
+        if ($solicitud['estado'] === 'rechazada') {
+            $pdo->commit();
+            return 'rechazada_previamente';
+        }
+        if ($solicitud['estado'] !== 'pendiente') {
+            $pdo->commit();
+            return 'decision_previamente';
         }
 
         if ($aprobar) {

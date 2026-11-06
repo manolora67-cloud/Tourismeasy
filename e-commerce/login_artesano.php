@@ -214,6 +214,9 @@ try {
     $_SESSION['tipo'] = 'artesano';
     $_SESSION['te_ultima_actividad'] = time();
     renovarCookieSesionPersistente();
+    if (!session_write_close()) {
+        throw new RuntimeException('No se pudo guardar la sesión de acceso.');
+    }
 
     echo json_encode([
         "ok" => true,
