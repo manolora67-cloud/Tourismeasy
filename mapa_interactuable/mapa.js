@@ -163,9 +163,9 @@
         const icono = window.L.divIcon({
             className: "mapa-marcador-wrapper",
             html: '<span class="mapa-marcador" aria-hidden="true"><i class="fa-solid fa-location-dot"></i></span>',
-            iconSize: [42, 48],
-            iconAnchor: [21, 44],
-            popupAnchor: [0, -40],
+            iconSize: [30, 34],
+            iconAnchor: [15, 31],
+            popupAnchor: [0, -28],
         });
 
         const marcador = window.L.marker(coordenadas, {
@@ -307,6 +307,11 @@
 
         const mapa = window.L.map(contenedor, {
             scrollWheelZoom: false,
+            preferCanvas: true,
+            zoomAnimation: false,
+            fadeAnimation: false,
+            markerZoomAnimation: false,
+            tap: false,
         });
 
         window.L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {

@@ -115,6 +115,97 @@ Los componentes se cargan desde las páginas que los usan; no requieren un proce
 
 El panel artesanal reutiliza el tablero de clics, con datos limitados por la sesión de artesano. Para una base nueva, el esquema y las funciones relacionados se describen en [db/README.md](db/README.md); las funciones SQL no se ejecutan automáticamente al cargar PHP.
 
+### Uso práctico de los componentes
+
+Los componentes compartidos se cargan directamente en la vista que los usa con etiquetas `<script>` normales, sin pipeline ni compilación. La idea es mantenerlos reutilizables y simples.
+
+```html
+<script src="../componentes/modal.js"></script>
+<script src="../componentes/toast.js"></script>
+<script src="../componentes/boton-accion.js"></script>
+<script src="../componentes/filtro-chips.js"></script>
+```
+
+#### Modal reutilizable
+
+- Usa botones con `data-open-modal="idDelModal"`.
+- El modal debe tener `id="idDelModal"` y el cierre con `[data-close-modal]`.
+- El componente se inicializa solo con su selector por defecto, por lo que no hace falta más configuración.
+
+```html
+<button type="button" data-open-modal="miModal">Abrir</button>
+<div id="miModal" class="modal" aria-hidden="true">
+  <button type="button" data-close-modal>Cerrar</button>
+</div>
+```
+
+#### Toast
+
+```js
+window.TourismEasyToast.show('Guardado correctamente.', { type: 'success', duration: 2500 });
+```
+
+#### Botón de acción
+
+```html
+<button type="button" data-cta="guardar">Guardar</button>
+```
+
+```js
+document.addEventListener('cta:click', (event) => {
+  console.log('Acción:', event.detail.action);
+});
+```
+
+#### Filtros tipo chips
+
+```html
+<div data-filter-chip-group>
+  <button type="button" data-filter-chip="todos" class="active">Todos</button>
+  <button type="button" data-filter-chip="activos">Activos</button>
+  <button type="button" data-filter-chip="inactivos">Inactivos</button>
+</div>
+```
+
+```js
+document.addEventListener('filter:change', (event) => {
+  console.log(event.detail.value);
+});
+```
+
+#### Tabla reutilizable
+
+```html
+<table data-table-data>
+  <thead>
+    <tr>
+      <th>Nombre</th>
+      <th>Estado</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+```
+
+```js
+window.TourismEasyTableData.render({
+  selector: '[data-table-data]',
+  rows: [{ nombre: 'Empresa A', estado: 'ACTIVO' }],
+  columns: [
+    { key: 'nombre' },
+    { key: 'estado', value: (row) => '<span class="status-badge status-badge--active">' + row.estado + '</span>' }
+  ],
+  emptyText: 'Sin resultados'
+});
+```
+
+### Reglas de uso
+
+- No crear nuevas capas de servicios ni repositorios si la lógica es simple y se reutiliza en la misma página.
+- Si un patrón se repite dos o más veces, conviene moverlo a [componentes/](componentes/).
+- Mantener los nombres de archivo descriptivos y en español cuando se trata de UI reutilizable.
+- Usar eventos personalizados (`CustomEvent`) para comunicar acciones entre componentes y páginas, sin acoplar demasiado el JavaScript.
+
 ## Configuración y seguridad
 
 - No guardes claves API, contraseñas SMTP, credenciales de Cloudinary ni contraseñas de la base de datos en Git. **La configuración actual del proyecto todavía contiene credenciales en archivos versionados**: no las reutilices en un despliegue compartido. Rótalas si siguen activas y migra la configuración a variables de entorno o archivos locales ignorados por Git.
