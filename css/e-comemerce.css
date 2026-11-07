@@ -657,7 +657,6 @@ body.dark-mode .hero {
     color: var(--gray-400);
 }
 
-
 /* ===========================
    BUSCADOR — Búsqueda de productos por nombre
 =========================== */
@@ -1232,7 +1231,8 @@ body.dark-mode .pm-contact-box {
    Para mostrar políticas, términos, etc.
 =========================== */
 
-.tl-modal-overlay {
+.tl-modal-overlay,
+.modal-overlay {
     display: none;
     position: fixed;
     inset: 0;
@@ -1243,11 +1243,13 @@ body.dark-mode .pm-contact-box {
     padding: 1rem;
 }
 
-.tl-modal-overlay.active {
+.tl-modal-overlay.active,
+.modal-overlay.active {
     display: flex;
 }
 
-.tl-modal-box {
+.tl-modal-box,
+.modal-box {
     background: var(--white);
     border-radius: var(--radius);
     padding: 2rem;
@@ -1277,7 +1279,8 @@ body.dark-mode .pm-contact-box {
 
 /* Botón × para cerrar el modal de footer */
 
-.tl-modal-close {
+.tl-modal-close,
+.modal-close {
     position: absolute;
     top: 1rem;
     right: 1rem;
@@ -1290,11 +1293,13 @@ body.dark-mode .pm-contact-box {
     transition: color 0.2s;
 }
 
-.tl-modal-close:hover {
+.tl-modal-close:hover,
+.modal-close:hover {
     color: var(--primary);
 }
 
-.tl-modal-box h2 {
+.tl-modal-box h2,
+#modalTitle {
     font-family: var(--font-head);
     color: var(--gray-800);
     margin: 0 0 1rem;
@@ -1302,21 +1307,24 @@ body.dark-mode .pm-contact-box {
     padding-right: 2rem;
 }
 
-.tl-modal-box p {
+.tl-modal-box p,
+#modalContent p {
     color: var(--gray-600);
     font-size: 0.9rem;
     line-height: 1.6;
     margin-bottom: 0.75rem;
 }
 
-.tl-modal-box h3 {
+.tl-modal-box h3,
+#modalContent h3 {
     font-family: var(--font-head);
     font-size: 0.95rem;
     color: var(--primary);
     margin: 1rem 0 0.5rem;
 }
 
-.tl-modal-box ul {
+.tl-modal-box ul,
+#modalContent ul {
     padding-left: 1.2rem;
     color: var(--gray-600);
     font-size: 0.9rem;
@@ -1326,36 +1334,49 @@ body.dark-mode .pm-contact-box {
 
 /* Acordeón de preguntas frecuentes */
 
-.tl-modal-box details {
+.tl-modal-box details,
+#modalContent details {
     border: 1px solid var(--gray-200);
     border-radius: 8px;
     padding: 0.75rem 1rem;
     margin-bottom: 0.5rem;
 }
 
-.tl-modal-box details summary {
+.tl-modal-box details summary,
+#modalContent summary {
     font-weight: 600;
     cursor: pointer;
     font-size: 0.88rem;
     color: var(--gray-800);
 }
 
-.tl-modal-box details p {
+.tl-modal-box details p,
+#modalContent details p {
     margin: 0.5rem 0 0;
 }
 
-body.dark-mode .tl-modal-box {
+body.dark-mode .tl-modal-box,
+body.dark-mode .modal-box {
     background: #1e293b;
 }
 
 body.dark-mode .tl-modal-box h2,
 body.dark-mode .tl-modal-box h3,
-body.dark-mode .tl-modal-box details summary {
+body.dark-mode .tl-modal-box details summary,
+body.dark-mode #modalTitle,
+body.dark-mode #modalContent h3,
+body.dark-mode #modalContent summary {
     color: #f1f5f9;
 }
 
-body.dark-mode .tl-modal-box details {
+body.dark-mode .tl-modal-box details,
+body.dark-mode #modalContent details {
     border-color: #334155;
+}
+
+body.dark-mode #modalContent p,
+body.dark-mode #modalContent li {
+    color: #cbd5e1;
 }
 
 

@@ -544,23 +544,11 @@ function openTlModal(key) {
     });
 }
 
-document.querySelectorAll("[data-modal]").forEach((link) => {
-    link.addEventListener("click", (e) => {
-        e.preventDefault();
-        openTlModal(link.getAttribute("data-modal"));
-    });
-});
-
 function closeTutorialModal() {
     if (!tlOverlay.classList.contains("active")) return;
     tlOverlay.classList.remove("active");
     window.TEUI.notifyClosed("Ventana");
 }
-
-tlClose.addEventListener("click", closeTutorialModal);
-tlOverlay.addEventListener("click", (e) => {
-    if (e.target === tlOverlay) closeTutorialModal();
-});
 
 // ============================================================
 // Sesión artesano — un artesano logueado NO puede ver la tienda pública:
