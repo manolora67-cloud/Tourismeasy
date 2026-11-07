@@ -1,6 +1,61 @@
 (function () {
     "use strict";
 
+    function inicializarVideoPrincipal() {
+        const video = document.getElementById("miVideo");
+        if (!video) return;
+
+        const source = video.querySelector("source[data-src]");
+        const button = video.parentElement.querySelector("[data-sound-toggle]");
+        const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
+        const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+        let visible = false;
+        let sourceLoaded = false;
+
+        function usarPoster() {
+            return motionPreference.matches || Boolean(connection && (
+                connection.saveData || connection.effectiveType === "slow-2g" || connection.effectiveType === "2g"
+            ));
+        }
+
+        function sincronizarReproduccion() {
+            const posterOnly = usarPoster();
+            if (button) button.hidden = posterOnly;
+            if (posterOnly || !visible || document.hidden) {
+                video.pause();
+                return;
+            }
+
+            if (source && !sourceLoaded) {
+                source.src = source.dataset.src;
+                sourceLoaded = true;
+                video.load();
+            }
+            video.play().catch(function (error) {
+                console.warn("[TourismEasy] No se pudo reproducir el video principal:", error);
+            });
+        }
+
+        if ("IntersectionObserver" in window) {
+            const observer = new IntersectionObserver(function (entries) {
+                visible = entries.some(function (entry) {
+                    return entry.isIntersecting && entry.intersectionRatio >= 0.15;
+                });
+                sincronizarReproduccion();
+            }, { threshold: [0, 0.15] });
+            observer.observe(video);
+        } else {
+            visible = true;
+        }
+
+        document.addEventListener("visibilitychange", sincronizarReproduccion);
+        motionPreference.addEventListener("change", sincronizarReproduccion);
+        if (connection && connection.addEventListener) {
+            connection.addEventListener("change", sincronizarReproduccion);
+        }
+        sincronizarReproduccion();
+    }
+
     function actualizarBoton(boton, video) {
         if (!boton || !video) return;
         const silenciado = video.muted;
@@ -29,6 +84,8 @@
         video.muted = !video.muted;
         actualizarBoton(boton, video);
     });
+
+    inicializarVideoPrincipal();
 
     window.TEVideoSound = {
         sync: function (video) {
