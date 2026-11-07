@@ -20,7 +20,7 @@
     <link rel="stylesheet" href="css/index.css?v=navbar-sticky-v1" />
     <link rel="stylesheet" href="home/entrada.css?v=responsive-v1" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="mapa_interactuable/mapa.css?v=mapa-mobile-perf-v1" />
+    <link rel="stylesheet" href="mapa_interactuable/mapa.css?v=mapa-mobile-perf-v2" />
     <link rel="stylesheet" href="css/login.css?v=device-approval-v2" />
     <link rel="stylesheet" href="css/articulos.css" />
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;500&display=swap" rel="stylesheet" />
@@ -159,7 +159,7 @@
                 started = true;
                 try {
                     await loadScript("https://unpkg.com/leaflet@1.9.4/dist/leaflet.js");
-                    await loadScript("mapa_interactuable/mapa.js?v=mapa-mobile-perf-v1");
+                    await loadScript("mapa_interactuable/mapa.js?v=mapa-mobile-perf-v2");
                 } catch (error) {
                     console.error("[TourismEasy] No se pudo iniciar el mapa.", error);
                     const notice = document.createElement("p");
