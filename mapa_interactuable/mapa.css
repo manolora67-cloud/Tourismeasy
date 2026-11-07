@@ -446,6 +446,14 @@ body.dark-mode .mapa-titulo {
         height: 24px;
         border-width: 2px;
         font-size: 0.62rem;
+        box-shadow: none;
+        transition: none;
+    }
+
+    #mapa-turistico .leaflet-marker-icon:hover .mapa-marcador,
+    #mapa-turistico .leaflet-marker-icon:focus .mapa-marcador,
+    #mapa-turistico .mapa-marcador.is-selected {
+        box-shadow: none;
     }
 
     .destinos-mapa {

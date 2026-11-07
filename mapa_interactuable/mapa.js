@@ -159,7 +159,7 @@
         return contenido;
     }
 
-    function crearMarcador(destino, coordenadas, mapa) {
+    function crearMarcador(destino, coordenadas) {
         const icono = window.L.divIcon({
             className: "mapa-marcador-wrapper",
             html: '<span class="mapa-marcador" aria-hidden="true"><i class="fa-solid fa-location-dot"></i></span>',
@@ -172,7 +172,7 @@
             icon: icono,
             title: destino.titulo,
             alt: `Ver ${destino.titulo} en el mapa`,
-        }).addTo(mapa).bindPopup(crearContenidoPopup(destino), {
+        }).bindPopup(crearContenidoPopup(destino), {
             maxWidth: 280,
             minWidth: 240,
             className: "destino-popup",
@@ -273,10 +273,13 @@
             }
 
             const entradasLista = destinos.map((destino) => {
-                const marcador = crearMarcador(destino, coordenadasMunicipios[String(destino.id)], mapa);
+                const marcador = crearMarcador(destino, coordenadasMunicipios[String(destino.id)]);
                 const boton = agregarDestinoAlPanel(destino, marcador, lista, mapa);
                 return { destino, boton, marcador };
             });
+            const grupoMarcadores = window.L.featureGroup(
+                entradasLista.map((entrada) => entrada.marcador)
+            ).addTo(mapa);
             const actualizarOrden = () => {
                 const ordenadas = ordenarMunicipios(entradasLista, selectorOrden.value);
                 lista.replaceChildren(...ordenadas.map((entrada) => entrada.boton));
@@ -286,7 +289,7 @@
 
             estado.textContent = "";
             estado.hidden = true;
-            mapa.fitBounds(window.L.featureGroup(entradasLista.map((entrada) => entrada.marcador)).getBounds(), {
+            mapa.fitBounds(grupoMarcadores.getBounds(), {
                 padding: [28, 28],
                 maxZoom: 9,
             });
@@ -314,10 +317,16 @@
             tap: false,
         });
 
-        window.L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        const opcionesTiles = {
             maxZoom: 19,
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-        }).addTo(mapa);
+        };
+        if (window.matchMedia("(max-width: 767px)").matches) {
+            opcionesTiles.updateWhenIdle = true;
+            opcionesTiles.updateWhenZooming = false;
+            opcionesTiles.keepBuffer = 1;
+        }
+        window.L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", opcionesTiles).addTo(mapa);
 
         mapa.setView([6.7, -73.2], 8);
         cargarDestinos(mapa, contenedor.closest(".destinos-mapa"));
