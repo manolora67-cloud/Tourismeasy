@@ -190,13 +190,16 @@ El informe mensual del administrador consulta únicamente tablas OLTP mediante `
 
 `functions/crud_metricas/fn_registrar_click_whatsapp.sql` valida el producto y registra el evento con su dueño. `functions/crud_metricas/fn_estadisticas_clicks.sql` devuelve el resumen y los 20 eventos recientes de la página solicitada; permite estadísticas globales para administración y filtrado por la cuenta de empresa o artesano autenticada. El endpoint PHP toma la identidad de la sesión, no de un identificador enviado por el navegador. Los paneles de empresas y artesanos reutilizan el tablero de clics.
 
+El perfil del administrador muestra también los clics globales de WhatsApp de los últimos 30 días. `functions/crud_metricas/fn_clics_whatsapp_ultimos_30_dias_admin.sql` calcula ese total, que entrega `login/get_estadisticas_admin.php` junto con las otras estadísticas globales.
+
 Para una base nueva, importa primero `DB_TOURISMEASY.sql` y luego instala las funciones mediante el procedimiento de arriba. Si la tabla existente no incluye `ID_PERSONA_ECOMMERCE`, estas funciones no son compatibles con ella. No se incluye migración automática ni se ejecutó SQL contra una base productiva.
 
-Si necesitas cargar estas dos funciones por separado después de importar el esquema (por ejemplo, si ya ejecutaste el instalador general), usa desde la raíz del repositorio:
+Si necesitas cargar las funciones de clics por separado después de importar el esquema (por ejemplo, si ya ejecutaste el instalador general), usa desde la raíz del repositorio:
 
 ```powershell
 psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_metricas\fn_registrar_click_whatsapp.sql
 psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_metricas\fn_estadisticas_clicks.sql
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_metricas\fn_clics_whatsapp_ultimos_30_dias_admin.sql
 ```
 
 No es necesario ejecutarlas otra vez si el instalador general ya terminó correctamente.

@@ -195,6 +195,9 @@
                         <div class="pu-stat">
                             <span class="pu-stat-num" id="adminStatServicios">Cargando…</span><span class="pu-stat-label">Servicios activos</span>
                         </div>
+                        <div class="pu-stat">
+                            <span class="pu-stat-num" id="adminStatClicsWhatsapp">Cargando…</span><span class="pu-stat-label">Clics de WhatsApp (últimos 30 días)</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -536,12 +539,14 @@
                         set("adminStatEmpresas", (st.empresas_registradas !== null && st.empresas_registradas !== undefined) ? st.empresas_registradas : "—");
                         set("adminStatCalif", st.calificacion_promedio !== null ? st.calificacion_promedio.toFixed(1) : "—");
                         set("adminStatServicios", (st.servicios_activos !== null && st.servicios_activos !== undefined) ? st.servicios_activos : "—");
+                        set("adminStatClicsWhatsapp", Number.isInteger(st.clics_whatsapp_30_dias) ? st.clics_whatsapp_30_dias.toLocaleString("es-CO") : "—");
                     })
                     .catch(function(err) {
                         console.error("No se pudieron cargar las estadísticas:", err);
                         set("adminStatEmpresas", "No disponible");
                         set("adminStatCalif", "No disponible");
                         set("adminStatServicios", "No disponible");
+                        set("adminStatClicsWhatsapp", "No disponible");
                     });
             }
             cargarEstadisticas();
