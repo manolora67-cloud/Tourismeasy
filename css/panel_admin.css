@@ -142,6 +142,7 @@ body.dark-mode .btn-dark-mode {
     grid-template-columns: repeat(4, 1fr);
     gap: 32px;
     margin-bottom: 32px;
+    border-bottom: 0;
 }
 
 .footer-col h4 {
