@@ -1614,10 +1614,10 @@
             return translations[normalizedSource];
         }
 
-        match = source.match(/^Página (\d+) · Municipios (\d+)–(\d+) de (\d+)$/);
+        let match = source.match(/^Página (\d+) · Municipios (\d+)–(\d+) de (\d+)$/);
         if (match) return `Page ${match[1]} · Towns ${match[2]}–${match[3]} of ${match[4]}`;
 
-        let match = source.match(/^Mostrando (\d+)–(\d+) de (\d+) rutas · Página (\d+) de (\d+)$/);
+        match = source.match(/^Mostrando (\d+)–(\d+) de (\d+) rutas · Página (\d+) de (\d+)$/);
         if (match) return `Showing ${match[1]}–${match[2]} of ${match[3]} routes · Page ${match[4]} of ${match[5]}`;
 
         match = source.match(/^Mostrando (\d+)–(\d+) de (\d+) hospedajes · Página (\d+) de (\d+)$/);
