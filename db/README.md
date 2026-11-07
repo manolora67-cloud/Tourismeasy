@@ -158,7 +158,27 @@ Get-ChildItem $dirTriggers -Filter '*.sql' |
 	}
 ```
 
-El procedimiento incluye recursivamente los scripts SQL de `functions/` y luego instala los archivos de `triggers/`. `crud_hospedaje/fn_buscar_hospedaje_publico.sql` instala la búsqueda pública de hospedajes por municipio, accesibilidad y capacidad; `crud_planes/fn_buscar_planes_publicos.sql`, la búsqueda de planes por municipio, tipo y accesibilidad; y `crud_productos/fn_buscar_productos_publicos.sql`, la búsqueda de productos artesanales por texto, categoría y municipio. Entre las dependencias ordenadas al final están eliminación de transporte empresa, guardado unificado de hospedaje y productos, inicialización de portada y coordinación del login. Los triggers actualizan `FECHA_MODIFICACION` y guardan snapshots históricos automáticamente.
+El procedimiento incluye recursivamente los scripts SQL de `functions/` y luego instala los archivos de `triggers/`. `crud_hospedaje/fn_buscar_hospedaje_publico.sql` instala la búsqueda pública de hospedajes por municipio, accesibilidad y capacidad; `crud_planes/fn_buscar_planes_publicos.sql`, la búsqueda de planes por municipio, tipo y accesibilidad; y `crud_productos/fn_buscar_productos_publicos.sql`, la búsqueda de productos artesanales por texto, categoría y municipio. Entre las dependencias ordenadas al final están eliminación de transporte empresa, guardado unificado de hospedaje y productos, inicialización de portada y coordinación del login. Los triggers actualizan `FECHA_MODIFICACION` y guardan snapshots históricos automáticamente. En las actualizaciones solo registran una nueva fecha o snapshot si cambian datos; para la comparación se ignora `FECHA_MODIFICACION` y, en el historial de cuentas de e-commerce, también la contraseña, que no forma parte del snapshot.
+
+Para aplicar únicamente esta optimización en una base que ya tiene instalados los triggers, ejecuta las seis funciones actualizadas desde la raíz del repositorio. Usa `CREATE OR REPLACE FUNCTION`; no es necesario volver a crear los triggers ni ejecutar scripts de migración:
+
+```powershell
+$db = 'tourismeasy'
+$user = 'postgres'
+$funciones = @(
+	'.\functions\funciones_comunes\fn_actualizar_fecha_modificacion.sql',
+	'.\functions\crud_planes\fn_historico_plan_turistico.sql',
+	'.\functions\crud_hospedaje\fn_historico_hospedaje.sql',
+	'.\functions\crud_productos\fn_historico_producto_artesanal.sql',
+	'.\functions\crud_transporte\fn_historico_transporte.sql',
+	'.\functions\crud_artesanos\fn_historico_usuario_ecommerce.sql'
+)
+
+foreach ($funcion in $funciones) {
+	& psql -v ON_ERROR_STOP=1 -U $user -d $db -f $funcion
+	if ($LASTEXITCODE -ne 0) { throw "Falló $funcion" }
+}
+```
 
 El cambio de contraseña del administrador usa `functions/crud_administracion/fn_actualizar_contrasena_admin.sql`; el instalador anterior la incluye automáticamente.
 

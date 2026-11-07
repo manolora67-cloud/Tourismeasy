@@ -560,7 +560,7 @@ body.dark-mode .hero {
    FOOTER — Pie de página oscuro (mismo estilo que el resto del sitio)
 =========================== */
 
-.main-footer {
+.footer {
     background: var(--dark-footer);
     color: var(--gray-400);
 }
