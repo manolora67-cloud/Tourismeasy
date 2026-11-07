@@ -1860,7 +1860,16 @@
           <video class="art-video-bg" data-poster="${escapeHtml(a.poster || "")}" muted loop playsinline preload="none">
             <source data-src="${escapeHtml(a.video)}" />
           </video>
-          <button class="art-btn-sound" onclick="toggleArtSound(this)">🔇</button>` : "";
+          <button
+            class="art-btn-sound"
+            type="button"
+            data-sound-toggle
+            data-sound-muted-label="🔇"
+            data-sound-active-label="🔊"
+            data-sound-muted-aria="Activar sonido"
+            data-sound-active-aria="Silenciar video"
+            aria-label="Activar sonido"
+            aria-pressed="false">🔇</button>` : "";
 
     const heroStyle = (a) => !a.video && a.poster
         ? ` style="background: url('${escapeHtml(a.poster)}') center / cover no-repeat"`
@@ -1968,7 +1977,7 @@
             video.pause();
             video.muted = true;
         }
-        if (btn) btn.innerText = "🔇";
+        if (btn && window.TEVideoSound) window.TEVideoSound.sync(video);
     }
 
     function closeOverlay(overlay) {
@@ -2017,11 +2026,4 @@
         }
     });
 
-    // Sonido del video dentro del modal (usada por el onclick inline arriba)
-    window.toggleArtSound = function(btn) {
-        const video = btn.parentElement.querySelector(".art-video-bg");
-        if (!video) return;
-        video.muted = !video.muted;
-        btn.innerText = video.muted ? "🔇" : "🔊";
-    };
 })();

@@ -61,7 +61,16 @@
         <video class="hero-video" autoplay muted loop playsinline id="miVideo">
             <source src="videos/hero.mp4" type="video/mp4" />
         </video>
-        <button class="btn-sound" onclick="toggleAudio()" id="btnSound">🔇 Activar sonido</button>
+        <button
+            class="btn-sound"
+            type="button"
+            data-sound-toggle
+            data-sound-muted-label="🔇 Activar sonido"
+            data-sound-active-label="🔊 Silenciar"
+            data-sound-muted-aria="Activar sonido"
+            data-sound-active-aria="Silenciar video"
+            aria-label="Activar sonido"
+            aria-pressed="false">🔇 Activar sonido</button>
 
         <div class="hero-content">
             <h1 class="hero-title">Turismo Inclusivo,<br />Ojos, Oídos y<br />Pasos Libres</h1>
@@ -184,8 +193,8 @@
         })();
     </script>
     <script src="componentes/articulos.js?v=municipios-info-v3"></script>
+    <script src="componentes/control-sonido-video.js?v=video-sound-v1"></script>
     <script src="componentes/footer.js"></script>
-
     <script src="js/captcha.js"></script>
     <script src="js/cookies.js"></script>
     <script src="js/auth.js?v=device-approval-v2"></script>
@@ -193,26 +202,6 @@
     <script src="componentes/agente-ia.js?v=tooltip-sue-v1"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <script src="js/santanderianidad.js"></script>
-
-    <script>
-        // Activa/silencia el sonido del video del hero.
-        // El video arranca "muted" a propósito: así lo exigen los navegadores
-        // para permitir el autoplay. Solo se puede des-mutear tras un clic
-        // real del usuario (que es justo lo que dispara este botón).
-        function toggleAudio() {
-            const video = document.getElementById('miVideo');
-            const btn = document.getElementById('btnSound');
-            if (!video || !btn) return;
-
-            if (video.muted) {
-                video.muted = false;
-                btn.textContent = '🔊 Silenciar';
-            } else {
-                video.muted = true;
-                btn.textContent = '🔇 Activar sonido';
-            }
-        }
-    </script>
     <script src="menu_accesibilidad/menu.js?v=a11y-v14"></script>
 </body>
 
