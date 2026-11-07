@@ -264,7 +264,7 @@ function actualizarBotonWhatsApp(btn) {
         var precioDisplay = item.precio_noche ? "$" + parseInt(item.precio_noche).toLocaleString("es-CO") + " / noche" : "Consultar";
         var imgHtml = imagen ?
             '<img loading="lazy" decoding="async" src="' + imagenTarjeta + '" class="card-banner" alt="' + nombre + '">' :
-            '<div class="card-banner" style="background:linear-gradient(135deg,#1e1b4b,#4c1d95);display:flex;align-items:center;justify-content:center;height:200px;"><i class="fa-solid fa-hotel" style="font-size:3rem;color:#a855f7;"></i></div>';
+            '<div class="card-banner" style="background:linear-gradient(135deg,#1e1b4b,var(--theme-primary-dark,#4c1d95));display:flex;align-items:center;justify-content:center;height:200px;"><i class="fa-solid fa-hotel" style="font-size:3rem;color:var(--theme-primary-light,#a855f7);"></i></div>';
         var card = document.createElement("article");
         card.className = "card-item card-item--empresa";
         card.dataset.idCiudad = item.id_ciudad || "";
@@ -273,7 +273,7 @@ function actualizarBotonWhatsApp(btn) {
         card.dataset.capacidad = String(Number(item.capacidad_max) || 0);
         card.innerHTML = imgHtml +
             '<div class="card-body">' +
-            '<span class="card-tag" style="background:rgba(168,85,247,0.18);color:#a855f7;">' + tipo + '</span>' +
+            '<span class="card-tag" style="background:rgba(var(--theme-primary-light-rgb,168,85,247),0.18);color:var(--theme-primary-light,#a855f7);">' + tipo + '</span>' +
             '<h3>' + nombre + '</h3>' +
             '<p style="display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;">' +
             descripcion + '</p>' +

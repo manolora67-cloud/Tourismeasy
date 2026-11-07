@@ -8,9 +8,9 @@
 /* ── Variables de color y tipografía ── */
 
 :root {
-    --purple: #7c3aed;
-    --purple-light: #a855f7;
-    --purple-dark: #5b21b6;
+    --purple: var(--theme-primary, #7c3aed);
+    --purple-light: var(--theme-primary-light, #a855f7);
+    --purple-dark: var(--theme-primary-dark, #5b21b6);
     --white: #ffffff;
     --gray-100: #f8fafc;
     --gray-200: #e2e8f0;

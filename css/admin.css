@@ -130,7 +130,7 @@
 
 .stat-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 10px 28px rgba(124, 58, 237, 0.14);
+    box-shadow: 0 10px 28px rgba(var(--theme-primary-rgb, 124, 58, 237), 0.14);
 }
 
 .stat-icon {
@@ -146,7 +146,7 @@
 }
 
 .stat-icon-purple {
-    background: linear-gradient(135deg, #7c3aed, #a855f7);
+    background: linear-gradient(135deg, var(--theme-primary, #7c3aed), var(--theme-primary-light, #a855f7));
 }
 
 .stat-icon-green {
@@ -398,7 +398,7 @@
     font-size: 0.72rem;
     font-weight: 700;
     white-space: nowrap;
-    background: rgba(124, 58, 237, 0.1);
+    background: rgba(var(--theme-primary-rgb, 124, 58, 237), 0.1);
     color: var(--primary);
 }
 
@@ -428,7 +428,7 @@
 }
 
 .btn-edit:hover {
-    background: rgba(124, 58, 237, 0.08);
+    background: rgba(var(--theme-primary-rgb, 124, 58, 237), 0.08);
     color: var(--primary);
     border-color: var(--primary);
 }
@@ -473,7 +473,7 @@
 .form-group textarea:focus {
     outline: none;
     border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+    box-shadow: 0 0 0 3px rgba(var(--theme-primary-rgb, 124, 58, 237), 0.1);
 }
 
 .btn-submit {
@@ -598,7 +598,7 @@
     width: 24px;
     height: 24px;
     border-radius: 50%;
-    background: rgba(124, 58, 237, 0.1);
+    background: rgba(var(--theme-primary-rgb, 124, 58, 237), 0.1);
     color: var(--primary);
     font-family: var(--font-head);
     font-weight: 800;

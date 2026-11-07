@@ -9,11 +9,11 @@
    Se definen aquí por si este CSS se usa sin index.css */
 
 :root {
-    --purple: #7c3aed;
+    --purple: var(--theme-primary, #7c3aed);
     /* Morado principal de la marca */
-    --purple-light: #a855f7;
+    --purple-light: var(--theme-primary-light, #a855f7);
     /* Morado más claro (hovers, acentos) */
-    --purple-dark: #5b21b6;
+    --purple-dark: var(--theme-primary-dark, #5b21b6);
     /* Morado oscuro (hovers de botones) */
     --white: #ffffff;
     --gray-100: #f8fafc;
@@ -401,8 +401,8 @@
     font-size: 0.9rem;
     font-weight: 700;
     color: var(--purple);
-    background: rgba(124, 58, 237, 0.07);
-    border: 1.5px solid rgba(124, 58, 237, 0.2);
+    background: rgba(var(--theme-primary-rgb, 124, 58, 237), 0.07);
+    border: 1.5px solid rgba(var(--theme-primary-rgb, 124, 58, 237), 0.2);
     padding: 10px 18px;
     border-radius: 50px;
     display: inline-block;
@@ -500,8 +500,8 @@ body.dark-mode .card-footer {
 }
 
 body.dark-mode .transporte-status-text {
-    background: rgba(168, 85, 247, 0.1);
-    border-color: rgba(168, 85, 247, 0.3);
+    background: rgba(var(--theme-primary-light-rgb, 168, 85, 247), 0.1);
+    border-color: rgba(var(--theme-primary-light-rgb, 168, 85, 247), 0.3);
     color: var(--purple-light);
 }
 

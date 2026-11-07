@@ -109,7 +109,7 @@ body.welcome-active #ck-info-modal {
     border: 2px solid rgba(255, 255, 255, 0.92);
     border-radius: 999px;
     color: #fff;
-    background: var(--purple, #7c3aed);
+    background: var(--purple, var(--theme-primary, #7c3aed));
     box-shadow: 0 8px 26px rgba(42, 18, 77, 0.35);
     cursor: pointer;
     font-family: var(--font-head, "Montserrat", sans-serif);
@@ -121,7 +121,7 @@ body.welcome-active #ck-info-modal {
 .welcome-button:hover {
     transform: translateY(-2px);
     color: #fff;
-    background: var(--purple-dark, #5b21b6);
+    background: var(--purple-dark, var(--theme-primary-dark, #5b21b6));
 }
 
 .welcome-button:focus-visible {

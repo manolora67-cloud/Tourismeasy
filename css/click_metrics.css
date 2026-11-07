@@ -43,8 +43,8 @@
     padding: 9px 18px;
     border: 0;
     border-radius: 999px;
-    background: linear-gradient(135deg, var(--purple, #7c3aed), #a855f7);
-    box-shadow: 0 4px 12px rgba(124, 58, 237, .2);
+    background: linear-gradient(135deg, var(--purple, var(--theme-primary, #7c3aed)), var(--theme-primary-light, #a855f7));
+    box-shadow: 0 4px 12px rgba(var(--theme-primary-rgb, 124, 58, 237), .2);
     color: #fff;
     font: 700 .88rem var(--font-head, Montserrat, sans-serif);
     cursor: pointer;
@@ -52,12 +52,12 @@
 }
 
 .click-metrics__reload:hover:not(:disabled) {
-    box-shadow: 0 7px 16px rgba(124, 58, 237, .28);
+    box-shadow: 0 7px 16px rgba(var(--theme-primary-rgb, 124, 58, 237), .28);
     transform: translateY(-1px);
 }
 
 .click-metrics__reload:focus-visible {
-    outline: 3px solid rgba(124, 58, 237, .3);
+    outline: 3px solid rgba(var(--theme-primary-rgb, 124, 58, 237), .3);
     outline-offset: 3px;
 }
 
@@ -76,7 +76,7 @@
 .click-metrics__card {
     padding: 18px;
     border-radius: 12px;
-    background: rgba(124, 58, 237, .08);
+    background: rgba(var(--theme-primary-rgb, 124, 58, 237), .08);
 }
 
 .click-metrics__card span {
@@ -88,7 +88,7 @@
 .click-metrics__card strong {
     display: block;
     margin-top: 5px;
-    color: var(--purple, #7c3aed);
+    color: var(--purple, var(--theme-primary, #7c3aed));
     font-size: 1.8rem;
     line-height: 1.2;
 }
@@ -132,10 +132,10 @@
 .click-metrics__pagination button {
     min-height: 38px;
     padding: 7px 14px;
-    border: 1px solid rgba(124, 58, 237, .35);
+    border: 1px solid rgba(var(--theme-primary-rgb, 124, 58, 237), .35);
     border-radius: 8px;
     background: var(--white, #fff);
-    color: var(--purple, #7c3aed);
+    color: var(--purple, var(--theme-primary, #7c3aed));
     font: inherit;
     font-weight: 700;
     cursor: pointer;
@@ -174,7 +174,7 @@
 
 .company-monthly-report__heading h2 i {
     margin-right: 7px;
-    color: var(--purple, #7c3aed);
+    color: var(--purple, var(--theme-primary, #7c3aed));
 }
 
 .company-monthly-report__heading p {
@@ -191,7 +191,7 @@
     padding: 15px;
     border: 1px solid rgba(148, 163, 184, .2);
     border-radius: 12px;
-    background: rgba(124, 58, 237, .04);
+    background: rgba(var(--theme-primary-rgb, 124, 58, 237), .04);
 }
 
 .company-monthly-report__controls label {
@@ -203,7 +203,7 @@
 }
 
 .company-monthly-report__controls label i {
-    color: var(--purple, #7c3aed);
+    color: var(--purple, var(--theme-primary, #7c3aed));
 }
 
 .company-monthly-report__controls input {
@@ -218,8 +218,8 @@
 }
 
 .company-monthly-report__controls input:focus-visible {
-    outline: 3px solid rgba(124, 58, 237, .2);
-    border-color: var(--purple, #7c3aed);
+    outline: 3px solid rgba(var(--theme-primary-rgb, 124, 58, 237), .2);
+    border-color: var(--purple, var(--theme-primary, #7c3aed));
 }
 
 .company-monthly-report__controls button:disabled {
@@ -254,7 +254,7 @@
 }
 
 .company-monthly-report__status[data-state="loading"] {
-    color: #5b21b6;
+    color: var(--theme-primary-dark, #5b21b6);
     background: #f5f3ff;
     border-color: #ddd6fe;
 }
@@ -272,7 +272,7 @@ body.dark-mode .click-metrics__card {
 body.dark-mode .click-metrics__pagination button {
     background: #0f172a;
     border-color: #475569;
-    color: #c4b5fd;
+    color: var(--theme-primary-light, #c4b5fd);
 }
 
 body.dark-mode .click-metrics__pagination span {
@@ -321,8 +321,8 @@ body.dark-mode .company-monthly-report__status[data-state="error"] {
 }
 
 body.dark-mode .company-monthly-report__status[data-state="loading"] {
-    color: #c4b5fd;
-    background: rgba(91, 33, 182, .18);
+    color: var(--theme-primary-light, #c4b5fd);
+    background: rgba(var(--theme-primary-dark-rgb, 91, 33, 182), .18);
     border-color: rgba(167, 139, 250, .28);
 }
 

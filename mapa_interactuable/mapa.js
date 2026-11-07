@@ -1,6 +1,9 @@
 (function () {
     "use strict";
 
+    const coloresTema = getComputedStyle(document.documentElement);
+    const colorPrincipal = coloresTema.getPropertyValue("--theme-primary").trim() || "#7c3aed";
+    const colorPrincipalOscuro = coloresTema.getPropertyValue("--theme-primary-dark").trim() || "#5b21b6";
     const coordenadasMunicipios = {
         "68001": [7.127459, -73.119130],
         "68013": [6.162366, -73.521569],
@@ -175,7 +178,7 @@
                 radius: 7,
                 color: "#ffffff",
                 weight: 2,
-                fillColor: "#7c3aed",
+                fillColor: colorPrincipal,
                 fillOpacity: 1,
                 title: destino.titulo,
             }).bindPopup(crearContenidoPopup(destino), {
@@ -185,10 +188,10 @@
             });
 
             marcador.on("popupopen", () => {
-                marcador.setStyle({ radius: 9, fillColor: "#5b21b6" });
+                marcador.setStyle({ radius: 9, fillColor: colorPrincipalOscuro });
             });
             marcador.on("popupclose", () => {
-                marcador.setStyle({ radius: 7, fillColor: "#7c3aed" });
+                marcador.setStyle({ radius: 7, fillColor: colorPrincipal });
             });
             marcador.on("popupopen", () => cargarImagenPopup(marcador));
 

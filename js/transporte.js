@@ -790,8 +790,8 @@ document
                 '" class="card-banner" alt="Transporte ' +
                 escapeTransportHtml(titulo) +
                 '">'
-                : '<div class="card-banner" style="background:linear-gradient(135deg,#1e1b4b,#4c1d95);display:flex;align-items:center;justify-content:center;height:180px;">' +
-                '<i class="fa-solid fa-bus" style="font-size:3rem;color:#a855f7;"></i>' +
+                : '<div class="card-banner" style="background:linear-gradient(135deg,#1e1b4b,var(--theme-primary-dark,#4c1d95));display:flex;align-items:center;justify-content:center;height:180px;">' +
+                '<i class="fa-solid fa-bus" style="font-size:3rem;color:var(--theme-primary-light,#a855f7);"></i>' +
                 '</div>';
 
 
@@ -823,7 +823,7 @@ document
 
             '<div class="card-body">' +
 
-            '<span class="card-tag" style="background:rgba(168,85,247,0.18);color:#a855f7;">' +
+            '<span class="card-tag" style="background:rgba(var(--theme-primary-light-rgb,168,85,247),0.18);color:var(--theme-primary-light,#a855f7);">' +
             escapeTransportHtml(empresa) +
             '</span>' +
 

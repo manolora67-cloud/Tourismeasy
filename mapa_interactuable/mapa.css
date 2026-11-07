@@ -10,10 +10,10 @@
     margin-bottom: 22px;
     padding: clamp(22px, 4vw, 36px);
     overflow: hidden;
-    border: 1px solid rgba(124, 58, 237, 0.12);
+    border: 1px solid rgba(var(--theme-primary-rgb, 124, 58, 237), 0.12);
     border-radius: 22px;
     background:
-        radial-gradient(circle at 88% 18%, rgba(196, 181, 253, 0.42), transparent 28%),
+        radial-gradient(circle at 88% 18%, rgba(var(--theme-primary-light-rgb, 196, 181, 253), 0.42), transparent 28%),
         linear-gradient(118deg, #fff 0%, #f5f0ff 100%);
     box-shadow: 0 12px 32px rgba(58, 35, 101, 0.08);
 }
@@ -26,8 +26,8 @@
     place-items: center;
     border: 1px solid rgba(255, 255, 255, 0.7);
     border-radius: 20px;
-    background: linear-gradient(145deg, #8b5cf6, #6d28d9);
-    box-shadow: 0 10px 22px rgba(109, 40, 217, 0.25);
+    background: linear-gradient(145deg, var(--theme-primary-light, #8b5cf6), var(--theme-primary-dark, #6d28d9));
+    box-shadow: 0 10px 22px rgba(var(--theme-primary-dark-rgb, 109, 40, 217), 0.25);
     color: #fff;
     font-size: 1.65rem;
 }
@@ -72,7 +72,7 @@
     gap: 10px;
     margin-left: auto;
     padding: 12px 16px;
-    border: 1px solid rgba(124, 58, 237, 0.12);
+    border: 1px solid rgba(var(--theme-primary-rgb, 124, 58, 237), 0.12);
     border-radius: 15px;
     background: rgba(255, 255, 255, 0.78);
     color: var(--gray-600);
@@ -184,7 +184,7 @@
     min-height: 120px;
     overflow-y: auto;
     padding: 10px;
-    scrollbar-color: #c4b5fd transparent;
+    scrollbar-color: var(--theme-primary-light, #c4b5fd) transparent;
     scrollbar-width: thin;
 }
 
@@ -205,13 +205,13 @@
 
 .mapa-destino-item:hover {
     transform: translateX(2px);
-    border-color: rgba(124, 58, 237, 0.12);
+    border-color: rgba(var(--theme-primary-rgb, 124, 58, 237), 0.12);
     background: var(--gray-100);
 }
 
 .mapa-destino-item.is-selected {
-    border-color: rgba(124, 58, 237, 0.2);
-    background: rgba(124, 58, 237, 0.08);
+    border-color: rgba(var(--theme-primary-rgb, 124, 58, 237), 0.2);
+    background: rgba(var(--theme-primary-rgb, 124, 58, 237), 0.08);
 }
 
 .mapa-destino-icono {
@@ -226,7 +226,7 @@
 
 .mapa-destino-icono {
     background: #f0e9ff;
-    color: #6d28d9;
+    color: var(--theme-primary-dark, #6d28d9);
 }
 
 .mapa-destino-informacion {
@@ -294,7 +294,7 @@
     place-items: center;
     border: 2px solid #fff;
     border-radius: 50% 50% 50% 8px;
-    background: #7c3aed;
+    background: var(--theme-primary, #7c3aed);
     box-shadow: 0 3px 9px rgba(15, 23, 42, 0.28);
     color: #fff;
     font-size: 0.72rem;
@@ -375,7 +375,7 @@
 body.dark-mode .mapa-encabezado {
     border-color: #3b2b59;
     background:
-        radial-gradient(circle at 88% 18%, rgba(124, 58, 237, 0.24), transparent 28%),
+        radial-gradient(circle at 88% 18%, rgba(var(--theme-primary-rgb, 124, 58, 237), 0.24), transparent 28%),
         linear-gradient(118deg, #1e293b 0%, #211b32 100%);
 }
 
@@ -401,7 +401,7 @@ body.dark-mode .mapa-destino-item:hover {
 
 body.dark-mode .mapa-destino-item.is-selected {
     border-color: #6d4aa4;
-    background: rgba(124, 58, 237, 0.2);
+    background: rgba(var(--theme-primary-rgb, 124, 58, 237), 0.2);
 }
 
 body.dark-mode .mapa-destino-informacion > span,

@@ -109,7 +109,7 @@ function mostrarDetallePlan(plan) {
     var requestId = 0;
     var filterOptionsLoaded = false;
 
-    noResults.style.cssText = "grid-column:1/-1;text-align:center;color:#7c3aed;font-family:Montserrat,sans-serif;font-weight:700;font-size:1.1rem;padding:40px 0;";
+    noResults.style.cssText = "grid-column:1/-1;text-align:center;color:var(--theme-primary,#7c3aed);font-family:Montserrat,sans-serif;font-weight:700;font-size:1.1rem;padding:40px 0;";
     noResults.textContent = "No encontramos planes con esos filtros. ¡Intenta otra combinación!";
 
     function setSearchStatus(message, error) {
@@ -251,10 +251,10 @@ function mostrarDetallePlan(plan) {
         } else {
             var imagePlaceholder = document.createElement("div");
             imagePlaceholder.className = "card-banner";
-            imagePlaceholder.style.cssText = "background:linear-gradient(135deg,#1e1b4b,#4c1d95);display:flex;align-items:center;justify-content:center;height:200px;";
+            imagePlaceholder.style.cssText = "background:linear-gradient(135deg,#1e1b4b,var(--theme-primary-dark,#4c1d95));display:flex;align-items:center;justify-content:center;height:200px;";
             var placeholderIcon = document.createElement("i");
             placeholderIcon.className = "fa-solid fa-map-location-dot";
-            placeholderIcon.style.cssText = "font-size:3rem;color:#a855f7;";
+            placeholderIcon.style.cssText = "font-size:3rem;color:var(--theme-primary-light,#a855f7);";
             imagePlaceholder.appendChild(placeholderIcon);
             card.appendChild(imagePlaceholder);
         }
@@ -263,7 +263,7 @@ function mostrarDetallePlan(plan) {
         body.className = "card-body";
         var tag = document.createElement("span");
         tag.className = "card-tag";
-        tag.style.cssText = "background:rgba(168,85,247,0.18);color:#a855f7;text-transform:uppercase;font-size:.75rem;font-weight:800;";
+        tag.style.cssText = "background:rgba(var(--theme-primary-light-rgb,168,85,247),0.18);color:var(--theme-primary-light,#a855f7);text-transform:uppercase;font-size:.75rem;font-weight:800;";
         tag.textContent = categoria;
         var title = document.createElement("h3");
         title.textContent = nombre;

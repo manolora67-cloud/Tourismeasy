@@ -44,12 +44,13 @@ $contenido = $resultado !== null
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Confirmación de inicio de sesión - TourismEasy</title>
+    <link rel="stylesheet" href="../tema_global.php?v=global-theme-v1">
     <style>
         body{margin:0;min-height:100vh;display:grid;place-items:center;background:#f1f5f9;font-family:Arial,sans-serif;color:#1e293b}
         main{box-sizing:border-box;width:min(92vw,520px);padding:32px;border:1px solid #e2e8f0;border-radius:16px;background:#fff;box-shadow:0 16px 45px #0f172a18}
-        h1{margin-top:0;color:#6d28d9}p{line-height:1.6}.actions{display:flex;gap:12px;margin-top:24px}
+        h1{margin-top:0;color:var(--theme-primary-dark,#6d28d9)}p{line-height:1.6}.actions{display:flex;gap:12px;margin-top:24px}
         button{flex:1;padding:13px;border:0;border-radius:8px;font-size:16px;font-weight:700;cursor:pointer}
-        .yes{background:#6d28d9;color:#fff}.no{background:#e2e8f0;color:#334155}
+        .yes{background:var(--theme-primary-dark,#6d28d9);color:#fff}.no{background:#e2e8f0;color:#334155}
     </style>
 </head>
 <body>

@@ -1,6 +1,7 @@
 /* Fuentes: Montserrat para títulos, Open Sans para cuerpo */
 
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;500&display=swap");
+@import url("../tema_global.php?v=global-theme-v1");
 
 /* ===========================
    VARIABLES GLOBALES DE TOURISMEASY
@@ -8,11 +9,11 @@
 =========================== */
 
 :root {
-    --primary: #7c3aed;
+    --primary: var(--theme-primary, #7c3aed);
     /* Morado principal */
-    --primary-light: #a855f7;
+    --primary-light: var(--theme-primary-light, #a855f7);
     /* Morado claro */
-    --primary-dark: #5b21b6;
+    --primary-dark: var(--theme-primary-dark, #5b21b6);
     /* Morado oscuro */
     --dark-nav: #0f172a;
     /* Fondo de navbar en dark mode */
@@ -35,7 +36,7 @@
     --font-body: "Open Sans", sans-serif;
     --radius: 14px;
     /* Radio de bordes de tarjetas */
-    --shadow: 0 4px 24px rgba(124, 58, 237, 0.1);
+    --shadow: 0 4px 24px rgba(var(--theme-primary-rgb, 124, 58, 237), 0.1);
     --shadow-card: 0 2px 16px rgba(0, 0, 0, 0.08);
     /* Alias hacia los nombres --purple* que usan componentes compartidos con
        TourismEasy (por ejemplo captcha.css). Los valores son los mismos que
@@ -481,7 +482,7 @@ body.dark-mode .hero {
 
 .category-tag {
     font-size: 0.63rem;
-    background: rgba(124, 58, 237, 0.1);
+    background: rgba(var(--theme-primary-rgb, 124, 58, 237), 0.1);
     color: var(--primary);
     padding: 2px 8px;
     border-radius: 20px;
@@ -775,7 +776,7 @@ body.dark-mode .hero {
 .search-bar input:focus {
     outline: none;
     border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+    box-shadow: 0 0 0 3px rgba(var(--theme-primary-rgb, 124, 58, 237), 0.1);
 }
 
 

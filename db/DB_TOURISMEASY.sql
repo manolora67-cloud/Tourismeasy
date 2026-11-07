@@ -1,10 +1,10 @@
 /*
-    TABLAS : 36
+    TABLAS : 37
   Maestras:           6
   Informativas:       3
   Operacionales:     10
   Relacionales:       4
-  Soporte/Auditoría:  3
+  Soporte/Auditoría:  4
   Históricas:         5
   Seguridad:          5
 */
@@ -13,6 +13,7 @@
 -- SECCION DE BORRADO DE TABLAS
 --****************************** 
 DROP TABLE IF EXISTS LIKES_RESENAS;
+DROP TABLE IF EXISTS CONFIGURACION_TEMA_GLOBAL;
 DROP TABLE IF EXISTS CONTENIDO_PORTADA;
 DROP TABLE IF EXISTS ESTADO_INICIAL_PORTADA;
 DROP TABLE IF EXISTS TOKENS_RECUPERACION;
@@ -120,6 +121,17 @@ CREATE TABLE IF NOT EXISTS USUARIOS
     ESTADO          VARCHAR(10)   NOT NULL DEFAULT 'ACTIVO' CHECK(ESTADO IN ('ACTIVO','INACTIVO')),
     FECHA_REGISTRO  TIMESTAMP     NOT NULL DEFAULT NOW(),
     PRIMARY KEY(ID_PERSONA)
+);
+
+--******************************
+-- CONFIGURACIÓN GLOBAL
+--******************************
+
+CREATE TABLE IF NOT EXISTS CONFIGURACION_TEMA_GLOBAL
+(
+    ID_TEMA_GLOBAL   SMALLINT       NOT NULL CHECK(ID_TEMA_GLOBAL = 1),
+    PALETA           JSONB         NOT NULL CHECK(JSONB_TYPEOF(PALETA) = 'object'),
+    PRIMARY KEY(ID_TEMA_GLOBAL)
 );
 
 --******************************
@@ -908,6 +920,16 @@ INSERT INTO USUARIOS (
     'ADMIN@TOURISMEASY.COM', ENCODE(SHA256('Admin123+'::BYTEA), 'hex'), 'ACTIVO'
 )
 ON CONFLICT DO NOTHING;
+
+-- *********************************
+-- POBLADO TABLA DE CONFIGURACION GLOBAL
+-- *********************************
+
+INSERT INTO CONFIGURACION_TEMA_GLOBAL (ID_TEMA_GLOBAL, PALETA)
+VALUES (
+    1,'{"primary":"#7C3AED","primaryLight":"#A855F7","primaryDark":"#5B21B6","accent":"#F59E0B"}'::JSONB
+)
+ON CONFLICT (ID_TEMA_GLOBAL) DO NOTHING;
 
 -- *********************************
 -- POBLADO TABLA DE EMPRESAS

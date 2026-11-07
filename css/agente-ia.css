@@ -13,11 +13,11 @@
    Separadas del index.css para no interferir con el resto del sitio */
 
 :root {
-    --te-primary: #6d28d9;
+    --te-primary: var(--theme-primary-dark, #6d28d9);
     /* Morado principal del chat */
-    --te-primary-light: #8b5cf6;
+    --te-primary-light: var(--theme-primary-light, #8b5cf6);
     /* Morado claro (hovers, acentos) */
-    --te-primary-dark: #4c1d95;
+    --te-primary-dark: var(--theme-primary-dark, #4c1d95);
     /* Morado oscuro (fondo del header) */
     --te-accent: #f59e0b;
     /* Ámbar (no usado actualmente, reservado) */
@@ -31,7 +31,7 @@
     /* Texto secundario */
     --te-border: #ede9fe;
     /* Bordes y separadores */
-    --te-shadow: rgba(109, 40, 217, 0.18);
+    --te-shadow: rgba(var(--theme-primary-dark-rgb, 109, 40, 217), 0.18);
     /* Sombra morada */
 }
 
@@ -100,7 +100,7 @@
     position: absolute;
     inset: -5px;
     border-radius: 50%;
-    border: 2px solid rgba(139, 92, 246, 0.45);
+    border: 2px solid rgba(var(--theme-primary-light-rgb, 139, 92, 246), 0.45);
     animation: tePulse 2.2s infinite;
 }
 
@@ -367,7 +367,7 @@
 }
 
 .te-chat-messages::-webkit-scrollbar-thumb {
-    background: #c4b5fd;
+    background: var(--theme-primary-light, #c4b5fd);
     border-radius: 3px;
 }
 
@@ -444,9 +444,9 @@
     font-weight: 600;
     padding: 6px 12px;
     border-radius: 20px;
-    border: 1.5px solid rgba(109, 40, 217, 0.3);
+    border: 1.5px solid rgba(var(--theme-primary-dark-rgb, 109, 40, 217), 0.3);
     color: var(--te-primary);
-    background: rgba(109, 40, 217, 0.06);
+    background: rgba(var(--theme-primary-dark-rgb, 109, 40, 217), 0.06);
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
     white-space: nowrap;
@@ -573,14 +573,14 @@
 
 .te-chat-input:focus {
     border-color: var(--te-primary-light);
-    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.12);
+    box-shadow: 0 0 0 3px rgba(var(--theme-primary-light-rgb, 139, 92, 246), 0.12);
 }
 
 
 /* Placeholder en lila claro */
 
 .te-chat-input::placeholder {
-    color: #c4b5fd;
+    color: var(--theme-primary-light, #c4b5fd);
 }
 
 
@@ -650,7 +650,7 @@ body.dark-mode {
     /* Texto claro */
     --te-border: #2d2562;
     /* Bordes oscuros */
-    --te-shadow: rgba(109, 40, 217, 0.3);
+    --te-shadow: rgba(var(--theme-primary-dark-rgb, 109, 40, 217), 0.3);
 }
 
 body.dark-mode .te-msg.bot {
@@ -660,9 +660,9 @@ body.dark-mode .te-msg.bot {
 }
 
 body.dark-mode .te-chip {
-    background: rgba(139, 92, 246, 0.1);
-    border-color: rgba(139, 92, 246, 0.3);
-    color: #c4b5fd;
+    background: rgba(var(--theme-primary-light-rgb, 139, 92, 246), 0.1);
+    border-color: rgba(var(--theme-primary-light-rgb, 139, 92, 246), 0.3);
+    color: var(--theme-primary-light, #c4b5fd);
 }
 
 body.dark-mode .te-chip:hover {

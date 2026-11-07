@@ -14,7 +14,7 @@ body.welcome-active .te-accessibility {
     min-height: 44px;
     border: 2px solid #fff;
     border-radius: 999px;
-    background: #4c1d95;
+    background: var(--theme-primary-dark, #4c1d95);
     color: #fff;
     font: inherit;
     font-weight: 700;

@@ -83,7 +83,7 @@
 /* ── Encabezado del modal: gradiente morado con logo ── */
 
 .auth-header {
-    background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+    background: linear-gradient(135deg, var(--theme-primary, #7c3aed) 0%, var(--theme-primary-light, #a855f7) 100%);
     padding: 36px 36px 28px;
     text-align: center;
     border-radius: 24px 24px 0 0;
@@ -256,7 +256,7 @@
 .field-group>select:focus {
     border-color: var(--purple);
     background: var(--white);
-    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12);
+    box-shadow: 0 0 0 3px rgba(var(--theme-primary-rgb, 124, 58, 237), 0.12);
 }
 
 
@@ -306,7 +306,7 @@
 .field-wrap select:focus {
     border-color: var(--purple);
     background: var(--white);
-    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12);
+    box-shadow: 0 0 0 3px rgba(var(--theme-primary-rgb, 124, 58, 237), 0.12);
 }
 
 
@@ -500,7 +500,7 @@
 
 .user-type-btn.selected {
     border-color: var(--purple);
-    background: rgba(124, 58, 237, 0.07);
+    background: rgba(var(--theme-primary-rgb, 124, 58, 237), 0.07);
     color: var(--purple);
 }
 
@@ -541,7 +541,7 @@
 
 .btn-auth {
     width: 100%;
-    background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+    background: linear-gradient(135deg, var(--theme-primary, #7c3aed) 0%, var(--theme-primary-light, #a855f7) 100%);
     color: #ffffff;
     font-family: var(--font-head);
     font-weight: 700;
@@ -552,7 +552,7 @@
     cursor: pointer;
     transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
     margin-top: 4px;
-    box-shadow: 0 4px 20px rgba(124, 58, 237, 0.3);
+    box-shadow: 0 4px 20px rgba(var(--theme-primary-rgb, 124, 58, 237), 0.3);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -562,7 +562,7 @@
 .btn-auth:hover {
     opacity: 0.92;
     transform: translateY(-2px);
-    box-shadow: 0 8px 28px rgba(124, 58, 237, 0.4);
+    box-shadow: 0 8px 28px rgba(var(--theme-primary-rgb, 124, 58, 237), 0.4);
 }
 
 .btn-auth:disabled {
@@ -832,7 +832,7 @@ body.dark-mode .field-group>input:focus,
 body.dark-mode .field-group>select:focus {
     background: #1e293b;
     border-color: var(--purple-light);
-    box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.15);
+    box-shadow: 0 0 0 3px rgba(var(--theme-primary-light-rgb, 168, 85, 247), 0.15);
 }
 
 body.dark-mode .field-wrap input,
@@ -846,7 +846,7 @@ body.dark-mode .field-wrap input:focus,
 body.dark-mode .field-wrap select:focus {
     background: #1e293b;
     border-color: var(--purple-light);
-    box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.15);
+    box-shadow: 0 0 0 3px rgba(var(--theme-primary-light-rgb, 168, 85, 247), 0.15);
 }
 
 body.dark-mode .field-wrap input.valid {
@@ -898,12 +898,12 @@ body.dark-mode .user-type-btn {
     place-items: center;
     border-radius: 14px;
     background: #ede9fe;
-    color: #7c3aed;
+    color: var(--theme-primary, #7c3aed);
     font-size: 1.15rem;
 }
 
 .approval-code-eyebrow {
-    color: #7c3aed;
+    color: var(--theme-primary, #7c3aed);
     font-size: .68rem;
     font-weight: 800;
     letter-spacing: .08em;
@@ -950,7 +950,7 @@ body.dark-mode .user-type-btn {
     place-items: center;
     border-radius: 50%;
     background: #ddd6fe;
-    color: #6d28d9;
+    color: var(--theme-primary-dark, #6d28d9);
     font-size: .68rem;
 }
 
@@ -965,7 +965,7 @@ body.dark-mode .user-type-btn {
     width: 100%;
     box-sizing: border-box;
     padding: 13px 12px !important;
-    border: 1.5px solid #c4b5fd !important;
+    border: 1.5px solid var(--theme-primary-light, #c4b5fd) !important;
     border-radius: 12px !important;
     background: #fff !important;
     color: #312e81 !important;
@@ -977,13 +977,13 @@ body.dark-mode .user-type-btn {
 }
 
 .approval-code-input::placeholder {
-    color: #c4b5fd;
+    color: var(--theme-primary-light, #c4b5fd);
     opacity: 1;
 }
 
 .approval-code-input:focus {
-    border-color: #7c3aed !important;
-    box-shadow: 0 0 0 4px rgba(124, 58, 237, .14) !important;
+    border-color: var(--theme-primary, #7c3aed) !important;
+    box-shadow: 0 0 0 4px rgba(var(--theme-primary-rgb, 124, 58, 237), .14) !important;
     outline: none;
 }
 
@@ -999,11 +999,11 @@ body.dark-mode .user-type-btn {
 }
 
 .field-msg.info {
-    color: #6d28d9;
+    color: var(--theme-primary-dark, #6d28d9);
 }
 
 body.dark-mode .approval-code-card {
-    border-color: #4c1d95;
+    border-color: var(--theme-primary-dark, #4c1d95);
     background: linear-gradient(145deg, #211735, #1e1b2e);
 }
 
@@ -1041,7 +1041,7 @@ body.dark-mode .approval-code-input {
 }
 
 body.dark-mode .user-type-btn.selected {
-    background: rgba(168, 85, 247, 0.12);
+    background: rgba(var(--theme-primary-light-rgb, 168, 85, 247), 0.12);
     border-color: var(--purple-light);
     color: var(--purple-light);
 }
@@ -1098,7 +1098,7 @@ body.dark-mode .auth-success p {
     align-items: center;
     gap: 8px;
     padding-bottom: 8px;
-    border-bottom: 2px solid rgba(124, 58, 237, 0.12);
+    border-bottom: 2px solid rgba(var(--theme-primary-rgb, 124, 58, 237), 0.12);
     margin-bottom: 2px;
 }
 
@@ -1196,7 +1196,7 @@ body.dark-mode .auth-success p {
 
 .service-type-btn.selected {
     border-color: var(--purple);
-    background: rgba(124, 58, 237, 0.08);
+    background: rgba(var(--theme-primary-rgb, 124, 58, 237), 0.08);
     color: var(--purple);
 }
 
@@ -1303,7 +1303,7 @@ body.dark-mode .auth-success p {
 }
 
 .tel-wrap-simple .tel-num:focus {
-    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12);
+    box-shadow: 0 0 0 3px rgba(var(--theme-primary-rgb, 124, 58, 237), 0.12);
 }
 
 
@@ -1311,7 +1311,7 @@ body.dark-mode .auth-success p {
 
 body.dark-mode .step-label {
     color: var(--purple-light);
-    border-bottom-color: rgba(168, 85, 247, 0.2);
+    border-bottom-color: rgba(var(--theme-primary-light-rgb, 168, 85, 247), 0.2);
 }
 
 body.dark-mode .btn-back {
@@ -1331,7 +1331,7 @@ body.dark-mode .service-type-btn {
 }
 
 body.dark-mode .service-type-btn.selected {
-    background: rgba(168, 85, 247, 0.12);
+    background: rgba(var(--theme-primary-light-rgb, 168, 85, 247), 0.12);
     border-color: var(--purple-light);
     color: var(--purple-light);
 }
@@ -1403,8 +1403,8 @@ body.dark-mode .tel-wrap-simple .tel-cod:focus {
     display: flex;
     align-items: center;
     gap: 10px;
-    background: rgba(124, 58, 237, 0.08);
-    border: 1.5px solid rgba(124, 58, 237, 0.25);
+    background: rgba(var(--theme-primary-rgb, 124, 58, 237), 0.08);
+    border: 1.5px solid rgba(var(--theme-primary-rgb, 124, 58, 237), 0.25);
     border-radius: 50px;
     padding: 5px 14px 5px 5px;
     cursor: pointer;
@@ -1412,8 +1412,8 @@ body.dark-mode .tel-wrap-simple .tel-cod:focus {
 }
 
 .session-trigger:hover {
-    background: rgba(124, 58, 237, 0.14);
-    border-color: rgba(124, 58, 237, 0.45);
+    background: rgba(var(--theme-primary-rgb, 124, 58, 237), 0.14);
+    border-color: rgba(var(--theme-primary-rgb, 124, 58, 237), 0.45);
 }
 
 
@@ -1423,7 +1423,7 @@ body.dark-mode .tel-wrap-simple .tel-cod:focus {
     width: 34px;
     height: 34px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #7c3aed, #a855f7);
+    background: linear-gradient(135deg, var(--theme-primary, #7c3aed), var(--theme-primary-light, #a855f7));
     color: #ffffff;
     font-family: var(--font-head);
     font-weight: 800;
@@ -1573,8 +1573,8 @@ body.dark-mode .tel-wrap-simple .tel-cod:focus {
 /* Dark mode del widget de sesión */
 
 body.dark-mode .session-trigger {
-    background: rgba(168, 85, 247, 0.12);
-    border-color: rgba(168, 85, 247, 0.3);
+    background: rgba(var(--theme-primary-light-rgb, 168, 85, 247), 0.12);
+    border-color: rgba(var(--theme-primary-light-rgb, 168, 85, 247), 0.3);
 }
 
 body.dark-mode .session-name {
@@ -1737,7 +1737,7 @@ body.dark-mode .welcome-toast-text span {
 
 .demo-btn:hover {
     border-color: var(--purple);
-    background: rgba(124, 58, 237, 0.05);
+    background: rgba(var(--theme-primary-rgb, 124, 58, 237), 0.05);
     transform: translateY(-1px);
 }
 
@@ -1768,7 +1768,7 @@ body.dark-mode .welcome-toast-text span {
 }
 
 .demo-avatar-v {
-    background: linear-gradient(135deg, #7c3aed, #a855f7);
+    background: linear-gradient(135deg, var(--theme-primary, #7c3aed), var(--theme-primary-light, #a855f7));
 }
 
 
@@ -1827,7 +1827,7 @@ body.dark-mode .demo-btn {
 
 body.dark-mode .demo-btn:hover {
     border-color: var(--purple-light);
-    background: rgba(168, 85, 247, 0.08);
+    background: rgba(var(--theme-primary-light-rgb, 168, 85, 247), 0.08);
 }
 
 body.dark-mode .demo-btn.demo-filled {

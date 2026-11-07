@@ -8,9 +8,9 @@
 /* ── Variables de color y tipografía ── */
 
 :root {
-    --purple: #7c3aed;
-    --purple-light: #a855f7;
-    --purple-dark: #5b21b6;
+    --purple: var(--theme-primary, #7c3aed);
+    --purple-light: var(--theme-primary-light, #a855f7);
+    --purple-dark: var(--theme-primary-dark, #5b21b6);
     --white: #ffffff;
     --gray-100: #f8fafc;
     --gray-200: #e2e8f0;
@@ -260,7 +260,7 @@
 
 .card-tag {
     display: inline-block;
-    background: rgba(124, 58, 237, 0.1);
+    background: rgba(var(--theme-primary-rgb, 124, 58, 237), 0.1);
     color: var(--purple);
     padding: 4px 12px;
     border-radius: 20px;
@@ -329,7 +329,7 @@
 
 .btn-reservar:hover {
     background-color: var(--purple-light);
-    box-shadow: 0 5px 15px rgba(124, 58, 237, 0.3);
+    box-shadow: 0 5px 15px rgba(var(--theme-primary-rgb, 124, 58, 237), 0.3);
 }
 
 
@@ -388,7 +388,7 @@ body.dark-mode .card-body p {
 }
 
 body.dark-mode .card-tag {
-    background: rgba(168, 85, 247, 0.15);
+    background: rgba(var(--theme-primary-light-rgb, 168, 85, 247), 0.15);
 }
 
 body.dark-mode .card-footer {

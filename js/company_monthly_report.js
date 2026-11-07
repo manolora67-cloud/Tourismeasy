@@ -58,6 +58,9 @@
 
     function printReport(informe, printWindow) {
         var clicks = informe.clics_whatsapp || {};
+        var themeColors = getComputedStyle(document.documentElement);
+        var primaryColor = themeColors.getPropertyValue("--theme-primary").trim() || "#7c3aed";
+        var darkColor = themeColors.getPropertyValue("--theme-primary-dark").trim() || "#5b21b6";
         var top = Array.isArray(informe.publicaciones_mas_contactadas)
             ? informe.publicaciones_mas_contactadas[0]
             : null;
@@ -70,13 +73,13 @@
             '<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Boletín TourismEasy · ' +
             escapeHtml(formatMonth(informe.mes)) + '</title><style>' +
             'body{font-family:Arial,sans-serif;color:#1e293b;margin:36px;font-size:12px;line-height:1.5}' +
-            'header{border-bottom:3px solid #7c3aed;padding-bottom:16px;margin-bottom:24px}' +
-            'h1{font-size:24px;margin:0 0 6px}h2{font-size:16px;margin:24px 0 10px;color:#5b21b6}' +
+            'header{border-bottom:3px solid ' + primaryColor + ';padding-bottom:16px;margin-bottom:24px}' +
+            'h1{font-size:24px;margin:0 0 6px}h2{font-size:16px;margin:24px 0 10px;color:' + darkColor + '}' +
             '.muted{color:#64748b}.period{text-transform:capitalize}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}' +
             '.metric{border:1px solid #cbd5e1;border-radius:8px;padding:14px}.metric strong{display:block;font-size:20px;margin:5px 0}' +
             'table{width:100%;border-collapse:collapse;margin:8px 0 20px}th,td{text-align:left;padding:9px;border-bottom:1px solid #cbd5e1}' +
-            'th{background:#f1f5f9}.note{margin-top:24px;padding:12px;border-left:3px solid #7c3aed;background:#f5f3ff}' +
-            '.actions{margin-bottom:20px}.actions button{background:#7c3aed;color:white;border:0;border-radius:6px;padding:10px 16px;font-weight:bold;cursor:pointer}' +
+            'th{background:#f1f5f9}.note{margin-top:24px;padding:12px;border-left:3px solid ' + primaryColor + ';background:#f5f3ff}' +
+            '.actions{margin-bottom:20px}.actions button{background:' + primaryColor + ';color:white;border:0;border-radius:6px;padding:10px 16px;font-weight:bold;cursor:pointer}' +
             '@media print{body{margin:15mm}.actions{display:none}h2{break-after:avoid}table{break-inside:avoid}}' +
             '</style></head><body>' +
             '<div class="actions"><button onclick="window.print()">Guardar como PDF / Imprimir</button>' +

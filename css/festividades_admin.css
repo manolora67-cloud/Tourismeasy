@@ -99,7 +99,7 @@
 }
 
 .festividad-action:hover {
-    background: rgba(124, 58, 237, 0.08);
+    background: rgba(var(--theme-primary-rgb, 124, 58, 237), 0.08);
 }
 
 .festividad-action-delete {

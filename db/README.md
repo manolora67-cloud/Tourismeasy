@@ -254,3 +254,14 @@ psql -U postgres -d tourismeasy -f .\tourismeasy-backup.sql
 ```
 
 Guarda los respaldos fuera del repositorio y restringe el acceso: pueden contener datos personales.
+
+## Tema global del sitio
+
+La tabla `CONFIGURACION_TEMA_GLOBAL` y la paleta inicial se crean al importar `DB_TOURISMEASY.sql`. La paleta global se administra desde **Configuración** en el panel de administradores. Después de crear la base de datos, instala las funciones SQL de lectura y actualización:
+
+```powershell
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_administracion\fn_obtener_tema_global.sql
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_administracion\fn_actualizar_tema_global.sql
+```
+
+Reemplaza el usuario y la base de datos por los de tu instalación. También puedes ejecutar ambos archivos en pgAdmin. No vuelvas a ejecutar `DB_TOURISMEASY.sql` sobre una base con datos.
