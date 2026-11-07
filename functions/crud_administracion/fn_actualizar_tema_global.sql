@@ -32,12 +32,12 @@ BEGIN
     SELECT PALETA
     INTO v_anterior
     FROM CONFIGURACION_TEMA_GLOBAL
-    WHERE ID = 1
+    WHERE ID_TEMA_GLOBAL = 1
     FOR UPDATE;
 
     UPDATE CONFIGURACION_TEMA_GLOBAL
     SET PALETA = v_paleta
-    WHERE ID = 1;
+    WHERE ID_TEMA_GLOBAL = 1;
 
     IF NOT FOUND THEN
         RAISE EXCEPTION 'No se encontró la configuración de tema global.';

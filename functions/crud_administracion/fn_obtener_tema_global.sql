@@ -7,7 +7,7 @@ BEGIN
     SELECT PALETA
     INTO v_paleta
     FROM CONFIGURACION_TEMA_GLOBAL
-    WHERE ID = 1;
+    WHERE ID_TEMA_GLOBAL = 1;
 
     IF v_paleta IS NULL THEN
         RAISE EXCEPTION 'No se encontró la paleta global.';
