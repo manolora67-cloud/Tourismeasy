@@ -198,7 +198,12 @@
 
     function editorMarkup() {
         editor.innerHTML = `
-            <h3 id="portadaFormTitle">Crear destino</h3>
+            <header class="portada-editor-header">
+                <h3 id="portadaFormTitle">Crear destino</h3>
+                <button type="button" class="portada-editor-close" id="pdClose" aria-label="Cerrar formulario de destino">
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                </button>
+            </header>
             <p class="portada-editor-intro">Completa la tarjeta de la portada y el artículo asociado. Para los datos y secciones usa una entrada por línea con el formato indicado.</p>
             <p id="portadaEditorStatus" class="portada-status" role="status"></p>
             <form id="portadaForm">
@@ -303,6 +308,9 @@
             videoRemove.hidden = true;
         }
         window.TEUI.markClean(form);
+        document.getElementById('pdClose').addEventListener('click', async () => {
+            if (await window.TEUI.confirmDiscard(form)) closeEditor(true);
+        });
         document.getElementById('pdCancel').addEventListener('click', async () => {
             if (await window.TEUI.confirmDiscard(form)) closeEditor(true);
         });

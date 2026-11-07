@@ -199,6 +199,39 @@
     box-shadow: none
 }
 
+.portada-editor-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.portada-editor-close {
+    display: grid;
+    width: 40px;
+    height: 40px;
+    flex: 0 0 auto;
+    place-items: center;
+    margin-top: -6px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--gray-100);
+    color: var(--gray-700);
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background .15s, color .15s;
+}
+
+.portada-editor-close:hover {
+    background: #ede9fe;
+    color: var(--purple);
+}
+
+.portada-editor-close:focus-visible {
+    outline: 3px solid #f59e0b;
+    outline-offset: 2px;
+}
+
 .portada-editor[hidden] {
     display: none
 }
@@ -369,6 +402,16 @@ body.dark-mode .portada-editor,
 body.dark-mode .portada-editor-dialog {
     background: #1e293b;
     border-color: #334155
+}
+
+body.dark-mode .portada-editor-close {
+    background: #334155;
+    color: #e2e8f0
+}
+
+body.dark-mode .portada-editor-close:hover {
+    background: #4c1d95;
+    color: #fff
 }
 
 body.dark-mode .portada-card h3,
