@@ -1782,6 +1782,9 @@
         } catch (error) {
             console.warn("[TourismEasy] No se pudo guardar el idioma seleccionado.", error);
         }
+        document.dispatchEvent(new CustomEvent("te-language-change", {
+            detail: { language: selectedLanguage }
+        }));
     }
 
     languageButtons.forEach((button) => {

@@ -333,7 +333,7 @@
     });
 
     const translatorScript = document.createElement("script");
-    translatorScript.src = new URL("../translate/traductor.js?v=i18n-v20", scriptUrl).href;
+    translatorScript.src = new URL("../translate/traductor.js?v=i18n-v21", scriptUrl).href;
     translatorScript.onerror = () => {
         console.error("[TourismEasy] No se pudo cargar el traductor del sitio.");
     };

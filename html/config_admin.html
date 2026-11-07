@@ -49,11 +49,11 @@
                     <i class="fa-solid fa-shield-halved"></i> Administrador
                 </div>
                 <nav class="pu-sidebar-nav">
+                    <a href="../index.html" class="pu-nav-item">🏠 Ir al sitio</a>
                     <a href="panel_admin.html" class="pu-nav-item pu-nav-highlight">🛡️ Panel Admin</a>
                     <a href="perfil_admin.html" class="pu-nav-item">👤 Mi Perfil</a>
                     <a href="config_admin.html" class="pu-nav-item active">⚙️ Configuración</a>
                     <a href="festividades_admin.html" class="pu-nav-item">📅 Festividades</a>
-                    <a href="../index.html" class="pu-nav-item">🏠 Ir al sitio</a>
                 </nav>
 
                 <div class="pe-sidebar-bloque pe-sidebar-bloque--purple">
@@ -61,38 +61,23 @@
                         <i class="fa-solid fa-sliders"></i> Preferencias actuales
                     </p>
                     <div class="pe-sidebar-row">
-                        <span>Tema</span><span class="pe-sidebar-row__val--gray">Oscuro</span>
+                        <span>Tema</span><span class="pe-sidebar-row__val--gray" id="currentThemePreference">Consultando…</span>
                     </div>
                     <div class="pe-sidebar-row">
-                        <span>Idioma</span><span class="pe-sidebar-row__val--gray">Español</span>
+                        <span>Idioma</span><span class="pe-sidebar-row__val--gray" id="currentLanguagePreference">Consultando…</span>
                     </div>
                     <div class="pe-sidebar-row">
-                        <span>Zona horaria</span><span class="pe-sidebar-row__val--gray">GMT-5</span>
+                        <span>Zona horaria</span><span class="pe-sidebar-row__val--gray" id="currentTimezonePreference">Consultando…</span>
                     </div>
                 </div>
 
                 <div class="pe-sidebar-bloque pe-sidebar-bloque--verde">
                     <p class="pe-sidebar-bloque__titulo pe-sidebar-bloque__titulo--verde">
-                        <i class="fa-solid fa-rotate-left"></i> Cambios recientes
+                        <i class="fa-solid fa-rotate-left"></i> Actividad reciente
                     </p>
-                    <div class="pe-actividad">
+                    <div class="pe-actividad" id="adminRecentActivity" aria-live="polite">
                         <div class="pe-actividad-item">
-                            <div class="pe-actividad-icon pe-actividad-icon--verde">
-                                <i class="fa-solid fa-circle-dot"></i>
-                            </div>
-                            <div>
-                                <p class="pe-actividad-titulo">Tema cambiado a oscuro</p>
-                                <p class="pe-actividad-hora">Hace 3 días</p>
-                            </div>
-                        </div>
-                        <div class="pe-actividad-item">
-                            <div class="pe-actividad-icon pe-actividad-icon--verde">
-                                <i class="fa-solid fa-circle-dot"></i>
-                            </div>
-                            <div>
-                                <p class="pe-actividad-titulo">Contraseña actualizada</p>
-                                <p class="pe-actividad-hora">Hace 7 días</p>
-                            </div>
+                            <div><p class="pe-actividad-titulo">Cargando actividad…</p></div>
                         </div>
                     </div>
                 </div>
@@ -110,33 +95,17 @@
                         </div>
                         <div class="pe-sidebar-check">
                             <i class="fa-solid fa-right-from-bracket" style="color: #d97706"></i> Cierra sesión en
-                            equipos pãºblicos
+                            equipos públicos
                         </div>
                     </div>
                 </div>
 
                 <div class="pe-sidebar-bloque pe-sidebar-bloque--purple">
                     <p class="pe-sidebar-bloque__titulo pe-sidebar-bloque__titulo--purple">
-                        <i class="fa-solid fa-laptop"></i> Sesiones activas
+                        <i class="fa-solid fa-laptop"></i> Sesión actual
                     </p>
                     <div class="pe-sidebar-check">
-                        <i class="fa-solid fa-desktop" style="color: #a855f7"></i> Este dispositivo
-                        <span style="
-                  font-size: 0.68rem;
-                  background: rgba(34, 197, 94, 0.15);
-                  color: #22c55e;
-                  border-radius: 4px;
-                  padding: 1px 6px;
-                  margin-left: 4px;
-                ">Activa</span>
-                    </div>
-                    <div style="
-                font-size: 0.68rem;
-                color: var(--gray-400);
-                padding-left: 20px;
-                margin-top: 4px;
-              ">
-                        Windows &bull; Chrome &bull; Bucaramanga
+                        <i class="fa-solid fa-circle-check" style="color: #22c55e"></i> Cuenta conectada en este navegador
                     </div>
                 </div>
 
@@ -163,7 +132,7 @@
                     <div class="pu-config-item">
                         <div>
                             <strong>Contraseña</strong>
-                            <p>Ultima actualización: hace 0 días</p>
+                            <p>No se registra la fecha del último cambio.</p>
                         </div>
                         <button class="pu-btn-secondary" id="btnCambiarContrasena" type="button">Cambiar contraseña</button>
                     </div>
@@ -321,6 +290,8 @@
             document.body.classList.toggle("dark-mode", dark);
             darkModeIcon.className = dark ? "fa-solid fa-sun" : "fa-solid fa-moon";
             localStorage.setItem("theme", dark ? "dark" : "light");
+            var preference = document.getElementById("currentThemePreference");
+            if (preference) preference.textContent = dark ? "Oscuro" : "Claro";
         }
         var savedTheme = localStorage.getItem("theme");
         applyTheme(
@@ -358,6 +329,83 @@
 
             var API_BASE = new URL("../login/", window.location.href).href;
             var errorElement = document.getElementById("adminProfileError");
+            var adminActual = null;
+
+            function setText(id, value) {
+                var element = document.getElementById(id);
+                if (element) element.textContent = value;
+            }
+
+            function actualizarPreferencias() {
+                var language = document.documentElement.lang === "en" ? "English" : "Español";
+                setText("currentLanguagePreference", language);
+                try {
+                    setText("currentTimezonePreference", Intl.DateTimeFormat().resolvedOptions().timeZone || "No disponible");
+                } catch (error) {
+                    console.error("No se pudo determinar la zona horaria del navegador:", error);
+                    setText("currentTimezonePreference", "No disponible");
+                }
+            }
+
+            function cargarActividadAdmin() {
+                var activity = document.getElementById("adminRecentActivity");
+                fetch(new URL("../soli_empresas/get_auditoria.php", window.location.href), {
+                    credentials: "include",
+                    cache: "no-store"
+                })
+                    .then(function (response) {
+                        if (!response.ok) throw new Error("HTTP " + response.status);
+                        return response.json();
+                    })
+                    .then(function (data) {
+                        if (!data.ok || !Array.isArray(data.data)) {
+                            throw new Error(data.error || "La respuesta de auditoría no es válida.");
+                        }
+                        var email = String(adminActual.email_login || "").toLowerCase();
+                        var eventos = data.data.filter(function (event) {
+                            return String(event.usuario || "").toLowerCase() === email;
+                        }).slice(0, 3);
+                        activity.replaceChildren();
+                        if (!eventos.length) {
+                            var empty = document.createElement("p");
+                            empty.className = "pe-actividad-titulo";
+                            empty.textContent = "Sin actividad registrada para esta cuenta.";
+                            activity.appendChild(empty);
+                            return;
+                        }
+                        eventos.forEach(function (event) {
+                            var item = document.createElement("div");
+                            item.className = "pe-actividad-item";
+                            var icon = document.createElement("div");
+                            icon.className = "pe-actividad-icon pe-actividad-icon--green";
+                            icon.innerHTML = '<i class="fa-solid fa-circle-dot"></i>';
+                            var content = document.createElement("div");
+                            var title = document.createElement("p");
+                            title.className = "pe-actividad-titulo";
+                            title.textContent = event.accion || "Actividad administrativa";
+                            var date = document.createElement("p");
+                            date.className = "pe-actividad-hora";
+                            var timestamp = new Date(String(event.fecha || "").replace(" ", "T"));
+                            date.textContent = Number.isNaN(timestamp.getTime())
+                                ? "Fecha no disponible"
+                                : timestamp.toLocaleString("es-CO");
+                            content.append(title, date);
+                            item.append(icon, content);
+                            activity.appendChild(item);
+                        });
+                    })
+                    .catch(function (error) {
+                        console.error("No se pudo cargar la actividad del administrador:", error);
+                        activity.replaceChildren();
+                        var message = document.createElement("p");
+                        message.className = "pe-actividad-titulo";
+                        message.textContent = "No se pudo cargar la actividad.";
+                        activity.appendChild(message);
+                    });
+            }
+
+            actualizarPreferencias();
+            document.addEventListener("te-language-change", actualizarPreferencias);
 
             function mostrarError(error) {
                 console.error("No se pudo cargar el perfil del administrador:", error);
@@ -370,6 +418,13 @@
                 if (sidebarNombre) sidebarNombre.textContent = "No disponible";
                 var sessionName = document.querySelector("#sessionWidget .session-name");
                 if (sessionName) sessionName.textContent = "No disponible";
+                var activity = document.getElementById("adminRecentActivity");
+                if (activity) {
+                    var message = document.createElement("p");
+                    message.className = "pe-actividad-titulo";
+                    message.textContent = "Actividad no disponible.";
+                    activity.replaceChildren(message);
+                }
             }
 
             if (!sesion.id) {
@@ -389,6 +444,7 @@
                         throw new Error(data.error || "La respuesta del perfil no es válida.");
                     }
                     var d = data.admin;
+                    adminActual = d;
                     var nombreCompleto = ((d.nombre || "") + " " + (d.apellido || "")).trim() || "Administrador";
                     var initials = nombreCompleto.split(/\s+/).map(function (w) {
                         return w[0] || "";
@@ -402,6 +458,7 @@
                     if (sessionName) sessionName.textContent = nombreCompleto;
                     if (sessionAvatar) sessionAvatar.textContent = initials;
                     if (errorElement) errorElement.hidden = true;
+                    cargarActividadAdmin();
                 })
                 .catch(function (err) {
                     mostrarError(err);
@@ -654,7 +711,7 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <script src="../js/santanderianidad.js"></script>
     <script src="../componentes/agente-ia.js?v=tooltip-sue-v1"></script>
-    <script src="../menu_accesibilidad/menu.js?v=a11y-v14"></script>
+    <script src="../menu_accesibilidad/menu.js?v=a11y-v15"></script>
 </body>
 
 </html>

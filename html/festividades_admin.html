@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="../css/index.css" />
     <link rel="stylesheet" href="../css/login.css?v=device-approval-v2" />
     <link rel="stylesheet" href="../css/panel_admin.css" />
-    <link rel="stylesheet" href="../css/festividades_admin.css" />
+    <link rel="stylesheet" href="../css/festividades_admin.css?v=admin-pagination-v1" />
     <link rel="stylesheet" href="../css/agente-ia.css?v=mobile-layout-v2" />
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;500&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
@@ -43,11 +43,11 @@
                     <i class="fa-solid fa-shield-halved"></i> Cargando perfil…
                 </div>
                 <nav class="pu-sidebar-nav">
+                    <a href="../index.html" class="pu-nav-item">🏠 Ir al sitio</a>
                     <a href="panel_admin.html" class="pu-nav-item">🛡️ Panel Admin</a>
                     <a href="perfil_admin.html" class="pu-nav-item">👤 Mi Perfil</a>
                     <a href="config_admin.html" class="pu-nav-item">⚙️ Configuración</a>
                     <a href="festividades_admin.html" class="pu-nav-item active">📅 Festividades</a>
-                    <a href="../index.html" class="pu-nav-item">🏠 Ir al sitio</a>
                 </nav>
                 <a href="#" class="pu-nav-item pu-nav-danger festividades-logout" id="btnLogout">
                     🚪 Cerrar Sesión
@@ -84,6 +84,14 @@
                         </tbody>
                     </table>
                 </div>
+                <nav class="festividades-pagination" id="festividadesPaginacion" aria-label="Paginación de festividades" hidden>
+                    <span id="festividadesResumen" aria-live="polite"></span>
+                    <div class="festividades-pagination-actions">
+                        <button class="festividades-page-button" id="festividadesAnterior" type="button">Anterior</button>
+                        <span id="festividadesPaginaActual" aria-live="polite"></span>
+                        <button class="festividades-page-button" id="festividadesSiguiente" type="button">Siguiente</button>
+                    </div>
+                </nav>
             </section>
         </div>
     </main>
@@ -221,7 +229,7 @@
         })();
     </script>
     <script src="../js/santanderianidad.js"></script>
-    <script src="../js/festividades-admin.js"></script>
+    <script src="../js/festividades-admin.js?v=admin-pagination-v1"></script>
     <script src="../componentes/agente-ia.js?v=tooltip-sue-v1"></script>
     <script src="../menu_accesibilidad/menu.js?v=a11y-v14"></script>
 </body>

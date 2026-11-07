@@ -10,6 +10,13 @@
     var errorBox = document.getElementById("festividadesError");
     var formErrorBox = document.getElementById("festividadFormError");
     var saveButton = document.getElementById("btnGuardarFestividad");
+    var pagination = document.getElementById("festividadesPaginacion");
+    var paginationSummary = document.getElementById("festividadesResumen");
+    var currentPageLabel = document.getElementById("festividadesPaginaActual");
+    var previousPageButton = document.getElementById("festividadesAnterior");
+    var nextPageButton = document.getElementById("festividadesSiguiente");
+    var pageSize = 10;
+    var currentPage = 1;
 
     function mostrarError(mensaje) {
         var target = dialog.open ? formErrorBox : errorBox;
@@ -52,6 +59,19 @@
 
     function renderizarFestividades() {
         tableBody.replaceChildren();
+        var pageCount = Math.ceil(festividades.length / pageSize);
+        currentPage = Math.max(1, Math.min(currentPage, pageCount || 1));
+        if (pagination) {
+            pagination.hidden = pageCount <= 1;
+            if (pageCount) {
+                var firstItem = (currentPage - 1) * pageSize + 1;
+                var lastItem = Math.min(currentPage * pageSize, festividades.length);
+                paginationSummary.textContent = "Mostrando " + firstItem + "–" + lastItem + " de " + festividades.length;
+                currentPageLabel.textContent = "Página " + currentPage + " de " + pageCount;
+                previousPageButton.disabled = currentPage === 1;
+                nextPageButton.disabled = currentPage === pageCount;
+            }
+        }
         if (!festividades.length) {
             var vacio = document.createElement("tr");
             var mensaje = crearCelda("Todavía no hay festividades registradas.", "festividades-empty");
@@ -61,7 +81,7 @@
             return;
         }
 
-        festividades.forEach(function(festividad) {
+        festividades.slice((currentPage - 1) * pageSize, currentPage * pageSize).forEach(function(festividad) {
             var fila = document.createElement("tr");
             fila.appendChild(crearCelda(festividad.fecha_clave.trim()));
 
@@ -206,6 +226,18 @@
 
     document.getElementById("btnAgregarFestividad").addEventListener("click", function() {
         abrirFormulario(null);
+    });
+    previousPageButton.addEventListener("click", function() {
+        if (currentPage > 1) {
+            currentPage -= 1;
+            renderizarFestividades();
+        }
+    });
+    nextPageButton.addEventListener("click", function() {
+        if (currentPage < Math.ceil(festividades.length / pageSize)) {
+            currentPage += 1;
+            renderizarFestividades();
+        }
     });
     async function cerrarFormulario() {
         if (await window.TEUI.confirmDiscard(form)) cerrarDialogo(true);

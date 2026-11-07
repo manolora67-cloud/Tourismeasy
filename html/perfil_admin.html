@@ -47,26 +47,21 @@
                     <i class="fa-solid fa-shield-halved"></i> Administrador
                 </div>
                 <nav class="pu-sidebar-nav">
+                    <a href="../index.html" class="pu-nav-item">🏠 Ir al sitio</a>
                     <a href="panel_admin.html" class="pu-nav-item pu-nav-highlight">🛡️ Panel Admin</a>
                     <a href="perfil_admin.html" class="pu-nav-item active">👤 Mi Perfil</a>
                     <a href="config_admin.html" class="pu-nav-item">⚙️ Configuración</a>
                     <a href="festividades_admin.html" class="pu-nav-item">📅 Festividades</a>
-                    <a href="../index.html" class="pu-nav-item">🏠 Ir al sitio</a>
                 </nav>
 
                 <div class="pe-sidebar-bloque pe-sidebar-bloque--purple">
                     <p class="pe-sidebar-bloque__titulo pe-sidebar-bloque__titulo--purple">
-                        <i class="fa-solid fa-circle-nodes"></i> Estado del sistema
+                        <i class="fa-solid fa-circle-nodes"></i> Estado de la cuenta
                     </p>
                     <div class="pe-sidebar-checks">
                         <div class="pe-sidebar-check">
-                            <i class="fa-solid fa-circle-check" style="color: #22c55e"></i> Plataforma operativa
-                        </div>
-                        <div class="pe-sidebar-check">
-                            <i class="fa-solid fa-circle-check" style="color: #22c55e"></i> Base de datos activa
-                        </div>
-                        <div class="pe-sidebar-check">
-                            <i class="fa-solid fa-circle-check" style="color: #22c55e"></i> Perfil activo
+                            <i class="fa-solid fa-circle-question" id="adminAccountStateIcon" style="color: #64748b"></i>
+                            <span id="adminAccountState">Consultando estado…</span>
                         </div>
                     </div>
                 </div>
@@ -127,12 +122,10 @@
                             <p>
                                 <i class="fa-solid fa-envelope"></i> <span id="perfilEmail" aria-live="polite">Cargando correo...</span>
                             </p>
-                            <p><i class="fa-solid fa-shield-halved"></i> Acceso: Total</p>
                             <p>
-                                <i class="fa-solid fa-location-dot"></i> Bucaramanga, Santander
+                                <i class="fa-solid fa-shield-halved"></i> <span id="perfilRol">Administrador</span>
                             </p>
-                            <span class="pu-badge-tipo pu-badge-empresa"><i class="fa-solid fa-crown"></i> Administrador
-                                principal</span>
+                            <span class="pu-badge-tipo pu-badge-empresa"><i class="fa-solid fa-crown"></i> Cuenta <span id="perfilEstado">Cargando…</span></span>
                         </div>
                     </div>
                 </div>
@@ -147,8 +140,7 @@
                                 <span class="pu-field-label">Nombre</span><span class="pu-field-val" id="infoNombre">Cargando…</span>
                             </div>
                             <div class="pu-field">
-                                <span class="pu-field-label">Rol</span><span class="pu-field-val">Administrador
-                                    principal</span>
+                                <span class="pu-field-label">Rol</span><span class="pu-field-val" id="infoRol">Administrador</span>
                             </div>
                             <div class="pu-field">
                                 <span class="pu-field-label">Correo</span><span class="pu-field-val" id="infoEmail">Cargando correo...</span>
@@ -157,8 +149,7 @@
                                 <span class="pu-field-label">Teléfono</span><span class="pu-field-val" id="infoTelefono">Cargando…</span>
                             </div>
                             <div class="pu-field">
-                                <span class="pu-field-label">Ciudad</span><span class="pu-field-val">Bucaramanga,
-                                    Santander</span>
+                                <span class="pu-field-label">Identificación</span><span class="pu-field-val" id="infoIdentificacion">Cargando…</span>
                             </div>
                             <div class="pu-field">
                                 <span class="pu-field-label">Activo desde</span><span class="pu-field-val" id="infoActivoDesde">Cargando…</span>
@@ -196,7 +187,7 @@
                     </h3>
                     <div class="pu-stats-row">
                         <div class="pu-stat">
-                            <span class="pu-stat-num" id="adminStatEmpresas">Cargando…</span><span class="pu-stat-label">Empresas registradas</span>
+                            <span class="pu-stat-num" id="adminStatEmpresas">Cargando…</span><span class="pu-stat-label">Cuentas de empresa activas</span>
                         </div>
                         <div class="pu-stat">
                             <span class="pu-stat-num" id="adminStatCalif">Cargando…</span><span class="pu-stat-label">Calificación promedio</span>
@@ -358,6 +349,9 @@
                 var nombreCompleto = ((d.nombre || "") + " " + (d.apellido || "")).trim() || "Administrador";
                 var email = typeof d.email_login === "string" ? d.email_login.trim() : "";
                 if (!email) throw new Error("El servidor no devolvió el correo del administrador.");
+                var rol = String(d.rol || "").toLowerCase() === "admin" ? "Administrador" : (d.rol || "No disponible");
+                var estado = String(d.estado || "").toUpperCase();
+                var estadoLabel = estado === "ACTIVO" ? "Activa" : estado === "INACTIVO" ? "Inactiva" : "No disponible";
                 var initials = nombreCompleto.split(/\s+/).map(function(w) {
                     return w[0] || "";
                 }).join("").substring(0, 2).toUpperCase() || "AD";
@@ -365,10 +359,22 @@
                 set("perfilNombre", nombreCompleto);
                 set("perfilEmail", email);
                 set("perfilAvatar", initials);
+                set("perfilRol", rol);
+                set("perfilEstado", estadoLabel);
                 set("infoNombre", nombreCompleto);
+                set("infoRol", rol);
                 set("infoEmail", email);
                 set("infoTelefono", d.celular || "—");
+                set("infoIdentificacion", d.cedula || "—");
                 set("infoActivoDesde", formatearFechaRegistro(d.fecha_registro) || "—");
+                set("adminAccountState", "Cuenta " + estadoLabel.toLowerCase());
+                var accountStateIcon = document.getElementById("adminAccountStateIcon");
+                if (accountStateIcon) {
+                    accountStateIcon.className = estado === "ACTIVO" ? "fa-solid fa-circle-check" :
+                        estado === "INACTIVO" ? "fa-solid fa-circle-xmark" : "fa-solid fa-circle-question";
+                    accountStateIcon.style.color = estado === "ACTIVO" ? "#22c55e" :
+                        estado === "INACTIVO" ? "#dc2626" : "#64748b";
+                }
 
                 var sidebarAv = document.getElementById("sidebarAvatar");
                 if (sidebarAv) sidebarAv.textContent = initials;
@@ -410,7 +416,16 @@
                         set("perfilNombre", "No disponible");
                         set("infoNombre", "No disponible");
                         set("infoTelefono", "No disponible");
+                        set("infoIdentificacion", "No disponible");
                         set("infoActivoDesde", "No disponible");
+                        set("perfilRol", "No disponible");
+                        set("perfilEstado", "No disponible");
+                        set("adminAccountState", "Estado no disponible");
+                        var accountStateIcon = document.getElementById("adminAccountStateIcon");
+                        if (accountStateIcon) {
+                            accountStateIcon.className = "fa-solid fa-circle-question";
+                            accountStateIcon.style.color = "#64748b";
+                        }
                         set("sidebarNombre", "No disponible");
                         var sessionName = document.querySelector("#sessionWidget .session-name");
                         if (sessionName) sessionName.textContent = "No disponible";
@@ -450,33 +465,59 @@
 
                 var activityUrl = new URL("../soli_empresas/get_auditoria.php", window.location.href);
                 fetch(activityUrl, {
-                        credentials: 'include'
+                        credentials: 'include',
+                        cache: 'no-store'
                     })
                     .then(function(r) {
+                        if (!r.ok) throw new Error("HTTP " + r.status);
                         return r.json();
                     })
                     .then(function(data) {
-                        if (!data.ok || !data.data || !data.data.length) {
-                            cont.innerHTML = '<div class="pe-actividad-item"><div><p class="pe-actividad-titulo">Sin actividad reciente</p></div></div>';
+                        if (!data.ok || !Array.isArray(data.data)) {
+                            throw new Error(data.error || "La respuesta de auditoría no es válida.");
+                        }
+                        var emailAdmin = String(adminActual.email_login || "").toLowerCase();
+                        var actividadPropia = data.data.filter(function(ev) {
+                            return String(ev.usuario || "").toLowerCase() === emailAdmin;
+                        }).slice(0, 3);
+                        cont.replaceChildren();
+                        if (!actividadPropia.length) {
+                            var vacio = document.createElement("p");
+                            vacio.className = "pe-actividad-titulo";
+                            vacio.textContent = "Sin actividad registrada para esta cuenta.";
+                            cont.appendChild(vacio);
                             return;
                         }
-
-                        cont.innerHTML = data.data.slice(0, 3).map(function(ev) {
-                            return '<div class="pe-actividad-item">' +
-                                '<div class="pe-actividad-icon pe-actividad-icon--purple"><i class="fa-solid fa-circle-dot"></i></div>' +
-                                '<div>' +
-                                '<p class="pe-actividad-titulo">' + ev.accion + '</p>' +
-                                '<p class="pe-actividad-hora">' + tiempoRelativo(ev.fecha) + '</p>' +
-                                '</div>' +
-                                '</div>';
-                        }).join('');
+                        actividadPropia.forEach(function(ev) {
+                            var item = document.createElement("div");
+                            item.className = "pe-actividad-item";
+                            var icon = document.createElement("div");
+                            icon.className = "pe-actividad-icon pe-actividad-icon--purple";
+                            icon.innerHTML = '<i class="fa-solid fa-circle-dot"></i>';
+                            var content = document.createElement("div");
+                            var action = document.createElement("p");
+                            action.className = "pe-actividad-titulo";
+                            action.textContent = ev.accion || "Actividad administrativa";
+                            var when = document.createElement("p");
+                            when.className = "pe-actividad-hora";
+                            when.textContent = tiempoRelativo(ev.fecha) || "Fecha no disponible";
+                            content.append(action, when);
+                            item.append(icon, content);
+                            cont.appendChild(item);
+                        });
                     })
                     .catch(function(err) {
                         console.error("No se pudo cargar la última actividad:", err);
-                        cont.innerHTML = '<div class="pe-actividad-item"><div><p class="pe-actividad-titulo">No se pudo cargar</p></div></div>';
+                        cont.replaceChildren();
+                        var mensaje = document.createElement("p");
+                        mensaje.className = "pe-actividad-titulo";
+                        mensaje.textContent = "No se pudo cargar la actividad.";
+                        cont.appendChild(mensaje);
                     });
             }
-            cargarUltimaActividad();
+            perfilPromise.then(function(perfilDisponible) {
+                if (perfilDisponible) cargarUltimaActividad();
+            });
 
             function cargarEstadisticas() {
                 fetch(API_BASE + 'get_estadisticas_admin.php', {
