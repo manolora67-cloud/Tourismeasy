@@ -15,6 +15,7 @@
     var currentPageLabel = document.getElementById("festividadesPaginaActual");
     var previousPageButton = document.getElementById("festividadesAnterior");
     var nextPageButton = document.getElementById("festividadesSiguiente");
+    var upcomingSection = document.querySelector(".festividades-upcoming");
     var upcomingList = document.getElementById("festividadesProximas");
     var pageSize = 10;
     var currentPage = 1;
@@ -87,18 +88,28 @@
         }
 
         var hoy = new Date();
-        var fechaHoy = String(hoy.getMonth() + 1).padStart(2, "0") + "-" + String(hoy.getDate()).padStart(2, "0");
-        var ordenadas = festividades.slice().sort(function(a, b) {
-            return a.fecha_clave.trim().localeCompare(b.fecha_clave.trim());
-        });
-        var proximas = ordenadas.filter(function(festividad) {
-            return festividad.fecha_clave.trim() >= fechaHoy;
-        }).concat(ordenadas.filter(function(festividad) {
-            return festividad.fecha_clave.trim() < fechaHoy;
-        })).slice(0, 3);
-
-        proximas.forEach(function(festividad) {
+        hoy.setHours(0, 0, 0, 0);
+        var proximas = festividades.map(function(festividad) {
             var partes = festividad.fecha_clave.trim().split("-");
+            var mes = Number(partes[0]);
+            var dia = Number(partes[1]);
+            var anio = hoy.getFullYear();
+            var fecha = new Date(anio, mes - 1, dia);
+            if (fecha < hoy) {
+                anio += 1;
+                fecha = new Date(anio, mes - 1, dia);
+            }
+            return { festividad: festividad, fecha: fecha };
+        }).filter(function(item) {
+            var partes = item.festividad.fecha_clave.trim().split("-");
+            return item.fecha.getMonth() === Number(partes[0]) - 1 &&
+                item.fecha.getDate() === Number(partes[1]);
+        }).sort(function(a, b) {
+            return a.fecha - b.fecha;
+        }).slice(0, 3);
+
+        proximas.forEach(function(itemProximo) {
+            var festividad = itemProximo.festividad;
             var item = document.createElement("article");
             item.className = "festividad-upcoming-item";
             var icon = document.createElement("span");
@@ -113,8 +124,10 @@
             subtitle.textContent = festividad.subtitulo || (festividad.tipo === "NACIONAL" ? "Nacional" : "Regional");
             var date = document.createElement("time");
             date.className = "festividad-upcoming-date";
-            date.textContent = Number(partes[0]) + " " + (monthNames[Number(partes[0]) - 1] || "");
-            date.dateTime = "2000-" + festividad.fecha_clave.trim();
+            date.textContent = itemProximo.fecha.getDate() + " " + (monthNames[itemProximo.fecha.getMonth()] || "");
+            date.dateTime = itemProximo.fecha.getFullYear() + "-" +
+                String(itemProximo.fecha.getMonth() + 1).padStart(2, "0") + "-" +
+                String(itemProximo.fecha.getDate()).padStart(2, "0");
             content.append(title, subtitle);
             item.append(icon, content, date);
             upcomingList.appendChild(item);
@@ -137,7 +150,12 @@
             }
         }
         actualizarResumenSidebar(pageCount);
-        renderizarProximasCelebraciones();
+        if (upcomingSection) {
+            upcomingSection.hidden = pageCount === 0 || currentPage !== pageCount;
+        }
+        if (pageCount > 0 && currentPage === pageCount) {
+            renderizarProximasCelebraciones();
+        }
         if (!festividades.length) {
             var vacio = document.createElement("tr");
             var mensaje = crearCelda("Todavía no hay festividades registradas.", "festividades-empty");

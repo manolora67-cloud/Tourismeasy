@@ -31,6 +31,10 @@
     background: linear-gradient(135deg, rgba(124, 58, 237, 0.06), rgba(34, 197, 94, 0.04));
 }
 
+.festividades-upcoming[hidden] {
+    display: none;
+}
+
 .festividades-upcoming-heading {
     display: flex;
     align-items: flex-end;
