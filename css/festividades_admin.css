@@ -23,6 +23,101 @@
     box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05);
 }
 
+.festividades-upcoming {
+    margin-top: 24px;
+    padding: 18px 20px;
+    border: 1px solid var(--gray-200);
+    border-radius: 14px;
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.06), rgba(34, 197, 94, 0.04));
+}
+
+.festividades-upcoming-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.festividades-upcoming-heading h2 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 4px 0 0;
+    color: var(--gray-800);
+    font: 800 1rem var(--font-head);
+}
+
+.festividades-upcoming-heading h2 i {
+    color: var(--purple);
+}
+
+.festividades-upcoming-caption {
+    color: var(--gray-500);
+    font-size: 0.78rem;
+}
+
+.festividades-upcoming-list {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.festividad-upcoming-item {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 10px;
+    padding: 11px;
+    border: 1px solid var(--gray-200);
+    border-radius: 10px;
+    background: var(--white);
+}
+
+.festividad-upcoming-emoji {
+    flex: 0 0 auto;
+    font-size: 1.35rem;
+}
+
+.festividad-upcoming-info {
+    display: flex;
+    min-width: 0;
+    flex: 1;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.festividad-upcoming-info strong,
+.festividad-upcoming-info span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.festividad-upcoming-info strong {
+    color: var(--gray-800);
+    font-size: 0.82rem;
+}
+
+.festividad-upcoming-info span,
+.festividades-upcoming-empty {
+    color: var(--gray-500);
+    font-size: 0.74rem;
+}
+
+.festividad-upcoming-date {
+    flex: 0 0 auto;
+    color: var(--purple);
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: capitalize;
+}
+
+.festividades-upcoming-empty {
+    grid-column: 1 / -1;
+    margin: 0;
+}
+
 .festividades-admin-header {
     display: flex;
     align-items: center;
@@ -293,6 +388,7 @@
 }
 
 body.dark-mode .festividades-admin-content,
+body.dark-mode .festividades-upcoming,
 body.dark-mode .festividad-dialog {
     background: #1e293b;
     color: #f1f5f9;
@@ -305,18 +401,28 @@ body.dark-mode .festividad-cell-title {
 
 body.dark-mode .festividades-admin-header p:last-child,
 body.dark-mode .festividad-cell-subtitle,
-body.dark-mode .festividad-dialog-header p {
+body.dark-mode .festividad-dialog-header p,
+body.dark-mode .festividades-upcoming-caption,
+body.dark-mode .festividad-upcoming-info span,
+body.dark-mode .festividades-upcoming-empty {
     color: #94a3b8;
+}
+
+body.dark-mode .festividades-upcoming-heading h2,
+body.dark-mode .festividad-upcoming-info strong {
+    color: #f1f5f9;
 }
 
 body.dark-mode .festividades-admin-table-wrap,
 body.dark-mode .festividad-action,
-body.dark-mode .festividades-page-button {
+body.dark-mode .festividades-page-button,
+body.dark-mode .festividad-upcoming-item {
     border-color: #334155;
 }
 
 body.dark-mode .festividad-action,
 body.dark-mode .festividades-page-button,
+body.dark-mode .festividad-upcoming-item,
 body.dark-mode .festividad-field input:not([type="color"]),
 body.dark-mode .festividad-field select,
 body.dark-mode .festividad-field textarea {
@@ -345,6 +451,15 @@ body.dark-mode .festividad-btn-cancel {
     }
 
     .festividades-admin-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .festividades-upcoming-list {
+        grid-template-columns: 1fr;
+    }
+
+    .festividades-upcoming-heading {
         align-items: flex-start;
         flex-direction: column;
     }

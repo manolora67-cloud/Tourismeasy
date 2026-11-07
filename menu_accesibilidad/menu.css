@@ -42,12 +42,12 @@ body.welcome-active .te-accessibility {
 }
 
 .te-accessibility-panel {
-    position: absolute;
-    right: 0;
-    bottom: 58px;
+    position: fixed;
+    right: 34px;
+    bottom: calc(160px + env(safe-area-inset-bottom));
     width: min(320px, calc(100vw - 32px));
-    max-height: calc(100vh - 92px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
-    max-height: calc(100dvh - 92px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    max-height: calc(100vh - 176px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    max-height: calc(100dvh - 176px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
     padding: 18px;
     border: 1px solid #cbd5e1;
     border-radius: 16px;
@@ -266,7 +266,8 @@ body.te-accessibility-high-contrast .te-accessibility-panel * {
     }
 
     .te-accessibility-panel {
-        right: 0;
+        right: calc(22px + env(safe-area-inset-right));
+        bottom: calc(146px + env(safe-area-inset-bottom));
         width: min(320px, calc(100vw - 24px - env(safe-area-inset-left) - env(safe-area-inset-right)));
         padding: 14px;
         border-radius: 14px;
@@ -283,9 +284,9 @@ body.te-accessibility-high-contrast .te-accessibility-panel * {
 
 @media (max-height: 520px) {
     .te-accessibility-panel {
-        bottom: 54px;
-        max-height: calc(100vh - 74px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
-        max-height: calc(100dvh - 74px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+        bottom: calc(72px + env(safe-area-inset-bottom));
+        max-height: calc(100vh - 88px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+        max-height: calc(100dvh - 88px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
         padding: 12px;
     }
 

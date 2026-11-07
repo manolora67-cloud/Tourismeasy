@@ -15,8 +15,10 @@
     var currentPageLabel = document.getElementById("festividadesPaginaActual");
     var previousPageButton = document.getElementById("festividadesAnterior");
     var nextPageButton = document.getElementById("festividadesSiguiente");
+    var upcomingList = document.getElementById("festividadesProximas");
     var pageSize = 10;
     var currentPage = 1;
+    var monthNames = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
 
     function mostrarError(mensaje) {
         var target = dialog.open ? formErrorBox : errorBox;
@@ -74,6 +76,51 @@
         document.getElementById("festividadesPaginaSidebar").textContent = currentPage + " de " + (pageCount || 1);
     }
 
+    function renderizarProximasCelebraciones() {
+        upcomingList.replaceChildren();
+        if (!festividades.length) {
+            var empty = document.createElement("p");
+            empty.className = "festividades-upcoming-empty";
+            empty.textContent = "Agrega festividades al calendario para ver aquí las próximas celebraciones.";
+            upcomingList.appendChild(empty);
+            return;
+        }
+
+        var hoy = new Date();
+        var fechaHoy = String(hoy.getMonth() + 1).padStart(2, "0") + "-" + String(hoy.getDate()).padStart(2, "0");
+        var ordenadas = festividades.slice().sort(function(a, b) {
+            return a.fecha_clave.trim().localeCompare(b.fecha_clave.trim());
+        });
+        var proximas = ordenadas.filter(function(festividad) {
+            return festividad.fecha_clave.trim() >= fechaHoy;
+        }).concat(ordenadas.filter(function(festividad) {
+            return festividad.fecha_clave.trim() < fechaHoy;
+        })).slice(0, 3);
+
+        proximas.forEach(function(festividad) {
+            var partes = festividad.fecha_clave.trim().split("-");
+            var item = document.createElement("article");
+            item.className = "festividad-upcoming-item";
+            var icon = document.createElement("span");
+            icon.className = "festividad-upcoming-emoji";
+            icon.setAttribute("aria-hidden", "true");
+            icon.textContent = festividad.emoji || "📅";
+            var content = document.createElement("div");
+            content.className = "festividad-upcoming-info";
+            var title = document.createElement("strong");
+            title.textContent = festividad.titulo;
+            var subtitle = document.createElement("span");
+            subtitle.textContent = festividad.subtitulo || (festividad.tipo === "NACIONAL" ? "Nacional" : "Regional");
+            var date = document.createElement("time");
+            date.className = "festividad-upcoming-date";
+            date.textContent = Number(partes[0]) + " " + (monthNames[Number(partes[0]) - 1] || "");
+            date.dateTime = "2000-" + festividad.fecha_clave.trim();
+            content.append(title, subtitle);
+            item.append(icon, content, date);
+            upcomingList.appendChild(item);
+        });
+    }
+
     function renderizarFestividades() {
         tableBody.replaceChildren();
         var pageCount = Math.ceil(festividades.length / pageSize);
@@ -90,6 +137,7 @@
             }
         }
         actualizarResumenSidebar(pageCount);
+        renderizarProximasCelebraciones();
         if (!festividades.length) {
             var vacio = document.createElement("tr");
             var mensaje = crearCelda("Todavía no hay festividades registradas.", "festividades-empty");
