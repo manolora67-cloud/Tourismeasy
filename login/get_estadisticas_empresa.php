@@ -1,9 +1,7 @@
 <?php
 /**
  * login/get_estadisticas_empresa.php
- * Devuelve estadísticas reales de la empresa autenticada (servicios publicados),
- * según su TIPO_SERVICIO.
- * GET ?id=ID_EMPRESA
+ * Devuelve estadísticas reales de los servicios y contactos de la empresa autenticada.
  */
 
 require_once __DIR__ . '/../con_db/sesion_persistente.php';
@@ -31,11 +29,22 @@ try {
         exit;
     }
 
+    $tipo = strtoupper((string) $estadistica['tipo']);
+    $labels = [
+        'TRANSPORTE' => ['Rutas activas', 'Rutas registradas'],
+        'HOSPEDAJE' => ['Hospedajes disponibles', 'Hospedajes registrados'],
+        'PLANES' => ['Planes activos', 'Planes registrados'],
+    ];
+    [$activosLabel, $totalLabel] = $labels[$tipo] ?? ['Servicios activos', 'Servicios registrados'];
+
     echo json_encode([
         "ok" => true,
         "estadisticas" => [
             "servicios_publicados" => (int)$estadistica['servicios_publicados'],
-            "servicios_label"      => $estadistica['servicios_label'],
+            "servicios_label" => $activosLabel,
+            "servicios_totales" => (int)$estadistica['servicios_totales'],
+            "servicios_totales_label" => $totalLabel,
+            "clics_whatsapp_30_dias" => (int)$estadistica['clics_whatsapp_30_dias'],
         ]
     ]);
 

@@ -265,3 +265,13 @@ psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_administr
 ```
 
 Reemplaza el usuario y la base de datos por los de tu instalación. También puedes ejecutar ambos archivos en pgAdmin. No vuelvas a ejecutar `DB_TOURISMEASY.sql` sobre una base con datos.
+
+### Estadísticas del perfil de empresa
+
+El perfil de empresa y el panel de empresa comparten `fn_estadisticas_empresa`: devuelve los servicios activos, el total registrado, los clics de WhatsApp de los últimos 30 días y los datos de accesibilidad existentes. En una base existente, instala la definición actualizada:
+
+```powershell
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_empresas\fn_estadisticas_empresa.sql
+```
+
+El archivo elimina y recrea esa función porque PostgreSQL no permite cambiar con `CREATE OR REPLACE` las columnas de su tipo de retorno. Los dos endpoints PHP ya consumen la misma función. Reemplaza el usuario y la base de datos por los de tu instalación. No se requieren cambios de esquema ni ejecutar `DB_TOURISMEASY.sql`.

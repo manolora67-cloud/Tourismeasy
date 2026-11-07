@@ -593,6 +593,10 @@
     text-align: center;
 }
 
+.pu-stats-row--empresa {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .pu-stat {
     padding: 16px;
     background: var(--gray-100);
@@ -998,6 +1002,10 @@ body.dark-mode .pe-acceso-link {
     .pu-stats-row {
         grid-template-columns: repeat(2, 1fr);
     }
+
+    .pu-stats-row--empresa {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
 }
 
 @media (max-width: 600px) {
@@ -1041,6 +1049,10 @@ body.dark-mode .pe-acceso-link {
     .pu-stats-row {
         grid-template-columns: 1fr 1fr;
         gap: 10px;
+    }
+
+    .pu-stats-row--empresa {
+        grid-template-columns: 1fr;
     }
 
     .pu-stat-num {

@@ -63,7 +63,7 @@
                         <span>Tema</span><span class="pe-sidebar-row__val--gray" id="temaActual">Claro</span>
                     </div>
                     <div class="pe-sidebar-row">
-                        <span>Idioma</span><span class="pe-sidebar-row__val--gray">Español</span>
+                        <span>Idioma</span><span class="pe-sidebar-row__val--gray" id="idiomaActual">Español</span>
                     </div>
                 </div>
 
@@ -87,35 +87,18 @@
                 </div>
 
                 <!-- Estado de la cuenta -->
-                <div class="pe-sidebar-bloque pe-sidebar-bloque--verde">
-                    <p class="pe-sidebar-bloque__titulo pe-sidebar-bloque__titulo--verde">
-                        <i class="fa-solid fa-circle-check"></i> Estado de la cuenta
+                <div class="pe-sidebar-bloque pe-sidebar-bloque--purple">
+                    <p class="pe-sidebar-bloque__titulo pe-sidebar-bloque__titulo--purple">
+                        <i class="fa-solid fa-building"></i> Datos de la cuenta
                     </p>
                     <div class="pe-sidebar-row">
-                        <span>Plan</span><span class="pe-sidebar-row__val--verde">Aliada Activa</span>
+                        <span>Tipo de servicio</span><span class="pe-sidebar-row__val--gray" id="tipoServicioCuenta">Cargando…</span>
                     </div>
                     <div class="pe-sidebar-row">
-                        <span>Verificación</span><span class="pe-sidebar-row__val--verde"><i
-                                class="fa-solid fa-check"></i>
-                            Verificada</span>
+                        <span>Estado</span><span class="pe-sidebar-row__val--gray" id="estadoCuenta">Cargando…</span>
                     </div>
                     <div class="pe-sidebar-row">
                         <span>Miembro desde</span><span class="pe-sidebar-row__val--gray" id="miembroDesde">Cargando…</span>
-                    </div>
-                </div>
-
-                <!-- Accesos rápidos -->
-                <div class="pe-sidebar-bloque pe-sidebar-bloque--purple">
-                    <p class="pe-sidebar-bloque__titulo pe-sidebar-bloque__titulo--purple">
-                        <i class="fa-solid fa-bolt"></i> Accesos rápidos
-                    </p>
-                    <div class="pe-accesos">
-                        <a href="panel_transporte.html" class="pe-acceso-link" id="accesoPanel"><i
-                                class="fa-solid fa-plane"></i> Ver
-                            mis servicios</a>
-                        <a href="perfil_empresa.html" class="pe-acceso-link"><i class="fa-solid fa-pen-to-square"></i>
-                            Editar
-                            perfil</a>
                     </div>
                 </div>
 
@@ -124,24 +107,9 @@
                     <p class="pe-sidebar-bloque__titulo pe-sidebar-bloque__titulo--purple">
                         <i class="fa-solid fa-clock-rotate-left"></i> Actividad reciente
                     </p>
-                    <div class="pe-actividad">
+                    <div class="pe-actividad" data-company-recent-activity>
                         <div class="pe-actividad-item">
-                            <div class="pe-actividad-icon pe-actividad-icon--verde">
-                                <i class="fa-solid fa-calendar-check"></i>
-                            </div>
-                            <div>
-                                <p class="pe-actividad-titulo">Nuevo contacto por WhatsApp</p>
-                                <p class="pe-actividad-hora">Hace 10 minutos</p>
-                            </div>
-                        </div>
-                        <div class="pe-actividad-item" id="actividadServicio">
-                            <div class="pe-actividad-icon pe-actividad-icon--purple">
-                                <i class="fa-solid fa-plane" id="actividadIcono"></i>
-                            </div>
-                            <div>
-                                <p class="pe-actividad-titulo" id="actividadTitulo">Servicio publicado</p>
-                                <p class="pe-actividad-hora">Ayer a las 3:45 pm</p>
-                            </div>
+                            <div><p class="pe-actividad-titulo">Cargando actividad real…</p></div>
                         </div>
                     </div>
                 </div>
@@ -168,7 +136,7 @@
                     <div class="pu-config-item">
                         <div>
                             <strong>Contraseña</strong>
-                            <p>Última actualización: hace 0 días</p>
+                            <p>Actualiza tu contraseña periódicamente y no la reutilices.</p>
                         </div>
                         <button class="pu-btn-secondary">Cambiar contraseña</button>
                     </div>
@@ -232,6 +200,7 @@
     <!-- FOOTER -->
     <div id="site-footer"></div>
     <script src="../componentes/footer.js"></script>
+    <script src="../js/empresa-actividad-reciente.js?v=real-company-activity-v1"></script>
     <script>
         // SESSION WIDGET
         (function () {
@@ -295,6 +264,12 @@
             var themeToggleEl = document.getElementById("themeToggle");
             if (themeToggleEl) themeToggleEl.checked = dark;
         }
+        var idiomaEl = document.getElementById("idiomaActual");
+        if (idiomaEl) {
+            var idiomas = { es: "Español", en: "English" };
+            idiomaEl.textContent = idiomas[document.documentElement.lang.toLowerCase()] ||
+                document.documentElement.lang || "No definido";
+        }
         var savedTheme = localStorage.getItem("theme");
         var isDark = savedTheme ? savedTheme === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
         applyTheme(isDark);
@@ -337,20 +312,6 @@
                 "planes": "fa-map-location-dot",
                 "todo": "fa-star"
             };
-            var ACCESO_LABEL = {
-                "transporte": "Ver mi transporte",
-                "auxiliar": "Ver mis auxiliares",
-                "hospedaje": "Ver mis hospedajes",
-                "planes": "Ver mis planes",
-                "todo": "Ver mis servicios"
-            };
-            var ACT_LABEL = {
-                "transporte": "Transporte publicado",
-                "auxiliar": "Auxiliar registrado",
-                "hospedaje": "Hospedaje publicado",
-                "planes": "Plan publicado",
-                "todo": "Servicio publicado"
-            };
 
             var servicioRaw = u.tipoServicio || "transporte";
             var servicio = NORM[(servicioRaw || "").toLowerCase()] || "transporte";
@@ -372,16 +333,6 @@
             document.title = "Configuración - TourismEasy";
             var md = document.getElementById("miembroDesde");
             if (md) md.textContent = "Cargando...";
-
-            // Acceso rápido según tipo
-            var ap = document.getElementById("accesoPanel");
-            if (ap) ap.innerHTML = '<i class="fa-solid ' + icono + '"></i> ' + (ACCESO_LABEL[servicio] || "Ver mis servicios");
-
-            // Actividad reciente según tipo
-            var actI = document.getElementById("actividadIcono");
-            var actT = document.getElementById("actividadTitulo");
-            if (actI) actI.className = "fa-solid " + icono;
-            if (actT) actT.textContent = ACT_LABEL[servicio] || "Servicio publicado";
 
             fetch(new URL("../soli_empresas/get_perfil_empresa.php", window.location.href), {
                     credentials: "include",
@@ -431,11 +382,27 @@
                     servicioRaw = empresa.servicio || servicioRaw;
                     servicio = NORM[servicioRaw.toLowerCase()] || "transporte";
                     icono = ICONO[servicio] || "fa-bus";
+                    var servicioCuenta = document.getElementById("tipoServicioCuenta");
+                    if (servicioCuenta) {
+                        var servicioNombre = {
+                            transporte: "Transporte",
+                            hospedaje: "Hospedaje",
+                            planes: "Planes turísticos",
+                            todo: "Servicios turísticos"
+                        };
+                        servicioCuenta.textContent = servicioNombre[servicio] || empresa.servicio || "No registrado";
+                    }
+                    var estadoCuenta = document.getElementById("estadoCuenta");
+                    if (estadoCuenta) {
+                        var estado = String(empresa.estado || "").toUpperCase();
+                        var estadoNombre = { ACTIVO: "Activa", PENDIENTE: "Pendiente", INACTIVO: "Inactiva" };
+                        estadoCuenta.textContent = estadoNombre[estado] || "No registrado";
+                        estadoCuenta.className = estado === "ACTIVO"
+                            ? "pe-sidebar-row__val--verde"
+                            : "pe-sidebar-row__val--gray";
+                    }
                     if (st) st.innerHTML = '<i class="fa-solid ' + icono + '"></i> Empresa aliada';
                     if (nl) nl.innerHTML = '<i class="fa-solid ' + icono + '"></i> Panel Empresa';
-                    if (ap) ap.innerHTML = '<i class="fa-solid ' + icono + '"></i> ' + (ACCESO_LABEL[servicio] || "Ver mis servicios");
-                    if (actI) actI.className = "fa-solid " + icono;
-                    if (actT) actT.textContent = ACT_LABEL[servicio] || "Servicio publicado";
                     var paneles = {
                         transporte: "panel_transporte.html",
                         hospedaje: "panel_hospedaje.html",
@@ -460,6 +427,10 @@
                     var widgetName = document.querySelector("#sessionWidget .session-name");
                     if (widgetName) widgetName.textContent = "No disponible";
                     if (md) md.textContent = "No disponible";
+                    var servicioCuenta = document.getElementById("tipoServicioCuenta");
+                    var estadoCuenta = document.getElementById("estadoCuenta");
+                    if (servicioCuenta) servicioCuenta.textContent = "No disponible";
+                    if (estadoCuenta) estadoCuenta.textContent = "No disponible";
                 });
 
         })();
@@ -486,7 +457,7 @@
                     personal_auxiliar: "panel_auxiliar.html"
                 };
                 var dest = m[(u.tipoServicio || "").toLowerCase()] || "panel_transporte.html";
-                document.querySelectorAll("#sidebarMiPanel, #accesoPanel").forEach(function (a) {
+                document.querySelectorAll("#sidebarMiPanel").forEach(function (a) {
                     a.href = dest;
                 });
             } catch (e) { }
