@@ -13,6 +13,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const productForm = document.getElementById('product-form');
     const tableBody = document.getElementById('admin-table-body');
     const loadingIndicator = document.getElementById('loading-indicator');
+    const productsPagination = document.getElementById('productosPaginacion');
+    const filtroCategoria = document.getElementById('filterCategoria');
     const btnSave = document.getElementById('btn-save');
     const btnCancel = document.getElementById('btn-cancel');
     const formTitle = document.getElementById('form-title');
@@ -25,6 +27,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const API_URL = '../e-commerce/listar.php?ajax=1';
     const CIUDADES_URL = '../datos_referencia.php?tipo=ciudades';
     const DEFAULT_PRODUCT_IMAGE = '../img/default-product.jpg';
+    const PRODUCT_PAGE_SIZE = 10;
+    let productsCurrentPage = 1;
     let ciudadesPromise;
     let productosLoadState = 'loading';
 
@@ -522,6 +526,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // ── Renderizar tabla ──
     async function renderAdminTable() {
         productosLoadState = 'loading';
+        productsCurrentPage = 1;
+        if (productsPagination) productsPagination.hidden = true;
         setStatsLoading('Cargando…');
         if (document.getElementById('tab-estadisticas').classList.contains('active')) {
             renderEstadisticas();
@@ -535,6 +541,7 @@ document.addEventListener('DOMContentLoaded', () => {
             productosLoadState = 'loaded';
 
             if (!products || products.length === 0) {
+                if (productsPagination) productsPagination.hidden = true;
                 tableBody.innerHTML = `
                     <tr>
                         <td colspan="6" style="text-align: center; padding: 30px; color: var(--gray-400);">
@@ -604,10 +611,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 tableBody.appendChild(tr);
             });
 
+            renderPaginaProductos();
             actualizarStats();
         } catch (error) {
             loadingIndicator.style.display = 'none';
             productosLoadState = 'error';
+            if (productsPagination) productsPagination.hidden = true;
             setStatsLoading('No disponible');
             console.error('Error rendering table:', error);
             if (document.getElementById('tab-estadisticas').classList.contains('active')) {
@@ -824,15 +833,55 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // ── Filtro por categoría (visual, sobre las filas ya renderizadas) ──
-    const filtroCategoria = document.getElementById('filterCategoria');
-    filtroCategoria.addEventListener('change', () => {
-        const val = filtroCategoria.value.toLowerCase();
-        document.querySelectorAll('#admin-table-body tr').forEach(tr => {
-            if (tr.querySelector('td[colspan]')) return; // fila de "cargando" o "vacío"
+    function renderPaginaProductos() {
+        const filas = filasValidas();
+        const categoria = filtroCategoria.value.toLowerCase();
+        const filtradas = filas.filter(tr => {
             const cat = (tr.cells[2] ? tr.cells[2].textContent : '').trim().toLowerCase();
-            tr.style.display = !val || cat.indexOf(val) !== -1 ? '' : 'none';
+            return !categoria || cat.includes(categoria);
         });
+        const totalPages = Math.max(1, Math.ceil(filtradas.length / PRODUCT_PAGE_SIZE));
+        productsCurrentPage = Math.min(productsCurrentPage, totalPages);
+        const inicio = (productsCurrentPage - 1) * PRODUCT_PAGE_SIZE;
+        const visibles = new Set(filtradas.slice(inicio, inicio + PRODUCT_PAGE_SIZE));
+        filas.forEach(tr => {
+            tr.style.display = visibles.has(tr) ? '' : 'none';
+        });
+
+        const emptyFilterRow = tableBody.querySelector('.products-filter-empty');
+        if (!filtradas.length && filas.length) {
+            if (!emptyFilterRow) {
+                const row = document.createElement('tr');
+                row.className = 'products-filter-empty';
+                const cell = document.createElement('td');
+                cell.colSpan = 6;
+                cell.style.cssText = 'text-align:center;padding:24px;color:var(--gray-600);';
+                cell.textContent = 'No hay productos en esta categoría.';
+                row.appendChild(cell);
+                tableBody.appendChild(row);
+            }
+        } else if (emptyFilterRow) {
+            emptyFilterRow.remove();
+        }
+
+        const pagination = window.TourismEasyPagination.render({
+            selector: '#productosPaginacion',
+            currentPage: productsCurrentPage,
+            totalItems: filtradas.length,
+            pageSize: PRODUCT_PAGE_SIZE,
+            label: 'Mostrando',
+            onPageChange: page => {
+                productsCurrentPage = page;
+                renderPaginaProductos();
+            }
+        });
+        if (pagination) productsCurrentPage = pagination.currentPage;
+    }
+
+    // ── Filtro por categoría ──
+    filtroCategoria.addEventListener('change', () => {
+        productsCurrentPage = 1;
+        renderPaginaProductos();
     });
 
     // ── Estadísticas — se calculan leyendo las filas que renderAdminTable() ya pintó ──

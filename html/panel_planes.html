@@ -123,6 +123,7 @@
                     </tbody>
                 </table>
             </div>
+            <nav class="pagination panel-product-pagination" id="serviciosPaginacion" aria-label="Paginación de planes turísticos" hidden></nav>
         </div>
 
     </main>
@@ -591,10 +592,38 @@
             if (e.target.closest(".btn-tbl-del")) openDel(row);
         });
 
-        function actualizarContador() {
+        var planes = [];
+        var paginaActual = 1;
+        var tamanioPagina = 10;
+
+        function renderPaginaPlanes() {
             var tbody = document.getElementById("tabla-servicios");
-            var empty = tbody.querySelector("td[colspan]");
-            document.getElementById("statPublicados").textContent = empty ? 0 : tbody.querySelectorAll("tr").length;
+            tbody.replaceChildren();
+            if (!planes.length) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:#94a3b8">Aun no has publicado planes turisticos.</td></tr>';
+            } else {
+                var inicio = (paginaActual - 1) * tamanioPagina;
+                planes.slice(inicio, inicio + tamanioPagina).forEach(function (item) {
+                    tbody.appendChild(renderFila(item));
+                });
+            }
+
+            var pagination = window.TourismEasyPagination.render({
+                selector: "#serviciosPaginacion",
+                currentPage: paginaActual,
+                totalItems: planes.length,
+                pageSize: tamanioPagina,
+                label: "Mostrando",
+                onPageChange: function (page) {
+                    paginaActual = page;
+                    renderPaginaPlanes();
+                }
+            });
+            if (pagination) paginaActual = pagination.currentPage;
+        }
+
+        function actualizarContador() {
+            document.getElementById("statPublicados").textContent = planes.length;
         }
 
         // PRECIO PROMEDIO
@@ -680,17 +709,9 @@
                     if (!res.ok || !Array.isArray(res.data)) {
                         throw new Error(res.error || "No se recibieron los planes turísticos.");
                     }
-                    tbody.innerHTML = "";
-                    if (!res.data.length) {
-                        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:#94a3b8">Aun no has publicado planes turisticos.</td></tr>';
-                        actualizarContador();
-                        actualizarPrecioPromedio([]);
-                        actualizarStatsExtra([]);
-                        return;
-                    }
-                    res.data.forEach(function (item) {
-                        tbody.appendChild(renderFila(item));
-                    });
+                    planes = res.data;
+                    paginaActual = Math.min(paginaActual, Math.max(1, Math.ceil(planes.length / tamanioPagina)));
+                    renderPaginaPlanes();
                     actualizarContador();
                     actualizarPrecioPromedio(res.data);
                     actualizarStatsExtra(res.data);

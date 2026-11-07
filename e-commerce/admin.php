@@ -247,6 +247,7 @@ $artesanoNombreSesion = $_SESSION['artesano_nombre'] ?? 'Artesano';
                             <tbody id="admin-table-body"></tbody>
                         </table>
                     </div>
+                    <nav class="pagination panel-product-pagination" id="productosPaginacion" aria-label="Paginación de productos" hidden></nav>
                 </div>
             </div>
         </div>
@@ -282,7 +283,8 @@ $artesanoNombreSesion = $_SESSION['artesano_nombre'] ?? 'Artesano';
     <script src="../componentes/dark-mode-toggle.js"></script>
     <script src="../componentes/click-metrics-dashboard.js?v=click-metrics-v2"></script>
     <script src="../js/metricas_clics.js"></script>
-    <script src="../js/admin.js"></script>
+    <script src="../componentes/paginacion.js"></script>
+    <script src="../js/admin.js?v=artisan-pagination-v1"></script>
     <script src="../js/santanderianidad.js"></script>
     <script src="../componentes/agente-ia.js?v=tooltip-sue-v1"></script>
     <script src="../menu_accesibilidad/menu.js?v=a11y-v14"></script>

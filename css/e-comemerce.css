@@ -956,6 +956,15 @@ body.dark-mode .filter-tag.active {
     flex-wrap: wrap;
 }
 
+.panel-product-pagination {
+    color: var(--gray-600);
+    font-size: 0.88rem;
+}
+
+.panel-product-pagination[hidden] {
+    display: none;
+}
+
 .pagination button {
     border: 1px solid var(--gray-200);
     background: #fff;

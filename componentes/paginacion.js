@@ -24,7 +24,9 @@ class TourismEasyPagination {
         });
 
         const summary = document.createElement('span');
-        summary.textContent = `${label} ${safePage} / ${totalPages}`;
+        const firstItem = totalItems ? ((safePage - 1) * pageSize) + 1 : 0;
+        const lastItem = Math.min(safePage * pageSize, totalItems);
+        summary.textContent = `${label} ${firstItem}–${lastItem} de ${totalItems} · Página ${safePage} de ${totalPages}`;
 
         const next = document.createElement('button');
         next.type = 'button';
@@ -35,7 +37,8 @@ class TourismEasyPagination {
         });
 
         container.append(previous, summary, next);
-        return { container, previous, summary, next, totalPages };
+        container.hidden = totalPages <= 1;
+        return { container, previous, summary, next, totalPages, currentPage: safePage };
     }
 }
 
