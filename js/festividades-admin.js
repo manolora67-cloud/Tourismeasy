@@ -57,6 +57,23 @@
         return celda;
     }
 
+    function actualizarResumenSidebar(pageCount) {
+        var nacionales = festividades.filter(function(festividad) {
+            return festividad.tipo === "NACIONAL";
+        }).length;
+        var inicio = festividades.length ? (currentPage - 1) * pageSize + 1 : 0;
+        var fin = Math.min(currentPage * pageSize, festividades.length);
+        document.getElementById("festividadesTotal").textContent = String(festividades.length);
+        document.getElementById("festividadesNacionales").textContent = String(nacionales);
+        document.getElementById("festividadesRegionales").textContent = String(
+            festividades.filter(function(festividad) {
+                return festividad.tipo === "REGIONAL";
+            }).length
+        );
+        document.getElementById("festividadesRango").textContent = festividades.length ? inicio + "–" + fin : "Sin registros";
+        document.getElementById("festividadesPaginaSidebar").textContent = currentPage + " de " + (pageCount || 1);
+    }
+
     function renderizarFestividades() {
         tableBody.replaceChildren();
         var pageCount = Math.ceil(festividades.length / pageSize);
@@ -72,6 +89,7 @@
                 nextPageButton.disabled = currentPage === pageCount;
             }
         }
+        actualizarResumenSidebar(pageCount);
         if (!festividades.length) {
             var vacio = document.createElement("tr");
             var mensaje = crearCelda("Todavía no hay festividades registradas.", "festividades-empty");
@@ -226,6 +244,10 @@
 
     document.getElementById("btnAgregarFestividad").addEventListener("click", function() {
         abrirFormulario(null);
+    });
+    document.getElementById("agregarFestividadSidebar").addEventListener("click", function(event) {
+        event.preventDefault();
+        document.getElementById("btnAgregarFestividad").click();
     });
     previousPageButton.addEventListener("click", function() {
         if (currentPage > 1) {

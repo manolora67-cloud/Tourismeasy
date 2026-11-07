@@ -32,7 +32,7 @@ $artesanoNombreSesion = $_SESSION['artesano_nombre'] ?? 'Artesano';
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script src="../js/control_tiempo_sesion.js?v=control-tiempo-v2"></script>
+    <script src="../js/control_tiempo_sesion.js?v=control-tiempo-v3"></script>
     <title>Panel de Productos - TourismEasy</title>
     <script>
         // Bloquea la flecha "atrás" del navegador mientras el artesano tiene sesión activa.

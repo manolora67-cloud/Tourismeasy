@@ -13,4 +13,7 @@ if (empty($_SESSION['tipo']) && empty($_SESSION['artesano_id'])) {
     exit;
 }
 
+$_SESSION['te_ultima_actividad'] = time();
+renovarCookieSesionPersistente();
+
 echo json_encode(['activa' => true]);

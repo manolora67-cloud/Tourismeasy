@@ -2,6 +2,17 @@
     align-items: stretch;
 }
 
+.festividades-admin-sidebar {
+    display: flex;
+    flex-direction: column;
+}
+
+.festividades-sidebar-help {
+    color: var(--gray-500);
+    font-size: 0.73rem;
+    line-height: 1.5;
+}
+
 .festividades-admin-content {
     flex: 1;
     min-width: 0;
@@ -281,10 +292,6 @@
     opacity: 0.65;
 }
 
-.festividades-logout {
-    margin-top: auto;
-}
-
 body.dark-mode .festividades-admin-content,
 body.dark-mode .festividad-dialog {
     background: #1e293b;
@@ -328,6 +335,11 @@ body.dark-mode .festividad-btn-cancel {
 }
 
 @media (max-width: 780px) {
+    .festividades-admin-sidebar {
+        align-items: stretch;
+        text-align: left;
+    }
+
     .festividades-admin-content {
         padding: 20px;
     }
