@@ -188,7 +188,7 @@ El informe mensual del administrador consulta únicamente tablas OLTP mediante `
 
 `LOGS_CLICS_WEB_EXTERNOS` guarda fecha, categoría, producto, dispositivo (user agent), empresa cuando corresponde y `ID_PERSONA_ECOMMERCE` para identificar al artesano asociado al clic. En una instalación nueva, esta última columna tiene una llave foránea a `PERSONAS_ECOMMERCE`; no se reutiliza `ID_EMPRESA` para representar artesanos.
 
-`functions/crud_metricas/fn_registrar_click_whatsapp.sql` valida el producto y registra el evento con su dueño. `functions/crud_metricas/fn_estadisticas_clicks.sql` devuelve el resumen y los 10 eventos recientes de la página solicitada; permite estadísticas globales para administración y filtrado por la cuenta de empresa o artesano autenticada. El endpoint PHP toma la identidad de la sesión, no de un identificador enviado por el navegador. Los paneles de empresas y artesanos reutilizan el tablero de clics.
+`functions/crud_metricas/fn_registrar_click_whatsapp.sql` valida el producto y registra el evento con su dueño. `functions/crud_metricas/fn_estadisticas_clicks.sql` devuelve el resumen y los 20 eventos recientes de la página solicitada; permite estadísticas globales para administración y filtrado por la cuenta de empresa o artesano autenticada. El endpoint PHP toma la identidad de la sesión, no de un identificador enviado por el navegador. Los paneles de empresas y artesanos reutilizan el tablero de clics.
 
 Para una base nueva, importa primero `DB_TOURISMEASY.sql` y luego instala las funciones mediante el procedimiento de arriba. Si la tabla existente no incluye `ID_PERSONA_ECOMMERCE`, estas funciones no son compatibles con ella. No se incluye migración automática ni se ejecutó SQL contra una base productiva.
 

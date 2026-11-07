@@ -8,7 +8,7 @@
     <title>Panel Administrador - TourismEasy</title>
     <link rel="stylesheet" href="../css/index.css" />
     <link rel="stylesheet" href="../css/login.css?v=device-approval-v2" />
-    <link rel="stylesheet" href="../css/panel_admin.css?v=admin-form-borders-v1" />
+    <link rel="stylesheet" href="../css/panel_admin.css?v=admin-pagination-v1" />
     <link rel="stylesheet" href="../css/click_metrics.css" />
     <link rel="stylesheet" href="../css/agente-ia.css?v=mobile-layout-v2" />
     <link rel="stylesheet" href="../css/contenido_admin.css?v=destinos-v8" />
@@ -254,6 +254,14 @@
                     <tbody></tbody>
                 </table>
             </div>
+            <div class="audit-pagination" id="solicitudesPaginacion" aria-label="Paginación de solicitudes">
+                <span class="audit-pagination-summary" id="solicitudesResumen" aria-live="polite"></span>
+                <div class="audit-pagination-controls" id="solicitudesControles">
+                    <button class="audit-page-button" id="solicitudesAnterior" type="button">Anterior</button>
+                    <span class="audit-page-indicator" id="solicitudesPaginaActual" aria-live="polite"></span>
+                    <button class="audit-page-button" id="solicitudesSiguiente" type="button">Siguiente</button>
+                </div>
+            </div>
         </div>
 
         <!-- TAB: AUDITORÍA -->
@@ -326,6 +334,14 @@
 
             <!-- Lista de reseñas -->
             <div id="sliderTrack" style="display:flex;flex-direction:column;gap:12px;"></div>
+            <nav class="audit-pagination" id="resenasPaginacion" aria-label="Paginación de reseñas" hidden>
+                <span class="audit-pagination-summary" id="resenasResumen" aria-live="polite"></span>
+                <div class="audit-pagination-controls">
+                    <button class="audit-page-button" id="resenasAnterior" type="button">Anterior</button>
+                    <span class="audit-page-indicator" id="resenasPaginaActual" aria-live="polite"></span>
+                    <button class="audit-page-button" id="resenasSiguiente" type="button">Siguiente</button>
+                </div>
+            </nav>
 
             <!-- Elementos ocultos requeridos por resenas.js -->
             <div id="resenaLoginPrompt" style="display:none;"></div>
@@ -379,6 +395,14 @@
                     </tbody>
                 </table>
             </div>
+            <div class="audit-pagination" id="artesanosPaginacion" aria-label="Paginación de artesanos" hidden>
+                <span class="audit-pagination-summary" id="artesanosResumen" aria-live="polite"></span>
+                <div class="audit-pagination-controls">
+                    <button class="audit-page-button" id="artesanosAnterior" type="button">Anterior</button>
+                    <span class="audit-page-indicator" id="artesanosPaginaActual" aria-live="polite"></span>
+                    <button class="audit-page-button" id="artesanosSiguiente" type="button">Siguiente</button>
+                </div>
+            </div>
         </div>
 
         <!-- TAB: CONTENIDO DE PORTADA -->
@@ -394,6 +418,14 @@
             </div>
             <p id="portadaEstado" class="portada-status" role="status"></p>
             <div id="portadaDestinos" class="portada-grid"></div>
+            <nav class="audit-pagination" id="portadaPaginacion" aria-label="Paginación de destinos de portada" hidden>
+                <span class="audit-pagination-summary" id="portadaResumen" aria-live="polite"></span>
+                <div class="audit-pagination-controls">
+                    <button class="audit-page-button" id="portadaAnterior" type="button">Anterior</button>
+                    <span class="audit-page-indicator" id="portadaPaginaActual" aria-live="polite"></span>
+                    <button class="audit-page-button" id="portadaSiguiente" type="button">Siguiente</button>
+                </div>
+            </nav>
             <dialog id="portadaEditorDialog" class="portada-editor-dialog" aria-labelledby="portadaFormTitle">
                 <div id="portadaEditor" class="portada-editor" hidden></div>
             </dialog>
@@ -433,6 +465,14 @@
                         </tr>
                     </tbody>
                 </table>
+            </div>
+            <div class="audit-pagination" id="adminFestividadesPaginacion" aria-label="Paginación de festividades" hidden>
+                <span class="audit-pagination-summary" id="adminFestividadesResumen" aria-live="polite"></span>
+                <div class="audit-pagination-controls">
+                    <button class="audit-page-button" id="adminFestividadesAnterior" type="button">Anterior</button>
+                    <span class="audit-page-indicator" id="adminFestividadesPaginaActual" aria-live="polite"></span>
+                    <button class="audit-page-button" id="adminFestividadesSiguiente" type="button">Siguiente</button>
+                </div>
             </div>
         </section>
 
@@ -606,6 +646,8 @@
 
         var solicitudesData = [];
         var solicitudesCargadas = false;
+        var solicitudesPagina = 1;
+        var solicitudesPorPagina = 20;
 
         var auditoriaData = [];
         var auditoriaCargada = false;
@@ -646,6 +688,7 @@
                             estado: "pendiente"
                         };
                     });
+                    solicitudesPagina = 1;
                     renderSolicitudes();
                     updateStats();
                 })
@@ -1145,11 +1188,26 @@
             var tbody = document.querySelector("#tab-solicitudes .panel-table tbody");
             tbody.innerHTML = "";
             var pendientes = solicitudesData; // ya viene solo con las PENDIENTE desde la BD
+            var totalPaginas = Math.ceil(pendientes.length / solicitudesPorPagina);
+            solicitudesPagina = Math.min(Math.max(solicitudesPagina, 1), Math.max(totalPaginas, 1));
+            var inicio = (solicitudesPagina - 1) * solicitudesPorPagina;
+            var resumen = document.getElementById("solicitudesResumen");
+            var indicadorPagina = document.getElementById("solicitudesPaginaActual");
+            var botonAnterior = document.getElementById("solicitudesAnterior");
+            var botonSiguiente = document.getElementById("solicitudesSiguiente");
+            var controles = document.getElementById("solicitudesControles");
+            resumen.textContent = pendientes.length ?
+                "Mostrando " + (inicio + 1) + "–" + Math.min(inicio + solicitudesPorPagina, pendientes.length) + " de " + pendientes.length + " solicitudes" :
+                "Sin solicitudes pendientes";
+            indicadorPagina.textContent = "Página " + (totalPaginas ? solicitudesPagina : 0) + " de " + totalPaginas;
+            botonAnterior.disabled = solicitudesPagina <= 1;
+            botonSiguiente.disabled = solicitudesPagina >= totalPaginas;
+            controles.hidden = totalPaginas <= 1;
             if (pendientes.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:32px;color:#64748b;font-style:italic;">No hay solicitudes pendientes</td></tr>';
                 return;
             }
-            pendientes.forEach(function(sol) {
+            pendientes.slice(inicio, inicio + solicitudesPorPagina).forEach(function(sol) {
                 var icono = servicioIconos[(sol.servicio || "").toLowerCase()] || "fa-tag";
                 var servicioLabel = _svcLabel[sol.servicio] || sol.servicio;
                 var tr = document.createElement("tr");
@@ -1178,6 +1236,17 @@
                 });
             });
         }
+
+        document.getElementById("solicitudesAnterior").addEventListener("click", function() {
+            if (solicitudesPagina <= 1) return;
+            solicitudesPagina--;
+            renderSolicitudes();
+        });
+        document.getElementById("solicitudesSiguiente").addEventListener("click", function() {
+            if (solicitudesPagina >= Math.ceil(solicitudesData.length / solicitudesPorPagina)) return;
+            solicitudesPagina++;
+            renderSolicitudes();
+        });
 
         function aceptarSolicitud(id) {
             var sol = solicitudesData.find(function(s) {
@@ -1552,7 +1621,7 @@
     <script src="../js/santanderianidad.js"></script>
     <script src="../componentes/destinos.js?v=municipios-4x2-v4"></script>
     <script src="../componentes/articulos.js"></script>
-    <script src="../js/contenido-admin.js?v=destinos-v7"></script>
+    <script src="../js/contenido-admin.js?v=destinos-v8"></script>
     <script src="../js/metricas_clics.js"></script>
 
     <!-- Reseñas de la plataforma: carga resenas.js solo cuando el tab está activo -->
@@ -1632,7 +1701,7 @@
                 }
                 resenasCargadas = true;
                 var s = document.createElement("script");
-                s.src = "../js/resenas.js";
+                s.src = "../js/resenas.js?v=admin-pagination-v1";
                 s.onload = function() {
                     buildAdminSummary();
                 };
@@ -1659,6 +1728,14 @@
             var endpoint = new URL("../admin/festividades.php?admin=1", window.location.href);
             var tbody = document.getElementById("adminFestividadesTabla");
             var estado = document.getElementById("adminFestividadesEstado");
+            var paginacion = document.getElementById("adminFestividadesPaginacion");
+            var resumen = document.getElementById("adminFestividadesResumen");
+            var paginaActual = document.getElementById("adminFestividadesPaginaActual");
+            var anterior = document.getElementById("adminFestividadesAnterior");
+            var siguiente = document.getElementById("adminFestividadesSiguiente");
+            var festividades = [];
+            var pagina = 1;
+            var porPagina = 20;
 
             function mostrarFila(mensaje) {
                 tbody.replaceChildren();
@@ -1672,8 +1749,37 @@
                 tbody.appendChild(fila);
             }
 
+            function renderizarFestividades() {
+                var totalPaginas = Math.ceil(festividades.length / porPagina);
+                pagina = Math.min(Math.max(pagina, 1), Math.max(totalPaginas, 1));
+                var inicio = (pagina - 1) * porPagina;
+                paginacion.hidden = totalPaginas <= 1;
+                resumen.textContent = festividades.length ?
+                    "Mostrando " + (inicio + 1) + "–" + Math.min(inicio + porPagina, festividades.length) +
+                    " de " + festividades.length + " festividades" : "Sin festividades";
+                paginaActual.textContent = "Página " + (totalPaginas ? pagina : 0) + " de " + totalPaginas;
+                anterior.disabled = pagina <= 1;
+                siguiente.disabled = pagina >= totalPaginas;
+                tbody.replaceChildren();
+                if (!festividades.length) {
+                    mostrarFila("Todavía no hay festividades registradas.");
+                    return;
+                }
+                festividades.slice(inicio, inicio + porPagina).forEach(function(item) {
+                    var fila = document.createElement("tr");
+                    [item.fecha_clave, item.id_festividad, (item.emoji || "") + " " + item.titulo, item.tipo]
+                    .forEach(function(valor) {
+                        var celda = document.createElement("td");
+                        celda.textContent = String(valor || "").trim();
+                        fila.appendChild(celda);
+                    });
+                    tbody.appendChild(fila);
+                });
+            }
+
             async function cargarFestividades() {
                 estado.textContent = "Cargando festividades…";
+                paginacion.hidden = true;
                 mostrarFila("Cargando festividades…");
                 try {
                     var response = await fetch(endpoint, {
@@ -1683,28 +1789,28 @@
                     if (!response.ok || !result.ok || !Array.isArray(result.data)) {
                         throw new Error(result.error || "No se pudieron cargar las festividades.");
                     }
-                    tbody.replaceChildren();
-                    if (!result.data.length) {
-                        mostrarFila("Todavía no hay festividades registradas.");
-                    } else {
-                        result.data.forEach(function(item) {
-                            var fila = document.createElement("tr");
-                            [item.fecha_clave, item.id_festividad, (item.emoji || "") + " " + item.titulo, item.tipo]
-                            .forEach(function(valor) {
-                                var celda = document.createElement("td");
-                                celda.textContent = String(valor || "").trim();
-                                fila.appendChild(celda);
-                            });
-                            tbody.appendChild(fila);
-                        });
-                    }
+                    festividades = result.data;
+                    pagina = 1;
+                    renderizarFestividades();
                     estado.textContent = result.data.length + (result.data.length === 1 ? " festividad" : " festividades");
                 } catch (error) {
                     console.error("No se pudieron cargar las festividades:", error);
                     estado.textContent = error.message;
+                    paginacion.hidden = true;
                     mostrarFila("Error al cargar las festividades.");
                 }
             }
+
+            anterior.addEventListener("click", function() {
+                if (pagina <= 1) return;
+                pagina--;
+                renderizarFestividades();
+            });
+            siguiente.addEventListener("click", function() {
+                if (pagina >= Math.ceil(festividades.length / porPagina)) return;
+                pagina++;
+                renderizarFestividades();
+            });
 
             document.querySelectorAll('.panel-tab[data-tab="festividades"]').forEach(function(tab) {
                 tab.addEventListener("click", cargarFestividades);
@@ -1719,6 +1825,14 @@
             var tbody = document.getElementById('artesanos-table-body');
             var estadoActual = 'PENDIENTE';
             var cargado = false;
+            var artesanosData = [];
+            var artesanosPagina = 1;
+            var artesanosPorPagina = 20;
+            var artesanosPaginacion = document.getElementById('artesanosPaginacion');
+            var artesanosResumen = document.getElementById('artesanosResumen');
+            var artesanosPaginaActual = document.getElementById('artesanosPaginaActual');
+            var artesanosAnterior = document.getElementById('artesanosAnterior');
+            var artesanosSiguiente = document.getElementById('artesanosSiguiente');
 
             // ── Resumen para las tarjetas del header (se carga junto con el panel,
             // sin esperar a que se abra la pestaña de Artesanos) ──
@@ -1767,11 +1881,24 @@
                     });
                     btn.classList.add('active');
                     estadoActual = btn.dataset.estadoArtesano;
+                    artesanosPagina = 1;
                     cargarArtesanos(estadoActual);
                 });
             });
 
+            artesanosAnterior.addEventListener('click', function() {
+                if (artesanosPagina <= 1) return;
+                artesanosPagina--;
+                renderArtesanos();
+            });
+            artesanosSiguiente.addEventListener('click', function() {
+                if (artesanosPagina >= Math.ceil(artesanosData.length / artesanosPorPagina)) return;
+                artesanosPagina++;
+                renderArtesanos();
+            });
+
             function cargarArtesanos(estado) {
+                artesanosPaginacion.hidden = true;
                 tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;opacity:.6">' +
                     '<i class="fa-solid fa-spinner fa-spin"></i> Cargando...</td></tr>';
 
@@ -1786,59 +1913,75 @@
                         if (!data.ok || !Array.isArray(data.artesanos)) {
                             throw new Error(data.error || 'Respuesta de artesanos inválida.');
                         }
-                        if (!data.artesanos.length) {
-                            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;opacity:.6">' +
-                                'No hay artesanos en este estado.</td></tr>';
-                            return;
-                        }
-                        tbody.innerHTML = '';
-                        data.artesanos.forEach(function(a) {
-                            var fecha = (a.fecha_registro || '').replace('T', ' ').split('.')[0].split(' ')[0];
-                            var esPendiente = a.estado === 'PENDIENTE';
-                            var esActivo = a.estado === 'ACTIVO';
-                            var badgeColor = esPendiente ? '#d97706' : (esActivo ? '#16a34a' : '#dc2626');
-                            var tr = document.createElement('tr');
-                            tr.innerHTML =
-                                '<td>' + (a.nom_persona_ecommerce || '') + ' ' + (a.ape_persona_ecommerce || '') + '</td>' +
-                                '<td>' + (a.id_persona_ecommerce || '') + '</td>' +
-                                '<td>' + (a.num_cel_persona_ecommerce || '') + '</td>' +
-                                '<td>' + (a.email_login || '') + '</td>' +
-                                '<td>' + fecha + '</td>' +
-                                '<td><span style="background:' + badgeColor + '22;color:' + badgeColor + ';' +
-                                'padding:3px 12px;border-radius:50px;font-size:.75rem;font-weight:700;">' +
-                                a.estado + '</span></td>' +
-                                '<td style="display:flex;gap:6px;flex-wrap:wrap;">' +
-                                (esPendiente || !esActivo ?
-                                    '<button class="btn-aprobar" data-id="' + a.id_persona_ecommerce + '" ' +
-                                    'style="background:#16a34a;color:#fff;border:none;padding:5px 12px;' +
-                                    'border-radius:6px;cursor:pointer;font-size:.8rem;font-weight:700;">' +
-                                    '<i class="fa-solid fa-check"></i> Aprobar</button>' : '') +
-                                (esPendiente || esActivo ?
-                                    '<button class="btn-rechazar" data-id="' + a.id_persona_ecommerce + '" ' +
-                                    'style="background:#dc2626;color:#fff;border:none;padding:5px 12px;' +
-                                    'border-radius:6px;cursor:pointer;font-size:.8rem;font-weight:700;">' +
-                                    '<i class="fa-solid fa-xmark"></i> Rechazar</button>' : '') +
-                                '</td>';
-                            tbody.appendChild(tr);
-                        });
-
-                        // Eventos aprobar/rechazar
-                        tbody.querySelectorAll('.btn-aprobar').forEach(function(btn) {
-                            btn.addEventListener('click', function() {
-                                accionArtesano(btn.dataset.id, 'aprobar');
-                            });
-                        });
-                        tbody.querySelectorAll('.btn-rechazar').forEach(function(btn) {
-                            btn.addEventListener('click', function() {
-                                accionArtesano(btn.dataset.id, 'rechazar');
-                            });
-                        });
+                        artesanosData = data.artesanos;
+                        renderArtesanos();
                     })
                     .catch(function(error) {
                         console.error('Error al cargar artesanos:', error);
+                        artesanosPaginacion.hidden = true;
                         tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#f87171;padding:2rem;">' +
                             'Error al cargar artesanos.</td></tr>';
                     });
+            }
+
+            function renderArtesanos() {
+                var totalPaginas = Math.ceil(artesanosData.length / artesanosPorPagina);
+                artesanosPagina = Math.min(Math.max(artesanosPagina, 1), Math.max(totalPaginas, 1));
+                var inicio = (artesanosPagina - 1) * artesanosPorPagina;
+                artesanosResumen.textContent = artesanosData.length ?
+                    'Mostrando ' + (inicio + 1) + '–' + Math.min(inicio + artesanosPorPagina, artesanosData.length) +
+                    ' de ' + artesanosData.length + ' artesanos' : 'Sin artesanos';
+                artesanosPaginaActual.textContent = 'Página ' + (totalPaginas ? artesanosPagina : 0) + ' de ' + totalPaginas;
+                artesanosAnterior.disabled = artesanosPagina <= 1;
+                artesanosSiguiente.disabled = artesanosPagina >= totalPaginas;
+                artesanosPaginacion.hidden = totalPaginas <= 1;
+                if (!artesanosData.length) {
+                    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;opacity:.6">' +
+                        'No hay artesanos en este estado.</td></tr>';
+                    return;
+                }
+                tbody.innerHTML = '';
+                artesanosData.slice(inicio, inicio + artesanosPorPagina).forEach(function(a) {
+                    var fecha = (a.fecha_registro || '').replace('T', ' ').split('.')[0].split(' ')[0];
+                    var esPendiente = a.estado === 'PENDIENTE';
+                    var esActivo = a.estado === 'ACTIVO';
+                    var badgeColor = esPendiente ? '#d97706' : (esActivo ? '#16a34a' : '#dc2626');
+                    var tr = document.createElement('tr');
+                    tr.innerHTML =
+                        '<td>' + (a.nom_persona_ecommerce || '') + ' ' + (a.ape_persona_ecommerce || '') + '</td>' +
+                        '<td>' + (a.id_persona_ecommerce || '') + '</td>' +
+                        '<td>' + (a.num_cel_persona_ecommerce || '') + '</td>' +
+                        '<td>' + (a.email_login || '') + '</td>' +
+                        '<td>' + fecha + '</td>' +
+                        '<td><span style="background:' + badgeColor + '22;color:' + badgeColor + ';' +
+                        'padding:3px 12px;border-radius:50px;font-size:.75rem;font-weight:700;">' +
+                        a.estado + '</span></td>' +
+                        '<td style="display:flex;gap:6px;flex-wrap:wrap;">' +
+                        (esPendiente || !esActivo ?
+                            '<button class="btn-aprobar" data-id="' + a.id_persona_ecommerce + '" ' +
+                            'style="background:#16a34a;color:#fff;border:none;padding:5px 12px;' +
+                            'border-radius:6px;cursor:pointer;font-size:.8rem;font-weight:700;">' +
+                            '<i class="fa-solid fa-check"></i> Aprobar</button>' : '') +
+                        (esPendiente || esActivo ?
+                            '<button class="btn-rechazar" data-id="' + a.id_persona_ecommerce + '" ' +
+                            'style="background:#dc2626;color:#fff;border:none;padding:5px 12px;' +
+                            'border-radius:6px;cursor:pointer;font-size:.8rem;font-weight:700;">' +
+                            '<i class="fa-solid fa-xmark"></i> Rechazar</button>' : '') +
+                        '</td>';
+                    tbody.appendChild(tr);
+                });
+
+                // Eventos aprobar/rechazar
+                tbody.querySelectorAll('.btn-aprobar').forEach(function(btn) {
+                    btn.addEventListener('click', function() {
+                        accionArtesano(btn.dataset.id, 'aprobar');
+                    });
+                });
+                tbody.querySelectorAll('.btn-rechazar').forEach(function(btn) {
+                    btn.addEventListener('click', function() {
+                        accionArtesano(btn.dataset.id, 'rechazar');
+                    });
+                });
             }
 
             async function accionArtesano(id, accion) {

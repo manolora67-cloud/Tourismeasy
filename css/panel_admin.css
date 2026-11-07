@@ -1091,6 +1091,10 @@ body.dark-mode .panel-navbar-label {
     font-size: 0.84rem;
 }
 
+.audit-pagination[hidden] {
+    display: none;
+}
+
 .audit-pagination-controls {
     display: flex;
     align-items: center;

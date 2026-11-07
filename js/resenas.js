@@ -10,9 +10,17 @@
     var charCount = document.getElementById("resenaCharCount");
     var submitBtn = document.getElementById("resenaSubmit");
     var sliderTrack = document.getElementById("sliderTrack");
+    var reviewPagination = document.getElementById("resenasPaginacion");
+    var reviewSummary = document.getElementById("resenasResumen");
+    var reviewPageLabel = document.getElementById("resenasPaginaActual");
+    var previousReviewPage = document.getElementById("resenasAnterior");
+    var nextReviewPage = document.getElementById("resenasSiguiente");
     var resenasStatus = document.createElement("p");
     var rating = 0;
     var resenasRequestId = 0;
+    var resenasData = [];
+    var paginaResenas = 1;
+    var resenasPorPagina = reviewPagination ? 20 : Infinity;
     resenasStatus.setAttribute("role", "status");
     resenasStatus.setAttribute("aria-live", "polite");
     sliderTrack.parentNode.insertBefore(resenasStatus, sliderTrack);
@@ -359,6 +367,30 @@
 
     // ── Cargar reseñas desde la BD ────────────────────────────────────────
 
+    function renderizarResenas() {
+        var totalPaginas = resenasPorPagina === Infinity ? 1 : Math.ceil(resenasData.length / resenasPorPagina);
+        paginaResenas = Math.max(1, Math.min(paginaResenas, totalPaginas));
+        var inicio = resenasPorPagina === Infinity ? 0 : (paginaResenas - 1) * resenasPorPagina;
+        var resenasVisibles = resenasData.slice(inicio, inicio + resenasPorPagina);
+        sliderTrack.replaceChildren();
+        resenasVisibles.forEach(function (resena) {
+            sliderTrack.appendChild(buildCard(resena));
+        });
+        if (reviewPagination) {
+            reviewPagination.hidden = resenasData.length <= resenasPorPagina;
+            reviewSummary.textContent = resenasData.length
+                ? "Mostrando " + (inicio + 1) + "–" + Math.min(inicio + resenasPorPagina, resenasData.length) +
+                    " de " + resenasData.length + " reseñas"
+                : "Sin reseñas";
+            reviewPageLabel.textContent = "Página " + (resenasData.length ? paginaResenas : 0) +
+                " de " + (resenasData.length ? totalPaginas : 0);
+            previousReviewPage.disabled = paginaResenas <= 1;
+            nextReviewPage.disabled = paginaResenas >= totalPaginas;
+        }
+        resenasStatus.textContent = resenasData.length ? "" : "Aún no hay reseñas.";
+        window.dispatchEvent(new Event("resenasListas"));
+    }
+
     function cargarResenas() {
         var requestId = ++resenasRequestId;
         var params = new URLSearchParams();
@@ -379,16 +411,16 @@
                 if (!data.ok || !Array.isArray(data.data)) {
                     throw new Error(data.error || "El servidor devolvió una respuesta inválida.");
                 }
-                data.data.forEach(function (r) {
-                    sliderTrack.appendChild(buildCard(r));
-                });
-                resenasStatus.textContent = data.data.length ? "" : "Aún no hay reseñas.";
-                window.dispatchEvent(new Event("resenasListas"));
+                resenasData = data.data;
+                paginaResenas = 1;
+                renderizarResenas();
             })
             .catch(function (error) {
                 if (requestId !== resenasRequestId) return;
                 console.error("[TourismEasy] No se pudieron cargar las reseñas:", error);
+                resenasData = [];
                 sliderTrack.replaceChildren();
+                if (reviewPagination) reviewPagination.hidden = true;
                 resenasStatus.textContent = "No se pudieron cargar las reseñas. Intenta recargar la página.";
                 window.dispatchEvent(new Event("resenasListas"));
             })
@@ -398,6 +430,18 @@
                 }
             });
     }
+
+    if (previousReviewPage) previousReviewPage.addEventListener("click", function () {
+        if (paginaResenas <= 1) return;
+        paginaResenas--;
+        renderizarResenas();
+    });
+    if (nextReviewPage) nextReviewPage.addEventListener("click", function () {
+        var totalPaginas = Math.ceil(resenasData.length / resenasPorPagina);
+        if (paginaResenas >= totalPaginas) return;
+        paginaResenas++;
+        renderizarResenas();
+    });
 
     cargarResenas();
 
@@ -533,9 +577,9 @@
             window.TEUI.toast("Reseña publicada correctamente.");
             resenasRequestId++;
             sliderTrack.removeAttribute("aria-busy");
-            sliderTrack.insertBefore(buildCard(nueva), sliderTrack.firstChild);
-            resenasStatus.textContent = "";
-            window.dispatchEvent(new Event("resenasListas"));
+            resenasData.unshift(nueva);
+            paginaResenas = 1;
+            renderizarResenas();
 
             textarea.value = "";
             charCount.textContent = "0 / 140";

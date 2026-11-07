@@ -7,9 +7,16 @@
     const editorDialog = document.getElementById('portadaEditorDialog');
     const previewDialog = document.getElementById('portadaPreviewDialog');
     const previewFrame = document.getElementById('portadaPreviewFrame');
+    const pagination = document.getElementById('portadaPaginacion');
+    const paginationSummary = document.getElementById('portadaResumen');
+    const pageLabel = document.getElementById('portadaPaginaActual');
+    const previousPageButton = document.getElementById('portadaAnterior');
+    const nextPageButton = document.getElementById('portadaSiguiente');
     if (!list || !editor || !status || !newButton || !editorDialog || !previewDialog || !previewFrame) return;
 
     let destinos = [];
+    let currentPage = 1;
+    const pageSize = 20;
     let csrf = '';
     let cargando = false;
     let uploadsEnCurso = 0;
@@ -115,11 +122,23 @@
     }
 
     function render() {
+        const pageCount = Math.ceil(destinos.length / pageSize);
+        currentPage = Math.max(1, Math.min(currentPage, pageCount || 1));
+        const start = (currentPage - 1) * pageSize;
+        if (pagination) {
+            pagination.hidden = pageCount <= 1;
+            paginationSummary.textContent = destinos.length
+                ? `Mostrando ${start + 1}–${Math.min(start + pageSize, destinos.length)} de ${destinos.length} destinos`
+                : 'Sin destinos';
+            pageLabel.textContent = `Página ${pageCount ? currentPage : 0} de ${pageCount}`;
+            previousPageButton.disabled = currentPage <= 1;
+            nextPageButton.disabled = currentPage >= pageCount;
+        }
         if (!destinos.length) {
             list.innerHTML = '<p class="portada-help">No hay destinos todavía. Usa “Crear destino” para agregar el primero.</p>';
             return;
         }
-        list.innerHTML = destinos.map((destino) => `
+        list.innerHTML = destinos.slice(start, start + pageSize).map((destino) => `
             <article class="portada-card">
                 <img src="${escapeHtml(adminAsset(destino.img))}" alt="${escapeHtml(destino.alt)}" loading="lazy">
                 <div class="portada-card-body">
@@ -472,6 +491,10 @@
             if (index < 0) destinos.push(result.data);
             else destinos[index] = { ...result.data, municipio: original.municipio, persistido: true };
             destinos.sort((a, b) => a.orden - b.orden || a.titulo.localeCompare(b.titulo));
+            if (index < 0) {
+                const savedIndex = destinos.findIndex((destination) => destination.key === record.key);
+                currentPage = Math.floor(savedIndex / pageSize) + 1;
+            }
             render();
             window.TEUI.markClean(document.getElementById('portadaForm'));
             closeEditor(false);
@@ -509,6 +532,16 @@
     }
 
     newButton.addEventListener('click', () => openEditor(blankDestination()));
+    if (previousPageButton) previousPageButton.addEventListener('click', () => {
+        if (currentPage <= 1) return;
+        currentPage--;
+        render();
+    });
+    if (nextPageButton) nextPageButton.addEventListener('click', () => {
+        if (currentPage >= Math.ceil(destinos.length / pageSize)) return;
+        currentPage++;
+        render();
+    });
     list.addEventListener('click', (event) => {
         const editButton = event.target.closest('[data-edit]');
         const deleteButton = event.target.closest('[data-delete]');
