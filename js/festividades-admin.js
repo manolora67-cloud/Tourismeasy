@@ -15,7 +15,7 @@
     var currentPageLabel = document.getElementById("festividadesPaginaActual");
     var previousPageButton = document.getElementById("festividadesAnterior");
     var nextPageButton = document.getElementById("festividadesSiguiente");
-    var pageSize = 20;
+    var pageSize = 10;
     var currentPage = 1;
 
     function mostrarError(mensaje) {
