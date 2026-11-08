@@ -457,7 +457,7 @@
 
         const panel = panelForSession(user);
         const menu = user.tipo === "admin" ?
-            `<a class="session-menu-item" href="${inHtml ? "../index.html" : "index.html"}">🏠 Ir al sitio</a><a class="session-menu-item session-menu-highlight" href="${route(panel)}">🛡️ Panel Admin</a><a class="session-menu-item" href="${route("perfil_admin.html")}">👤 Mi Perfil</a><a class="session-menu-item" href="${route("config_admin.html")}">⚙️ Configuración</a><a class="session-menu-item" href="${route("festividades_admin.html")}">📅 Festividades</a>` :
+            `<a class="session-menu-item" href="${inHtml ? "../index.html" : "index.html"}">🏠 Ir al sitio</a><a class="session-menu-item session-menu-highlight" href="${route(panel)}">🛡️ Panel Admin</a><a class="session-menu-item" href="${route("perfil_admin.html")}">👤 Mi Perfil</a><a class="session-menu-item" href="${route("config_admin.html")}">⚙️ Configuración</a><a class="session-menu-item" href="${route("festividades_admin.html")}">📅 Festividades</a><a class="session-menu-item" href="${route("catalogos_admin.html")}">📚 Catálogos</a>` :
             `<a class="session-menu-item session-menu-highlight" href="${route(panel)}">Mi Panel</a><a class="session-menu-item" href="${route("perfil_empresa.html")}">Mi Perfil</a><a class="session-menu-item" href="${route("config_empresa.html")}">Configuración</a>`;
         const widget = document.createElement("div");
         widget.className = "session-widget";
