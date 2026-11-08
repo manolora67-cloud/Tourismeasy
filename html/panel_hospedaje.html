@@ -136,14 +136,7 @@
                 <div class="vm-grid">
                     <div class="vm-field"><label class="vm-label">Nombre</label><input class="vm-input" id="vm-nombre" type="text" placeholder="Ej: Hotel El Prado" /></div>
                     <div class="vm-field"><label class="vm-label">Tipo</label><select class="vm-input" id="vm-tipo">
-                            <option value="">Selecciona...</option>
-                            <option value="Hotel">Hotel</option>
-                            <option value="Hotel Boutique">Hotel Boutique</option>
-                            <option value="Finca">Finca</option>
-                            <option value="Cabaña">Cabaña</option>
-                            <option value="Hostal">Hostal</option>
-                            <option value="Apartamento">Apartamento</option>
-                            <option value="Glamping">Glamping</option>
+                            <option value="">Cargando tipos...</option>
                         </select></div>
                     <div class="vm-field"><label class="vm-label">Capacidad max. (personas)</label><input class="vm-input" id="vm-capacidad" type="number" min="1" placeholder="Ej: 4" /></div>
                     <div class="vm-field"><label class="vm-label">Precio (/ noche)</label><input class="vm-input" id="vm-precio" type="text" placeholder="Ej: 180000" /></div>
@@ -380,10 +373,17 @@
                     box.innerHTML = '<span style="opacity:.6;font-size:.85rem;">No hay servicios disponibles.</span>';
                     return;
                 }
-                box.innerHTML = _catalogoServicios.map(function(s) {
-                    return '<label style="display:flex;align-items:center;gap:6px;font-size:.85rem;cursor:pointer;">' +
-                        '<input type="checkbox" class="vm-servicio-chk" value="' + s.id + '"> ' + s.nombre + '</label>';
-                }).join("");
+                box.replaceChildren();
+                _catalogoServicios.forEach(function(s) {
+                    var label = document.createElement("label");
+                    label.style.cssText = "display:flex;align-items:center;gap:6px;font-size:.85rem;cursor:pointer;";
+                    var checkbox = document.createElement("input");
+                    checkbox.type = "checkbox";
+                    checkbox.className = "vm-servicio-chk";
+                    checkbox.value = s.id;
+                    label.append(checkbox, document.createTextNode(" " + s.nombre));
+                    box.appendChild(label);
+                });
             })
             .catch(function() {
                 document.getElementById("vm-servicios-box").innerHTML = '<span style="opacity:.6;font-size:.85rem;">No se pudieron cargar los servicios.</span>';
@@ -396,7 +396,7 @@
             });
         }
 
-        fetch("../datos_referencia.php?tipo=ciudades", {
+        fetch("../datos_referencia.php?tipo=todos", {
                 credentials: "include"
             })
             .then(function(r) {
@@ -411,6 +411,14 @@
                     o.textContent = c.nombre;
                     sel.appendChild(o);
                 });
+                var selTipo = document.getElementById("vm-tipo");
+                selTipo.innerHTML = '<option value="">Selecciona tipo...</option>';
+                (res.data && res.data.tipos_hospedaje || []).forEach(function(t) {
+                    var o = document.createElement("option");
+                    o.value = t.id;
+                    o.textContent = t.nombre;
+                    selTipo.appendChild(o);
+                });
             });
 
         function openModal(row) {
@@ -419,6 +427,12 @@
             document.getElementById("vModal-title").textContent = row ? "Editar hospedaje" : "Nuevo hospedaje";
             if (row) {
                 document.getElementById("vm-nombre").value = row.dataset.nombre || "";
+                var tipoSelect = document.getElementById("vm-tipo");
+                if (!Array.from(tipoSelect.options).some(function(option) { return option.value === row.dataset.tipo; })) {
+                    var tipoInactivo = new Option((row.dataset.tipo || "Tipo") + " (inactivo)", row.dataset.tipo);
+                    tipoInactivo.disabled = true;
+                    tipoSelect.add(tipoInactivo);
+                }
                 document.getElementById("vm-tipo").value = row.dataset.tipo || "";
                 document.getElementById("vm-capacidad").value = row.dataset.capacidad || "";
                 document.getElementById("vm-precio").value = row.dataset.precio || "";

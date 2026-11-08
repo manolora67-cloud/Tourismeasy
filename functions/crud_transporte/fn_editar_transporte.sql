@@ -15,6 +15,7 @@ RETURNS BOOLEAN AS
 $$
 DECLARE
     v_id_empresa_db TRANSPORTE.ID_EMPRESA%TYPE;
+    v_clase_actual TRANSPORTE_CLASE.ID_CLASE%TYPE;
     v_origen TRANSPORTE.ORIGEN%TYPE;
     v_destino TRANSPORTE.DESTINO%TYPE;
 BEGIN
@@ -32,6 +33,10 @@ BEGIN
     IF v_id_empresa_db <> t_id_empresa THEN
         RETURN FALSE;
     END IF;
+
+    SELECT ID_CLASE INTO v_clase_actual
+    FROM TRANSPORTE_CLASE
+    WHERE ID_TRANSPORTE = t_id_transporte;
 
     -- Verificar que la empresa sea de transporte
     IF NOT EXISTS (SELECT 1 FROM EMPRESAS WHERE ID_EMPRESA = t_id_empresa AND TIPO_SERVICIO = 'TRANSPORTE') THEN
@@ -70,8 +75,12 @@ BEGIN
         RETURN FALSE;
     END IF;
 
-    -- La clase debe existir y estar activa
-    IF NOT EXISTS (SELECT 1 FROM CLASE_SERVICIO_TRANSPORTE WHERE ID_CLASE = t_id_clase AND ACTIVO = TRUE) THEN
+    -- Existing links to retired classes remain editable, but cannot be newly assigned.
+    IF NOT EXISTS (
+        SELECT 1 FROM CLASE_SERVICIO_TRANSPORTE
+        WHERE ID_CLASE = t_id_clase
+          AND (ACTIVO = TRUE OR ID_CLASE = v_clase_actual)
+    ) THEN
         RETURN FALSE;
     END IF;
 

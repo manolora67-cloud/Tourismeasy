@@ -10,7 +10,15 @@ BEGIN
     END IF;
     IF p_tipo IN ('tipos_plan', 'todos') THEN
         SELECT v_respuesta || JSONB_BUILD_OBJECT('tipos_plan', COALESCE(JSONB_AGG(JSONB_BUILD_OBJECT('id', t.ID_TIPO_PLAN, 'nombre', t.NOM_TIPO_PLAN) ORDER BY t.NOM_TIPO_PLAN), '[]'::JSONB))
-        INTO v_respuesta FROM TIPOS_DE_PLAN_TURISTICO t;
+        INTO v_respuesta FROM TIPOS_DE_PLAN_TURISTICO t WHERE t.ACTIVO = TRUE;
+    END IF;
+    IF p_tipo IN ('tipos_hospedaje', 'todos') THEN
+        SELECT v_respuesta || JSONB_BUILD_OBJECT('tipos_hospedaje', COALESCE(JSONB_AGG(JSONB_BUILD_OBJECT('id', t.TIPO_HOSPEDAJE, 'nombre', t.TIPO_HOSPEDAJE) ORDER BY t.TIPO_HOSPEDAJE), '[]'::JSONB))
+        INTO v_respuesta FROM TIPOS_HOSPEDAJE t WHERE t.ACTIVO = TRUE;
+    END IF;
+    IF p_tipo IN ('categorias_artesania', 'todos') THEN
+        SELECT v_respuesta || JSONB_BUILD_OBJECT('categorias_artesania', COALESCE(JSONB_AGG(JSONB_BUILD_OBJECT('id', c.CODIGO, 'nombre', c.NOMBRE_CATEGORIA) ORDER BY c.NOMBRE_CATEGORIA), '[]'::JSONB))
+        INTO v_respuesta FROM CATEGORIAS_ARTESANIA c WHERE c.ACTIVO = TRUE;
     END IF;
     RETURN v_respuesta;
 EXCEPTION

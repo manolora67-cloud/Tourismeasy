@@ -30,7 +30,10 @@ BEGIN
         RETURN NULL;
     END IF;
 
-    IF h_tipo IS NULL OR LENGTH(TRIM(h_tipo)) = 0 THEN
+    IF h_tipo IS NULL OR NOT EXISTS (
+        SELECT 1 FROM TIPOS_HOSPEDAJE
+        WHERE TIPO_HOSPEDAJE = h_tipo AND ACTIVO = TRUE
+    ) THEN
         RETURN NULL;
     END IF;
 

@@ -30,6 +30,7 @@ function mapDbProduct(row) {
         provider: row.proveedor,
         description: row.descripcion,
         category: row.categoria,
+        categoryName: row.nombre_categoria || row.categoria,
         price: Number(row.precio_cop),
         cityId: String(row.id_ciudad || ""),
         cityName: row.nom_ciudad || "",
@@ -105,10 +106,10 @@ function populateProductFilters() {
     if (!locationFilter || !categoryFilters) return;
 
     const locations = new Map();
-    const categories = new Set();
+    const categories = new Map();
     dbProducts.forEach((product) => {
         if (product.cityId && product.cityName) locations.set(product.cityId, product.cityName);
-        if (product.category) categories.add(product.category);
+        if (product.category) categories.set(product.category, product.categoryName || product.category);
     });
 
     locations.forEach((name, id) => {
@@ -121,11 +122,6 @@ function populateProductFilters() {
         a.textContent.localeCompare(b.textContent, "es")
     ).forEach((option) => locationFilter.appendChild(option));
 
-    const categoryLabels = {
-        talleres: "Talleres",
-        bisuteria: "Bisutería",
-        alfareria: "Alfarería",
-    };
     categoryFilters.replaceChildren();
     const allButton = document.createElement("button");
     allButton.className = "filter-tag active";
@@ -134,12 +130,12 @@ function populateProductFilters() {
     allButton.textContent = "Todos";
     categoryFilters.appendChild(allButton);
 
-    Array.from(categories).sort((a, b) => a.localeCompare(b, "es")).forEach((category) => {
+    Array.from(categories.entries()).sort((a, b) => a[1].localeCompare(b[1], "es")).forEach(([category, label]) => {
         const button = document.createElement("button");
         button.className = "filter-tag";
         button.dataset.cat = category;
         button.type = "button";
-        button.textContent = categoryLabels[category] || category;
+        button.textContent = label;
         categoryFilters.appendChild(button);
     });
 
@@ -160,11 +156,6 @@ function openDetailModal(product) {
     const overlay = document.getElementById("productModalOverlay");
 
     // Etiquetas legibles para cada categoría
-    const catLabel = {
-        talleres: "Taller",
-        bisuteria: "Bisutería",
-        alfareria: "Alfarería",
-    };
 
     // Rellenamos cada elemento del modal con los datos del producto
     const modalImage = overlay.querySelector(".pm-img");
@@ -173,8 +164,7 @@ function openDetailModal(product) {
     modalImage.hidden = !imageUrl;
     if (imageUrl) modalImage.src = imageUrl;
     else modalImage.removeAttribute("src");
-    overlay.querySelector(".pm-cat").textContent =
-        catLabel[product.category] || product.category;
+    overlay.querySelector(".pm-cat").textContent = product.categoryName || product.category;
     overlay.querySelector(".pm-name").textContent = product.name;
     overlay.querySelector(".pm-provider").textContent = product.provider;
     overlay.querySelector(".pm-ubicacion").textContent =
@@ -262,12 +252,6 @@ function renderProducts() {
     currentPage = Math.max(1, Math.min(currentPage, totalPages));
     const start = (currentPage - 1) * productsPerPage;
     const pageProducts = dbProducts.slice(start, start + productsPerPage);
-    const categoryLabels = {
-        talleres: "Talleres",
-        bisuteria: "Bisutería",
-        alfareria: "Alfarería",
-    };
-
     pageProducts.forEach((product) => {
         const card = document.createElement("div");
         card.classList.add("card");
@@ -306,7 +290,7 @@ function renderProducts() {
 
         const category = document.createElement("span");
         category.className = "category-tag";
-        category.textContent = categoryLabels[product.category] || product.category || "";
+        category.textContent = product.categoryName || product.category || "";
 
         const name = document.createElement("h3");
         name.textContent = product.name || "";

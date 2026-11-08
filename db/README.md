@@ -40,6 +40,35 @@ Las instalaciones nuevas guardan `ID_CIUDAD_ORIGEN` y `ID_CIUDAD_DESTINO` en `TR
 
 La instalación nueva carga las 48 fechas iniciales en `FESTIVIDADES_SANTANDER`. El administrador puede gestionarlas desde el apartado **Festividades** del panel. Las funciones SQL para listar, guardar y eliminar festividades están en `functions/` y se instalan junto con el resto de funciones.
 
+### Catálogos administrables
+
+El panel **Catálogos** permite crear, renombrar y activar/desactivar tipos de plan, tipos de hospedaje, categorías artesanales, servicios de hospedaje y clases de transporte. La estructura nueva añade `TIPOS_HOSPEDAJE` y `CATEGORIAS_ARTESANIA`, agrega el estado a los tipos de plan y relaciona los catálogos con las publicaciones. Las opciones desactivadas dejan de aparecer para nuevas publicaciones; las publicaciones existentes conservan sus referencias y se siguen mostrando.
+
+Este cambio requiere una instalación nueva: respalda los datos que quieras conservar, crea una base vacía e importa `DB_TOURISMEASY.sql`. No basta con borrar solo las nuevas tablas porque las tablas existentes `TIPOS_DE_PLAN_TURISTICO`, `HOSPEDAJE` y `PRODUCTOS_ARTESANALES` también tienen cambios de esquema, y `CREATE TABLE IF NOT EXISTS` no actualiza estructuras existentes. No ejecutes el esquema sobre una base con datos ni se incluyen instrucciones `ALTER` o una migración.
+
+El fragmento [`catalogos_tablas_inserts.sql`](./catalogos_tablas_inserts.sql) separa las definiciones de las tablas de sus datos iniciales. Es una referencia para instalación en una base vacía con las tablas base ya creadas; no es una actualización para una base existente.
+
+Después de importar el esquema, instala las funciones nuevas y actualizadas junto con el resto de funciones de la aplicación:
+
+```powershell
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_administracion\fn_listar_catalogos.sql
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_administracion\fn_registrar_auditoria.sql
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_administracion\fn_guardar_catalogo.sql
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_referencias\fn_datos_referencia.sql
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_planes\fn_agregar_plan.sql
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_planes\fn_editar_plan.sql
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_hospedaje\fn_agregar_hospedaje.sql
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_hospedaje\fn_editar_hospedaje.sql
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_transporte\fn_editar_transporte.sql
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_productos\fn_agregar_producto.sql
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_productos\fn_editar_producto.sql
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_productos\fn_obtener_producto.sql
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_productos\fn_listar_productos.sql
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_productos\fn_buscar_productos_publicos.sql
+```
+
+Sustituye el usuario y el nombre de la base de datos por los de tu instalación.
+
 ### Contenido administrable de la portada
 
 El esquema base incluye las tablas necesarias para guardar contenido de portada y la lista de municipios de Santander. Los 87 nombres se consultan desde `CIUDADES`; las descripciones de las tarjetas están en `componentes/destinos.js` y cada ficha de municipio tiene una entrada propia en `ARTICULOS` de `componentes/articulos.js`. Las imágenes y videos que se actualizan desde el panel se guardan como contenido de portada. El carrusel muestra ocho municipios por página. El panel permite actualizar el contenido y los medios de las tarjetas.
@@ -248,7 +277,7 @@ El esquema reúne entidades para:
 - **Administración y soporte:** configuración por rol, festividades, auditoría, estadísticas y control de limpieza de reseñas.
 - **Seguridad e historial:** historial de contraseñas y cambios, intentos de inicio de sesión y tokens de recuperación. La recuperación por correo funciona para admin, empresa y artesano: `TOKENS_RECUPERACION` relaciona el token con `USUARIOS`, `USUARIOS_EMPRESA` o `USUARIOS_ECOMMERCE`, y las funciones `fn_solicitar_recuperacion` y `fn_restablecer_contrasena` guardan el token y actualizan la contraseña correspondiente.
 
-Las claves foráneas, restricciones `CHECK` e índices únicos del archivo SQL validan relaciones y valores como estados, puntuaciones, formatos de correo y disponibilidad. Las reseñas públicas se publican con nombre y sin cuenta; los likes se identifican por un token local del navegador. `datos_referencia.php` solo entrega ciudades y tipos de plan, que son las listas usadas por los formularios vigentes.
+Las claves foráneas, restricciones `CHECK` e índices únicos del archivo SQL validan relaciones y valores como estados, puntuaciones, formatos de correo y disponibilidad. Las reseñas públicas se publican con nombre y sin cuenta; los likes se identifican por un token local del navegador. `datos_referencia.php` entrega ciudades y las opciones activas de tipos de plan, hospedaje y categorías artesanales para los formularios.
 
 ## Datos iniciales y producción
 

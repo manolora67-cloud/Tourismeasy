@@ -16,8 +16,9 @@ RETURNS BOOLEAN AS
 $$
 DECLARE
     v_id_empresa_db PLANES_TURISTICOS.ID_EMPRESA%TYPE;
+    v_tipo_actual PLANES_TURISTICOS.ID_TIPO_PLAN%TYPE;
 BEGIN
-    SELECT ID_EMPRESA INTO v_id_empresa_db
+    SELECT ID_EMPRESA, ID_TIPO_PLAN INTO v_id_empresa_db, v_tipo_actual
     FROM PLANES_TURISTICOS
     WHERE ID_PLAN_TURISTICO = p_id_plan;
 
@@ -41,7 +42,11 @@ BEGIN
         RETURN FALSE;
     END IF;
 
-    IF NOT EXISTS (SELECT 1 FROM TIPOS_DE_PLAN_TURISTICO WHERE ID_TIPO_PLAN = p_id_tipo_plan) THEN
+    IF NOT EXISTS (
+        SELECT 1 FROM TIPOS_DE_PLAN_TURISTICO
+        WHERE ID_TIPO_PLAN = p_id_tipo_plan
+          AND (ACTIVO = TRUE OR ID_TIPO_PLAN = v_tipo_actual)
+    ) THEN
         RETURN FALSE;
     END IF;
 

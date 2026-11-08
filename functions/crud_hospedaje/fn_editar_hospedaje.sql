@@ -16,9 +16,10 @@ RETURNS BOOLEAN AS
 $$
 DECLARE
     v_id_empresa_db HOSPEDAJE.ID_EMPRESA%TYPE;
+    v_tipo_actual   HOSPEDAJE.TIPO_HOSPEDAJE%TYPE;
     v_sid           SERVICIOS_HOSPEDAJE.ID_SERVICIO%TYPE;
 BEGIN
-    SELECT ID_EMPRESA INTO v_id_empresa_db
+    SELECT ID_EMPRESA, TIPO_HOSPEDAJE INTO v_id_empresa_db, v_tipo_actual
     FROM HOSPEDAJE
     WHERE ID_HOSPEDAJE = h_id_hospedaje
     FOR UPDATE;
@@ -43,7 +44,11 @@ BEGIN
         RETURN FALSE;
     END IF;
 
-    IF h_tipo IS NULL OR LENGTH(TRIM(h_tipo)) = 0 THEN
+    IF h_tipo IS NULL OR NOT EXISTS (
+        SELECT 1 FROM TIPOS_HOSPEDAJE
+        WHERE TIPO_HOSPEDAJE = h_tipo
+          AND (ACTIVO = TRUE OR TIPO_HOSPEDAJE = v_tipo_actual)
+    ) THEN
         RETURN FALSE;
     END IF;
 
@@ -88,8 +93,12 @@ BEGIN
     WHERE ID_HOSPEDAJE = h_id_hospedaje
       AND ID_EMPRESA    = h_id_empresa;
 
-    -- Resincronizar servicios: se borran los actuales y se insertan los nuevos
-    DELETE FROM HOSPEDAJE_SERVICIOS WHERE ID_HOSPEDAJE = h_id_hospedaje;
+    -- Preserve links to retired services; only active options are editable.
+    DELETE FROM HOSPEDAJE_SERVICIOS hs
+    USING SERVICIOS_HOSPEDAJE sh
+    WHERE hs.ID_HOSPEDAJE = h_id_hospedaje
+      AND sh.ID_SERVICIO = hs.ID_SERVICIO
+      AND sh.ACTIVO = TRUE;
 
     IF h_servicios_ids IS NOT NULL THEN
         FOREACH v_sid IN ARRAY h_servicios_ids LOOP

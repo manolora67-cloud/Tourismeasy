@@ -157,6 +157,9 @@
             <button class="panel-tab" data-tab="festividades">
                 <i class="fa-solid fa-calendar-days"></i> <span>Festividades</span>
             </button>
+            <button class="panel-tab" data-tab="catalogos">
+                <i class="fa-solid fa-list-check"></i> <span>Catálogos</span>
+            </button>
             <button class="panel-tab" data-tab="resenas">
                 <i class="fa-solid fa-star"></i> <span>Reseñas</span>
             </button>
@@ -473,6 +476,51 @@
                     <span class="audit-page-indicator" id="adminFestividadesPaginaActual" aria-live="polite"></span>
                     <button class="audit-page-button" id="adminFestividadesSiguiente" type="button">Siguiente</button>
                 </div>
+            </div>
+        </section>
+
+        <section class="panel-content" id="tab-catalogos">
+            <div class="panel-content-header">
+                <div>
+                    <h2><i class="fa-solid fa-list-check"></i> Catálogos de la plataforma</h2>
+                    <p>Administra las opciones que pueden elegir empresas y artesanos. Al desactivar una opción no se borran las publicaciones existentes.</p>
+                </div>
+            </div>
+            <form id="catalogoForm" class="catalog-form">
+                <input type="hidden" id="catalogoId">
+                <div class="catalog-form-field">
+                    <label for="catalogoTipo">Catálogo</label>
+                    <select id="catalogoTipo" required>
+                        <option value="tipos_plan">Tipos de plan turístico</option>
+                        <option value="tipos_hospedaje">Tipos de hospedaje</option>
+                        <option value="categorias_artesania">Categorías artesanales</option>
+                        <option value="servicios_hospedaje">Servicios de hospedaje</option>
+                        <option value="clases_transporte">Clases de transporte</option>
+                    </select>
+                </div>
+                <div class="catalog-form-field" id="catalogoCodigoField" hidden>
+                    <label for="catalogoCodigo">Código (minúsculas, números o _)</label>
+                    <input id="catalogoCodigo" type="text" maxlength="20" pattern="[a-z0-9_]{2,20}" autocomplete="off">
+                </div>
+                <div class="catalog-form-field catalog-form-field--name">
+                    <label for="catalogoNombre">Nombre</label>
+                    <input id="catalogoNombre" type="text" maxlength="100" required autocomplete="off">
+                </div>
+                <div class="catalog-form-actions">
+                    <button class="btn-panel-add" id="catalogoGuardar" type="submit"><i class="fa-solid fa-plus"></i> Agregar</button>
+                    <button class="panel-filter-btn" id="catalogoCancelar" type="button" hidden>Cancelar edición</button>
+                </div>
+            </form>
+            <p id="catalogosEstado" class="portada-status" role="status" aria-live="polite">Cargando catálogos…</p>
+            <div class="panel-table-wrap">
+                <table class="panel-table">
+                    <thead>
+                        <tr><th>Catálogo</th><th>Código</th><th>Nombre</th><th>Estado</th><th>Acciones</th></tr>
+                    </thead>
+                    <tbody id="catalogosTabla">
+                        <tr><td colspan="5" style="text-align:center;padding:2rem">Cargando…</td></tr>
+                    </tbody>
+                </table>
             </div>
         </section>
 
@@ -1624,6 +1672,7 @@
     <script src="../componentes/control-sonido-video.js?v=video-sound-v2"></script>
     <script src="../js/contenido-admin.js?v=destinos-v8"></script>
     <script src="../js/metricas_clics.js"></script>
+    <script src="../js/catalogos-admin.js"></script>
 
     <!-- Reseñas de la plataforma: carga resenas.js solo cuando el tab está activo -->
     <script>

@@ -12,6 +12,8 @@ CREATE OR REPLACE FUNCTION fn_editar_producto(
 )
 RETURNS BOOLEAN AS
 $$
+DECLARE
+    v_categoria_actual PRODUCTOS_ARTESANALES.CATEGORIA%TYPE;
 BEGIN
     IF p_id_persona IS NOT NULL AND NOT EXISTS (
         SELECT 1 FROM USUARIOS_ECOMMERCE
@@ -20,11 +22,11 @@ BEGIN
         RETURN FALSE;
     END IF;
 
-    IF NOT EXISTS (
-        SELECT 1 FROM PRODUCTOS_ARTESANALES
-        WHERE ID_PRODUCTO = p_id
-          AND (p_id_persona IS NULL OR ID_PERSONA_ECOMMERCE = p_id_persona)
-    ) THEN
+    SELECT CATEGORIA INTO v_categoria_actual
+    FROM PRODUCTOS_ARTESANALES
+    WHERE ID_PRODUCTO = p_id
+      AND (p_id_persona IS NULL OR ID_PERSONA_ECOMMERCE = p_id_persona);
+    IF NOT FOUND THEN
         RETURN FALSE;
     END IF;
 
@@ -36,7 +38,11 @@ BEGIN
         RETURN FALSE;
     END IF;
 
-    IF p_categoria NOT IN ('talleres', 'bisuteria', 'alfareria') THEN
+    IF p_categoria IS NULL OR NOT EXISTS (
+        SELECT 1 FROM CATEGORIAS_ARTESANIA
+        WHERE CODIGO = p_categoria
+          AND (ACTIVO = TRUE OR CODIGO = v_categoria_actual)
+    ) THEN
         RETURN FALSE;
     END IF;
 

@@ -173,9 +173,7 @@ $artesanoNombreSesion = $_SESSION['artesano_nombre'] ?? 'Artesano';
                         <div class="form-group">
                             <label>Categoría</label>
                             <select id="category">
-                                <option value="talleres">Talleres</option>
-                                <option value="bisuteria">Bisutería</option>
-                                <option value="alfareria">Alfarería</option>
+                                <option value="">Cargando categorías…</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -219,9 +217,6 @@ $artesanoNombreSesion = $_SESSION['artesano_nombre'] ?? 'Artesano';
                         <div class="panel-filter">
                             <select class="panel-select" id="filterCategoria">
                                 <option value="">Todas las categorías</option>
-                                <option value="talleres">Talleres</option>
-                                <option value="bisuteria">Bisutería</option>
-                                <option value="alfareria">Alfarería</option>
                             </select>
                         </div>
                     </div>

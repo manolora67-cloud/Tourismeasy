@@ -392,6 +392,12 @@
                 document.getElementById("vm-ciudad").value = row.dataset.idCiudad || "";
                 document.getElementById("vm-duracion").value = row.dataset.duracion || "";
                 document.getElementById("vm-precio").value = row.dataset.precio || "";
+                var tipoSelect = document.getElementById("vm-tipo-plan");
+                if (!Array.from(tipoSelect.options).some(function(option) { return option.value === row.dataset.idTipoPlan; })) {
+                    var tipoInactivo = new Option((row.dataset.tipoPlan || row.dataset.idTipoPlan || "Tipo") + " (inactivo)", row.dataset.idTipoPlan);
+                    tipoInactivo.disabled = true;
+                    tipoSelect.add(tipoInactivo);
+                }
                 document.getElementById("vm-tipo-plan").value = row.dataset.idTipoPlan || "";
                 document.getElementById("vm-incluye").value = row.dataset.incluye || "";
                 document.getElementById("vm-descripcion").value = row.dataset.descripcion || "";
@@ -674,6 +680,12 @@
         }
 
         function renderFila(item) {
+            function escaparHTML(valor) {
+                var entidades = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
+                return String(valor == null ? "" : valor).replace(/[&<>"']/g, function (caracter) {
+                    return entidades[caracter];
+                });
+            }
             var tr = document.createElement("tr");
             tr.dataset.id = item.id || "";
             tr.dataset.nombre = item.nombre || "";
@@ -690,7 +702,7 @@
             tr.dataset.disponible = item.disponible ? "true" : "false";
             tr.dataset.imgUrl = item.img_url || "";
             var dispHtml = item.disponible ? '<span class="estado-activo">Activo</span>' : '<span class="estado-cancelado">Inactivo</span>';
-            tr.innerHTML = "<td><strong>" + (item.nombre || "") + "</strong></td><td>" + (item.ciudad || "") + "</td><td>" + (item.tipo_plan || "") + "</td><td><strong class='precio-purple'>$" + Number(item.precio || 0).toLocaleString("es-CO") + "</strong></td><td>" + dispHtml + "</td><td><div class='table-actions'><button class='btn-tbl-view' title='Ver detalle'><i class='fa-solid fa-eye'></i></button><button class='btn-tbl-edit'><i class='fa-solid fa-pen'></i></button><button class='btn-tbl-del'><i class='fa-solid fa-trash'></i></button></div></td>";
+            tr.innerHTML = "<td><strong>" + escaparHTML(item.nombre) + "</strong></td><td>" + escaparHTML(item.ciudad) + "</td><td>" + escaparHTML(item.tipo_plan) + "</td><td><strong class='precio-purple'>$" + Number(item.precio || 0).toLocaleString("es-CO") + "</strong></td><td>" + dispHtml + "</td><td><div class='table-actions'><button class='btn-tbl-view' title='Ver detalle'><i class='fa-solid fa-eye'></i></button><button class='btn-tbl-edit'><i class='fa-solid fa-pen'></i></button><button class='btn-tbl-del'><i class='fa-solid fa-trash'></i></button></div></td>";
             return tr;
         }
 

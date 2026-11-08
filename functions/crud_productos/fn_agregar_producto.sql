@@ -22,7 +22,10 @@ BEGIN
         RETURN NULL;
     END IF;
 
-    IF p_categoria NOT IN ('talleres', 'bisuteria', 'alfareria') THEN
+    IF p_categoria IS NULL OR NOT EXISTS (
+        SELECT 1 FROM CATEGORIAS_ARTESANIA
+        WHERE CODIGO = p_categoria AND ACTIVO = TRUE
+    ) THEN
         RETURN NULL;
     END IF;
 

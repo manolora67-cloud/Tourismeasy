@@ -485,7 +485,7 @@
                 });
         }
 
-        cargarClasesTransporte();
+        var clasesTransportePromise = cargarClasesTransporte();
 
         function cargarCiudadesTransporte() {
             return fetch("../datos_referencia.php?tipo=ciudades", {
@@ -537,11 +537,18 @@
             return (h % 12 || 12) + ":" + m + " " + (h >= 12 ? "PM" : "AM");
         }
 
-        function openModal(row) {
+        async function openModal(row) {
             editRow = row || null;
             _editId = row ? parseInt(row.dataset.id || "0", 10) : null;
             document.getElementById("vModal-title").textContent = row ? "Editar transporte" : "Nuevo transporte";
             if (row) {
+                await clasesTransportePromise;
+                var claseSelect = document.getElementById("vm-clase");
+                if (!Array.from(claseSelect.options).some(function(option) { return option.value === row.dataset.idClase; })) {
+                    var claseInactiva = new Option((row.dataset.nombreClase || row.dataset.idClase || "Clase") + " (inactiva)", row.dataset.idClase);
+                    claseInactiva.disabled = true;
+                    claseSelect.add(claseInactiva);
+                }
                 var cells = row.querySelectorAll("td");
                 document.getElementById("vm-origen").value = row.dataset.idCiudadOrigen || "";
                 document.getElementById("vm-destino").value = row.dataset.idCiudadDestino || "";
@@ -559,7 +566,7 @@
                     document.getElementById("vm-hora-ampm").value = ampm;
                 })();
                 document.getElementById("vm-precio").value = cells[3].textContent.trim();
-                document.getElementById("vm-clase").value = row.dataset.idClase || "";
+                claseSelect.value = row.dataset.idClase || "";
                 document.getElementById("vm-descripcion").value = row.dataset.descripcion || "";
                 var estTexto = cells[4].textContent.trim().toLowerCase();
                 document.getElementById("vm-estado").value = (estTexto === "activo") ? "activo" : "cancelado";

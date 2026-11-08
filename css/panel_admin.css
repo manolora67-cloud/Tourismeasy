@@ -784,6 +784,103 @@ body.dark-mode .panel-navbar-label {
     font-weight: 600;
 }
 
+.catalog-form {
+    display: flex;
+    align-items: end;
+    gap: 14px;
+    flex-wrap: wrap;
+    padding: 18px;
+    margin-bottom: 16px;
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: 14px;
+}
+
+#tab-catalogos [hidden] {
+    display: none !important;
+}
+
+.catalog-form-field {
+    display: flex;
+    flex: 1 1 190px;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.catalog-form-field--name {
+    flex-grow: 2;
+}
+
+.catalog-form-field label {
+    color: var(--gray-700);
+    font-weight: 700;
+    font-size: .82rem;
+}
+
+.catalog-form-field input,
+.catalog-form-field select {
+    width: 100%;
+    min-height: 42px;
+    padding: 8px 12px;
+    color: var(--gray-800);
+    background: var(--white);
+    border: 1px solid var(--gray-300);
+    border-radius: 8px;
+    font: inherit;
+}
+
+.catalog-form-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.catalog-action {
+    padding: 7px 10px;
+    color: var(--purple);
+    background: transparent;
+    border: 1px solid var(--gray-200);
+    border-radius: 7px;
+    cursor: pointer;
+    font: inherit;
+    font-size: .82rem;
+    font-weight: 700;
+}
+
+.catalog-action:hover {
+    background: var(--gray-100);
+}
+
+.catalog-empty {
+    text-align: center;
+    padding: 2rem !important;
+}
+
+.portada-status.is-error {
+    color: #b91c1c;
+}
+
+body.dark-mode .catalog-form {
+    background: #1e293b;
+    border-color: #334155;
+}
+
+body.dark-mode .catalog-form-field label,
+body.dark-mode .catalog-form-field input,
+body.dark-mode .catalog-form-field select {
+    color: #f1f5f9;
+}
+
+body.dark-mode .catalog-form-field input,
+body.dark-mode .catalog-form-field select {
+    background: #0f172a;
+    border-color: #475569;
+}
+
+body.dark-mode .catalog-action:hover {
+    background: #334155;
+}
+
 
 /* ── BADGES ───────────────────────────────────────── */
 
