@@ -7,20 +7,26 @@
 
         const source = video.querySelector("source[data-src]");
         const button = video.parentElement.querySelector("[data-sound-toggle]");
+        const hero = video.closest(".hero");
         const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
         const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
         let visible = false;
         let sourceLoaded = false;
+        let videoFailed = false;
+        let hasFrame = false;
 
         function usarPoster() {
-            return motionPreference.matches || Boolean(connection && (
+            const preferenciaPoster = motionPreference.matches || Boolean(connection && (
                 connection.saveData || connection.effectiveType === "slow-2g" || connection.effectiveType === "2g"
             ));
+            const formatoCompatible = source && video.canPlayType(source.type) !== "";
+            return preferenciaPoster || videoFailed || !formatoCompatible;
         }
 
         function sincronizarReproduccion() {
             const posterOnly = usarPoster();
-            if (button) button.hidden = posterOnly;
+            if (button) button.hidden = posterOnly || !hasFrame;
+            if (hero) hero.classList.toggle("hero-poster", posterOnly);
             if (posterOnly || !visible || document.hidden) {
                 video.pause();
                 return;
@@ -40,7 +46,18 @@
             }
         }
 
-        if (!usarPoster()) cargarFuente();
+        video.addEventListener("loadeddata", function () {
+            hasFrame = true;
+            video.classList.add("is-ready");
+            video.classList.remove("is-poster");
+            sincronizarReproduccion();
+        });
+        video.addEventListener("error", function () {
+            videoFailed = true;
+            sincronizarReproduccion();
+        });
+
+        sincronizarReproduccion();
 
         if ("IntersectionObserver" in window) {
             const observer = new IntersectionObserver(function (entries) {

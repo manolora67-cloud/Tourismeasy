@@ -266,6 +266,13 @@ ul {
     max-width: none;
     margin: 0;
     border-radius: 0;
+    background-color: #171126;
+    background-position: center;
+    background-size: cover;
+}
+
+.hero.hero-poster {
+    background-image: url("../img/hero.jpeg");
 }
 
 
@@ -280,6 +287,22 @@ ul {
     object-fit: cover;
     z-index: 0;
     transform: scale(1.05);
+    opacity: 0;
+    transition: opacity 350ms ease;
+}
+
+.hero-video.is-ready {
+    opacity: 1;
+}
+
+.hero.hero-poster .hero-video {
+    opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hero-video {
+        transition: none;
+    }
 }
 
 
