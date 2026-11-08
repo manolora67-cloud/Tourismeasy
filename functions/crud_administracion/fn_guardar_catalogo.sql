@@ -102,11 +102,18 @@ BEGIN
             RETURN JSONB_BUILD_OBJECT('ok', FALSE, 'status', 422, 'error', 'La categoría debe tener entre 2 y 50 caracteres.');
         END IF;
         IF p_accion = 'create' THEN
-            IF v_codigo IS NULL OR v_codigo !~ '^[a-z0-9_]{2,20}$' THEN
-                RETURN JSONB_BUILD_OBJECT('ok', FALSE, 'status', 422, 'error', 'El código debe usar entre 2 y 20 letras minúsculas, números o guiones bajos.');
+            v_codigo := LOWER(v_nombre);
+            v_codigo := TRANSLATE(v_codigo, 'áéíóúüñ', 'aeiouun');
+            v_codigo := BTRIM(REGEXP_REPLACE(v_codigo, '[^a-z0-9]+', '_', 'g'), '_');
+            v_codigo := RTRIM(LEFT(v_codigo, 20), '_');
+            IF CHAR_LENGTH(v_codigo) < 2 THEN
+                RETURN JSONB_BUILD_OBJECT('ok', FALSE, 'status', 422, 'error', 'No se pudo generar un código válido desde el nombre de la categoría.');
             END IF;
-            IF EXISTS (SELECT 1 FROM CATEGORIAS_ARTESANIA WHERE CODIGO = v_codigo OR LOWER(NOMBRE_CATEGORIA) = LOWER(v_nombre)) THEN
-                RETURN JSONB_BUILD_OBJECT('ok', FALSE, 'status', 409, 'error', 'Ya existe una categoría con ese código o nombre.');
+            IF EXISTS (SELECT 1 FROM CATEGORIAS_ARTESANIA WHERE CODIGO = v_codigo) THEN
+                RETURN JSONB_BUILD_OBJECT('ok', FALSE, 'status', 409, 'error', 'El nombre genera un código que ya está en uso. Prueba con un nombre más específico.');
+            END IF;
+            IF EXISTS (SELECT 1 FROM CATEGORIAS_ARTESANIA WHERE LOWER(NOMBRE_CATEGORIA) = LOWER(v_nombre)) THEN
+                RETURN JSONB_BUILD_OBJECT('ok', FALSE, 'status', 409, 'error', 'Ya existe una categoría con ese nombre.');
             END IF;
             INSERT INTO CATEGORIAS_ARTESANIA (CODIGO, NOMBRE_CATEGORIA) VALUES (v_codigo, v_nombre);
             v_id := v_codigo;

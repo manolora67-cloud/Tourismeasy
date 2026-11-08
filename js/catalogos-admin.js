@@ -13,8 +13,6 @@
         var catalogData = null;
         var editing = null;
         var typeSelect = document.getElementById("catalogoTipo");
-        var codeField = document.getElementById("catalogoCodigoField");
-        var codeInput = document.getElementById("catalogoCodigo");
         var nameInput = document.getElementById("catalogoNombre");
         var idInput = document.getElementById("catalogoId");
         var saveButton = document.getElementById("catalogoGuardar");
@@ -32,12 +30,6 @@
             status.classList.toggle("is-error", Boolean(isError));
         }
 
-        function syncFormType() {
-            var isCategory = typeSelect.value === "categorias_artesania" && !editing;
-            codeField.hidden = !isCategory;
-            codeInput.required = isCategory;
-        }
-
         function resetForm() {
             editing = null;
             form.reset();
@@ -45,7 +37,6 @@
             typeSelect.disabled = false;
             cancelButton.hidden = true;
             saveButton.innerHTML = '<i class="fa-solid fa-plus"></i> Agregar';
-            syncFormType();
         }
 
         function addCell(row, value) {
@@ -98,10 +89,8 @@
                     typeSelect.disabled = true;
                     idInput.value = item.id;
                     nameInput.value = item.nombre;
-                    codeInput.value = item.codigo || "";
                     cancelButton.hidden = false;
                     saveButton.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar';
-                    syncFormType();
                     nameInput.focus();
                     form.scrollIntoView({ behavior: "smooth", block: "center" });
                 });
@@ -181,7 +170,6 @@
                 tipo: editing ? editing.type : typeSelect.value,
                 accion: editing ? "update" : "create",
                 id: editing ? editing.item.id : null,
-                codigo: !editing && typeSelect.value === "categorias_artesania" ? codeInput.value.trim() : null,
                 nombre: nameInput.value.trim()
             });
         });
@@ -192,7 +180,6 @@
             setStatus("Mostrando solo las opciones de " + labels[typeSelect.value] + ".", false);
         });
         cancelButton.addEventListener("click", resetForm);
-        syncFormType();
         cargar();
     });
 })();

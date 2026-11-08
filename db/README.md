@@ -44,6 +44,8 @@ La instalación nueva carga las 48 fechas iniciales en `FESTIVIDADES_SANTANDER`.
 
 El panel **Catálogos** permite crear, renombrar y activar/desactivar tipos de plan, tipos de hospedaje, categorías artesanales, servicios de hospedaje y clases de transporte. La estructura nueva añade `TIPOS_HOSPEDAJE` y `CATEGORIAS_ARTESANIA`, agrega el estado a los tipos de plan y relaciona los catálogos con las publicaciones. Las opciones desactivadas dejan de aparecer para nuevas publicaciones; las publicaciones existentes conservan sus referencias y se siguen mostrando.
 
+El código de una categoría artesanal se genera en `fn_guardar_catalogo` a partir de su nombre; al renombrarla, se conserva su código para no afectar productos ya relacionados.
+
 Este cambio requiere una instalación nueva: respalda los datos que quieras conservar, crea una base vacía e importa `DB_TOURISMEASY.sql`. No basta con borrar solo las nuevas tablas porque las tablas existentes `TIPOS_DE_PLAN_TURISTICO`, `HOSPEDAJE` y `PRODUCTOS_ARTESANALES` también tienen cambios de esquema, y `CREATE TABLE IF NOT EXISTS` no actualiza estructuras existentes. No ejecutes el esquema sobre una base con datos ni se incluyen instrucciones `ALTER` o una migración.
 
 El fragmento [`catalogos_tablas_inserts.sql`](./catalogos_tablas_inserts.sql) separa las definiciones de las tablas de sus datos iniciales. Es una referencia para instalación en una base vacía con las tablas base ya creadas; no es una actualización para una base existente.
