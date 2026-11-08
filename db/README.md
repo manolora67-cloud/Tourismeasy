@@ -182,6 +182,14 @@ foreach ($funcion in $funciones) {
 
 El cambio de contraseña del administrador usa `functions/crud_administracion/fn_actualizar_contrasena_admin.sql`; el instalador anterior la incluye automáticamente.
 
+El cambio de contraseña de empresa usa `functions/crud_empresas/fn_actualizar_contrasena_empresa.sql`. En una base existente, instala la función nueva antes de desplegar `login/actualizar_contrasena_empresa.php`:
+
+```powershell
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_empresas\fn_actualizar_contrasena_empresa.sql
+```
+
+Reemplaza el usuario y la base de datos por los de tu instalación.
+
 El informe mensual del administrador consulta únicamente tablas OLTP mediante `functions/crud_administracion/fn_informe_mensual_admin.sql`.
 
 ### Registro y estadísticas de clics de WhatsApp
