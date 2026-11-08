@@ -280,16 +280,48 @@ $artesanoNombreSesion = $_SESSION['artesano_nombre'] ?? 'Artesano';
             <div class="panel-content-header">
                 <h2><i class="fa-solid fa-gear"></i> Configuración de la cuenta</h2>
             </div>
-            <section class="te-password-settings" aria-labelledby="artisanPasswordSettingsTitle">
-                <div>
-                    <h3 class="te-password-settings__title" id="artisanPasswordSettingsTitle">
-                        <i class="fa-solid fa-lock"></i> Seguridad de la cuenta
-                    </h3>
-                    <p class="te-password-settings__description">Cambia tu contraseña actual. Puedes hacerlo hasta 3 veces por mes.</p>
-                </div>
-                <button class="te-password-settings__trigger" type="button" data-password-change
-                    data-password-endpoint="actualizar_contrasena_artesano.php">Cambiar contraseña</button>
-            </section>
+            <div class="artisan-settings-grid">
+                <section class="artisan-settings-card" aria-labelledby="artisanContactTitle">
+                    <h3 id="artisanContactTitle"><i class="fa-solid fa-address-card"></i> Datos de contacto</h3>
+                    <p class="artisan-settings-card__description">Mantén actualizado el correo para iniciar sesión y recibir avisos, y el teléfono de contacto de tu cuenta.</p>
+                    <form id="artisanContactForm" class="artisan-settings-form" aria-busy="true">
+                        <div class="form-group">
+                            <label for="artisanContactEmail">Correo de acceso y contacto</label>
+                            <input id="artisanContactEmail" name="email" type="email" autocomplete="email" maxlength="254" required disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="artisanContactPhone">Teléfono / WhatsApp</label>
+                            <input id="artisanContactPhone" name="telefono" type="tel" inputmode="tel" autocomplete="tel" pattern="\+?[0-9]{7,15}" title="Usa entre 7 y 15 dígitos; puedes iniciar con +." required disabled>
+                        </div>
+                        <p class="artisan-settings-note">Si cambias el correo, también cambiará el que usas para iniciar sesión y recuperar tu cuenta.</p>
+                        <p class="artisan-settings-status" id="artisanContactStatus" role="status" aria-live="polite" hidden></p>
+                        <button class="btn-submit" id="artisanContactSubmit" type="submit" disabled>Guardar datos de contacto</button>
+                    </form>
+                </section>
+
+                <section class="artisan-settings-card" aria-labelledby="artisanAccountTitle">
+                    <h3 id="artisanAccountTitle"><i class="fa-solid fa-id-card"></i> Mi cuenta</h3>
+                    <p class="artisan-settings-card__description">Información registrada en TourismEasy.</p>
+                    <dl class="artisan-account-details">
+                        <div><dt>Nombre</dt><dd id="artisanAccountName">Cargando…</dd></div>
+                        <div><dt>Documento</dt><dd id="artisanAccountId">Cargando…</dd></div>
+                        <div><dt>Estado</dt><dd id="artisanAccountStatus">Cargando…</dd></div>
+                        <div><dt>Miembro desde</dt><dd id="artisanAccountCreated">Cargando…</dd></div>
+                    </dl>
+                </section>
+
+                <section class="artisan-settings-card artisan-settings-card--security" aria-labelledby="artisanPasswordSettingsTitle">
+                    <h3 id="artisanPasswordSettingsTitle"><i class="fa-solid fa-shield-halved"></i> Seguridad de la cuenta</h3>
+                    <div class="artisan-security-content">
+                        <div>
+                            <strong>Cambiar contraseña</strong>
+                            <p class="artisan-settings-card__description">Puedes cambiarla hasta 3 veces por mes. Los restablecimientos mediante el enlace del correo no consumen esos cambios.</p>
+                        </div>
+                        <button class="te-password-settings__trigger" type="button" data-password-change
+                            data-password-endpoint="actualizar_contrasena_artesano.php">Cambiar contraseña</button>
+                    </div>
+                </section>
+            </div>
         </div>
     </main>
 
@@ -299,8 +331,9 @@ $artesanoNombreSesion = $_SESSION['artesano_nombre'] ?? 'Artesano';
     <script src="../componentes/paginacion.js"></script>
     <script src="../js/admin.js?v=artisan-password-settings-v2"></script>
     <script src="../componentes/cambio-contrasena.js?v=password-change-v1"></script>
+    <script src="../js/configuracion_artesano.js?v=artisan-settings-v1"></script>
     <script src="../js/santanderianidad.js"></script>
-    <script src="../componentes/agente-ia.js?v=tooltip-sue-v1"></script>
+    <script src="../componentes/agente-ia.js?v=tooltip-sue-v2"></script>
     <script src="../menu_accesibilidad/menu.js?v=a11y-v14"></script>
 </body>
 

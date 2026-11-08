@@ -4,20 +4,20 @@
    No necesita placeholder <div> en el HTML: se auto-inyecta en
    el <body> como un widget flotante (position: fixed), así que
    basta con incluir el <script> en cualquier página.
-   Detecta solo si está en /html/ para armar la ruta del avatar.
+   Resuelve sus recursos desde la ubicación del propio componente.
    ============================================================ */
 (function() {
     "use strict"; //use strict para evitar errores comunes y malas prácticas en JavaScript
 
-    // Detecta si la página actual está dentro de la carpeta /html/ (como ya
-    // se hace en resenas.js y captcha.js) para armar la ruta correcta.
-    const _enHtml = window.location.pathname.includes("/html/");
-
-    const IA_API_PATH = _enHtml ? "../api/ia_sue.php" : "api/ia_sue.php";
+    const componenteUrl = document.currentScript && document.currentScript.src;
+    if (!componenteUrl) {
+        throw new Error("[TourismEasy IA] No se pudo determinar la ubicación del componente.");
+    }
+    const IA_API_PATH = new URL("../api/ia_sue.php", componenteUrl).href;
 
     const TE_CONFIG = {
         nombre: "Sue",
-        avatarImg: (_enHtml ? "../img/" : "img/") + "Sue_foto.jpg",
+        avatarImg: new URL("../img/Sue_foto.jpg", componenteUrl).href,
         modelo: "llama-3.3-70b-versatile", //el modelo de IA
         burbujaDelay: 3000, // Milisegundos antes de mostrar la burbuja de atención
         burbulaAutoClose: 6000, // Milisegundos que dura visible la burbuja antes de ocultarse

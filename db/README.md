@@ -190,7 +190,14 @@ psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_administr
 psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_empresas\fn_actualizar_contrasena_empresa.sql
 ```
 
-Después despliega los PHP de `login/actualizar_contrasena_cuenta.php`, `login/actualizar_contrasena_admin.php`, `login/actualizar_contrasena_empresa.php` y `e-commerce/actualizar_contrasena_artesano.php`, además del componente compartido. Reemplaza el usuario y la base de datos por los de tu instalación.
+La configuración del artesano carga y actualiza sus datos de contacto mediante `e-commerce/perfil_artesano.php` y las funciones `functions/crud_artesanos/fn_obtener_perfil_artesano.sql` y `functions/crud_artesanos/fn_actualizar_contacto_artesano.sql`. Al cambiar el correo, se actualizan tanto el correo de acceso como el de contacto. Instala estas funciones en una base existente:
+
+```powershell
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_artesanos\fn_obtener_perfil_artesano.sql
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_artesanos\fn_actualizar_contacto_artesano.sql
+```
+
+Después despliega los PHP de `login/actualizar_contrasena_cuenta.php`, `login/actualizar_contrasena_admin.php`, `login/actualizar_contrasena_empresa.php`, `e-commerce/actualizar_contrasena_artesano.php` y `e-commerce/perfil_artesano.php`, además de los componentes compartidos. Reemplaza el usuario y la base de datos por los de tu instalación.
 
 El informe mensual del administrador consulta únicamente tablas OLTP mediante `functions/crud_administracion/fn_informe_mensual_admin.sql`.
 
