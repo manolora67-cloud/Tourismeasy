@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="../js/control_tiempo_sesion.js?v=control-tiempo-v3"></script>
+    <title>Catálogos - Panel Administrador - TourismEasy</title>
+    <link rel="stylesheet" href="../css/index.css" />
+    <link rel="stylesheet" href="../css/login.css?v=device-approval-v2" />
+    <link rel="stylesheet" href="../css/panel_admin.css?v=admin-footer-size-v2" />
+    <link rel="stylesheet" href="../css/agente-ia.css?v=mobile-layout-v2" />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
+    <script src="../componentes/ui-feedback.js?v=ui-feedback-v3"></script>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="../index.html" class="nav-logo" title="Ir a TourismEasy">
+                <img src="../img/TURISMEASY.png" alt="TourismEasy Logo" class="logo-img" />
+                <span class="logo-text">TOURISMEASY</span>
+            </a>
+            <span class="panel-navbar-label"><i class="fa-solid fa-shield-halved"></i> Panel Administrador</span>
+            <div class="nav-slot">
+                <div id="sessionWidgetSlot"></div>
+                <button class="btn-dark-mode" id="darkModeToggle" type="button" aria-label="Cambiar modo oscuro/claro">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="pu-main">
+        <div class="pu-container" style="align-items: stretch">
+            <aside class="pu-sidebar" style="display: flex; flex-direction: column">
+                <div class="pu-sidebar-avatar pu-sidebar-avatar-empresa" id="sidebarAvatar">AD</div>
+                <div class="pu-sidebar-nombre" id="sidebarNombre" aria-live="polite">Cargando administrador…</div>
+                <div class="pu-sidebar-tipo" id="adminProfileStatus" role="status" aria-live="polite">
+                    <i class="fa-solid fa-shield-halved"></i> Cargando perfil…
+                </div>
+                <nav class="pu-sidebar-nav">
+                    <a href="../index.html" class="pu-nav-item">🏠 Ir al sitio</a>
+                    <a href="panel_admin.html" class="pu-nav-item pu-nav-highlight">🛡️ Panel Admin</a>
+                    <a href="perfil_admin.html" class="pu-nav-item">👤 Mi Perfil</a>
+                    <a href="config_admin.html" class="pu-nav-item">⚙️ Configuración</a>
+                    <a href="festividades_admin.html" class="pu-nav-item">📅 Festividades</a>
+                    <a href="catalogos_admin.html" class="pu-nav-item active">📚 Catálogos</a>
+                </nav>
+                <section class="pe-sidebar-bloque pe-sidebar-bloque--purple">
+                    <h2 class="pe-sidebar-bloque__titulo pe-sidebar-bloque__titulo--purple">
+                        <i class="fa-solid fa-list-check"></i> Catálogos disponibles
+                    </h2>
+                    <div class="pe-sidebar-checks">
+                        <div class="pe-sidebar-check"><i class="fa-solid fa-map" style="color:#7c3aed"></i> Planes turísticos</div>
+                        <div class="pe-sidebar-check"><i class="fa-solid fa-hotel" style="color:#7c3aed"></i> Hospedajes</div>
+                        <div class="pe-sidebar-check"><i class="fa-solid fa-bus" style="color:#7c3aed"></i> Transporte</div>
+                        <div class="pe-sidebar-check"><i class="fa-solid fa-palette" style="color:#7c3aed"></i> Artesanías</div>
+                    </div>
+                </section>
+                <section class="pe-sidebar-bloque pe-sidebar-bloque--verde">
+                    <h2 class="pe-sidebar-bloque__titulo pe-sidebar-bloque__titulo--verde">
+                        <i class="fa-solid fa-circle-info"></i> Administración
+                    </h2>
+                    <p>Desactivar una opción evita que se use en nuevas publicaciones; no borra los registros existentes.</p>
+                </section>
+                <div style="margin-top: auto; padding-top: 16px">
+                    <a href="#" class="pu-nav-item pu-nav-danger" style="display: block" id="sidebarLogout">
+                        🚪 Cerrar Sesión
+                    </a>
+                </div>
+            </aside>
+
+            <section class="pu-content">
+                <header class="pu-page-header">
+                    <div>
+                        <p class="catalog-page-eyebrow">ADMINISTRACIÓN DE LA PLATAFORMA</p>
+                        <h1><i class="fa-solid fa-list-check"></i> Catálogos</h1>
+                    </div>
+                </header>
+                <p class="catalog-page-description">Elige un catálogo para consultar o administrar sus opciones.</p>
+                <div class="pu-card catalog-admin-card">
+                    <div class="catalog-form-field catalog-page-selector">
+                        <label for="catalogoTipo">Catálogo que quieres ver</label>
+                        <select id="catalogoTipo" required>
+                            <option value="tipos_plan">Tipos de plan turístico</option>
+                            <option value="tipos_hospedaje">Tipos de hospedaje</option>
+                            <option value="categorias_artesania">Categorías artesanales</option>
+                            <option value="servicios_hospedaje">Servicios de hospedaje</option>
+                            <option value="clases_transporte">Clases de transporte</option>
+                        </select>
+                    </div>
+                    <form id="catalogoForm" class="catalog-form">
+                        <input type="hidden" id="catalogoId">
+                        <div class="catalog-form-field" id="catalogoCodigoField" hidden>
+                            <label for="catalogoCodigo">Código (minúsculas, números o _)</label>
+                            <input id="catalogoCodigo" type="text" maxlength="20" pattern="[a-z0-9_]{2,20}" autocomplete="off">
+                        </div>
+                        <div class="catalog-form-field catalog-form-field--name">
+                            <label for="catalogoNombre">Nombre</label>
+                            <input id="catalogoNombre" type="text" maxlength="100" required autocomplete="off">
+                        </div>
+                        <div class="catalog-form-actions">
+                            <button class="btn-panel-add" id="catalogoGuardar" type="submit"><i class="fa-solid fa-plus"></i> Agregar</button>
+                            <button class="panel-filter-btn" id="catalogoCancelar" type="button" hidden>Cancelar edición</button>
+                        </div>
+                    </form>
+                    <p id="catalogosEstado" class="portada-status" role="status" aria-live="polite">Cargando catálogos…</p>
+                    <div class="panel-table-wrap catalog-page-table">
+                        <table class="panel-table">
+                            <thead>
+                                <tr><th id="catalogoIdentificadorTitulo">ID</th><th>Nombre</th><th>Estado</th><th>Acciones</th></tr>
+                            </thead>
+                            <tbody id="catalogosTabla">
+                                <tr><td colspan="4" class="catalog-empty">Cargando…</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <div id="site-footer"></div>
+    <script src="../componentes/footer.js"></script>
+    <script>
+        (function () {
+            "use strict";
+            var user;
+            try {
+                user = JSON.parse(localStorage.getItem("te_session") || sessionStorage.getItem("te_session") || "null");
+            } catch (error) {
+                console.error("La sesión de administrador no es válida:", error);
+            }
+            if (!user || user.tipo !== "admin" || !user.id) {
+                window.location.href = "../index.html";
+                return;
+            }
+
+            var slot = document.getElementById("sessionWidgetSlot");
+            var widget = document.createElement("div");
+            widget.id = "sessionWidget";
+            widget.className = "session-widget";
+            widget.innerHTML =
+                '<button class="session-trigger" id="sessionTrigger" type="button">' +
+                '<div class="session-avatar">AD</div><div class="session-info">' +
+                '<span class="session-name">Cargando…</span><span class="session-tipo">Administrador</span>' +
+                '</div><i class="fa-solid fa-chevron-down session-chevron" id="sessionChevron"></i></button>' +
+                '<div class="session-dropdown" id="sessionDropdown">' +
+                '<a class="session-menu-item" href="../index.html">🏠 Ir al sitio</a>' +
+                '<a class="session-menu-item" href="panel_admin.html">🛡️ Panel Admin</a>' +
+                '<a class="session-menu-item" href="perfil_admin.html">👤 Mi Perfil</a>' +
+                '<a class="session-menu-item" href="config_admin.html">⚙️ Configuración</a>' +
+                '<a class="session-menu-item" href="festividades_admin.html">📅 Festividades</a>' +
+                '<a class="session-menu-item session-menu-highlight" href="catalogos_admin.html">📚 Catálogos</a>' +
+                '<a class="session-menu-item session-menu-danger" id="btnLogout" href="#">🚪 Cerrar Sesión</a></div>';
+            slot.appendChild(widget);
+
+            var trigger = widget.querySelector("#sessionTrigger");
+            var dropdown = widget.querySelector("#sessionDropdown");
+            var chevron = widget.querySelector("#sessionChevron");
+            trigger.addEventListener("click", function (event) {
+                event.stopPropagation();
+                var open = dropdown.classList.toggle("open");
+                chevron.style.transform = open ? "rotate(180deg)" : "rotate(0deg)";
+            });
+            document.addEventListener("click", function () {
+                dropdown.classList.remove("open");
+                chevron.style.transform = "rotate(0deg)";
+            });
+            widget.querySelector("#btnLogout").addEventListener("click", function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+                window.TEUI.logoutAdmin("../login/logout_admin.php", "../index.html");
+            });
+
+            var darkModeButton = document.getElementById("darkModeToggle");
+            var darkModeIcon = darkModeButton.querySelector("i");
+            function applyTheme(dark) {
+                document.body.classList.toggle("dark-mode", dark);
+                darkModeIcon.className = dark ? "fa-solid fa-sun" : "fa-solid fa-moon";
+                localStorage.setItem("theme", dark ? "dark" : "light");
+            }
+            var savedTheme = localStorage.getItem("theme");
+            applyTheme(savedTheme ? savedTheme === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches);
+            darkModeButton.addEventListener("click", function () {
+                applyTheme(!document.body.classList.contains("dark-mode"));
+            });
+            document.getElementById("sidebarLogout").addEventListener("click", function (event) {
+                event.preventDefault();
+                window.TEUI.logoutAdmin("../login/logout_admin.php", "../index.html");
+            });
+
+            fetch("../login/get_perfil_admin.php?id=" + encodeURIComponent(user.id), {
+                credentials: "include",
+                cache: "no-store"
+            })
+                .then(function (response) {
+                    if (!response.ok) throw new Error("HTTP " + response.status);
+                    return response.json();
+                })
+                .then(function (data) {
+                    if (!data.ok || !data.admin) throw new Error(data.error || "La respuesta del perfil no es válida.");
+                    var admin = data.admin;
+                    var name = ((admin.nombre || "") + " " + (admin.apellido || "")).trim();
+                    if (!name) throw new Error("El servidor no devolvió el nombre del administrador.");
+                    var initials = name.split(/\s+/).map(function (part) { return part[0] || ""; }).join("").toUpperCase().slice(0, 2) || "AD";
+                    document.getElementById("sidebarNombre").textContent = name;
+                    document.getElementById("sidebarAvatar").textContent = initials;
+                    document.getElementById("adminProfileStatus").textContent = "Administrador";
+                    widget.querySelector(".session-name").textContent = name;
+                    widget.querySelector(".session-avatar").textContent = initials;
+                })
+                .catch(function (error) {
+                    console.error("No se pudo cargar el perfil del administrador:", error);
+                    document.getElementById("sidebarNombre").textContent = "No disponible";
+                    document.getElementById("adminProfileStatus").textContent = "No se pudo cargar el perfil.";
+                    widget.querySelector(".session-name").textContent = "No disponible";
+                });
+        })();
+    </script>
+    <script src="../js/catalogos-admin.js?v=catalogos-page-v1"></script>
+    <script src="../componentes/agente-ia.js?v=tooltip-sue-v1"></script>
+    <script src="../menu_accesibilidad/menu.js?v=a11y-v16"></script>
+</body>
+
+</html>

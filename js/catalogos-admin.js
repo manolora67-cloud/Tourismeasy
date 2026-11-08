@@ -5,10 +5,12 @@
         var form = document.getElementById("catalogoForm");
         var table = document.getElementById("catalogosTabla");
         var status = document.getElementById("catalogosEstado");
-        if (!form || !table || !status) return;
+        var identifierTitle = document.getElementById("catalogoIdentificadorTitulo");
+        if (!form || !table || !status || !identifierTitle) return;
 
         var API_URL = "../admin/catalogos.php?admin=1";
         var csrfToken = "";
+        var catalogData = null;
         var editing = null;
         var typeSelect = document.getElementById("catalogoTipo");
         var codeField = document.getElementById("catalogoCodigoField");
@@ -18,7 +20,7 @@
         var saveButton = document.getElementById("catalogoGuardar");
         var cancelButton = document.getElementById("catalogoCancelar");
         var labels = {
-            tipos_plan: "Tipos de plan",
+            tipos_plan: "Tipos de plan turístico",
             tipos_hospedaje: "Tipos de hospedaje",
             categorias_artesania: "Categorías artesanales",
             servicios_hospedaje: "Servicios de hospedaje",
@@ -53,32 +55,27 @@
             return cell;
         }
 
-        function render(data) {
-            var rows = [];
-            Object.keys(labels).forEach(function (type) {
-                (Array.isArray(data[type]) ? data[type] : []).forEach(function (item) {
-                    rows.push({ type: type, item: item });
-                });
-            });
-            rows.sort(function (a, b) {
-                return labels[a.type].localeCompare(labels[b.type], "es") ||
-                    String(a.item.nombre).localeCompare(String(b.item.nombre), "es");
+        function render() {
+            if (!catalogData) return;
+            var type = typeSelect.value;
+            identifierTitle.textContent = type === "categorias_artesania" ? "Código" : "ID";
+            var items = Array.isArray(catalogData[type]) ? catalogData[type] : [];
+            items = items.slice().sort(function (a, b) {
+                return String(a.nombre).localeCompare(String(b.nombre), "es");
             });
 
             table.replaceChildren();
-            if (!rows.length) {
+            if (!items.length) {
                 var empty = document.createElement("tr");
-                var emptyCell = addCell(empty, "No hay opciones registradas.");
-                emptyCell.colSpan = 5;
+                var emptyCell = addCell(empty, "No hay opciones registradas en este catálogo.");
+                emptyCell.colSpan = 4;
                 emptyCell.className = "catalog-empty";
                 table.appendChild(empty);
                 return;
             }
 
-            rows.forEach(function (entry) {
-                var item = entry.item;
+            items.forEach(function (item) {
                 var row = document.createElement("tr");
-                addCell(row, labels[entry.type]);
                 addCell(row, item.codigo || item.id);
                 addCell(row, item.nombre);
 
@@ -97,8 +94,7 @@
                 edit.className = "catalog-action";
                 edit.textContent = "Editar";
                 edit.addEventListener("click", function () {
-                    editing = { type: entry.type, item: item };
-                    typeSelect.value = entry.type;
+                    editing = { type: type, item: item };
                     typeSelect.disabled = true;
                     idInput.value = item.id;
                     nameInput.value = item.nombre;
@@ -109,13 +105,14 @@
                     nameInput.focus();
                     form.scrollIntoView({ behavior: "smooth", block: "center" });
                 });
+
                 var toggle = document.createElement("button");
                 toggle.type = "button";
                 toggle.className = "catalog-action";
                 toggle.textContent = item.activo ? "Desactivar" : "Activar";
                 toggle.addEventListener("click", function () {
                     guardar({
-                        tipo: entry.type,
+                        tipo: type,
                         accion: "toggle",
                         id: item.id,
                         activo: !item.activo
@@ -137,20 +134,22 @@
                     throw new Error(result.error || "No se pudieron cargar los catálogos.");
                 }
                 csrfToken = result.csrf;
-                render(result.data);
-                setStatus("Puedes agregar, editar o desactivar opciones. Los registros existentes no se eliminan.", false);
+                catalogData = result.data;
+                render();
+                setStatus("Mostrando solo las opciones de " + labels[typeSelect.value] + ".", false);
             } catch (error) {
                 console.error("Error cargando catálogos:", error);
                 setStatus(error.message || "No se pudieron cargar los catálogos.", true);
                 table.replaceChildren();
                 var row = document.createElement("tr");
                 var cell = addCell(row, "No se pudieron cargar los catálogos.");
-                cell.colSpan = 5;
+                cell.colSpan = 4;
                 table.appendChild(row);
             }
         }
 
         async function guardar(payload) {
+            saveButton.disabled = true;
             try {
                 var response = await fetch(API_URL, {
                     method: "POST",
@@ -166,27 +165,32 @@
                     throw new Error(result.error || "No se pudo guardar el catálogo.");
                 }
                 if (payload.accion !== "toggle") resetForm();
-                setStatus("El catálogo se guardó correctamente.", false);
                 await cargar();
+                setStatus("El catálogo se guardó correctamente.", false);
             } catch (error) {
                 console.error("Error guardando catálogo:", error);
                 setStatus(error.message || "No se pudo guardar el catálogo.", true);
+            } finally {
+                saveButton.disabled = false;
             }
         }
 
         form.addEventListener("submit", function (event) {
             event.preventDefault();
-            var payload = {
+            guardar({
                 tipo: editing ? editing.type : typeSelect.value,
                 accion: editing ? "update" : "create",
                 id: editing ? editing.item.id : null,
                 codigo: !editing && typeSelect.value === "categorias_artesania" ? codeInput.value.trim() : null,
                 nombre: nameInput.value.trim()
-            };
-            guardar(payload);
+            });
         });
 
-        typeSelect.addEventListener("change", syncFormType);
+        typeSelect.addEventListener("change", function () {
+            resetForm();
+            render();
+            setStatus("Mostrando solo las opciones de " + labels[typeSelect.value] + ".", false);
+        });
         cancelButton.addEventListener("click", resetForm);
         syncFormType();
         cargar();

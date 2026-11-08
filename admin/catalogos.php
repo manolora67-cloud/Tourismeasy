@@ -52,15 +52,17 @@ try {
     $stmt = $pdo->prepare(
         'SELECT fn_guardar_catalogo(:tipo, :accion, :id, :codigo, :nombre, :activo, :admin)::TEXT'
     );
-    $stmt->execute([
-        ':tipo' => $input['tipo'] ?? '',
-        ':accion' => $input['accion'] ?? '',
-        ':id' => $input['id'] ?? null,
-        ':codigo' => $input['codigo'] ?? null,
-        ':nombre' => $input['nombre'] ?? null,
-        ':activo' => array_key_exists('activo', $input) ? filter_var($input['activo'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) : null,
-        ':admin' => $_SESSION['id_persona'],
-    ]);
+    $stmt->bindValue(':tipo', $input['tipo'] ?? '', PDO::PARAM_STR);
+    $stmt->bindValue(':accion', $input['accion'] ?? '', PDO::PARAM_STR);
+    $stmt->bindValue(':id', $input['id'] ?? null, isset($input['id']) ? PDO::PARAM_STR : PDO::PARAM_NULL);
+    $stmt->bindValue(':codigo', $input['codigo'] ?? null, isset($input['codigo']) ? PDO::PARAM_STR : PDO::PARAM_NULL);
+    $stmt->bindValue(':nombre', $input['nombre'] ?? null, isset($input['nombre']) ? PDO::PARAM_STR : PDO::PARAM_NULL);
+    $activo = array_key_exists('activo', $input)
+        ? filter_var($input['activo'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE)
+        : null;
+    $stmt->bindValue(':activo', $activo, $activo === null ? PDO::PARAM_NULL : PDO::PARAM_BOOL);
+    $stmt->bindValue(':admin', $_SESSION['id_persona'], PDO::PARAM_STR);
+    $stmt->execute();
 
     $result = json_decode((string)$stmt->fetchColumn(), true, 512, JSON_THROW_ON_ERROR);
     if (!is_array($result) || !array_key_exists('ok', $result)) {

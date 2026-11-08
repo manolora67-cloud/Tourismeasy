@@ -790,14 +790,36 @@ body.dark-mode .panel-navbar-label {
     gap: 14px;
     flex-wrap: wrap;
     padding: 18px;
-    margin-bottom: 16px;
+    margin: 16px 0;
     background: var(--white);
     border: 1px solid var(--gray-200);
     border-radius: 14px;
 }
 
-#tab-catalogos [hidden] {
-    display: none !important;
+.catalog-page-eyebrow {
+    margin: 0 0 5px;
+    color: var(--gray-600);
+    font-size: .72rem;
+    font-weight: 800;
+    letter-spacing: .1em;
+}
+
+.catalog-page-description {
+    margin: -12px 0 18px;
+    color: var(--gray-600);
+}
+
+.catalog-admin-card {
+    padding: 22px;
+}
+
+.catalog-page-selector {
+    max-width: 480px;
+}
+
+.catalog-page-table {
+    max-height: 65vh;
+    overflow: auto;
 }
 
 .catalog-form-field {
@@ -880,7 +902,6 @@ body.dark-mode .catalog-form-field select {
 body.dark-mode .catalog-action:hover {
     background: #334155;
 }
-
 
 /* ── BADGES ───────────────────────────────────────── */
 
