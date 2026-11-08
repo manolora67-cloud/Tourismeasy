@@ -646,7 +646,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function setStatsLoading(value) {
-        ['statTotal', 'statMasCaro', 'statMasBarato', 'statPromedio', 'statTopCategoria', 'statTopCiudad']
+        ['statTotal', 'statMasCaro', 'statMasBarato', 'statPromedio', 'statTopCategoria']
         .forEach(id => {
             document.getElementById(id).textContent = value;
         });
@@ -969,7 +969,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         const topCategoria = Object.keys(categorias).sort((a, b) => categorias[b] - categorias[a])[0] || '—';
-        const topCiudad = Object.keys(ciudades).sort((a, b) => ciudades[b] - ciudades[a])[0] || '—';
         const promedio = conteoPrecio ? Math.round(sumaPrecio / conteoPrecio) : null;
 
         productosPrecio.sort((a, b) => b.precio - a.precio);
@@ -980,7 +979,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('statPromedio').textContent = promedio === null ?
             '—' : '$' + promedio.toLocaleString('es-CO');
         document.getElementById('statTopCategoria').textContent = topCategoria;
-        document.getElementById('statTopCiudad').textContent = topCiudad;
         document.getElementById('statMasCaro').textContent = masCaro ?
             '$' + masCaro.precio.toLocaleString('es-CO') : '—';
         // Si solo hay 1 producto, masBarato === masCaro (mismo producto), lo cual es correcto.

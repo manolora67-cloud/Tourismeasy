@@ -139,12 +139,6 @@ $artesanoNombreSesion = $_SESSION['artesano_nombre'] ?? 'Artesano';
                     <span class="stat-num" data-clicks-total>Cargando…</span><span class="stat-label">Clics de WhatsApp</span>
                 </div>
             </div>
-            <div class="stat-card">
-                <div class="stat-icon stat-icon-red"><i class="fa-solid fa-location-dot"></i></div>
-                <div class="stat-info">
-                    <span class="stat-num" id="statTopCiudad">Cargando…</span><span class="stat-label">Tu ciudad principal</span>
-                </div>
-            </div>
         </div>
 
         <!-- TABS -->
@@ -271,23 +265,6 @@ $artesanoNombreSesion = $_SESSION['artesano_nombre'] ?? 'Artesano';
                 </div>
             </div>
 
-            <!-- TAB: CONFIGURACIÓN -->
-            <div class="panel-content" id="tab-configuracion">
-                <div class="panel-content-header">
-                    <h2><i class="fa-solid fa-gear"></i> Configuración de la cuenta</h2>
-                </div>
-                <section class="te-password-settings" aria-labelledby="artisanPasswordSettingsTitle">
-                    <div>
-                        <h3 class="te-password-settings__title" id="artisanPasswordSettingsTitle">
-                            <i class="fa-solid fa-lock"></i> Seguridad de la cuenta
-                        </h3>
-                        <p class="te-password-settings__description">Cambia tu contraseña actual. Puedes hacerlo hasta 3 veces por mes.</p>
-                    </div>
-                    <button class="te-password-settings__trigger" type="button" data-password-change
-                        data-password-endpoint="actualizar_contrasena_artesano.php">Cambiar contraseña</button>
-                </section>
-            </div>
-
             <div class="chart-card" style="margin-top: 20px;">
                 <h3><i class="fa-solid fa-ranking-star"></i> Tus productos con mayor precio</h3>
                 <div id="rankPrecios"></div>
@@ -297,13 +274,30 @@ $artesanoNombreSesion = $_SESSION['artesano_nombre'] ?? 'Artesano';
                 </div>
             </div>
         </div>
+
+        <!-- TAB: CONFIGURACIÓN -->
+        <div class="panel-content" id="tab-configuracion">
+            <div class="panel-content-header">
+                <h2><i class="fa-solid fa-gear"></i> Configuración de la cuenta</h2>
+            </div>
+            <section class="te-password-settings" aria-labelledby="artisanPasswordSettingsTitle">
+                <div>
+                    <h3 class="te-password-settings__title" id="artisanPasswordSettingsTitle">
+                        <i class="fa-solid fa-lock"></i> Seguridad de la cuenta
+                    </h3>
+                    <p class="te-password-settings__description">Cambia tu contraseña actual. Puedes hacerlo hasta 3 veces por mes.</p>
+                </div>
+                <button class="te-password-settings__trigger" type="button" data-password-change
+                    data-password-endpoint="actualizar_contrasena_artesano.php">Cambiar contraseña</button>
+            </section>
+        </div>
     </main>
 
     <script src="../componentes/dark-mode-toggle.js"></script>
     <script src="../componentes/click-metrics-dashboard.js?v=click-metrics-v2"></script>
     <script src="../js/metricas_clics.js"></script>
     <script src="../componentes/paginacion.js"></script>
-    <script src="../js/admin.js?v=artisan-pagination-v1"></script>
+    <script src="../js/admin.js?v=artisan-password-settings-v2"></script>
     <script src="../componentes/cambio-contrasena.js?v=password-change-v1"></script>
     <script src="../js/santanderianidad.js"></script>
     <script src="../componentes/agente-ia.js?v=tooltip-sue-v1"></script>

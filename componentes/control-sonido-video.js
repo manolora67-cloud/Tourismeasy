@@ -26,15 +26,21 @@
                 return;
             }
 
+            cargarFuente();
+            video.play().catch(function (error) {
+                console.warn("[TourismEasy] No se pudo reproducir el video principal:", error);
+            });
+        }
+
+        function cargarFuente() {
             if (source && !sourceLoaded) {
                 source.src = source.dataset.src;
                 sourceLoaded = true;
                 video.load();
             }
-            video.play().catch(function (error) {
-                console.warn("[TourismEasy] No se pudo reproducir el video principal:", error);
-            });
         }
+
+        if (!usarPoster()) cargarFuente();
 
         if ("IntersectionObserver" in window) {
             const observer = new IntersectionObserver(function (entries) {
