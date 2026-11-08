@@ -6,7 +6,15 @@
         var table = document.getElementById("catalogosTabla");
         var status = document.getElementById("catalogosEstado");
         var identifierTitle = document.getElementById("catalogoIdentificadorTitulo");
-        if (!form || !table || !status || !identifierTitle) return;
+        var count = document.getElementById("catalogosConteo");
+        var formTitle = document.getElementById("catalogoFormTitulo");
+        var formHelp = document.getElementById("catalogoFormAyuda");
+        var summaryName = document.getElementById("catalogosResumenNombre");
+        var summaryActive = document.getElementById("catalogosActivos");
+        var summaryInactive = document.getElementById("catalogosInactivos");
+        var summaryTotal = document.getElementById("catalogosTotal");
+        if (!form || !table || !status || !identifierTitle || !count || !formTitle || !formHelp ||
+            !summaryName || !summaryActive || !summaryInactive || !summaryTotal) return;
 
         var API_URL = "../admin/catalogos.php?admin=1";
         var csrfToken = "";
@@ -18,11 +26,11 @@
         var saveButton = document.getElementById("catalogoGuardar");
         var cancelButton = document.getElementById("catalogoCancelar");
         var labels = {
-            tipos_plan: "Tipos de plan turístico",
-            tipos_hospedaje: "Tipos de hospedaje",
-            categorias_artesania: "Categorías artesanales",
-            servicios_hospedaje: "Servicios de hospedaje",
-            clases_transporte: "Clases de transporte"
+            tipos_plan: { name: "Tipos de plan turístico", maxLength: 28, example: "Ej. Ecoturismo" },
+            tipos_hospedaje: { name: "Tipos de hospedaje", maxLength: 30, example: "Ej. Hotel boutique" },
+            categorias_artesania: { name: "Categorías artesanales", maxLength: 50, example: "Ej. Tejidos" },
+            servicios_hospedaje: { name: "Servicios de hospedaje", maxLength: 100, example: "Ej. Desayuno incluido" },
+            clases_transporte: { name: "Clases de transporte", maxLength: 100, example: "Ej. Servicio ejecutivo" }
         };
 
         function setStatus(message, isError) {
@@ -37,6 +45,8 @@
             typeSelect.disabled = false;
             cancelButton.hidden = true;
             saveButton.innerHTML = '<i class="fa-solid fa-plus"></i> Agregar';
+            formTitle.textContent = "Agregar opción";
+            formHelp.textContent = "Añade una opción para que pueda seleccionarse en nuevas publicaciones.";
         }
 
         function addCell(row, value) {
@@ -49,8 +59,20 @@
         function render() {
             if (!catalogData) return;
             var type = typeSelect.value;
+            var options = Array.isArray(catalogData[type]) ? catalogData[type] : [];
             identifierTitle.textContent = type === "categorias_artesania" ? "Código" : "ID";
-            var items = Array.isArray(catalogData[type]) ? catalogData[type] : [];
+            nameInput.maxLength = labels[type].maxLength;
+            nameInput.placeholder = labels[type].example;
+            summaryName.textContent = labels[type].name;
+            formTitle.textContent = editing ? "Editar opción" : "Agregar opción";
+            formHelp.textContent = editing
+                ? "Actualiza el nombre de esta opción."
+                : "Añade una opción para que pueda seleccionarse en nuevas publicaciones.";
+            count.textContent = options.length + (options.length === 1 ? " opción" : " opciones");
+            summaryActive.textContent = options.filter(function (item) { return item.activo; }).length;
+            summaryInactive.textContent = options.filter(function (item) { return !item.activo; }).length;
+            summaryTotal.textContent = options.length;
+            var items = options;
             items = items.slice().sort(function (a, b) {
                 return String(a.nombre).localeCompare(String(b.nombre), "es");
             });
@@ -91,6 +113,8 @@
                     nameInput.value = item.nombre;
                     cancelButton.hidden = false;
                     saveButton.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar';
+                    formTitle.textContent = "Editar opción";
+                    formHelp.textContent = "Actualiza el nombre de esta opción.";
                     nameInput.focus();
                     form.scrollIntoView({ behavior: "smooth", block: "center" });
                 });
@@ -125,7 +149,7 @@
                 csrfToken = result.csrf;
                 catalogData = result.data;
                 render();
-                setStatus("Mostrando solo las opciones de " + labels[typeSelect.value] + ".", false);
+                setStatus("Mostrando solo las opciones de " + labels[typeSelect.value].name + ".", false);
             } catch (error) {
                 console.error("Error cargando catálogos:", error);
                 setStatus(error.message || "No se pudieron cargar los catálogos.", true);
@@ -177,7 +201,7 @@
         typeSelect.addEventListener("change", function () {
             resetForm();
             render();
-            setStatus("Mostrando solo las opciones de " + labels[typeSelect.value] + ".", false);
+            setStatus("Mostrando solo las opciones de " + labels[typeSelect.value].name + ".", false);
         });
         cancelButton.addEventListener("click", resetForm);
         cargar();
