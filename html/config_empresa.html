@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="../css/login.css?v=device-approval-v2" />
     <link rel="stylesheet" href="../css/panel_empresa.css" />
     <link rel="stylesheet" href="../css/click_metrics.css" />
+    <link rel="stylesheet" href="../componentes/cambio-contrasena.css?v=password-change-v1" />
     <link rel="stylesheet" href="../css/agente-ia.css?v=mobile-layout-v2" />
     <link
         href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;500&display=swap"
@@ -126,7 +127,7 @@
                             <strong>Contraseña</strong>
                             <p>Actualiza tu contraseña periódicamente y no la reutilices.</p>
                         </div>
-                        <button class="pu-btn-secondary" id="btnCambiarContrasenaEmpresa" type="button">Cambiar contraseña</button>
+                        <button class="pu-btn-secondary" type="button" data-password-change data-password-endpoint="../login/actualizar_contrasena_empresa.php">Cambiar contraseña</button>
                     </div>
                 </div>
 
@@ -184,41 +185,6 @@
             </div>
         </div>
     </main>
-
-    <div class="pu-modal" id="modalCambiarContrasenaEmpresa" role="dialog" aria-modal="true" aria-labelledby="modalCambiarContrasenaEmpresaTitulo">
-        <div class="pu-modal-box">
-            <button class="pu-modal-close" id="btnCerrarModalContrasenaEmpresa" type="button" aria-label="Cerrar">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-            <h2 class="pu-modal-titulo" id="modalCambiarContrasenaEmpresaTitulo">
-                <i class="fa-solid fa-key"></i> Cambiar contraseña
-            </h2>
-            <p class="pu-modal-desc">Confirma tu contraseña actual y escribe una nueva de al menos 8 caracteres (máximo 72 bytes).</p>
-            <form id="formCambiarContrasenaEmpresa">
-                <div class="pu-modal-fields">
-                    <label class="pu-modal-field">
-                        <span class="pu-modal-label">Contraseña actual</span>
-                        <input class="pu-modal-input" id="contrasenaActualEmpresa" type="password" autocomplete="current-password" required>
-                    </label>
-                    <label class="pu-modal-field">
-                        <span class="pu-modal-label">Nueva contraseña</span>
-                        <input class="pu-modal-input" id="contrasenaNuevaEmpresa" type="password" autocomplete="new-password" minlength="8" required>
-                    </label>
-                    <label class="pu-modal-field">
-                        <span class="pu-modal-label">Confirmar nueva contraseña</span>
-                        <input class="pu-modal-input" id="confirmarContrasenaEmpresa" type="password" autocomplete="new-password" minlength="8" required>
-                    </label>
-                </div>
-                <p id="errorCambiarContrasenaEmpresa" role="alert" style="display:none;color:#dc2626;margin-bottom:16px"></p>
-                <div class="pu-modal-actions">
-                    <button class="pu-modal-btn-cancel" id="btnCancelarModalContrasenaEmpresa" type="button">Cancelar</button>
-                    <button class="pu-modal-btn-save" id="btnGuardarContrasenaEmpresa" type="submit">
-                        <i class="fa-solid fa-check"></i> Actualizar contraseña
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
 
     <!-- FOOTER -->
     <div id="site-footer"></div>
@@ -485,92 +451,8 @@
             } catch (e) { }
         })();
     </script>
-    <script>
-        (function () {
-            var modal = document.getElementById("modalCambiarContrasenaEmpresa");
-            var form = document.getElementById("formCambiarContrasenaEmpresa");
-            var error = document.getElementById("errorCambiarContrasenaEmpresa");
-            var guardar = document.getElementById("btnGuardarContrasenaEmpresa");
-
-            function cerrarModal(notify) {
-                var estabaAbierto = modal.style.display === "flex";
-                modal.style.display = "none";
-                document.body.style.overflow = "";
-                form.reset();
-                error.style.display = "none";
-                error.textContent = "";
-                if (notify && estabaAbierto) window.TEUI.notifyClosed("Formulario");
-            }
-
-            document.getElementById("btnCambiarContrasenaEmpresa").addEventListener("click", function () {
-                form.reset();
-                window.TEUI.markClean(form);
-                modal.style.display = "flex";
-                document.body.style.overflow = "hidden";
-                document.getElementById("contrasenaActualEmpresa").focus();
-            });
-
-            async function solicitarCerrarModal() {
-                if (await window.TEUI.confirmDiscard(form)) cerrarModal(true);
-            }
-
-            document.getElementById("btnCerrarModalContrasenaEmpresa").addEventListener("click", solicitarCerrarModal);
-            document.getElementById("btnCancelarModalContrasenaEmpresa").addEventListener("click", solicitarCerrarModal);
-            modal.addEventListener("click", function (event) {
-                if (event.target === modal) solicitarCerrarModal();
-            });
-
-            form.addEventListener("submit", function (event) {
-                event.preventDefault();
-                var actual = document.getElementById("contrasenaActualEmpresa").value;
-                var nueva = document.getElementById("contrasenaNuevaEmpresa").value;
-                var confirmar = document.getElementById("confirmarContrasenaEmpresa").value;
-
-                if (Array.from(nueva).length < 8) {
-                    error.textContent = "La nueva contraseña debe tener al menos 8 caracteres.";
-                    error.style.display = "block";
-                    return;
-                }
-                if (nueva !== confirmar) {
-                    error.textContent = "La confirmación no coincide con la nueva contraseña.";
-                    error.style.display = "block";
-                    return;
-                }
-
-                guardar.disabled = true;
-                error.style.display = "none";
-                fetch("../login/actualizar_contrasena_empresa.php", {
-                    method: "POST",
-                    credentials: "include",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        contrasena_actual: actual,
-                        contrasena_nueva: nueva
-                    })
-                })
-                    .then(function (response) {
-                        return response.json().then(function (data) {
-                            if (!response.ok || !data.ok) {
-                                throw new Error(data.error || "No se pudo actualizar la contraseña.");
-                            }
-                            return data;
-                        });
-                    })
-                    .then(function () {
-                        window.TEUI.toast("Contraseña actualizada correctamente.");
-                        cerrarModal(false);
-                    })
-                    .catch(function (err) {
-                        error.textContent = err.message || "No se pudo actualizar la contraseña.";
-                        error.style.display = "block";
-                    })
-                    .finally(function () {
-                        guardar.disabled = false;
-                    });
-            });
-        })();
-    </script>
     <script src="../js/company_monthly_report.js"></script>
+    <script src="../componentes/cambio-contrasena.js?v=password-change-v1"></script>
     <script src="../componentes/agente-ia.js?v=tooltip-sue-v1"></script>
     <script src="../menu_accesibilidad/menu.js?v=a11y-v16"></script>
 </body>

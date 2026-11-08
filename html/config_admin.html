@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="../css/index.css" />
     <link rel="stylesheet" href="../css/login.css?v=device-approval-v2" />
     <link rel="stylesheet" href="../css/panel_admin.css?v=admin-footer-size-v2" />
+    <link rel="stylesheet" href="../componentes/cambio-contrasena.css?v=password-change-v1" />
     <link rel="stylesheet" href="../css/agente-ia.css?v=mobile-layout-v2" />
     <link rel="stylesheet" href="../css/tema-global-admin.css?v=global-theme-v1" />
     <link
@@ -135,7 +136,7 @@
                             <strong>Contraseña</strong>
                             <p>No se registra la fecha del último cambio.</p>
                         </div>
-                        <button class="pu-btn-secondary" id="btnCambiarContrasena" type="button">Cambiar contraseña</button>
+                        <button class="pu-btn-secondary" type="button" data-password-change data-password-endpoint="../login/actualizar_contrasena_admin.php">Cambiar contraseña</button>
                     </div>
                 </div>
 
@@ -236,41 +237,6 @@
             </div>
         </div>
     </main>
-
-    <div class="pu-modal" id="modalCambiarContrasena" role="dialog" aria-modal="true" aria-labelledby="modalCambiarContrasenaTitulo">
-        <div class="pu-modal-box">
-            <button class="pu-modal-close" id="btnCerrarModalContrasena" type="button" aria-label="Cerrar">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-            <h2 class="pu-modal-titulo" id="modalCambiarContrasenaTitulo">
-                <i class="fa-solid fa-key"></i> Cambiar contraseña
-            </h2>
-            <p class="pu-modal-desc">Confirma tu contraseña actual y escribe una nueva de al menos 8 caracteres (máximo 72 bytes).</p>
-            <form id="formCambiarContrasena">
-                <div class="pu-modal-fields">
-                    <label class="pu-modal-field">
-                        <span class="pu-modal-label">Contraseña actual</span>
-                        <input class="pu-modal-input" id="contrasenaActualAdmin" type="password" autocomplete="current-password" required>
-                    </label>
-                    <label class="pu-modal-field">
-                        <span class="pu-modal-label">Nueva contraseña</span>
-                        <input class="pu-modal-input" id="contrasenaNuevaAdmin" type="password" autocomplete="new-password" minlength="8" required>
-                    </label>
-                    <label class="pu-modal-field">
-                        <span class="pu-modal-label">Confirmar nueva contraseña</span>
-                        <input class="pu-modal-input" id="confirmarContrasenaAdmin" type="password" autocomplete="new-password" minlength="8" required>
-                    </label>
-                </div>
-                <p id="errorCambiarContrasena" role="alert" style="display:none;color:#dc2626;margin-bottom:16px"></p>
-                <div class="pu-modal-actions">
-                    <button class="pu-modal-btn-cancel" id="btnCancelarModalContrasena" type="button">Cancelar</button>
-                    <button class="pu-modal-btn-save" id="btnGuardarContrasenaAdmin" type="submit">
-                        <i class="fa-solid fa-check"></i> Actualizar contraseña
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
 
     <!-- FOOTER -->
     <div id="site-footer"></div>
@@ -504,86 +470,6 @@
                 });
             }
 
-            var modalContrasena = document.getElementById("modalCambiarContrasena");
-            var formContrasena = document.getElementById("formCambiarContrasena");
-            var errorContrasena = document.getElementById("errorCambiarContrasena");
-            var btnGuardarContrasena = document.getElementById("btnGuardarContrasenaAdmin");
-
-            function cerrarModalContrasena(notify) {
-                var estabaAbierto = modalContrasena.style.display === "flex";
-                modalContrasena.style.display = "none";
-                document.body.style.overflow = "";
-                formContrasena.reset();
-                errorContrasena.style.display = "none";
-                errorContrasena.textContent = "";
-                if (notify && estabaAbierto) window.TEUI.notifyClosed("Formulario");
-            }
-
-            document.getElementById("btnCambiarContrasena").addEventListener("click", function () {
-                formContrasena.reset();
-                window.TEUI.markClean(formContrasena);
-                modalContrasena.style.display = "flex";
-                document.body.style.overflow = "hidden";
-                document.getElementById("contrasenaActualAdmin").focus();
-            });
-            async function solicitarCerrarModalContrasena() {
-                if (await window.TEUI.confirmDiscard(formContrasena)) cerrarModalContrasena(true);
-            }
-            document.getElementById("btnCerrarModalContrasena").addEventListener("click", solicitarCerrarModalContrasena);
-            document.getElementById("btnCancelarModalContrasena").addEventListener("click", solicitarCerrarModalContrasena);
-            modalContrasena.addEventListener("click", function (event) {
-                if (event.target === modalContrasena) solicitarCerrarModalContrasena();
-            });
-
-            formContrasena.addEventListener("submit", function (event) {
-                event.preventDefault();
-                var actual = document.getElementById("contrasenaActualAdmin").value;
-                var nueva = document.getElementById("contrasenaNuevaAdmin").value;
-                var confirmar = document.getElementById("confirmarContrasenaAdmin").value;
-
-                if (Array.from(nueva).length < 8) {
-                    errorContrasena.textContent = "La nueva contraseña debe tener al menos 8 caracteres.";
-                    errorContrasena.style.display = "block";
-                    return;
-                }
-                if (nueva !== confirmar) {
-                    errorContrasena.textContent = "La confirmación no coincide con la nueva contraseña.";
-                    errorContrasena.style.display = "block";
-                    return;
-                }
-
-                btnGuardarContrasena.disabled = true;
-                errorContrasena.style.display = "none";
-                fetch(API_BASE + "actualizar_contrasena_admin.php", {
-                    method: "POST",
-                    credentials: "include",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        contrasena_actual: actual,
-                        contrasena_nueva: nueva
-                    })
-                })
-                    .then(function (response) {
-                        return response.json().then(function (data) {
-                            if (!response.ok || !data.ok) {
-                                throw new Error(data.error || "No se pudo actualizar la contraseña.");
-                            }
-                            return data;
-                        });
-                    })
-                    .then(function () {
-                        window.TEUI.toast("Contraseña actualizada correctamente.");
-                        cerrarModalContrasena(false);
-                    })
-                    .catch(function (error) {
-                        errorContrasena.textContent = error.message || "No se pudo actualizar la contraseña.";
-                        errorContrasena.style.display = "block";
-                    })
-                    .finally(function () {
-                        btnGuardarContrasena.disabled = false;
-                    });
-            });
-
             var mesInforme = document.getElementById("mesInformeAdmin");
             var btnInforme = document.getElementById("btnGenerarInformeAdmin");
             var estadoInforme = document.getElementById("estadoInformeAdmin");
@@ -755,6 +641,7 @@
     <script src="../componentes/agente-ia.js?v=tooltip-sue-v1"></script>
     <script src="../menu_accesibilidad/menu.js?v=a11y-v16"></script>
     <script src="../js/tema-global-admin.js?v=global-theme-v1"></script>
+    <script src="../componentes/cambio-contrasena.js?v=password-change-v1"></script>
 </body>
 
 </html>

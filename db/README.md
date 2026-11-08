@@ -180,15 +180,17 @@ foreach ($funcion in $funciones) {
 }
 ```
 
-El cambio de contraseña del administrador usa `functions/crud_administracion/fn_actualizar_contrasena_admin.sql`; el instalador anterior la incluye automáticamente.
+El cambio de contraseña de administrador, empresa y artesano usa el componente compartido `componentes/cambio-contrasena.js` y la función `functions/seguridad/fn_actualizar_contrasena_cuenta.sql`. El formulario permite hasta tres cambios exitosos por cuenta en cada mes calendario; el conteo comienza al desplegar esta función y no incluye restablecimientos desde el enlace de recuperación. La tabla de conteo y su índice están definidos en `DB_TOURISMEASY.sql`.
 
-El cambio de contraseña de empresa usa `functions/crud_empresas/fn_actualizar_contrasena_empresa.sql`. En una base existente, instala la función nueva antes de desplegar `login/actualizar_contrasena_empresa.php`:
+Instala las funciones SQL:
 
 ```powershell
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\seguridad\fn_actualizar_contrasena_cuenta.sql
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_administracion\fn_actualizar_contrasena_admin.sql
 psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_empresas\fn_actualizar_contrasena_empresa.sql
 ```
 
-Reemplaza el usuario y la base de datos por los de tu instalación.
+Después despliega los PHP de `login/actualizar_contrasena_cuenta.php`, `login/actualizar_contrasena_admin.php`, `login/actualizar_contrasena_empresa.php` y `e-commerce/actualizar_contrasena_artesano.php`, además del componente compartido. Reemplaza el usuario y la base de datos por los de tu instalación.
 
 El informe mensual del administrador consulta únicamente tablas OLTP mediante `functions/crud_administracion/fn_informe_mensual_admin.sql`.
 

@@ -9,28 +9,9 @@ RETURNS TABLE (
 ) AS
 $$
 BEGIN
-    UPDATE USUARIOS
-    SET CONTRASENA = p_hash_nuevo
-    WHERE ID_PERSONA = p_id
-      AND CONTRASENA = p_hash_actual;
-
-    IF NOT FOUND THEN
-        RETURN QUERY SELECT FALSE, 'No se pudo validar la cuenta. Inicia sesión nuevamente.'::TEXT;
-        RETURN;
-    END IF;
-
-    RETURN QUERY SELECT TRUE, 'Contraseña actualizada correctamente.'::TEXT;
-
-EXCEPTION
-    WHEN CHECK_VIOLATION THEN
-        RAISE NOTICE 'fn_actualizar_contrasena_admin - Check violado: %', SQLERRM;
-        RETURN QUERY SELECT FALSE, 'La contraseña nueva no tiene un formato válido.'::TEXT;
-    WHEN LOCK_NOT_AVAILABLE THEN
-        RAISE NOTICE 'fn_actualizar_contrasena_admin - Fila bloqueada: %', SQLERRM;
-        RETURN QUERY SELECT FALSE, 'La cuenta está siendo modificada, intenta de nuevo.'::TEXT;
-    WHEN OTHERS THEN
-        RAISE NOTICE 'fn_actualizar_contrasena_admin: %', SQLERRM;
-        RETURN QUERY SELECT FALSE, 'No se pudo actualizar la contraseña.'::TEXT;
+    RETURN QUERY
+    SELECT cambio.ok, cambio.mensaje
+    FROM fn_actualizar_contrasena_cuenta('admin', p_id, p_hash_actual, p_hash_nuevo) cambio;
 END;
 $$
 LANGUAGE plpgsql;

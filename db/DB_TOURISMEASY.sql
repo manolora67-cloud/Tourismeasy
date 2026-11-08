@@ -1,12 +1,12 @@
 /*
-    TABLAS : 37
+    TABLAS : 38
   Maestras:           6
   Informativas:       3
   Operacionales:     10
   Relacionales:       4
   Soporte/Auditoría:  4
   Históricas:         5
-  Seguridad:          5
+  Seguridad:          6
 */
 /*
 --******************************
@@ -261,6 +261,21 @@ CREATE TABLE IF NOT EXISTS HISTORIAL_CONTRASENAS_EMPRESA
 	PRIMARY KEY(ID_HISTORIAL),
     FOREIGN KEY (ID_EMPRESA) REFERENCES USUARIOS_EMPRESA(ID_EMPRESA)
 );
+
+--******************************
+-- SEGURIDAD
+--******************************
+
+CREATE TABLE IF NOT EXISTS CAMBIOS_CONTRASENA_CUENTA
+(
+    ID_CAMBIO       BIGSERIAL PRIMARY KEY,
+    TIPO_CUENTA     VARCHAR(10) NOT NULL CHECK (TIPO_CUENTA IN ('admin', 'empresa', 'artesano')),
+    ID_CUENTA       VARCHAR(10) NOT NULL,
+    FECHA_CAMBIO    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS ix_cambios_contrasena_cuenta_fecha
+    ON CAMBIOS_CONTRASENA_CUENTA (TIPO_CUENTA, ID_CUENTA, FECHA_CAMBIO DESC);
 
 --******************************
 -- MAESTRA

@@ -1,0 +1,244 @@
+.te-password-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 3000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(15, 23, 42, 0.62);
+}
+
+.te-password-modal.is-open {
+    display: flex;
+}
+
+.te-password-modal__card {
+    position: relative;
+    width: min(100%, 460px);
+    max-height: min(90vh, 720px);
+    overflow-y: auto;
+    padding: 32px;
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    border-radius: 18px;
+    background: #fff;
+    color: #1e293b;
+    box-shadow: 0 24px 70px rgba(15, 23, 42, 0.3);
+}
+
+.te-password-modal__close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    display: grid;
+    width: 36px;
+    height: 36px;
+    place-items: center;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: #64748b;
+    font-size: 1.1rem;
+    cursor: pointer;
+}
+
+.te-password-modal__close:hover {
+    background: #f1f5f9;
+    color: #1e293b;
+}
+
+.te-password-modal__title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 36px 8px 0;
+    color: #1e293b;
+    font-size: 1.3rem;
+    font-weight: 800;
+}
+
+.te-password-modal__title i {
+    color: var(--theme-primary, #7c3aed);
+}
+
+.te-password-modal__description {
+    margin: 0 0 22px;
+    color: #64748b;
+    font-size: 0.88rem;
+    line-height: 1.55;
+}
+
+.te-password-modal__fields {
+    display: grid;
+    gap: 16px;
+}
+
+.te-password-modal__field {
+    display: grid;
+    gap: 7px;
+    color: #334155;
+    font-size: 0.83rem;
+    font-weight: 700;
+}
+
+.te-password-modal__input {
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    outline: none;
+    background: #fff;
+    color: #0f172a;
+    font: inherit;
+    font-weight: 400;
+}
+
+.te-password-modal__input:focus {
+    border-color: var(--theme-primary, #7c3aed);
+    box-shadow: 0 0 0 3px rgba(var(--theme-primary-rgb, 124, 58, 237), 0.14);
+}
+
+.te-password-modal__error {
+    margin: 16px 0 0;
+    color: #b91c1c;
+    font-size: 0.85rem;
+    line-height: 1.45;
+}
+
+.te-password-modal__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 24px;
+}
+
+.te-password-modal__button {
+    display: inline-flex;
+    min-height: 42px;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 9px 16px;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    background: #fff;
+    color: #475569;
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.te-password-modal__button--primary {
+    border-color: var(--theme-primary, #7c3aed);
+    background: var(--theme-primary, #7c3aed);
+    color: #fff;
+}
+
+.te-password-modal__button--primary:hover {
+    filter: brightness(0.94);
+}
+
+.te-password-modal__button:disabled {
+    cursor: wait;
+    opacity: 0.65;
+}
+
+.te-password-settings {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    margin: 0 0 28px;
+    padding: 20px 24px;
+    border: 1px solid var(--gray-200, #e2e8f0);
+    border-radius: var(--radius, 16px);
+    background: var(--white, #fff);
+    box-shadow: 0 4px 18px rgba(15, 23, 42, 0.06);
+}
+
+.te-password-settings__title {
+    margin: 0 0 4px;
+    color: var(--gray-800, #1e293b);
+    font: 700 1rem/1.35 var(--font-head, Montserrat, sans-serif);
+}
+
+.te-password-settings__title i {
+    margin-right: 7px;
+    color: var(--theme-primary, #7c3aed);
+}
+
+.te-password-settings__description {
+    margin: 0;
+    color: var(--gray-500, #64748b);
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+
+.te-password-settings__trigger {
+    flex-shrink: 0;
+    min-height: 42px;
+    padding: 9px 16px;
+    border: 0;
+    border-radius: 10px;
+    background: var(--theme-primary, var(--primary, #7c3aed));
+    color: #fff;
+    font: 700 0.85rem var(--font-head, Montserrat, sans-serif);
+    cursor: pointer;
+}
+
+.te-password-settings__trigger:hover {
+    filter: brightness(0.94);
+}
+
+body.dark-mode .te-password-modal__card {
+    border-color: #334155;
+    background: #1e293b;
+    color: #e2e8f0;
+}
+
+body.dark-mode .te-password-modal__title,
+body.dark-mode .te-password-modal__field {
+    color: #f1f5f9;
+}
+
+body.dark-mode .te-password-modal__description {
+    color: #94a3b8;
+}
+
+body.dark-mode .te-password-modal__close:hover {
+    background: #334155;
+    color: #f1f5f9;
+}
+
+body.dark-mode .te-password-modal__input {
+    border-color: #475569;
+    background: #0f172a;
+    color: #f1f5f9;
+}
+
+body.dark-mode .te-password-modal__button:not(.te-password-modal__button--primary) {
+    border-color: #475569;
+    background: #1e293b;
+    color: #cbd5e1;
+}
+
+@media (max-width: 520px) {
+    .te-password-modal {
+        padding: 12px;
+    }
+
+    .te-password-modal__card {
+        padding: 26px 20px 20px;
+    }
+
+    .te-password-modal__actions {
+        flex-direction: column-reverse;
+    }
+
+    .te-password-modal__button {
+        width: 100%;
+    }
+}

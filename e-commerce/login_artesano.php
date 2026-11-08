@@ -210,6 +210,7 @@ try {
     $etapaDiagnostico = 'creando_sesion_del_navegador';
     guardarCookieDispositivo($tokenDispositivo);
     $_SESSION['artesano_id']     = $row['id'];
+    $_SESSION['email'] = $row['email_login'];
     $_SESSION['artesano_nombre'] = $nombre;
     $_SESSION['tipo'] = 'artesano';
     $_SESSION['te_ultima_actividad'] = time();
