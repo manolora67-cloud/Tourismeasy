@@ -16,7 +16,7 @@ TourismEasy es una plataforma web de turismo inclusivo enfocada en Santander, Co
 - Menú de accesibilidad compartido: cambio de idioma, ajuste y restablecimiento del tamaño del texto, alto contraste y lectura en voz alta cuando el navegador lo admite. El pie de página incluye una declaración de accesibilidad emergente con herramientas disponibles, referencias normativas y datos de contacto; es informativa y no representa una certificación de conformidad.
 - CAPTCHA verificado en el servidor para los inicios de sesión, y recuperación de contraseña con enlace por correo.
 - Confirmaciones, notificaciones y avisos de cambios sin guardar reutilizados en los paneles que los integran.
-- Sesiones de administración, empresas y artesanos que se recuerdan hasta 30 días desde el último uso, salvo que se cierre sesión manualmente.
+- Sesiones de administración, empresas y artesanos administradas por el servidor, con vencimiento tras 10 minutos de inactividad y cierre manual.
 - Recuperación de contraseña por correo electrónico para administración, empresas y artesanos del e-commerce.
 - Asistente virtual Sue para preguntas sobre turismo en Santander. Consulta en la base de datos transportes, hospedajes, planes, empresas, artesanos, productos artesanales, festividades y municipios; si Groq no está disponible, responde directamente con esos datos.
 - Carga de imágenes mediante Cloudinary.
@@ -89,9 +89,8 @@ El idioma inglés se aplica inmediatamente con un glosario local de palabras y f
 | [db/](db/) | Esquema inicial y datos de referencia de PostgreSQL; no contiene migraciones de actualización. |
 | [functions/](functions/) | Funciones PostgreSQL invocadas por los endpoints y procesos del backend. |
 | [triggers/](triggers/) | Triggers de historial y actualización de fechas. |
-| [dwh/](dwh/) | Scripts y documentación del almacén analítico por capas Bronce, Plata y Oro. |
 | [mapa_interactuable/](mapa_interactuable/) | JavaScript y estilos del mapa turístico de la portada. |
-| [img/](img/), [audio-video/](audio-video/) | Recursos multimedia del sitio. Las imágenes subidas se alojan en Cloudinary. |
+| [img/](img/), [videos/](videos/) | Recursos multimedia del sitio. Las imágenes subidas se alojan en Cloudinary. |
 
 Leaflet 1.9.4 se carga desde el CDN de unpkg mediante etiquetas `<link>` y `<script>` en [index.html](index.html); no se instaló ni descargó con un comando o gestor de paquetes. Los mosaicos del mapa se solicitan a OpenStreetMap y muestran su atribución en pantalla.
 
@@ -217,10 +216,12 @@ window.TourismEasyTableData.render({
 ## Configuración y seguridad
 
 - No guardes claves API, contraseñas SMTP, credenciales de Cloudinary ni contraseñas de la base de datos en Git. **La configuración actual del proyecto todavía contiene credenciales en archivos versionados**: no las reutilices en un despliegue compartido. Rótalas si siguen activas y migra la configuración a variables de entorno o archivos locales ignorados por Git.
+- `.gitignore` excluye `con_db/db.php`, `api/cloudinary_config.php` y `recuperacion/servicio_correo.php` para evitar que nuevos archivos no rastreados con esos nombres se agreguen por accidente. Como ya están rastreados por Git, esas reglas no los quitan del repositorio ni del historial; hay que migrar la configuración antes de dejar de rastrearlos. `api/config.local.php` sí es local y está ignorado.
 - La llave Groq puede configurarse en el archivo local ignorado `api/config.local.php` o como variable de entorno `GROQ_API_KEY`. No la escribas en archivos versionados ni la compartas. En esta versión, la conexión PostgreSQL, Cloudinary y SMTP siguen configurados directamente en [con_db/db.php](con_db/db.php), [api/cloudinary_config.php](api/cloudinary_config.php) y [recuperacion/servicio_correo.php](recuperacion/servicio_correo.php), respectivamente.
-- La sesión autenticada vive en el servidor y se identifica mediante la cookie de sesión de PHP (`HttpOnly`, `SameSite=Lax` y `Secure` cuando se detecta HTTPS). La inactividad vence a los 10 minutos; cerrar sesión invalida la sesión en el servidor. La cookie `te_device` es un token opaco de reconocimiento del dispositivo (400 días), también `HttpOnly`, `SameSite=Lax` y `Secure` cuando se detecta HTTPS. Los navegadores pueden mostrar estas cookies en sus herramientas de desarrollo; `HttpOnly` impide que el JavaScript de la página las lea. Las claves de interfaz `te_session` y `te_ecommerce_session` solo conservan el rol y, para empresas, el tipo de servicio: no deben guardar identificadores, correos, nombres ni credenciales. Las preferencias y cachés públicas del navegador no autentican al usuario. El historial de Sue se mantiene en memoria y se borra al recargar la página.
+- La sesión autenticada vive en el servidor y se identifica mediante la cookie de sesión de PHP (`HttpOnly`, `SameSite=Lax` y `Secure` cuando se detecta HTTPS). La inactividad vence a los 10 minutos; cerrar sesión invalida la sesión en el servidor. La cookie `te_device` es un token opaco de reconocimiento del dispositivo (400 días), también `HttpOnly`, `SameSite=Lax` y `Secure` cuando se detecta HTTPS; reconocer el dispositivo no prolonga una sesión vencida. Los navegadores pueden mostrar estas cookies en sus herramientas de desarrollo; `HttpOnly` impide que el JavaScript de la página las lea. Las claves de interfaz `te_session` y `te_ecommerce_session` solo conservan el rol y, para empresas, el tipo de servicio: no deben guardar identificadores, correos, nombres ni credenciales. Las listas públicas (por ejemplo, municipios) y preferencias de presentación pueden almacenarse en el navegador; no autentican al usuario. El historial de Sue se mantiene en memoria y se borra al recargar la página.
+- En las herramientas de red del navegador es normal ver las respuestas HTML, CSS, JavaScript y JSON que el sitio necesita. PHP debe ejecutarse en el servidor: el navegador puede mostrar la solicitud y su respuesta, pero no debería recibir el código fuente PHP. No incluyas secretos en HTML o JavaScript; limita los datos personales enviados por cada endpoint a los necesarios para esa pantalla.
 - Los registros insertados por el esquema son datos iniciales/de demostración; reemplázalos y revisa las cuentas antes de usar la plataforma en producción.
 
 ## Base de datos
 
-El detalle del esquema, las instrucciones de instalación desde cero y la carga de funciones SQL están en [db/README.md](db/README.md). El diseño, los pasos de carga y las limitaciones actuales del DWH se documentan en [dwh/README.md](dwh/README.md).
+El detalle del esquema, las instrucciones de instalación desde cero y la carga de funciones SQL están en [db/README.md](db/README.md). El repositorio actual no contiene el DWH ni documentación de un almacén analítico; la aplicación usa PostgreSQL directamente para las operaciones descritas arriba.
