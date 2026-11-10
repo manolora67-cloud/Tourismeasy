@@ -1,0 +1,25 @@
+CREATE OR REPLACE FUNCTION fn_historico_producto_artesanal()
+RETURNS TRIGGER AS
+$$
+BEGIN
+    IF TG_OP = 'UPDATE'
+       AND (TO_JSONB(OLD) - 'FECHA_MODIFICACION')
+           IS NOT DISTINCT FROM (TO_JSONB(NEW) - 'FECHA_MODIFICACION') THEN
+        RETURN NULL;
+    END IF;
+
+    INSERT INTO HISTORICO_PRODUCTO_ARTESANAL (
+        ID_PRODUCTO_ORIGINAL,
+        DATOS_SNAPSHOT,
+        ACCION
+    )
+    VALUES (
+        OLD.ID_PRODUCTO,
+        TO_JSONB(OLD),
+        TG_OP
+    );
+
+    RETURN NULL;
+END;
+$$
+LANGUAGE plpgsql;

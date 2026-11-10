@@ -4,20 +4,20 @@
    No necesita placeholder <div> en el HTML: se auto-inyecta en
    el <body> como un widget flotante (position: fixed), así que
    basta con incluir el <script> en cualquier página.
-   Detecta solo si está en /html/ para armar la ruta del avatar.
+   Resuelve sus recursos desde la ubicación del propio componente.
    ============================================================ */
 (function() {
     "use strict"; //use strict para evitar errores comunes y malas prácticas en JavaScript
 
-    // Detecta si la página actual está dentro de la carpeta /html/ (como ya
-    // se hace en resenas.js y captcha.js) para armar la ruta correcta.
-    const _enHtml = window.location.pathname.includes("/html/");
-
-    const IA_API_PATH = _enHtml ? "../api/ia_sue.php" : "api/ia_sue.php";
+    const componenteUrl = document.currentScript && document.currentScript.src;
+    if (!componenteUrl) {
+        throw new Error("[TourismEasy IA] No se pudo determinar la ubicación del componente.");
+    }
+    const IA_API_PATH = new URL("../api/ia_sue.php", componenteUrl).href;
 
     const TE_CONFIG = {
         nombre: "Sue",
-        avatarImg: (_enHtml ? "../img/" : "img/") + "sarafoto.png",
+        avatarImg: new URL("../img/Sue_foto.jpg", componenteUrl).href,
         modelo: "llama-3.3-70b-versatile", //el modelo de IA
         burbujaDelay: 3000, // Milisegundos antes de mostrar la burbuja de atención
         burbulaAutoClose: 6000, // Milisegundos que dura visible la burbuja antes de ocultarse
@@ -29,30 +29,12 @@
             { emoji: "📍", texto: "Destinos en Santander" },
             { emoji: "🧭", texto: "Guías especializados" },
         ],
-        //se envia a la api, para q la ia sepa como responder, que tono usar, que información dar, etc...
-        systemPrompt: `Eres Sue, la asistente virtual de TourismEasy, la plataforma de turismo inclusivo y accesible de Santander, Colombia.
-
-Tu función es ayudar a viajeros con:
-- Información sobre destinos en Santander (Bucaramanga, San Gil, Barichara, Cañón del Chicamocha, Socorro, Girón, Vélez, Los Santos, etc.)
-- Transporte hacia y desde Santander (terminal y rutas intermunicipales)
-- Hospedaje accesible e inclusivo
-- Planes turísticos adaptados
-- Personal auxiliar y guías especializados
-- Turismo para personas con discapacidad visual, auditiva o motriz
-- E-commerce de la plataforma
-
-Reglas:
-- Responde SIEMPRE en español, de forma amable, concisa y empática.
-- Si el usuario tiene una discapacidad, adapta tu tono con especial sensibilidad.
-- Nunca inventes precios exactos; indícales que consulten la sección correspondiente.
-- Máximo 3 párrafos cortos por respuesta.
-- Usa emojis con moderación para hacer la conversación más cálida.
-- Si no sabes algo específico de TourismEasy, recomienda al usuario ir a la sección del menú correspondiente.
-- Puedes responder cualquier pregunta, tenga o no relación con turismo o TourismEasy (cultura general, dudas cotidianas, tareas, lo que sea). Contesta EXACTAMENTE lo que te preguntan, de forma directa y completa.
-- NO agregues frases de cierre sobre turismo, viajes o TourismEasy si la pregunta no tiene relación con eso. No cierres cada respuesta invitando a planear un viaje ni menciones Santander a la fuerza. Solo habla de turismo cuando el usuario pregunte sobre turismo.`,
     };
 
-    let conversacion = []; // Aquí se guardará el historial de la conversación (preguntas y respuestas)
+    sessionStorage.removeItem("tourismeasy_sue_chat");
+    const MENSAJE_BIENVENIDA = `¡Hola! 👋 Soy **Sue**, tu guía de viajes en **TourismEasy**.\n\nEstoy aquí para ayudarte a explorar los destinos más hermosos y accesibles de Santander, Colombia. Desde el Cañón del Chicamocha hasta las calles coloniales de Barichara. 🌿\n\n¿Sobre qué te puedo ayudar hoy?`;
+
+    let conversacion = [];
 
     function inyectarHTML() {
         const chipsHTML = TE_CONFIG.chips //esta constante muestra los chips de sugerencias rápidas
@@ -67,7 +49,7 @@ Reglas:
       <div class="te-chat-bubble" id="teBubble">¿Planeas un viaje por Santander? 🌿</div>
 
       <!-- Botón flotante que abre/cierra el chat -->
-      <button class="te-chat-fab" id="teFab" aria-label="Abrir chat con Sue de TourismEasy">
+      <button class="te-chat-fab" id="teFab" aria-label="Abrir asistente turístico Sue" title="Abrir asistente turístico Sue">
         <!-- Ícono de chat (visible cuando el chat está cerrado) -->
         <svg class="te-fab-open" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
           <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 10H6V10h12v2zm0-3H6V7h12v2z"/>
@@ -138,10 +120,14 @@ Reglas:
         const msg = document.createElement("div");
         msg.className = `te-msg ${tipo}`;
 
-        // Soporte básico de Markdown
-        // **texto** → <strong>texto</strong> (negritas)
-        // \n        → <br> (saltos de línea)
-        msg.innerHTML = texto
+        const textoSeguro = texto.replace(/[&<>"']/g, (caracter) => ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;",
+        })[caracter]);
+        msg.innerHTML = textoSeguro
             .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
             .replace(/\n/g, "<br>");
 
@@ -175,6 +161,11 @@ Reglas:
             .replace(/[?.!¡¿\n]/g, " ")
             .replace(/\s+/g, " ")
             .trim();
+    }
+
+    function esConsultaDeCatalogo(texto) {
+        const pregunta = normalizarTexto(texto);
+        return /\b(transportes?|rutas?|buses?|autobuses?|hospedajes?|hoteles?|alojamientos?|hostales?|posadas?|planes?|tours?|paquetes?|excursiones?|experiencias?|actividades?|productos?|artesanias?|bisuteria|alfareria|talleres?|artesanos?|artesanas?|empresas?|operadores?|festividades?|fiestas?|festivales?|ferias?|municipios?|ciudades?|pueblos?|destinos?)\b/.test(pregunta);
     }
 
     const INTENCIONES = [
@@ -397,7 +388,7 @@ Reglas:
                 },
                 body: JSON.stringify({
                     question: mensajeUsuario,
-                    context: TE_CONFIG.systemPrompt,
+                    history: conversacion.slice(0, -1),
                 }),
             });
 
@@ -415,6 +406,10 @@ Reglas:
             console.warn("[TourismEasy IA] fallback local:", err);
         }
 
+        if (esConsultaDeCatalogo(mensajeUsuario)) {
+            return "No pude consultar esa información ahora mismo. Inténtalo de nuevo más tarde.";
+        }
+
         return buscarRespuestaLocal(mensajeUsuario);
     }
 
@@ -427,6 +422,7 @@ Reglas:
         const chips = document.getElementById("teChips"); //los chips se ocultan tras el primer mjs del viajero
         if (chips) chips.style.display = "none";
 
+        conversacion.push({ role: "user", content: texto });
         agregarMensaje(texto, "user");
         document.getElementById("teInput").value = "";
         autoResize(document.getElementById("teInput"));
@@ -436,14 +432,13 @@ Reglas:
             const respuesta = await llamarClaudeAPI(texto); // Esperamos la respuesta de la IA
             ocultarTyping();
             agregarMensaje(respuesta, "bot"); // se muestra la respuesta de Sue en el chat
+            conversacion.push({ role: "assistant", content: respuesta });
         } catch (err) {
             ocultarTyping();
-            agregarMensaje(
-                "Lo siento, tuve un inconveniente conectándome. ¿Puedes intentarlo de nuevo? 🙏",
-                "bot",
-            );
+            const respuesta = "Lo siento, tuve un inconveniente conectándome. ¿Puedes intentarlo de nuevo? 🙏";
+            agregarMensaje(respuesta, "bot");
+            conversacion.push({ role: "assistant", content: respuesta });
             console.error("[TourismEasy IA]", err);
-            conversacion.pop(); // Quitamos el mensaje que falló del historial
         }
 
         enviando = false;
@@ -466,10 +461,21 @@ Reglas:
         const msgs = document.getElementById("teMensajes"); // Contenedor de los mensajes del chat
         const closeBtn = document.getElementById("teCloseMobile"); // Botón X para cerrar en móvil
 
-        agregarMensaje(
-            `¡Hola! 👋 Soy **Sue**, tu guía de viajes en **TourismEasy**.\n\nEstoy aquí para ayudarte a explorar los destinos más hermosos y accesibles de Santander, Colombia. Desde el Cañón del Chicamocha hasta las calles coloniales de Barichara. 🌿\n\n¿Sobre qué te puedo ayudar hoy?`,
-            "bot",
-        );
+        if (conversacion.length === 0) {
+            agregarMensaje(MENSAJE_BIENVENIDA, "bot");
+            conversacion.push({
+                role: "assistant",
+                content: MENSAJE_BIENVENIDA.replace(/\*\*/g, ""),
+            });
+        } else {
+            conversacion.forEach((mensaje) =>
+                agregarMensaje(mensaje.content, mensaje.role === "user" ? "user" : "bot")
+            );
+            if (conversacion.some((mensaje) => mensaje.role === "user")) {
+                const chips = document.getElementById("teChips");
+                if (chips) chips.style.display = "none";
+            }
+        }
 
         // Botón X del header para cerrar en móvil
         if (closeBtn) {

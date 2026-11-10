@@ -2,6 +2,17 @@
     align-items: stretch;
 }
 
+.festividades-admin-sidebar {
+    display: flex;
+    flex-direction: column;
+}
+
+.festividades-sidebar-help {
+    color: var(--gray-500);
+    font-size: 0.73rem;
+    line-height: 1.5;
+}
+
 .festividades-admin-content {
     flex: 1;
     min-width: 0;
@@ -88,7 +99,7 @@
 }
 
 .festividad-action:hover {
-    background: rgba(124, 58, 237, 0.08);
+    background: rgba(var(--theme-primary-rgb, 124, 58, 237), 0.08);
 }
 
 .festividad-action-delete {
@@ -99,6 +110,46 @@
     padding: 28px !important;
     color: var(--gray-500);
     text-align: center;
+}
+
+.festividades-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px 4px 0;
+    color: var(--gray-600);
+    font-size: 0.88rem;
+}
+
+.festividades-pagination[hidden] {
+    display: none;
+}
+
+.festividades-pagination-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.festividades-page-button {
+    padding: 8px 13px;
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
+    background: var(--white);
+    color: var(--gray-700);
+    font: 700 0.82rem var(--font-head);
+    cursor: pointer;
+}
+
+.festividades-page-button:hover:not(:disabled) {
+    border-color: var(--purple);
+    color: var(--purple);
+}
+
+.festividades-page-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
 }
 
 .festividades-admin-alert {
@@ -188,9 +239,14 @@
     padding: 10px 12px;
     border: 1px solid var(--gray-300);
     border-radius: 9px;
-    background: var(--white);
+    background: #fff;
     color: var(--gray-800);
     font: 500 0.9rem var(--font-body);
+    box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.06);
+}
+
+.festividad-dialog form {
+    background: #fff;
 }
 
 .festividad-field input[type="color"] {
@@ -236,10 +292,6 @@
     opacity: 0.65;
 }
 
-.festividades-logout {
-    margin-top: auto;
-}
-
 body.dark-mode .festividades-admin-content,
 body.dark-mode .festividad-dialog {
     background: #1e293b;
@@ -258,11 +310,13 @@ body.dark-mode .festividad-dialog-header p {
 }
 
 body.dark-mode .festividades-admin-table-wrap,
-body.dark-mode .festividad-action {
+body.dark-mode .festividad-action,
+body.dark-mode .festividades-page-button {
     border-color: #334155;
 }
 
 body.dark-mode .festividad-action,
+body.dark-mode .festividades-page-button,
 body.dark-mode .festividad-field input:not([type="color"]),
 body.dark-mode .festividad-field select,
 body.dark-mode .festividad-field textarea {
@@ -281,6 +335,11 @@ body.dark-mode .festividad-btn-cancel {
 }
 
 @media (max-width: 780px) {
+    .festividades-admin-sidebar {
+        align-items: stretch;
+        text-align: left;
+    }
+
     .festividades-admin-content {
         padding: 20px;
     }
@@ -289,9 +348,15 @@ body.dark-mode .festividad-btn-cancel {
         align-items: flex-start;
         flex-direction: column;
     }
+
 }
 
 @media (max-width: 520px) {
+    .festividades-pagination {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
     .festividad-form-grid {
         grid-template-columns: 1fr;
     }

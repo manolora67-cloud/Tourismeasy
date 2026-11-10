@@ -19,6 +19,17 @@ function esAdminPortada()
 
 try {
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+        if (($_GET['map'] ?? '') === '1') {
+            $destinos = $pdo->query('SELECT * FROM fn_listar_destinos_mapa()')->fetchAll();
+            foreach ($destinos as &$destino) {
+                if (is_string($destino['mapa'] ?? null)) {
+                    $destino['mapa'] = json_decode($destino['mapa'], true, 512, JSON_THROW_ON_ERROR);
+                }
+            }
+            unset($destino);
+            responderPortada(200, ['ok' => true, 'data' => $destinos]);
+        }
+
         $admin = ($_GET['admin'] ?? '') === '1';
         if ($admin && !esAdminPortada()) {
             responderPortada(401, ['ok' => false, 'error' => 'Se requiere una sesión de administración.']);

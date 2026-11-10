@@ -40,10 +40,27 @@
                     <div class="field-wrap has-toggle"><i class="fa-solid fa-lock field-icon"></i><input type="password" id="loginPass" autocomplete="current-password" required><button type="button" class="toggle-pass" data-target="loginPass" aria-label="Mostrar contraseña"><i class="fa-solid fa-eye"></i></button></div>
           <span class="field-msg" id="loginPassMsg"></span>
         </div>
-        <div class="forgot-link"><a href="${pageBase}restablecer_contrasena.html" id="forgotLink">¿Olvidaste tu contraseña?</a></div>
+        <div class="forgot-link"><a href="#" id="forgotLink">¿Olvidaste tu contraseña?</a></div>
         <button type="submit" class="btn-auth" id="btnLogin"><span class="btn-text">Iniciar sesión</span><div class="btn-spinner"></div></button>
-        <p class="field-msg" id="loginStatus" role="status"></p>
-        <button type="button" class="btn-auth" id="btnReplaceSession" style="display:none">Cerrar la otra sesión e iniciar aquí</button>
+        <p class="field-msg" id="loginStatus" role="status" aria-live="polite"></p>
+        <section class="approval-code-card" id="approvalCodeSection" aria-labelledby="approvalCodeTitle" hidden>
+          <div class="approval-code-heading">
+            <span class="approval-code-icon" aria-hidden="true"><i class="fa-solid fa-shield-halved"></i></span>
+            <div>
+              <span class="approval-code-eyebrow">Verificación de seguridad</span>
+              <h3 id="approvalCodeTitle">Confirma este dispositivo</h3>
+            </div>
+          </div>
+          <p class="approval-code-copy">Aprueba el intento desde el correo de tu cuenta. Luego escribe aquí el código que te enviamos.</p>
+          <ol class="approval-code-steps" aria-label="Pasos para confirmar el acceso">
+            <li><span>1</span>Revisa tu correo</li>
+            <li><span>2</span>Ingresa el código</li>
+          </ol>
+          <label class="approval-code-label" for="approvalCode">Código de seis dígitos</label>
+          <input class="approval-code-input" id="approvalCode" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" placeholder="000000" aria-label="Código de confirmación de seis dígitos">
+          <button type="button" class="btn-auth approval-code-submit" id="btnVerifyApproval"><i class="fa-solid fa-arrow-right-to-bracket" aria-hidden="true"></i><span>Verificar e iniciar sesión</span></button>
+          <p class="approval-code-footnote"><i class="fa-regular fa-clock" aria-hidden="true"></i> El código vence en 5 minutos y solo se puede usar una vez.</p>
+        </section>
       </form>
       <form class="auth-form" id="formRegister" novalidate>
                 <div class="register-intro">
@@ -124,7 +141,76 @@
         const tabRegister = document.getElementById("tabRegister");
         const loginStatus = document.getElementById("loginStatus");
         const registerStatus = document.getElementById("registerStatus");
-        const replaceSessionButton = document.getElementById("btnReplaceSession");
+        const approvalCodeSection = document.getElementById("approvalCodeSection");
+        const approvalCodeInput = document.getElementById("approvalCode");
+        const verifyApprovalButton = document.getElementById("btnVerifyApproval");
+        const approvalStorageKey = "te_login_approval";
+        let pendingApproval = sessionStorage.getItem(approvalStorageKey) || "";
+        const sessionExpiredByDevice = new URLSearchParams(window.location.search).get("sesion_expirada") === "1";
+        const forgotLink = document.getElementById("forgotLink");
+        const loginEmail = document.getElementById("loginEmail");
+        const loginEmailMsg = document.getElementById("loginEmailMsg");
+        let recoveryRequestPending = false;
+
+        if (sessionExpiredByDevice) {
+            window.TourismSession.clear();
+            sessionStorage.removeItem(approvalStorageKey);
+            pendingApproval = "";
+            loginStatus.textContent = "La sesión de este equipo se cerró porque se autorizó el acceso desde otro dispositivo. Puedes volver a iniciar sesión aquí.";
+            loginStatus.classList.add("info");
+            window.history.replaceState({}, "", window.location.pathname);
+        }
+
+        forgotLink.addEventListener("click", async function (event) {
+            event.preventDefault();
+            const email = loginEmail.value.trim();
+            loginStatus.textContent = "";
+            loginStatus.classList.remove("error", "ok");
+            loginEmailMsg.textContent = "";
+            loginEmailMsg.classList.remove("error", "ok");
+            if (!email) {
+                loginEmailMsg.textContent = "Escribe tu correo para enviarte el enlace de recuperación.";
+                loginEmailMsg.classList.add("error");
+                loginEmail.focus();
+                return;
+            }
+            if (!loginEmail.checkValidity()) {
+                loginEmailMsg.textContent = "Revisa que el correo tenga un formato válido.";
+                loginEmailMsg.classList.add("error");
+                return;
+            }
+            if (recoveryRequestPending) return;
+
+            recoveryRequestPending = true;
+            forgotLink.setAttribute("aria-disabled", "true");
+            try {
+                const response = await fetch(apiBase + "recuperacion/solicitar_recuperacion.php", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email: email })
+                });
+                const result = await response.json();
+                if (!response.ok || !result.success) {
+                    throw new Error(result.message || "No se pudo solicitar la recuperación.");
+                }
+                await window.TEUI.alert({
+                    title: "Revisa tu correo",
+                    message: "Si ese correo está registrado, recibirás allí el enlace para recuperar tu contraseña.",
+                    confirmText: "Entendido",
+                    tone: "success"
+                });
+            } catch (error) {
+                loginStatus.textContent = error.message || "No se pudo conectar para solicitar la recuperación.";
+                loginStatus.classList.add("error");
+            } finally {
+                recoveryRequestPending = false;
+                forgotLink.removeAttribute("aria-disabled");
+            }
+        });
+        loginEmail.addEventListener("input", function () {
+            loginEmailMsg.textContent = "";
+            loginEmailMsg.classList.remove("error", "ok");
+        });
 
         document.querySelectorAll(".toggle-pass[data-target]").forEach((button) => {
             button.addEventListener("click", () => {
@@ -179,11 +265,11 @@
                 document.getElementById("eUbicacionMsg").classList.add("error");
             });
 
-        async function iniciarSesion(reemplazarSesion) {
+        async function iniciarSesion(solicitudAprobacion, codigoAprobacion) {
             loginStatus.textContent = "";
             loginStatus.classList.remove("error", "ok");
             if (!loginForm.reportValidity()) return;
-            if (window.TeCaptcha && !window.TeCaptcha.isVerified()) {
+            if (!solicitudAprobacion && window.TeCaptcha && !window.TeCaptcha.isVerified()) {
                 loginStatus.textContent = "Completa la verificación de seguridad.";
                 loginStatus.classList.add("error");
                 return;
@@ -191,7 +277,7 @@
 
             const button = document.getElementById("btnLogin");
             button.disabled = true;
-            replaceSessionButton.disabled = true;
+            verifyApprovalButton.disabled = true;
             button.classList.add("loading");
             try {
                 const response = await fetch(apiBase + "login/login.php", {
@@ -202,40 +288,60 @@
                         email: document.getElementById("loginEmail").value.trim(),
                         password: document.getElementById("loginPass").value,
                         tipo: document.getElementById("loginType").value,
-                        reemplazar_sesion: reemplazarSesion
+                        solicitud_aprobacion: solicitudAprobacion || "",
+                        codigo_aprobacion: codigoAprobacion || "",
+                        captcha_token: !solicitudAprobacion && window.TeCaptcha ? window.TeCaptcha.getToken() : ""
                     })
                 });
                 const result = await response.json();
-                if (response.status === 409 && result.code === "SESION_ACTIVA") {
-                    loginStatus.textContent = result.error + " Puedes cerrar la sesión anterior e iniciar aquí.";
-                    loginStatus.classList.add("error");
-                    replaceSessionButton.style.display = "flex";
+                if (response.status === 409 && result.code === "APROBACION_REQUERIDA") {
+                    pendingApproval = result.solicitud;
+                    sessionStorage.setItem(approvalStorageKey, pendingApproval);
+                    approvalCodeSection.hidden = false;
+                    loginStatus.textContent = result.error;
+                    loginStatus.classList.add("ok");
+                    approvalCodeInput.focus();
                     return;
                 }
                 if (!response.ok || !result.ok) throw new Error(result.error || "No se pudo iniciar sesión.");
-                replaceSessionButton.style.display = "none";
-                localStorage.setItem("te_session", JSON.stringify(result.session));
-                const destino = result.session.tipo === "admin" ?
+                sessionStorage.removeItem(approvalStorageKey);
+                const session = window.TourismSession.save(result.session);
+                if (!session) throw new Error("La respuesta de sesión no es válida.");
+                const destino = session.tipo === "admin" ?
                     "panel_admin.html" :
-                    ({ transporte: "panel_transporte.html", hospedaje: "panel_hospedaje.html", planes: "panel_planes.html" }[String(result.session.tipoServicio || "").toLowerCase()] || "panel_transporte.html");
+                    ({ transporte: "panel_transporte.html", hospedaje: "panel_hospedaje.html", planes: "panel_planes.html" }[String(session.tipoServicio || "").toLowerCase()] || "panel_transporte.html");
                 window._loginSuccess = true;
                 window.location.href = destino;
             } catch (error) {
                 loginStatus.textContent = error.message;
                 loginStatus.classList.add("error");
-                if (window.TeCaptcha) window.TeCaptcha.invalidateOnFailedLogin();
+                if (!solicitudAprobacion && window.TeCaptcha) window.TeCaptcha.invalidateOnFailedLogin();
             } finally {
                 button.disabled = false;
-                replaceSessionButton.disabled = false;
+                verifyApprovalButton.disabled = false;
                 button.classList.remove("loading");
             }
         }
 
         loginForm.addEventListener("submit", (event) => {
             event.preventDefault();
-            iniciarSesion(false);
+            iniciarSesion("", "");
         });
-        replaceSessionButton.addEventListener("click", () => iniciarSesion(true));
+        verifyApprovalButton.addEventListener("click", () => {
+            const codigo = approvalCodeInput.value.trim();
+            if (!pendingApproval || !/^[0-9]{6}$/.test(codigo)) {
+                loginStatus.textContent = "Escribe el código de 6 dígitos enviado al correo de la cuenta.";
+                loginStatus.classList.add("error");
+                return;
+            }
+            iniciarSesion(pendingApproval, codigo);
+        });
+        approvalCodeInput.addEventListener("input", () => {
+            approvalCodeInput.value = approvalCodeInput.value.replace(/\D/g, "").slice(0, 6);
+        });
+        if (pendingApproval) {
+            approvalCodeSection.hidden = false;
+        }
 
         registerForm.addEventListener("submit", async(event) => {
             event.preventDefault();
@@ -281,24 +387,12 @@
     }
 
     function clearSession() {
-        sessionStorage.removeItem("te_session");
-        localStorage.removeItem("te_session");
+        window.TourismSession.clear();
     }
 
     function getSession() {
-        try {
-            const storedSession = localStorage.getItem("te_session") || sessionStorage.getItem("te_session");
-            const session = JSON.parse(storedSession || "null");
-            if (session) {
-                localStorage.setItem("te_session", JSON.stringify(session));
-                sessionStorage.removeItem("te_session");
-            }
-            if (session && ["admin", "empresa"].includes(session.tipo)) return session;
-        } catch (error) {
-            console.error("No se pudo leer la sesión:", error);
-        }
-        clearSession();
-        return null;
+        const session = window.TourismSession.get();
+        return session && ["admin", "empresa"].includes(session.tipo) ? session : null;
     }
 
     function route(file) {
@@ -342,15 +436,37 @@
 
         const panel = panelForSession(user);
         const menu = user.tipo === "admin" ?
-            `<a class="session-menu-item session-menu-highlight" href="${route(panel)}">Panel Admin</a><a class="session-menu-item" href="${route("perfil_admin.html")}">Mi Perfil</a><a class="session-menu-item" href="${route("config_admin.html")}">Configuración</a>` :
+            `<a class="session-menu-item" href="${inHtml ? "../index.html" : "index.html"}">🏠 Ir al sitio</a><a class="session-menu-item session-menu-highlight" href="${route(panel)}">🛡️ Panel Admin</a><a class="session-menu-item" href="${route("perfil_admin.html")}">👤 Mi Perfil</a><a class="session-menu-item" href="${route("config_admin.html")}">⚙️ Configuración</a><a class="session-menu-item" href="${route("festividades_admin.html")}">📅 Festividades</a><a class="session-menu-item" href="${route("catalogos_admin.html")}">📚 Catálogos</a>` :
             `<a class="session-menu-item session-menu-highlight" href="${route(panel)}">Mi Panel</a><a class="session-menu-item" href="${route("perfil_empresa.html")}">Mi Perfil</a><a class="session-menu-item" href="${route("config_empresa.html")}">Configuración</a>`;
         const widget = document.createElement("div");
         widget.className = "session-widget";
-        widget.innerHTML = `<button class="session-trigger"><span class="session-avatar"></span><span class="session-info"><span class="session-name"></span><span class="session-tipo"></span></span><i class="fa-solid fa-chevron-down session-chevron"></i></button><div class="session-dropdown">${menu}<a class="session-menu-item session-menu-danger logout-btn" href="#">Cerrar sesión</a></div>`;
+        widget.innerHTML = `<button class="session-trigger"><span class="session-avatar"></span><span class="session-info"><span class="session-name"></span><span class="session-tipo"></span></span><i class="fa-solid fa-chevron-down session-chevron"></i></button><div class="session-dropdown">${menu}<a class="session-menu-item session-menu-danger logout-btn" href="#">🚪 Cerrar sesión</a></div>`;
         const name = String(user.nombre || (user.tipo === "admin" ? "Administrador" : "Empresa"));
         widget.querySelector(".session-avatar").textContent = name.split(/\s+/).map((part) => part[0]).join("").slice(0, 2).toUpperCase();
         widget.querySelector(".session-name").textContent = name;
         widget.querySelector(".session-tipo").textContent = user.tipo === "admin" ? "Administrador" : "Empresa";
+        const profileUrl = user.tipo === "admin"
+            ? apiBase + "login/get_perfil_admin.php"
+            : apiBase + "soli_empresas/get_perfil_empresa.php";
+        fetch(profileUrl, { credentials: "include", cache: "no-store" })
+            .then((response) => {
+                if (!response.ok) throw new Error("No se pudo cargar el nombre de la cuenta.");
+                return response.json();
+            })
+            .then((data) => {
+                const profile = user.tipo === "admin"
+                    ? data.admin
+                    : data.empresa;
+                if (!data.ok || !profile) throw new Error(data.error || "No se recibieron los datos de la cuenta.");
+                const fullName = user.tipo === "admin"
+                    ? [profile.nombre, profile.apellido].filter(Boolean).join(" ").trim()
+                    : String(profile.nombre || "").trim();
+                if (!fullName) return;
+                widget.querySelector(".session-name").textContent = fullName;
+                widget.querySelector(".session-avatar").textContent = fullName
+                    .split(/\s+/).map((part) => part[0]).join("").slice(0, 2).toUpperCase();
+            })
+            .catch((error) => console.warn("[TourismEasy] No se pudo mostrar el nombre de la cuenta.", error));
         const darkMode = document.getElementById("dark-mode-toggle");
         if (darkMode && darkMode.parentElement) darkMode.parentElement.insertBefore(widget, darkMode);
         else {
@@ -362,21 +478,7 @@
         });
         widget.querySelector(".logout-btn").addEventListener("click", async(event) => {
             event.preventDefault();
-            try {
-                const response = await fetch(apiBase + "login/logout_admin.php", {
-                    method: "POST",
-                    credentials: "include"
-                });
-                const result = await response.json();
-                if (!response.ok || !result.ok) {
-                    throw new Error(result.error || "No se pudo cerrar la sesión.");
-                }
-                clearSession();
-                window.location.href = inHtml ? "../index.html" : "index.html";
-            } catch (error) {
-                console.error("No se pudo cerrar la sesión en el servidor:", error);
-                alert(error.message || "No se pudo cerrar la sesión. Intenta de nuevo.");
-            }
+            await window.TEUI.logoutAdmin(apiBase + "login/logout_admin.php", inHtml ? "../index.html" : "index.html");
         });
     }
 
@@ -405,4 +507,6 @@
     window.addEventListener("pageshow", (event) => {
         if (event.persisted && guardCompanyPage()) applySession();
     });
+
+    window.addEventListener("te-session-expired", applySession);
 })();

@@ -32,6 +32,7 @@ $artesanoNombreSesion = $_SESSION['artesano_nombre'] ?? 'Artesano';
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="../js/control_tiempo_sesion.js?v=secure-session-v4"></script>
     <title>Panel de Productos - TourismEasy</title>
     <script>
         // Bloquea la flecha "atrás" del navegador mientras el artesano tiene sesión activa.
@@ -52,9 +53,13 @@ $artesanoNombreSesion = $_SESSION['artesano_nombre'] ?? 'Artesano';
     </script>
     <link rel="stylesheet" href="../css/e-comemerce.css" />
     <link rel="stylesheet" href="../css/admin.css" />
+    <link rel="stylesheet" href="../componentes/cambio-contrasena.css?v=password-change-v1" />
+    <link rel="stylesheet" href="../css/click_metrics.css" />
+    <link rel="stylesheet" href="../css/agente-ia.css?v=mobile-layout-v2" />
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;500&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
+    <script src="../componentes/ui-feedback.js?v=ui-feedback-v4"></script>
 </head>
 
 <body>
@@ -90,9 +95,9 @@ $artesanoNombreSesion = $_SESSION['artesano_nombre'] ?? 'Artesano';
                 </div>
             </div>
             <div class="panel-header-badges">
-                <span class="panel-badge"><i class="fa-solid fa-box"></i> <span id="badgeTotal">0 productos</span></span>
-                <span class="panel-badge"><i class="fa-solid fa-tags"></i> <span id="badgeCategorias">0 categorías</span></span>
-                <span class="panel-badge"><i class="fa-solid fa-location-dot"></i> <span id="badgeCiudades">0 ciudades</span></span>
+                <span class="panel-badge"><i class="fa-solid fa-box"></i> <span id="badgeTotal">Cargando…</span></span>
+                <span class="panel-badge"><i class="fa-solid fa-tags"></i> <span id="badgeCategorias">Cargando…</span></span>
+                <span class="panel-badge"><i class="fa-solid fa-location-dot"></i> <span id="badgeCiudades">Cargando…</span></span>
             </div>
         </div>
 
@@ -101,37 +106,37 @@ $artesanoNombreSesion = $_SESSION['artesano_nombre'] ?? 'Artesano';
             <div class="stat-card">
                 <div class="stat-icon stat-icon-purple"><i class="fa-solid fa-box-open"></i></div>
                 <div class="stat-info">
-                    <span class="stat-num" id="statTotal">0</span><span class="stat-label">Productos publicados</span>
+                    <span class="stat-num" id="statTotal">Cargando…</span><span class="stat-label">Productos publicados</span>
                 </div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon stat-icon-green"><i class="fa-solid fa-gem"></i></div>
                 <div class="stat-info">
-                    <span class="stat-num" id="statMasCaro">—</span><span class="stat-label">Tu producto más caro</span>
+                    <span class="stat-num" id="statMasCaro">Cargando…</span><span class="stat-label">Tu producto más caro</span>
                 </div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon stat-icon-teal"><i class="fa-solid fa-tag"></i></div>
                 <div class="stat-info">
-                    <span class="stat-num" id="statMasBarato">—</span><span class="stat-label">Tu producto más económico</span>
+                    <span class="stat-num" id="statMasBarato">Cargando…</span><span class="stat-label">Tu producto más económico</span>
                 </div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon stat-icon-blue"><i class="fa-solid fa-sack-dollar"></i></div>
                 <div class="stat-info">
-                    <span class="stat-num" id="statPromedio">$0</span><span class="stat-label">Precio promedio</span>
+                    <span class="stat-num" id="statPromedio">Cargando…</span><span class="stat-label">Precio promedio</span>
                 </div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon stat-icon-orange"><i class="fa-solid fa-crown"></i></div>
                 <div class="stat-info">
-                    <span class="stat-num" id="statTopCategoria">—</span><span class="stat-label">Tu categoría más publicada</span>
+                    <span class="stat-num" id="statTopCategoria">Cargando…</span><span class="stat-label">Tu categoría más publicada</span>
                 </div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon stat-icon-red"><i class="fa-solid fa-location-dot"></i></div>
+                <div class="stat-icon stat-icon-green"><i class="fa-brands fa-whatsapp"></i></div>
                 <div class="stat-info">
-                    <span class="stat-num" id="statTopCiudad">—</span><span class="stat-label">Tu ciudad principal</span>
+                    <span class="stat-num" data-clicks-total>Cargando…</span><span class="stat-label">Clics de WhatsApp</span>
                 </div>
             </div>
         </div>
@@ -140,10 +145,18 @@ $artesanoNombreSesion = $_SESSION['artesano_nombre'] ?? 'Artesano';
         <div class="panel-tabs">
             <button class="panel-tab active" data-tab="productos"><i class="fa-solid fa-box"></i> <span>Productos</span></button>
             <button class="panel-tab" data-tab="estadisticas"><i class="fa-solid fa-chart-pie"></i> <span>Estadísticas</span></button>
+            <button class="panel-tab" data-tab="configuracion"><i class="fa-solid fa-gear"></i> <span>Configuración</span></button>
         </div>
 
         <!-- TAB: PRODUCTOS -->
         <div class="panel-content active" id="tab-productos">
+            <section
+                class="click-metrics"
+                data-clicks-dashboard
+                data-clicks-dashboard-template
+                data-title="Clics de WhatsApp"
+                data-description="Revisa cuántas veces las personas abrieron WhatsApp desde tus productos."
+                aria-label="Clics de WhatsApp de mis productos"></section>
             <div class="admin-grid">
                 <div class="form-container">
                     <h2 id="form-title">Registrar Nuevo Producto</h2>
@@ -160,9 +173,7 @@ $artesanoNombreSesion = $_SESSION['artesano_nombre'] ?? 'Artesano';
                         <div class="form-group">
                             <label>Categoría</label>
                             <select id="category">
-                                <option value="talleres">Talleres</option>
-                                <option value="bisuteria">Bisutería</option>
-                                <option value="alfareria">Alfarería</option>
+                                <option value="">Cargando categorías…</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -171,8 +182,8 @@ $artesanoNombreSesion = $_SESSION['artesano_nombre'] ?? 'Artesano';
                         </div>
                         <div class="form-group">
                             <label>Ubicación</label>
-                            <select id="ubicacion" required>
-                                <option value="">Selecciona una ciudad</option>
+                            <select id="ubicacion" required disabled>
+                                <option value="">Cargando ciudades…</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -206,9 +217,6 @@ $artesanoNombreSesion = $_SESSION['artesano_nombre'] ?? 'Artesano';
                         <div class="panel-filter">
                             <select class="panel-select" id="filterCategoria">
                                 <option value="">Todas las categorías</option>
-                                <option value="talleres">Talleres</option>
-                                <option value="bisuteria">Bisutería</option>
-                                <option value="alfareria">Alfarería</option>
                             </select>
                         </div>
                     </div>
@@ -230,6 +238,7 @@ $artesanoNombreSesion = $_SESSION['artesano_nombre'] ?? 'Artesano';
                             <tbody id="admin-table-body"></tbody>
                         </table>
                     </div>
+                    <nav class="pagination panel-product-pagination" id="productosPaginacion" aria-label="Paginación de productos" hidden></nav>
                 </div>
             </div>
         </div>
@@ -260,11 +269,67 @@ $artesanoNombreSesion = $_SESSION['artesano_nombre'] ?? 'Artesano';
                 </div>
             </div>
         </div>
+
+        <!-- TAB: CONFIGURACIÓN -->
+        <div class="panel-content" id="tab-configuracion">
+            <div class="panel-content-header">
+                <h2><i class="fa-solid fa-gear"></i> Configuración de la cuenta</h2>
+            </div>
+            <div class="artisan-settings-grid">
+                <section class="artisan-settings-card" aria-labelledby="artisanContactTitle">
+                    <h3 id="artisanContactTitle"><i class="fa-solid fa-address-card"></i> Datos de contacto</h3>
+                    <p class="artisan-settings-card__description">Mantén actualizado el correo para iniciar sesión y recibir avisos, y el teléfono de contacto de tu cuenta.</p>
+                    <form id="artisanContactForm" class="artisan-settings-form" aria-busy="true">
+                        <div class="form-group">
+                            <label for="artisanContactEmail">Correo de acceso y contacto</label>
+                            <input id="artisanContactEmail" name="email" type="email" autocomplete="email" maxlength="254" required disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="artisanContactPhone">Teléfono / WhatsApp</label>
+                            <input id="artisanContactPhone" name="telefono" type="tel" inputmode="tel" autocomplete="tel" pattern="\+?[0-9]{7,15}" title="Usa entre 7 y 15 dígitos; puedes iniciar con +." required disabled>
+                        </div>
+                        <p class="artisan-settings-note">Si cambias el correo, también cambiará el que usas para iniciar sesión y recuperar tu cuenta.</p>
+                        <p class="artisan-settings-status" id="artisanContactStatus" role="status" aria-live="polite" hidden></p>
+                        <button class="btn-submit" id="artisanContactSubmit" type="submit" disabled>Guardar datos de contacto</button>
+                    </form>
+                </section>
+
+                <section class="artisan-settings-card" aria-labelledby="artisanAccountTitle">
+                    <h3 id="artisanAccountTitle"><i class="fa-solid fa-id-card"></i> Mi cuenta</h3>
+                    <p class="artisan-settings-card__description">Información registrada en TourismEasy.</p>
+                    <dl class="artisan-account-details">
+                        <div><dt>Nombre</dt><dd id="artisanAccountName">Cargando…</dd></div>
+                        <div><dt>Documento</dt><dd id="artisanAccountId">Cargando…</dd></div>
+                        <div><dt>Estado</dt><dd id="artisanAccountStatus">Cargando…</dd></div>
+                        <div><dt>Miembro desde</dt><dd id="artisanAccountCreated">Cargando…</dd></div>
+                    </dl>
+                </section>
+
+                <section class="artisan-settings-card artisan-settings-card--security" aria-labelledby="artisanPasswordSettingsTitle">
+                    <h3 id="artisanPasswordSettingsTitle"><i class="fa-solid fa-shield-halved"></i> Seguridad de la cuenta</h3>
+                    <div class="artisan-security-content">
+                        <div>
+                            <strong>Cambiar contraseña</strong>
+                            <p class="artisan-settings-card__description">Puedes cambiarla hasta 3 veces por mes. Los restablecimientos mediante el enlace del correo no consumen esos cambios.</p>
+                        </div>
+                        <button class="te-password-settings__trigger" type="button" data-password-change
+                            data-password-endpoint="actualizar_contrasena_artesano.php">Cambiar contraseña</button>
+                    </div>
+                </section>
+            </div>
+        </div>
     </main>
 
     <script src="../componentes/dark-mode-toggle.js"></script>
-    <script src="../js/admin.js"></script>
+    <script src="../componentes/click-metrics-dashboard.js?v=click-metrics-v2"></script>
+    <script src="../js/metricas_clics.js"></script>
+    <script src="../componentes/paginacion.js"></script>
+    <script src="../js/admin.js?v=secure-session-v1"></script>
+    <script src="../componentes/cambio-contrasena.js?v=password-change-v1"></script>
+    <script src="../js/configuracion_artesano.js?v=artisan-settings-v1"></script>
     <script src="../js/santanderianidad.js"></script>
+    <script src="../componentes/agente-ia.js?v=private-chat-memory-v1"></script>
+    <script src="../menu_accesibilidad/menu.js?v=a11y-v14"></script>
 </body>
 
 </html>

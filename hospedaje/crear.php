@@ -24,7 +24,13 @@ if (!is_array($input)) {
 }
 
 try {
-    $stmt = $pdo->prepare('SELECT ok::TEXT, id_hospedaje FROM fn_guardar_hospedaje(CAST(:datos AS JSONB), :empresa)');
+    $stmt = $pdo->prepare(
+        'SELECT resultado.ok::TEXT, resultado.id_hospedaje
+         FROM public.fn_guardar_hospedaje(
+             CAST(:datos AS JSONB),
+             CAST(:empresa AS CHARACTER VARYING)
+         ) AS resultado'
+    );
     $stmt->execute([
         ':datos' => json_encode($input, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR),
         ':empresa' => $_SESSION['id_empresa'],

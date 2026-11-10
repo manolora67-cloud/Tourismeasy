@@ -63,8 +63,8 @@ if (isset($input['id'])) {
    VALIDACIONES
    ========================================================= */
 
-if (!preg_match('/^[A-Za-z0-9]{5,6}$/D', $origen)
-    || !preg_match('/^[A-Za-z0-9]{5,6}$/D', $destino)
+if (!preg_match('/^[0-9]{5,6}$/D', $origen)
+    || !preg_match('/^[0-9]{5,6}$/D', $destino)
     || !$fecha || !$hora || $precio <= 0
     || !preg_match('/^[1-9][0-9]{0,9}$/D', $id_clase)) {
     http_response_code(400);
@@ -75,10 +75,22 @@ if (!preg_match('/^[A-Za-z0-9]{5,6}$/D', $origen)
     exit;
 }
 
-if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $fecha)) {
+if (!preg_match('/^\d{4}-\d{2}-\d{2}$/D', $fecha)) {
     echo json_encode([
         "ok" => false,
         "error" => "Formato de fecha inválido. Use YYYY-MM-DD."
+    ]);
+    exit;
+}
+
+$fechaValidada = DateTimeImmutable::createFromFormat('!Y-m-d', $fecha);
+$erroresFecha = DateTimeImmutable::getLastErrors();
+if ($fechaValidada === false
+    || ($erroresFecha !== false && ($erroresFecha['warning_count'] > 0 || $erroresFecha['error_count'] > 0))
+    || $fechaValidada->format('Y-m-d') !== $fecha) {
+    echo json_encode([
+        "ok" => false,
+        "error" => "La fecha de salida no es una fecha válida."
     ]);
     exit;
 }
@@ -97,6 +109,22 @@ if (!preg_match('/^\d{2}:\d{2}(:\d{2})?$/', $hora)) {
    ========================================================= */
 
 try {
+    $stmtFecha = $pdo->prepare('SELECT fn_validar_fecha_salida(CAST(:fecha AS DATE))');
+    $stmtFecha->execute([':fecha' => $fecha]);
+    $fechaPermitida = in_array(
+        strtolower((string)$stmtFecha->fetchColumn()),
+        ['1', 't', 'true', 'yes', 'on'],
+        true
+    );
+
+    if (!$fechaPermitida) {
+        http_response_code(400);
+        echo json_encode([
+            "ok" => false,
+            "error" => "La fecha de salida no puede ser anterior a hoy."
+        ]);
+        exit;
+    }
 
     /* =====================================================
        EDITAR
@@ -133,8 +161,8 @@ try {
             ':img'     => $img_url,
             ':disp'    => $disponible ? 't' : 'f',
         ]);
-
-        if (!$stmt->fetchColumn()) {
+        $actualizada = $stmt->fetchColumn();
+        if (!in_array($actualizada, [true, 't', 'true', '1', 1], true)) {
             echo json_encode([
                 "ok" => false,
                 "error" => "No se pudo actualizar la ruta. Verifica que exista, te pertenezca y que los datos sean válidos."
@@ -199,7 +227,6 @@ try {
     }
 
 } catch (PDOException $e) {
-
     error_log('[TourismEasy] transporte/crear.php - ' . $e->getMessage());
 
     http_response_code(500);

@@ -10,6 +10,13 @@
     var errorBox = document.getElementById("festividadesError");
     var formErrorBox = document.getElementById("festividadFormError");
     var saveButton = document.getElementById("btnGuardarFestividad");
+    var pagination = document.getElementById("festividadesPaginacion");
+    var paginationSummary = document.getElementById("festividadesResumen");
+    var currentPageLabel = document.getElementById("festividadesPaginaActual");
+    var previousPageButton = document.getElementById("festividadesAnterior");
+    var nextPageButton = document.getElementById("festividadesSiguiente");
+    var pageSize = 10;
+    var currentPage = 1;
 
     function mostrarError(mensaje) {
         var target = dialog.open ? formErrorBox : errorBox;
@@ -22,6 +29,12 @@
         errorBox.hidden = true;
         formErrorBox.textContent = "";
         formErrorBox.hidden = true;
+    }
+
+    function cerrarDialogo(notify) {
+        if (!dialog.open) return;
+        dialog.close();
+        if (notify) window.TEUI.notifyClosed("Formulario");
     }
 
     async function respuestaJson(response) {
@@ -44,8 +57,39 @@
         return celda;
     }
 
+    function actualizarResumenSidebar(pageCount) {
+        var nacionales = festividades.filter(function(festividad) {
+            return festividad.tipo === "NACIONAL";
+        }).length;
+        var inicio = festividades.length ? (currentPage - 1) * pageSize + 1 : 0;
+        var fin = Math.min(currentPage * pageSize, festividades.length);
+        document.getElementById("festividadesTotal").textContent = String(festividades.length);
+        document.getElementById("festividadesNacionales").textContent = String(nacionales);
+        document.getElementById("festividadesRegionales").textContent = String(
+            festividades.filter(function(festividad) {
+                return festividad.tipo === "REGIONAL";
+            }).length
+        );
+        document.getElementById("festividadesRango").textContent = festividades.length ? inicio + "–" + fin : "Sin registros";
+        document.getElementById("festividadesPaginaSidebar").textContent = currentPage + " de " + (pageCount || 1);
+    }
+
     function renderizarFestividades() {
         tableBody.replaceChildren();
+        var pageCount = Math.ceil(festividades.length / pageSize);
+        currentPage = Math.max(1, Math.min(currentPage, pageCount || 1));
+        if (pagination) {
+            pagination.hidden = pageCount <= 1;
+            if (pageCount) {
+                var firstItem = (currentPage - 1) * pageSize + 1;
+                var lastItem = Math.min(currentPage * pageSize, festividades.length);
+                paginationSummary.textContent = "Mostrando " + firstItem + "–" + lastItem + " de " + festividades.length;
+                currentPageLabel.textContent = "Página " + currentPage + " de " + pageCount;
+                previousPageButton.disabled = currentPage === 1;
+                nextPageButton.disabled = currentPage === pageCount;
+            }
+        }
+        actualizarResumenSidebar(pageCount);
         if (!festividades.length) {
             var vacio = document.createElement("tr");
             var mensaje = crearCelda("Todavía no hay festividades registradas.", "festividades-empty");
@@ -55,7 +99,7 @@
             return;
         }
 
-        festividades.forEach(function(festividad) {
+        festividades.slice((currentPage - 1) * pageSize, currentPage * pageSize).forEach(function(festividad) {
             var fila = document.createElement("tr");
             fila.appendChild(crearCelda(festividad.fecha_clave.trim()));
 
@@ -119,15 +163,21 @@
         form.elements.bg_card.value = existente ? festividad.bg_card.trim() : "#1e293b";
         form.elements.id_ciudad.value = existente && festividad.id_ciudad ? festividad.id_ciudad : "";
         form.dataset.idActual = existente ? festividad.id_festividad : "";
+        window.TEUI.markClean(form);
         dialog.showModal();
     }
 
     async function eliminarFestividad(festividad) {
-        if (!window.confirm('¿Eliminar "' + festividad.titulo + '"? Esta acción no se puede deshacer.')) return;
+        if (!await window.TEUI.confirm({
+            title: "Eliminar festividad",
+            message: '¿Quieres eliminar "' + festividad.titulo + '"? Esta acción no se puede deshacer.',
+            confirmText: "Sí, eliminar"
+        })) return;
         limpiarError();
         try {
             await enviar({ action: "delete", id: festividad.id_festividad });
             await cargarFestividades();
+            window.TEUI.toast("Festividad eliminada correctamente.");
         } catch (error) {
             mostrarError(error.message);
         }
@@ -181,8 +231,10 @@
                 id: form.dataset.idActual,
                 festividad: festivalData
             });
-            dialog.close();
+            window.TEUI.markClean(form);
+            cerrarDialogo(false);
             await cargarFestividades();
+            window.TEUI.toast(editing ? "Festividad actualizada correctamente." : "Festividad guardada correctamente.");
         } catch (error) {
             mostrarError(error.message);
         } finally {
@@ -193,11 +245,30 @@
     document.getElementById("btnAgregarFestividad").addEventListener("click", function() {
         abrirFormulario(null);
     });
-    document.getElementById("btnCerrarDialogo").addEventListener("click", function() {
-        dialog.close();
+    document.getElementById("agregarFestividadSidebar").addEventListener("click", function(event) {
+        event.preventDefault();
+        document.getElementById("btnAgregarFestividad").click();
     });
-    document.getElementById("btnCancelarFestividad").addEventListener("click", function() {
-        dialog.close();
+    previousPageButton.addEventListener("click", function() {
+        if (currentPage > 1) {
+            currentPage -= 1;
+            renderizarFestividades();
+        }
+    });
+    nextPageButton.addEventListener("click", function() {
+        if (currentPage < Math.ceil(festividades.length / pageSize)) {
+            currentPage += 1;
+            renderizarFestividades();
+        }
+    });
+    async function cerrarFormulario() {
+        if (await window.TEUI.confirmDiscard(form)) cerrarDialogo(true);
+    }
+    document.getElementById("btnCerrarDialogo").addEventListener("click", cerrarFormulario);
+    document.getElementById("btnCancelarFestividad").addEventListener("click", cerrarFormulario);
+    dialog.addEventListener("cancel", function(event) {
+        event.preventDefault();
+        cerrarFormulario();
     });
 
     document.getElementById("darkModeToggle").addEventListener("click", function() {
@@ -218,8 +289,6 @@
             window.location.href = "../index.html";
             return;
         }
-        localStorage.setItem("te_session", JSON.stringify(session));
-        sessionStorage.removeItem("te_session");
         document.getElementById("sidebarAvatar").textContent = session.avatar || "AD";
         document.getElementById("sidebarNombre").textContent = session.nombre || "Administrador";
 
@@ -248,25 +317,22 @@
         var dropdown = document.createElement("div");
         dropdown.className = "session-dropdown";
         [
-            ["panel_admin.html", "fa-shield-halved", "Panel Admin"],
-            ["perfil_admin.html", "fa-user", "Mi Perfil"],
-            ["config_admin.html", "fa-gear", "Configuración"],
-            ["festividades_admin.html", "fa-calendar-days", "Festividades"]
+            ["../index.html", "🏠", "Ir al sitio"],
+            ["panel_admin.html", "🛡️", "Panel Admin"],
+            ["perfil_admin.html", "👤", "Mi Perfil"],
+            ["config_admin.html", "⚙️", "Configuración"],
+            ["festividades_admin.html", "📅", "Festividades"]
         ].forEach(function(item) {
             var link = document.createElement("a");
             link.className = "session-menu-item";
             link.href = item[0];
-            var icon = document.createElement("i");
-            icon.className = "fa-solid " + item[1];
-            link.append(icon, document.createTextNode(" " + item[2]));
+            link.append(document.createTextNode(item[1] + " " + item[2]));
             dropdown.appendChild(link);
         });
         var logoutLink = document.createElement("a");
         logoutLink.className = "session-menu-item session-menu-danger";
         logoutLink.href = "#";
-        var logoutIcon = document.createElement("i");
-        logoutIcon.className = "fa-solid fa-right-from-bracket";
-        logoutLink.append(logoutIcon, document.createTextNode(" Cerrar Sesión"));
+        logoutLink.append(document.createTextNode("🚪 Cerrar Sesión"));
         dropdown.appendChild(logoutLink);
         widget.append(trigger, dropdown);
         slot.appendChild(widget);
@@ -281,26 +347,36 @@
         });
 
         logoutLink.addEventListener("click", cerrarSesion);
+        fetch("../login/get_perfil_admin.php", {
+            credentials: "include",
+            cache: "no-store"
+        })
+            .then(function(response) {
+                if (!response.ok) throw new Error("No se pudo cargar el perfil del administrador.");
+                return response.json();
+            })
+            .then(function(data) {
+                if (!data.ok || !data.admin) {
+                    throw new Error(data.error || "No se recibieron los datos del administrador.");
+                }
+                var fullName = [data.admin.nombre, data.admin.apellido].filter(Boolean).join(" ").trim();
+                if (!fullName) return;
+                var initials = fullName.split(/\s+/).map(function(part) {
+                    return part[0] || "";
+                }).join("").slice(0, 2).toUpperCase();
+                document.getElementById("sidebarAvatar").textContent = initials;
+                document.getElementById("sidebarNombre").textContent = fullName;
+                avatar.textContent = initials;
+                name.textContent = fullName;
+            })
+            .catch(function(error) {
+                console.warn("[TourismEasy] No se pudo mostrar el nombre del administrador.", error);
+            });
     })();
 
     async function cerrarSesion(event) {
         event.preventDefault();
-        try {
-            const response = await fetch("../login/logout_admin.php", {
-                method: "POST",
-                credentials: "include"
-            });
-            const result = await response.json();
-            if (!response.ok || !result.ok) {
-                throw new Error(result.error || "No se pudo cerrar la sesión.");
-            }
-            sessionStorage.removeItem("te_session");
-            localStorage.removeItem("te_session");
-            window.location.href = "../index.html";
-        } catch (error) {
-            console.warn("No se pudo confirmar el cierre de sesión en el servidor.", error);
-            alert(error.message || "No se pudo cerrar la sesión. Intenta de nuevo.");
-        }
+        await window.TEUI.logoutAdmin("../login/logout_admin.php", "../index.html");
     }
 
     document.getElementById("btnLogout").addEventListener("click", cerrarSesion);

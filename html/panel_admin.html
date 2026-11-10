@@ -4,22 +4,35 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="../js/control_tiempo_sesion.js?v=secure-session-v4"></script>
     <title>Panel Administrador - TourismEasy</title>
     <link rel="stylesheet" href="../css/index.css" />
-    <link rel="stylesheet" href="../css/login.css" />
-    <link rel="stylesheet" href="../css/panel_admin.css" />
+    <link rel="stylesheet" href="../css/login.css?v=device-approval-v2" />
+    <link rel="stylesheet" href="../css/panel_admin.css?v=admin-footer-size-v2" />
     <link rel="stylesheet" href="../css/click_metrics.css" />
-    <link rel="stylesheet" href="../css/contenido_admin.css" />
+    <link rel="stylesheet" href="../css/agente-ia.css?v=mobile-layout-v2" />
+    <link rel="stylesheet" href="../css/contenido_admin.css?v=destinos-v8" />
     <link rel="stylesheet" href="../css/resenas_likes.css" />
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;500&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
+    <script src="../componentes/ui-feedback.js?v=ui-feedback-v4"></script>
+    <script src="../componentes/modal.js"></script>
+    <script src="../componentes/toast.js"></script>
+    <script src="../componentes/boton-accion.js"></script>
+    <script src="../componentes/lista-tarjetas.js"></script>
+    <script src="../componentes/panel-filtros.js"></script>
+    <script src="../componentes/tabla-datos.js"></script>
+    <script src="../componentes/filtro-chips.js"></script>
+    <script src="../componentes/estado-badge.js"></script>
+    <script src="../componentes/barra-busqueda.js"></script>
+    <script src="../componentes/paginacion.js"></script>
 </head>
 
 <body>
     <nav class="navbar">
         <div class="nav-container">
-            <a href="javascript:location.reload()" class="nav-logo" title="Refrescar panel">
+            <a href="../index.html" class="nav-logo" title="Ir a TourismEasy">
                 <img src="../img/TURISMEASY.png" alt="TourismEasy Logo" class="logo-img" />
                 <span class="logo-text">TOURISMEASY</span>
             </a>
@@ -36,10 +49,11 @@
             <div class="panel-header-info">
                 <div class="panel-empresa-avatar" id="panelAvatar">AD</div>
                 <div>
-                    <h1 class="panel-empresa-nombre" id="panelNombre">
-                        Administrador TourismEasy
+                    <h1 class="panel-empresa-nombre" id="panelNombre" aria-live="polite">
+                        Cargando…
                     </h1>
-                    <p class="panel-empresa-sub">
+                    <p class="panel-empresa-sub" id="adminProfileStatus" aria-live="polite">
+                        Cargando datos del administrador…
                         Panel de administración general · TourismEasy
                     </p>
                 </div>
@@ -58,7 +72,7 @@
                     <i class="fa-solid fa-hourglass-half"></i>
                 </div>
                 <div class="stat-info">
-                    <span class="stat-num" id="statPendientes">3</span><span class="stat-label">Solicitudes
+                    <span class="stat-num" id="statPendientes">Cargando…</span><span class="stat-label">Solicitudes
                         pendientes</span>
                 </div>
             </div>
@@ -67,7 +81,7 @@
                     <i class="fa-solid fa-building"></i>
                 </div>
                 <div class="stat-info">
-                    <span class="stat-num">21</span><span class="stat-label">Empresas registradas</span>
+                    <span class="stat-num" id="statEmpresasTotal">Cargando…</span><span class="stat-label">Empresas registradas</span>
                 </div>
             </div>
             <div class="stat-card">
@@ -75,7 +89,7 @@
                     <i class="fa-solid fa-building-circle-check"></i>
                 </div>
                 <div class="stat-info">
-                    <span class="stat-num">18</span><span class="stat-label">Empresas activas</span>
+                    <span class="stat-num" id="statEmpresasActivas">Cargando…</span><span class="stat-label">Empresas activas</span>
                 </div>
             </div>
             <div class="stat-card">
@@ -83,7 +97,7 @@
                     <i class="fa-solid fa-building-circle-xmark"></i>
                 </div>
                 <div class="stat-info">
-                    <span class="stat-num">3</span><span class="stat-label">Empresas inactivas</span>
+                    <span class="stat-num" id="statEmpresasInactivas">Cargando…</span><span class="stat-label">Empresas inactivas</span>
                 </div>
             </div>
             <div class="stat-card">
@@ -91,7 +105,7 @@
                     <i class="fa-solid fa-clock-rotate-left"></i>
                 </div>
                 <div class="stat-info">
-                    <span class="stat-num">134</span><span class="stat-label">Eventos auditados</span>
+                    <span class="stat-num" id="statEventosAuditoria">Cargando…</span><span class="stat-label">Eventos auditados</span>
                 </div>
             </div>
             <div class="stat-card">
@@ -99,7 +113,7 @@
                     <i class="fa-solid fa-triangle-exclamation"></i>
                 </div>
                 <div class="stat-info">
-                    <span class="stat-num">2</span><span class="stat-label">Alertas de auditoría</span>
+                    <span class="stat-num" id="statAlertasAuditoria">Cargando…</span><span class="stat-label">Alertas de auditoría</span>
                 </div>
             </div>
             <div class="stat-card">
@@ -107,7 +121,7 @@
                     <i class="fa-solid fa-palette"></i>
                 </div>
                 <div class="stat-info">
-                    <span class="stat-num" id="statArtesanosTotal">—</span><span class="stat-label">Artesanos
+                    <span class="stat-num" id="statArtesanosTotal">Cargando…</span><span class="stat-label">Artesanos
                         registrados</span>
                 </div>
             </div>
@@ -116,7 +130,7 @@
                     <i class="fa-solid fa-user-clock"></i>
                 </div>
                 <div class="stat-info">
-                    <span class="stat-num" id="statArtesanosPendientes">—</span><span class="stat-label">Solicitudes
+                    <span class="stat-num" id="statArtesanosPendientes">Cargando…</span><span class="stat-label">Solicitudes
                         artesanos pendientes</span>
                 </div>
             </div>
@@ -180,7 +194,7 @@
                 <div class="click-metrics__block">
                     <h3>Últimos clics registrados</h3>
                     <div class="panel-table-wrap">
-                        <table class="panel-table"><thead><tr><th>Fecha</th><th>Empresa / contacto</th><th>Categoría</th><th>Producto</th><th>Ciudad</th><th>Dispositivo</th></tr></thead><tbody data-clicks-recent></tbody></table>
+                        <table class="panel-table"><thead><tr><th>Fecha</th><th>Empresa / contacto</th><th>Categoría</th><th>Producto</th><th>Dispositivo</th></tr></thead><tbody data-clicks-recent></tbody></table>
                     </div>
                 </div>
             </section>
@@ -208,6 +222,14 @@
                     <tbody></tbody>
                 </table>
             </div>
+            <div class="audit-pagination" id="empresasPaginacion" aria-label="Paginación de empresas">
+                <span class="audit-pagination-summary" id="empresasResumen" aria-live="polite"></span>
+                <div class="audit-pagination-controls" id="empresasControles">
+                    <button class="audit-page-button" id="empresasAnterior" type="button">Anterior</button>
+                    <span class="audit-page-indicator" id="empresasPaginaActual" aria-live="polite"></span>
+                    <button class="audit-page-button" id="empresasSiguiente" type="button">Siguiente</button>
+                </div>
+            </div>
         </div>
 
         <!-- TAB: SOLICITUDES -->
@@ -232,6 +254,14 @@
                     <tbody></tbody>
                 </table>
             </div>
+            <div class="audit-pagination" id="solicitudesPaginacion" aria-label="Paginación de solicitudes">
+                <span class="audit-pagination-summary" id="solicitudesResumen" aria-live="polite"></span>
+                <div class="audit-pagination-controls" id="solicitudesControles">
+                    <button class="audit-page-button" id="solicitudesAnterior" type="button">Anterior</button>
+                    <span class="audit-page-indicator" id="solicitudesPaginaActual" aria-live="polite"></span>
+                    <button class="audit-page-button" id="solicitudesSiguiente" type="button">Siguiente</button>
+                </div>
+            </div>
         </div>
 
         <!-- TAB: AUDITORÍA -->
@@ -242,11 +272,14 @@
                 </h2>
                 <div class="panel-filter">
                     <select class="panel-select">
-                        <option>Todos los eventos</option>
-                        <option>Empresas</option>
-
-                        <option>Sesiones</option>
-                        <option>Alertas</option>
+                        <option value="">Todos los eventos</option>
+                        <option value="Empresas">Empresas</option>
+                        <option value="Solicitudes">Solicitudes</option>
+                        <option value="ARTESANOS">Artesanos</option>
+                        <option value="Festividades">Festividades</option>
+                        <option value="Contenido portada">Portada</option>
+                        <option value="Sesiones">Sesiones</option>
+                        <option value="Alertas">Alertas</option>
                     </select>
                 </div>
             </div>
@@ -264,6 +297,14 @@
                     </thead>
                     <tbody></tbody>
                 </table>
+            </div>
+            <div class="audit-pagination" id="auditoriaPaginacion" aria-label="Paginación de auditoría">
+                <span class="audit-pagination-summary" id="auditoriaResumen" aria-live="polite"></span>
+                <div class="audit-pagination-controls">
+                    <button class="audit-page-button" id="auditoriaAnterior" type="button">Anterior</button>
+                    <span class="audit-page-indicator" id="auditoriaPaginaActual" aria-live="polite"></span>
+                    <button class="audit-page-button" id="auditoriaSiguiente" type="button">Siguiente</button>
+                </div>
             </div>
         </div>
 
@@ -293,6 +334,14 @@
 
             <!-- Lista de reseñas -->
             <div id="sliderTrack" style="display:flex;flex-direction:column;gap:12px;"></div>
+            <nav class="audit-pagination" id="resenasPaginacion" aria-label="Paginación de reseñas" hidden>
+                <span class="audit-pagination-summary" id="resenasResumen" aria-live="polite"></span>
+                <div class="audit-pagination-controls">
+                    <button class="audit-page-button" id="resenasAnterior" type="button">Anterior</button>
+                    <span class="audit-page-indicator" id="resenasPaginaActual" aria-live="polite"></span>
+                    <button class="audit-page-button" id="resenasSiguiente" type="button">Siguiente</button>
+                </div>
+            </nav>
 
             <!-- Elementos ocultos requeridos por resenas.js -->
             <div id="resenaLoginPrompt" style="display:none;"></div>
@@ -346,6 +395,14 @@
                     </tbody>
                 </table>
             </div>
+            <div class="audit-pagination" id="artesanosPaginacion" aria-label="Paginación de artesanos" hidden>
+                <span class="audit-pagination-summary" id="artesanosResumen" aria-live="polite"></span>
+                <div class="audit-pagination-controls">
+                    <button class="audit-page-button" id="artesanosAnterior" type="button">Anterior</button>
+                    <span class="audit-page-indicator" id="artesanosPaginaActual" aria-live="polite"></span>
+                    <button class="audit-page-button" id="artesanosSiguiente" type="button">Siguiente</button>
+                </div>
+            </div>
         </div>
 
         <!-- TAB: CONTENIDO DE PORTADA -->
@@ -353,7 +410,7 @@
             <div class="panel-content-header">
                 <div>
                     <h2><i class="fa-solid fa-map-location-dot"></i> Destinos de la portada</h2>
-                    <p class="portada-help">Administra las tarjetas y el artículo que se abre al seleccionarlas.</p>
+                    <p class="portada-help">Administra las tarjetas y los artículos de los municipios que aparecen en la portada.</p>
                 </div>
                 <button class="btn-panel-add" id="btnNuevoDestino" type="button">
                     <i class="fa-solid fa-plus"></i> Crear destino
@@ -361,6 +418,14 @@
             </div>
             <p id="portadaEstado" class="portada-status" role="status"></p>
             <div id="portadaDestinos" class="portada-grid"></div>
+            <nav class="audit-pagination" id="portadaPaginacion" aria-label="Paginación de destinos de portada" hidden>
+                <span class="audit-pagination-summary" id="portadaResumen" aria-live="polite"></span>
+                <div class="audit-pagination-controls">
+                    <button class="audit-page-button" id="portadaAnterior" type="button">Anterior</button>
+                    <span class="audit-page-indicator" id="portadaPaginaActual" aria-live="polite"></span>
+                    <button class="audit-page-button" id="portadaSiguiente" type="button">Siguiente</button>
+                </div>
+            </nav>
             <dialog id="portadaEditorDialog" class="portada-editor-dialog" aria-labelledby="portadaFormTitle">
                 <div id="portadaEditor" class="portada-editor" hidden></div>
             </dialog>
@@ -401,6 +466,14 @@
                     </tbody>
                 </table>
             </div>
+            <div class="audit-pagination" id="adminFestividadesPaginacion" aria-label="Paginación de festividades" hidden>
+                <span class="audit-pagination-summary" id="adminFestividadesResumen" aria-live="polite"></span>
+                <div class="audit-pagination-controls">
+                    <button class="audit-page-button" id="adminFestividadesAnterior" type="button">Anterior</button>
+                    <span class="audit-page-indicator" id="adminFestividadesPaginaActual" aria-live="polite"></span>
+                    <button class="audit-page-button" id="adminFestividadesSiguiente" type="button">Siguiente</button>
+                </div>
+            </div>
         </section>
 
     </main>
@@ -419,14 +492,9 @@
         </div>
     </div>
 
-    <!-- TOAST -->
-    <div id="adminToast" style="position:fixed;bottom:28px;right:28px;background:#7c3aed;color:#fff;padding:12px 20px;border-radius:12px;font-family:'Montserrat',sans-serif;font-weight:700;font-size:0.85rem;z-index:9999;display:none;box-shadow:0 8px 24px rgba(124,58,237,0.35);gap:8px;align-items:center;">
-        <i class="fa-solid fa-check-circle"></i> <span id="toastMsg"></span>
-    </div>
-
     <script>
         // ── ESTADO GLOBAL ────────────────────────────────────────────────────
-        var adminUser = "admin@tourismeasy.com";
+        var adminUser = "";
         // ── VERIFICAR SESION ─────────────────────────────────────────────────
         (function() {
             var sess = (localStorage.getItem("te_session") || sessionStorage.getItem("te_session"));
@@ -439,9 +507,8 @@
                 // window.location.href = "../index.html";
                 return;
             }
-            document.getElementById("panelAvatar").textContent = u.avatar || "AD";
-            document.getElementById("panelNombre").textContent = u.nombre || "Administrador";
-            adminUser = u.email || adminUser;
+            document.getElementById("panelAvatar").textContent = "AD";
+            document.getElementById("panelNombre").textContent = "Cargando…";
         })();
 
         // DARK MODE
@@ -474,23 +541,21 @@
             widget.className = "session-widget";
             widget.innerHTML =
                 '<button class="session-trigger" id="sessionTrigger">' +
-                '<div class="session-avatar">' +
-                user.avatar +
-                "</div>" +
+                '<div class="session-avatar">AD</div>' +
                 '<div class="session-info">' +
-                '<span class="session-name">' +
-                user.nombre +
-                "</span>" +
+                '<span class="session-name">Cargando…</span>' +
                 '<span class="session-tipo">Administrador</span>' +
                 "</div>" +
                 '<i class="fa-solid fa-chevron-down session-chevron" id="sessionChevron"></i>' +
                 "</button>" +
                 '<div class="session-dropdown" id="sessionDropdown">' +
-                '<a class="session-menu-item" href="panel_admin.html"><i class="fa-solid fa-shield-halved"></i> Panel Admin</a>' +
-                '<a class="session-menu-item" href="perfil_admin.html"><i class="fa-solid fa-user"></i> Mi Perfil</a>' +
-                '<a class="session-menu-item" href="config_admin.html"><i class="fa-solid fa-gear"></i> Configuración</a>' +
-                '<a class="session-menu-item" href="festividades_admin.html"><i class="fa-solid fa-calendar-days"></i> Festividades</a>' +
-                '<a class="session-menu-item session-menu-danger" id="btnLogout" href="#"><i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión</a>' +
+                '<a class="session-menu-item" href="../index.html">🏠 Ir al sitio</a>' +
+                '<a class="session-menu-item" href="panel_admin.html">🛡️ Panel Admin</a>' +
+                '<a class="session-menu-item" href="perfil_admin.html">👤 Mi Perfil</a>' +
+                '<a class="session-menu-item" href="config_admin.html">⚙️ Configuración</a>' +
+                '<a class="session-menu-item" href="festividades_admin.html">📅 Festividades</a>' +
+                '<a class="session-menu-item" href="catalogos_admin.html">📚 Catálogos</a>' +
+                '<a class="session-menu-item session-menu-danger" id="btnLogout" href="#">🚪 Cerrar Sesión</a>' +
                 "</div>";
             if (navContainer && insertBefore)
                 navContainer.insertBefore(widget, insertBefore);
@@ -511,27 +576,79 @@
                 .addEventListener("click", async function(e) {
                     e.preventDefault();
                     e.stopPropagation();
-                    try {
-                        await fetch("../login/logout_admin.php", {
-                            method: "POST",
-                            credentials: "include"
-                        });
-                    } catch (error) {
-                        console.warn("No se pudo confirmar el cierre de sesión en el servidor.", error);
-                    } finally {
-                        sessionStorage.removeItem("te_session");
-                        localStorage.removeItem("te_session");
-                        window.location.href = "../index.html";
-                    }
+                    await window.TEUI.logoutAdmin("../login/logout_admin.php", "../index.html");
                 });
+        })();
+
+        (function() {
+            var rawSession = localStorage.getItem("te_session") || sessionStorage.getItem("te_session");
+            var status = document.getElementById("adminProfileStatus");
+
+            function setUnavailable(error) {
+                console.error("No se pudo cargar el perfil del administrador:", error);
+                document.getElementById("panelNombre").textContent = "No disponible";
+                if (status) status.textContent = "No se pudo cargar el perfil del administrador.";
+                var name = document.querySelector("#sessionWidget .session-name");
+                if (name) name.textContent = "No disponible";
+            }
+
+            var user;
+            try {
+                user = JSON.parse(rawSession || "null");
+            } catch (error) {
+                setUnavailable(error);
+                return;
+            }
+            if (!user || user.tipo !== "admin") {
+                setUnavailable(new Error("No se encontró la sesión del administrador."));
+                return;
+            }
+
+            fetch("../login/get_perfil_admin.php", {
+                credentials: "include",
+                cache: "no-store"
+            })
+                .then(function(response) {
+                    if (!response.ok) throw new Error("HTTP " + response.status);
+                    return response.json();
+                })
+                .then(function(data) {
+                    if (!data.ok || !data.admin) {
+                        throw new Error(data.error || "La respuesta del perfil no es válida.");
+                    }
+                    var admin = data.admin;
+                    var nombre = ((admin.nombre || "") + " " + (admin.apellido || "")).trim();
+                    if (!nombre) throw new Error("El servidor no devolvió el nombre del administrador.");
+                    var initials = nombre.split(/\s+/).map(function(word) {
+                        return word[0] || "";
+                    }).join("").toUpperCase().slice(0, 2) || "AD";
+                    document.getElementById("panelAvatar").textContent = initials;
+                    document.getElementById("panelNombre").textContent = nombre;
+                    if (status) status.textContent = "Panel de administración general · TourismEasy";
+                    var sessionName = document.querySelector("#sessionWidget .session-name");
+                    var sessionAvatar = document.querySelector("#sessionWidget .session-avatar");
+                    if (sessionName) sessionName.textContent = nombre;
+                    if (sessionAvatar) sessionAvatar.textContent = initials;
+                    adminUser = admin.email_login || "";
+                })
+                .catch(setUnavailable);
         })();
 
 
         var empresasData = [];
+        var empresasCargadas = false;
+        var empresasPagina = 1;
+        var empresasPorPagina = 20;
 
         var solicitudesData = [];
+        var solicitudesCargadas = false;
+        var solicitudesPagina = 1;
+        var solicitudesPorPagina = 20;
 
         var auditoriaData = [];
+        var auditoriaCargada = false;
+        var auditoriaPagina = 1;
+        var auditoriaPorPagina = 20;
 
         var _svcLabel = {
             "TRANSPORTE": "Transporte",
@@ -541,14 +658,21 @@
 
         // ── Cargar solicitudes pendientes reales desde la BD ──
         function cargarSolicitudesBD() {
+            solicitudesCargadas = false;
+            document.getElementById("statPendientes").textContent = "Cargando…";
             fetch("../soli_empresas/get_solicitudes.php", {
-                    credentials: "include"
+                    credentials: "include",
+                    cache: "no-store"
                 })
                 .then(function(r) {
+                    if (!r.ok) throw new Error("HTTP " + r.status);
                     return r.json();
                 })
                 .then(function(data) {
-                    if (!data.ok) return;
+                    if (!data.ok || !Array.isArray(data.data)) {
+                        throw new Error(data.error || "La respuesta de solicitudes no es válida.");
+                    }
+                    solicitudesCargadas = true;
                     solicitudesData = data.data.map(function(s) {
                         return {
                             nit: s.nit || "—",
@@ -560,24 +684,35 @@
                             estado: "pendiente"
                         };
                     });
+                    solicitudesPagina = 1;
                     renderSolicitudes();
                     updateStats();
                 })
-                .catch(function() {
-                    console.warn("No se pudieron cargar solicitudes desde la BD.");
+                .catch(function(error) {
+                    console.error("No se pudieron cargar solicitudes desde la BD:", error);
+                    document.getElementById("statPendientes").textContent = "No disponible";
                 });
         }
 
         // ── Cargar empresas reales (activas e inactivas) desde la BD ──
         function cargarEmpresasBD() {
+            empresasCargadas = false;
+            ["statEmpresasTotal", "statEmpresasActivas", "statEmpresasInactivas"].forEach(function(id) {
+                document.getElementById(id).textContent = "Cargando…";
+            });
             fetch("../soli_empresas/get_empresas.php", {
-                    credentials: "include"
+                    credentials: "include",
+                    cache: "no-store"
                 })
                 .then(function(r) {
+                    if (!r.ok) throw new Error("HTTP " + r.status);
                     return r.json();
                 })
                 .then(function(data) {
-                    if (!data.ok) return;
+                    if (!data.ok || !Array.isArray(data.data)) {
+                        throw new Error(data.error || "La respuesta de empresas no es válida.");
+                    }
+                    empresasCargadas = true;
                     empresasData = data.data.map(function(e) {
                         return {
                             nit: e.nit,
@@ -592,21 +727,289 @@
                     renderEmpresas();
                     updateStats();
                 })
-                .catch(function() {
-                    console.warn("No se pudieron cargar empresas desde la BD.");
+                .catch(function(error) {
+                    console.error("No se pudieron cargar empresas desde la BD:", error);
+                    ["statEmpresasTotal", "statEmpresasActivas", "statEmpresasInactivas"].forEach(function(id) {
+                        document.getElementById(id).textContent = "No disponible";
+                    });
                 });
+        }
+
+        function normalizarSnapshotAuditoria(snapshot) {
+            if (typeof snapshot !== "string") return snapshot;
+            try {
+                return JSON.parse(snapshot);
+            } catch (error) {
+                console.error("La auditoría contiene un snapshot JSON inválido.", error);
+                return snapshot;
+            }
+        }
+
+        var etiquetasSnapshotAuditoria = {
+            clave: "Clave",
+            imagen: "Imagen",
+            texto_alt: "Texto alternativo",
+            insignia: "Insignia",
+            titulo: "Título",
+            descripcion: "Descripción",
+            articulo: "Contenido del artículo",
+            orden: "Orden",
+            publicado: "Publicado",
+            video: "Video",
+            subtitulo: "Subtítulo",
+            datos: "Datos",
+            intro: "Introducción",
+            secciones: "Secciones",
+            ctaTexto: "Texto del botón",
+            mapa: "Mapa",
+            destacado: "Destacado en el mapa",
+            latitud: "Latitud",
+            longitud: "Longitud",
+            etiquetas: "Palabras clave",
+            label: "Campo",
+            val: "Valor",
+            texto: "Texto",
+            nombre: "Nombre",
+            correo_institucional: "Correo institucional",
+            contacto: "Contacto",
+            id_ciudad: "Código del municipio",
+            tipo_servicio: "Tipo de servicio",
+            estado: "Estado",
+            correo_acceso: "Correo de acceso"
+        };
+
+        function crearSnapshotAuditoria(titulo, snapshot) {
+            var seccion = document.createElement("section");
+            seccion.className = "audit-snapshot";
+            var encabezado = document.createElement("h4");
+            encabezado.className = "audit-snapshot-title";
+            encabezado.textContent = titulo;
+            seccion.appendChild(encabezado);
+
+            var campos = document.createElement("div");
+            campos.className = "audit-snapshot-fields";
+            if (snapshot && typeof snapshot === "object" && !Array.isArray(snapshot)) {
+                Object.keys(snapshot).forEach(function(clave) {
+                    agregarCampoSnapshotAuditoria(campos, clave, snapshot[clave]);
+                });
+            } else {
+                agregarValorSnapshotAuditoria(campos, snapshot);
+            }
+            seccion.appendChild(campos);
+            return seccion;
+        }
+
+        function agregarCampoSnapshotAuditoria(contenedor, clave, valor) {
+            var campo = document.createElement("div");
+            campo.className = "audit-snapshot-field";
+            var etiqueta = document.createElement("span");
+            etiqueta.className = "audit-snapshot-label";
+            etiqueta.textContent = etiquetasSnapshotAuditoria[clave] ||
+                clave.replace(/_/g, " ").replace(/^./, function(letra) { return letra.toUpperCase(); });
+            campo.appendChild(etiqueta);
+
+            var contenido = document.createElement("div");
+            contenido.className = "audit-snapshot-value";
+            if (valor && typeof valor === "object") {
+                agregarValorSnapshotAuditoria(contenido, valor);
+            } else {
+                contenido.textContent = valor === null || valor === undefined || valor === "" ?
+                    "Sin valor" :
+                    typeof valor === "boolean" ? (valor ? "Sí" : "No") : String(valor);
+            }
+            campo.appendChild(contenido);
+            contenedor.appendChild(campo);
+        }
+
+        function agregarValorSnapshotAuditoria(contenedor, valor) {
+            if (Array.isArray(valor)) {
+                if (!valor.length) {
+                    contenedor.textContent = "Sin elementos";
+                    return;
+                }
+                valor.forEach(function(elemento) {
+                    if (elemento && typeof elemento === "object") {
+                        var tarjeta = document.createElement("div");
+                        tarjeta.className = "audit-snapshot-item";
+                        Object.keys(elemento).forEach(function(clave) {
+                            agregarCampoSnapshotAuditoria(tarjeta, clave, elemento[clave]);
+                        });
+                        contenedor.appendChild(tarjeta);
+                    } else {
+                        var item = document.createElement("span");
+                        item.className = "audit-snapshot-tag";
+                        item.textContent = elemento === null || elemento === undefined ? "Sin valor" : String(elemento);
+                        contenedor.appendChild(item);
+                    }
+                });
+                return;
+            }
+
+            if (valor && typeof valor === "object") {
+                var grupo = document.createElement("div");
+                grupo.className = "audit-snapshot-group";
+                Object.keys(valor).forEach(function(clave) {
+                    agregarCampoSnapshotAuditoria(grupo, clave, valor[clave]);
+                });
+                contenedor.appendChild(grupo);
+                return;
+            }
+
+            contenedor.textContent = valor === null || valor === undefined || valor === "" ?
+                "Sin valor" :
+                typeof valor === "boolean" ? (valor ? "Sí" : "No") : String(valor);
+        }
+
+        function obtenerCambiosSnapshotAuditoria(anterior, nuevo) {
+            var cambios = [];
+
+            function comparar(valorAnterior, valorNuevo, ruta) {
+                var objetoAnterior = valorAnterior && typeof valorAnterior === "object" && !Array.isArray(valorAnterior);
+                var objetoNuevo = valorNuevo && typeof valorNuevo === "object" && !Array.isArray(valorNuevo);
+                var objetoAgregadoOEliminado = (valorAnterior === null || valorAnterior === undefined) && objetoNuevo ||
+                    (valorNuevo === null || valorNuevo === undefined) && objetoAnterior;
+                if ((objetoAnterior && objetoNuevo) || objetoAgregadoOEliminado) {
+                    var claves = new Set(Object.keys(objetoAnterior ? valorAnterior : {}).concat(Object.keys(objetoNuevo ? valorNuevo : {})));
+                    claves.forEach(function(clave) {
+                        comparar(
+                            objetoAnterior ? valorAnterior[clave] : undefined,
+                            objetoNuevo ? valorNuevo[clave] : undefined,
+                            ruta.concat(clave)
+                        );
+                    });
+                    return;
+                }
+
+                if (JSON.stringify(valorAnterior) === JSON.stringify(valorNuevo)) return;
+                cambios.push({
+                    ruta: ruta,
+                    anterior: valorAnterior,
+                    nuevo: valorNuevo
+                });
+            }
+
+            comparar(anterior, nuevo, []);
+            return cambios;
+        }
+
+        function etiquetaRutaSnapshotAuditoria(ruta) {
+            return ruta.map(function(clave) {
+                return etiquetasSnapshotAuditoria[clave] ||
+                    clave.replace(/_/g, " ").replace(/^./, function(letra) { return letra.toUpperCase(); });
+            }).join(" · ");
+        }
+
+        function textoCortoSnapshotAuditoria(valor) {
+            if (valor === null || valor === undefined || valor === "") return "Sin valor";
+            if (typeof valor === "boolean") return valor ? "Sí" : "No";
+            if (Array.isArray(valor)) {
+                if (valor.every(function(item) { return item === null || ["string", "number", "boolean"].includes(typeof item); })) {
+                    return valor.map(function(item) {
+                        return item === null ? "Sin valor" : typeof item === "boolean" ? (item ? "Sí" : "No") : String(item);
+                    }).join(", ") || "Sin elementos";
+                }
+                return valor.length + (valor.length === 1 ? " elemento" : " elementos");
+            }
+            if (typeof valor === "object") return "Contenido estructurado";
+            return String(valor);
+        }
+
+        function crearValorCambioSnapshotAuditoria(valor, lado) {
+            var contenedor = document.createElement("span");
+            contenedor.className = "audit-change-value";
+            var prefijo = document.createElement("strong");
+            prefijo.textContent = lado + ": ";
+            contenedor.appendChild(prefijo);
+
+            var texto = textoCortoSnapshotAuditoria(valor);
+            var valorEstructurado = Array.isArray(valor) || (valor && typeof valor === "object");
+            var requiereDetalle = typeof valor === "string" && valor.length > 120 ||
+                valorEstructurado && (texto === "Contenido estructurado" || /^\d+ elementos?$/.test(texto));
+            if (requiereDetalle) {
+                var detalles = document.createElement("details");
+                detalles.className = "audit-change-value-details";
+                var resumen = document.createElement("summary");
+                resumen.textContent = typeof valor === "string" ? valor.substring(0, 120) + "…" : texto + " (ver)";
+                detalles.appendChild(resumen);
+                if (typeof valor === "string") {
+                    var textoCompleto = document.createElement("span");
+                    textoCompleto.textContent = valor;
+                    detalles.appendChild(textoCompleto);
+                } else {
+                    var contenido = document.createElement("div");
+                    agregarValorSnapshotAuditoria(contenido, valor);
+                    detalles.appendChild(contenido);
+                }
+                contenedor.appendChild(detalles);
+            } else {
+                var contenidoCorto = document.createElement("span");
+                contenidoCorto.textContent = texto.length > 120 ? texto.substring(0, 120) + "…" : texto;
+                contenedor.appendChild(contenidoCorto);
+                if (texto.length > 120) {
+                    var detallesTexto = document.createElement("details");
+                    detallesTexto.className = "audit-change-value-details";
+                    var resumenTexto = document.createElement("summary");
+                    resumenTexto.textContent = "Ver texto completo";
+                    var textoCompleto = document.createElement("span");
+                    textoCompleto.textContent = texto;
+                    detallesTexto.append(resumenTexto, textoCompleto);
+                    contenedor.appendChild(detallesTexto);
+                }
+            }
+            return contenedor;
+        }
+
+        function crearResumenCambiosAuditoria(anterior, nuevo) {
+            var cambios = obtenerCambiosSnapshotAuditoria(anterior, nuevo);
+            if (!cambios.length) return null;
+
+            var contenedor = document.createElement("details");
+            contenedor.className = "audit-change-details";
+            var resumen = document.createElement("summary");
+            resumen.textContent = "Ver " + cambios.length + (cambios.length === 1 ? " campo modificado" : " campos modificados");
+            contenedor.appendChild(resumen);
+
+            var lista = document.createElement("div");
+            lista.className = "audit-changes-list";
+            cambios.forEach(function(cambio) {
+                var fila = document.createElement("div");
+                fila.className = "audit-change-row";
+                var etiqueta = document.createElement("strong");
+                etiqueta.className = "audit-change-label";
+                etiqueta.textContent = etiquetaRutaSnapshotAuditoria(cambio.ruta) || "Registro";
+                fila.appendChild(etiqueta);
+                var valores = document.createElement("div");
+                valores.className = "audit-change-values";
+                valores.append(
+                    crearValorCambioSnapshotAuditoria(cambio.anterior, "Antes"),
+                    crearValorCambioSnapshotAuditoria(cambio.nuevo, "Después")
+                );
+                fila.appendChild(valores);
+                lista.appendChild(fila);
+            });
+            contenedor.appendChild(lista);
+            return contenedor;
         }
 
         // ── Cargar auditoría real desde la BD ──
         function cargarAuditoriaBD() {
+            auditoriaCargada = false;
+            ["statEventosAuditoria", "statAlertasAuditoria"].forEach(function(id) {
+                document.getElementById(id).textContent = "Cargando…";
+            });
             fetch("../soli_empresas/get_auditoria.php", {
-                    credentials: "include"
+                    credentials: "include",
+                    cache: "no-store"
                 })
                 .then(function(r) {
+                    if (!r.ok) throw new Error("HTTP " + r.status);
                     return r.json();
                 })
                 .then(function(data) {
-                    if (!data.ok) return;
+                    if (!data.ok || !Array.isArray(data.data)) {
+                        throw new Error(data.error || "La respuesta de auditoría no es válida.");
+                    }
+                    auditoriaCargada = true;
                     auditoriaData = data.data.map(function(a) {
                         return {
                             fecha: (a.fecha || "").substring(0, 16).replace("T", " "),
@@ -614,27 +1017,25 @@
                             accion: a.accion,
                             modulo: a.modulo,
                             detalle: a.detalle,
-                            nivel: a.nivel
+                            nivel: a.nivel,
+                            anterior: normalizarSnapshotAuditoria(a.reg_anterior),
+                            nuevo: normalizarSnapshotAuditoria(a.reg_nuevo)
                         };
                     });
                     renderAuditoria();
                     updateStats();
                 })
-                .catch(function() {
-                    console.warn("No se pudo cargar la auditoría desde la BD.");
+                .catch(function(error) {
+                    console.error("No se pudo cargar la auditoría desde la BD:", error);
+                    ["statEventosAuditoria", "statAlertasAuditoria"].forEach(function(id) {
+                        document.getElementById(id).textContent = "No disponible";
+                    });
                 });
         }
 
         // ── UTILIDADES ───────────────────────────────────────────────────────
         function showToast(msg, color) {
-            var t = document.getElementById("adminToast");
-            t.style.background = color || "#7c3aed";
-            document.getElementById("toastMsg").textContent = msg;
-            t.style.display = "flex";
-            clearTimeout(t._timer);
-            t._timer = setTimeout(function() {
-                t.style.display = "none";
-            }, 3000);
+            window.TEUI.toast(msg, color === "#ef4444" ? "error" : "success");
         }
 
         function openPanelModal(title, bodyHTML) {
@@ -653,8 +1054,9 @@
             }
         }
 
-        function closePanelModal() {
+        function closePanelModal(notify) {
             document.getElementById("panelModalOverlay").style.display = "none";
+            if (notify !== false) window.TEUI.notifyClosed("Ventana");
         }
         window.closePanelModal = closePanelModal;
 
@@ -677,39 +1079,64 @@
 
         // ── STATS ────────────────────────────────────────────────────────────
         function updateStats() {
-            var total = empresasData.length;
-            var activas = empresasData.filter(function(e) {
-                return e.estado === "ACTIVO";
-            }).length;
-            var inactivas = total - activas;
-            var alertas = auditoriaData.filter(function(a) {
-                return a.nivel === "alerta";
-            }).length;
-            var pendientes = solicitudesData.length; // ya viene solo con las PENDIENTE
-            var statNums = document.querySelectorAll(".stat-num");
-            statNums[0].textContent = pendientes;
-            statNums[1].textContent = total;
-            statNums[2].textContent = activas;
-            statNums[3].textContent = inactivas;
-            statNums[4].textContent = auditoriaData.length;
-            statNums[5].textContent = alertas;
+            if (solicitudesCargadas) {
+                document.getElementById("statPendientes").textContent = solicitudesData.length;
+            }
+            if (empresasCargadas) {
+                var total = empresasData.length;
+                var activas = empresasData.filter(function(e) {
+                    return e.estado === "ACTIVO";
+                }).length;
+                document.getElementById("statEmpresasTotal").textContent = total;
+                document.getElementById("statEmpresasActivas").textContent = activas;
+                document.getElementById("statEmpresasInactivas").textContent = total - activas;
+            }
+            if (auditoriaCargada) {
+                var alertas = auditoriaData.filter(function(a) {
+                    return esAlertaAuditoria(a);
+                }).length;
+                document.getElementById("statEventosAuditoria").textContent = auditoriaData.length;
+                document.getElementById("statAlertasAuditoria").textContent = alertas;
+            }
+        }
+
+        function esAlertaAuditoria(evento) {
+            return ["alerta", "advertencia", "error"].includes(evento.nivel);
         }
 
         // ── RENDER EMPRESAS ──────────────────────────────────────────────────
         function renderEmpresas() {
             var tbody = document.querySelector("#tab-empresas .panel-table tbody");
             tbody.innerHTML = "";
+            var totalPaginas = Math.ceil(empresasData.length / empresasPorPagina);
+            empresasPagina = Math.min(Math.max(empresasPagina, 1), Math.max(totalPaginas, 1));
+            var inicio = (empresasPagina - 1) * empresasPorPagina;
+            var empresasPaginaActual = empresasData.slice(inicio, inicio + empresasPorPagina);
+            var resumen = document.getElementById("empresasResumen");
+            var indicadorPagina = document.getElementById("empresasPaginaActual");
+            var botonAnterior = document.getElementById("empresasAnterior");
+            var botonSiguiente = document.getElementById("empresasSiguiente");
+            var controles = document.getElementById("empresasControles");
+
+            resumen.textContent = empresasData.length ?
+                "Mostrando " + (inicio + 1) + "–" + Math.min(inicio + empresasPorPagina, empresasData.length) + " de " + empresasData.length + " empresas" :
+                "Sin empresas";
+            indicadorPagina.textContent = totalPaginas ? "Página " + empresasPagina + " de " + totalPaginas : "Página 0 de 0";
+            botonAnterior.disabled = empresasPagina <= 1;
+            botonSiguiente.disabled = empresasPagina >= totalPaginas;
+            controles.hidden = totalPaginas <= 1;
+
             if (empresasData.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:#64748b;font-style:italic;">No hay empresas registradas todavía</td></tr>';
                 return;
             }
-            empresasData.forEach(function(emp) {
+            empresasPaginaActual.forEach(function(emp) {
                 var icono = servicioIconos[(emp.servicio || "").toLowerCase()] || "fa-tag";
                 var servicioLabel = _svcLabel[emp.servicio] || emp.servicio;
                 var activa = emp.estado === "ACTIVO";
                 var estadoHtml = activa ?
-                    '<span class="estado-activo">Activa</span>' :
-                    '<span class="estado-inactivo">Inactiva</span>';
+                    '<span class="status-badge status-badge--active">Activa</span>' :
+                    '<span class="status-badge status-badge--inactive">Inactiva</span>';
                 var toggleIcon = activa ?
                     '<i class="fa-solid fa-ban"></i>' :
                     '<i class="fa-solid fa-circle-check"></i>';
@@ -741,16 +1168,42 @@
             });
         }
 
+        document.getElementById("empresasAnterior").addEventListener("click", function() {
+            if (empresasPagina <= 1) return;
+            empresasPagina--;
+            renderEmpresas();
+        });
+        document.getElementById("empresasSiguiente").addEventListener("click", function() {
+            if (empresasPagina >= Math.ceil(empresasData.length / empresasPorPagina)) return;
+            empresasPagina++;
+            renderEmpresas();
+        });
+
         // ── RENDER SOLICITUDES ───────────────────────────────────────────────
         function renderSolicitudes() {
             var tbody = document.querySelector("#tab-solicitudes .panel-table tbody");
             tbody.innerHTML = "";
             var pendientes = solicitudesData; // ya viene solo con las PENDIENTE desde la BD
+            var totalPaginas = Math.ceil(pendientes.length / solicitudesPorPagina);
+            solicitudesPagina = Math.min(Math.max(solicitudesPagina, 1), Math.max(totalPaginas, 1));
+            var inicio = (solicitudesPagina - 1) * solicitudesPorPagina;
+            var resumen = document.getElementById("solicitudesResumen");
+            var indicadorPagina = document.getElementById("solicitudesPaginaActual");
+            var botonAnterior = document.getElementById("solicitudesAnterior");
+            var botonSiguiente = document.getElementById("solicitudesSiguiente");
+            var controles = document.getElementById("solicitudesControles");
+            resumen.textContent = pendientes.length ?
+                "Mostrando " + (inicio + 1) + "–" + Math.min(inicio + solicitudesPorPagina, pendientes.length) + " de " + pendientes.length + " solicitudes" :
+                "Sin solicitudes pendientes";
+            indicadorPagina.textContent = "Página " + (totalPaginas ? solicitudesPagina : 0) + " de " + totalPaginas;
+            botonAnterior.disabled = solicitudesPagina <= 1;
+            botonSiguiente.disabled = solicitudesPagina >= totalPaginas;
+            controles.hidden = totalPaginas <= 1;
             if (pendientes.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:32px;color:#64748b;font-style:italic;">No hay solicitudes pendientes</td></tr>';
                 return;
             }
-            pendientes.forEach(function(sol) {
+            pendientes.slice(inicio, inicio + solicitudesPorPagina).forEach(function(sol) {
                 var icono = servicioIconos[(sol.servicio || "").toLowerCase()] || "fa-tag";
                 var servicioLabel = _svcLabel[sol.servicio] || sol.servicio;
                 var tr = document.createElement("tr");
@@ -761,7 +1214,7 @@
                     '<td>' + sol.sede + '</td>' +
                     '<td><span class="badge-acc"><i class="fa-solid ' + icono + '"></i> ' + servicioLabel + '</span></td>' +
                     '<td><code>' + sol.fecha + '</code></td>' +
-                    '<td><span class="estado-pendiente"><i class="fa-solid fa-hourglass-half"></i> Pendiente</span></td>' +
+                    '<td><span class="status-badge status-badge--warning"><i class="fa-solid fa-hourglass-half"></i> Pendiente</span></td>' +
                     '<td><div class="table-actions">' +
                     '<button class="btn-tbl-accept" title="Aceptar" data-nit="' + sol.nit + '"><i class="fa-solid fa-check"></i> Aceptar</button>' +
                     '<button class="btn-tbl-reject" title="Rechazar" data-nit="' + sol.nit + '"><i class="fa-solid fa-xmark"></i> Rechazar</button>' +
@@ -779,6 +1232,17 @@
                 });
             });
         }
+
+        document.getElementById("solicitudesAnterior").addEventListener("click", function() {
+            if (solicitudesPagina <= 1) return;
+            solicitudesPagina--;
+            renderSolicitudes();
+        });
+        document.getElementById("solicitudesSiguiente").addEventListener("click", function() {
+            if (solicitudesPagina >= Math.ceil(solicitudesData.length / solicitudesPorPagina)) return;
+            solicitudesPagina++;
+            renderSolicitudes();
+        });
 
         function aceptarSolicitud(id) {
             var sol = solicitudesData.find(function(s) {
@@ -831,7 +1295,7 @@
                         cargarSolicitudesBD();
                         cargarEmpresasBD();
                         cargarAuditoriaBD();
-                        closePanelModal();
+                        closePanelModal(false);
                         showToast(s.nombre + " — aceptada ✓", "#16a34a");
                     })
                     .catch(function() {
@@ -891,8 +1355,8 @@
                         }
                         cargarSolicitudesBD();
                         cargarAuditoriaBD();
-                        closePanelModal();
-                        showToast(s.nombre + " — rechazada", "#ef4444");
+                        closePanelModal(false);
+                        showToast(s.nombre + " — rechazada", "#16a34a");
                     })
                     .catch(function() {
                         btnConf2.disabled = false;
@@ -930,7 +1394,7 @@
                     updateStats();
                     cargarAuditoriaBD();
                     var activada = res.estado === "ACTIVO";
-                    showToast(emp.nombre + " — " + (activada ? "activada ✓" : "inactivada"), activada ? "#16a34a" : "#ef4444");
+                    showToast(emp.nombre + " — " + (activada ? "activada ✓" : "inactivada"), "#16a34a");
                 })
                 .catch(function() {
                     showToast("Error de conexión al actualizar el estado", "#ef4444");
@@ -981,8 +1445,8 @@
                         }
                         cargarEmpresasBD();
                         cargarAuditoriaBD();
-                        closePanelModal();
-                        showToast(emp.nombre + " — eliminada", "#ef4444");
+                        closePanelModal(false);
+                        showToast(emp.nombre + " — eliminada", "#16a34a");
                     })
                     .catch(function() {
                         btn.disabled = false;
@@ -995,20 +1459,45 @@
         // ── RENDER AUDITORÍA ─────────────────────────────────────────────────
         function renderAuditoria(filtro) {
             var tbody = document.querySelector("#tab-auditoria .panel-table tbody");
-            var datos = filtro && filtro !== "Todos los eventos" ?
+            var selector = document.querySelector("#tab-auditoria .panel-select");
+            var valorFiltro = filtro === undefined ? selector.value : filtro;
+            var datos = valorFiltro ?
                 auditoriaData.filter(function(a) {
-                    return a.modulo === filtro || (filtro === "Alertas" && a.nivel === "alerta");
+                    return a.modulo === valorFiltro || (valorFiltro === "Alertas" && esAlertaAuditoria(a));
                 }) :
                 auditoriaData;
+            var totalPaginas = Math.ceil(datos.length / auditoriaPorPagina);
+            auditoriaPagina = Math.min(Math.max(auditoriaPagina, 1), Math.max(totalPaginas, 1));
+            var inicio = (auditoriaPagina - 1) * auditoriaPorPagina;
+            var eventosPagina = datos.slice(inicio, inicio + auditoriaPorPagina);
+            var resumen = document.getElementById("auditoriaResumen");
+            var indicadorPagina = document.getElementById("auditoriaPaginaActual");
+            var botonAnterior = document.getElementById("auditoriaAnterior");
+            var botonSiguiente = document.getElementById("auditoriaSiguiente");
+
             tbody.innerHTML = "";
-            datos.forEach(function(a) {
-                var accionHtml, nivelHtml;
-                if (a.nivel === "alerta") {
-                    accionHtml = '<span class="badge-acc" style="background:rgba(239,68,68,.1);color:#dc2626"><i class="fa-solid fa-triangle-exclamation"></i> ' + a.accion + '</span>';
-                    nivelHtml = '<span class="estado-inactivo">Alerta</span>';
+            if (!eventosPagina.length) {
+                var filaVacia = document.createElement("tr");
+                var celdaVacia = document.createElement("td");
+                celdaVacia.colSpan = 6;
+                celdaVacia.className = "audit-empty";
+                celdaVacia.textContent = "No hay eventos para este filtro.";
+                filaVacia.appendChild(celdaVacia);
+                tbody.appendChild(filaVacia);
+            }
+
+            eventosPagina.forEach(function(a) {
+                var iconoAccion;
+                var textoNivel;
+                var claseNivel;
+                if (a.nivel === "alerta" || a.nivel === "error") {
+                    iconoAccion = "fa-triangle-exclamation";
+                    textoNivel = a.nivel === "error" ? "Error" : "Alerta";
+                    claseNivel = "estado-inactivo";
                 } else if (a.nivel === "advertencia") {
-                    accionHtml = '<span class="badge-acc" style="background:rgba(245,158,11,.1);color:#d97706"><i class="fa-solid fa-ban"></i> ' + a.accion + '</span>';
-                    nivelHtml = '<span class="estado-ocupado" style="background:rgba(245,158,11,.12);color:#d97706">Advertencia</span>';
+                    iconoAccion = "fa-ban";
+                    textoNivel = "Advertencia";
+                    claseNivel = "estado-ocupado audit-warning";
                 } else {
                     var iconMap = {
                         "Empresa creada": "fa-building-circle-check",
@@ -1017,30 +1506,85 @@
                         "Empresa activada": "fa-circle-check",
                         "Empresa aceptada": "fa-building-circle-check",
                         "Empresa rechazada": "fa-ban",
+                        "Solicitud de empresa creada": "fa-file-circle-plus",
+                        "Perfil de empresa actualizado": "fa-pen-to-square",
                         "Artesano aprobado": "fa-palette",
                         "Artesano rechazado": "fa-ban",
-
+                        "Crear contenido portada": "fa-file-circle-plus",
+                        "Editar contenido portada": "fa-pen-to-square",
+                        "Eliminar contenido portada": "fa-trash",
                         "Inicio de sesión": "fa-right-to-bracket"
                     };
-                    var ic = iconMap[a.accion] || "fa-circle-info";
-                    accionHtml = '<span class="badge-acc"><i class="fa-solid ' + ic + '"></i> ' + a.accion + '</span>';
-                    nivelHtml = '<span class="estado-activo">Info</span>';
+                    iconoAccion = iconMap[a.accion] || "fa-circle-info";
+                    textoNivel = "Info";
+                    claseNivel = "estado-activo";
                 }
+
                 var tr = document.createElement("tr");
-                tr.innerHTML =
-                    '<td><code>' + a.fecha + '</code></td>' +
-                    '<td><strong>' + a.usuario + '</strong></td>' +
-                    '<td>' + accionHtml + '</td>' +
-                    '<td>' + a.modulo + '</td>' +
-                    '<td>' + a.detalle + '</td>' +
-                    '<td>' + nivelHtml + '</td>';
+                var fecha = document.createElement("td");
+                var fechaCode = document.createElement("code");
+                fechaCode.textContent = a.fecha || "";
+                fecha.appendChild(fechaCode);
+                tr.appendChild(fecha);
+
+                var usuario = document.createElement("td");
+                var usuarioStrong = document.createElement("strong");
+                usuarioStrong.textContent = a.usuario || "Sistema / desconocido";
+                usuario.appendChild(usuarioStrong);
+                tr.appendChild(usuario);
+
+                var accion = document.createElement("td");
+                var badge = document.createElement("span");
+                badge.className = "badge-acc";
+                var icono = document.createElement("i");
+                icono.className = "fa-solid " + iconoAccion;
+                badge.append(icono, document.createTextNode(" " + (a.accion || "Evento")));
+                accion.appendChild(badge);
+                tr.appendChild(accion);
+
+                var modulo = document.createElement("td");
+                modulo.textContent = a.modulo || "—";
+                tr.appendChild(modulo);
+
+                var detalle = document.createElement("td");
+                detalle.textContent = a.detalle || "—";
+                if ((a.anterior !== null && a.anterior !== undefined) ||
+                    (a.nuevo !== null && a.nuevo !== undefined)) {
+                    var cambios = crearResumenCambiosAuditoria(a.anterior, a.nuevo);
+                    if (cambios) detalle.appendChild(cambios);
+                }
+                tr.appendChild(detalle);
+
+                var nivel = document.createElement("td");
+                var nivelBadge = document.createElement("span");
+                nivelBadge.className = claseNivel;
+                nivelBadge.textContent = textoNivel;
+                nivel.appendChild(nivelBadge);
+                tr.appendChild(nivel);
                 tbody.appendChild(tr);
             });
+
+            resumen.textContent = datos.length ?
+                "Mostrando " + (inicio + 1) + "–" + Math.min(inicio + auditoriaPorPagina, datos.length) + " de " + datos.length + " eventos" :
+                "Sin eventos";
+            indicadorPagina.textContent = totalPaginas ? "Página " + auditoriaPagina + " de " + totalPaginas : "Página 0 de 0";
+            botonAnterior.disabled = auditoriaPagina <= 1;
+            botonSiguiente.disabled = auditoriaPagina >= totalPaginas;
         }
 
         // Filtro auditoría
         document.querySelector("#tab-auditoria .panel-select").addEventListener("change", function() {
+            auditoriaPagina = 1;
             renderAuditoria(this.value);
+        });
+        document.getElementById("auditoriaAnterior").addEventListener("click", function() {
+            if (auditoriaPagina <= 1) return;
+            auditoriaPagina--;
+            renderAuditoria();
+        });
+        document.getElementById("auditoriaSiguiente").addEventListener("click", function() {
+            auditoriaPagina++;
+            renderAuditoria();
         });
 
         // Botones agregar
@@ -1071,10 +1615,11 @@
     </script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <script src="../js/santanderianidad.js"></script>
-    <script src="../componentes/destinos.js"></script>
+    <script src="../componentes/destinos.js?v=municipios-4x2-v4"></script>
     <script src="../componentes/articulos.js"></script>
-    <script src="../js/contenido-admin.js"></script>
-    <script src="../js/click_metrics.js"></script>
+    <script src="../componentes/control-sonido-video.js?v=video-sound-v2"></script>
+    <script src="../js/contenido-admin.js?v=destinos-v8"></script>
+    <script src="../js/metricas_clics.js"></script>
 
     <!-- Reseñas de la plataforma: carga resenas.js solo cuando el tab está activo -->
     <script>
@@ -1153,7 +1698,7 @@
                 }
                 resenasCargadas = true;
                 var s = document.createElement("script");
-                s.src = "../js/resenas.js";
+                s.src = "../js/resenas.js?v=admin-pagination-v1";
                 s.onload = function() {
                     buildAdminSummary();
                 };
@@ -1180,6 +1725,14 @@
             var endpoint = new URL("../admin/festividades.php?admin=1", window.location.href);
             var tbody = document.getElementById("adminFestividadesTabla");
             var estado = document.getElementById("adminFestividadesEstado");
+            var paginacion = document.getElementById("adminFestividadesPaginacion");
+            var resumen = document.getElementById("adminFestividadesResumen");
+            var paginaActual = document.getElementById("adminFestividadesPaginaActual");
+            var anterior = document.getElementById("adminFestividadesAnterior");
+            var siguiente = document.getElementById("adminFestividadesSiguiente");
+            var festividades = [];
+            var pagina = 1;
+            var porPagina = 20;
 
             function mostrarFila(mensaje) {
                 tbody.replaceChildren();
@@ -1193,8 +1746,37 @@
                 tbody.appendChild(fila);
             }
 
+            function renderizarFestividades() {
+                var totalPaginas = Math.ceil(festividades.length / porPagina);
+                pagina = Math.min(Math.max(pagina, 1), Math.max(totalPaginas, 1));
+                var inicio = (pagina - 1) * porPagina;
+                paginacion.hidden = totalPaginas <= 1;
+                resumen.textContent = festividades.length ?
+                    "Mostrando " + (inicio + 1) + "–" + Math.min(inicio + porPagina, festividades.length) +
+                    " de " + festividades.length + " festividades" : "Sin festividades";
+                paginaActual.textContent = "Página " + (totalPaginas ? pagina : 0) + " de " + totalPaginas;
+                anterior.disabled = pagina <= 1;
+                siguiente.disabled = pagina >= totalPaginas;
+                tbody.replaceChildren();
+                if (!festividades.length) {
+                    mostrarFila("Todavía no hay festividades registradas.");
+                    return;
+                }
+                festividades.slice(inicio, inicio + porPagina).forEach(function(item) {
+                    var fila = document.createElement("tr");
+                    [item.fecha_clave, item.id_festividad, (item.emoji || "") + " " + item.titulo, item.tipo]
+                    .forEach(function(valor) {
+                        var celda = document.createElement("td");
+                        celda.textContent = String(valor || "").trim();
+                        fila.appendChild(celda);
+                    });
+                    tbody.appendChild(fila);
+                });
+            }
+
             async function cargarFestividades() {
                 estado.textContent = "Cargando festividades…";
+                paginacion.hidden = true;
                 mostrarFila("Cargando festividades…");
                 try {
                     var response = await fetch(endpoint, {
@@ -1204,28 +1786,28 @@
                     if (!response.ok || !result.ok || !Array.isArray(result.data)) {
                         throw new Error(result.error || "No se pudieron cargar las festividades.");
                     }
-                    tbody.replaceChildren();
-                    if (!result.data.length) {
-                        mostrarFila("Todavía no hay festividades registradas.");
-                    } else {
-                        result.data.forEach(function(item) {
-                            var fila = document.createElement("tr");
-                            [item.fecha_clave, item.id_festividad, (item.emoji || "") + " " + item.titulo, item.tipo]
-                            .forEach(function(valor) {
-                                var celda = document.createElement("td");
-                                celda.textContent = String(valor || "").trim();
-                                fila.appendChild(celda);
-                            });
-                            tbody.appendChild(fila);
-                        });
-                    }
+                    festividades = result.data;
+                    pagina = 1;
+                    renderizarFestividades();
                     estado.textContent = result.data.length + (result.data.length === 1 ? " festividad" : " festividades");
                 } catch (error) {
                     console.error("No se pudieron cargar las festividades:", error);
                     estado.textContent = error.message;
+                    paginacion.hidden = true;
                     mostrarFila("Error al cargar las festividades.");
                 }
             }
+
+            anterior.addEventListener("click", function() {
+                if (pagina <= 1) return;
+                pagina--;
+                renderizarFestividades();
+            });
+            siguiente.addEventListener("click", function() {
+                if (pagina >= Math.ceil(festividades.length / porPagina)) return;
+                pagina++;
+                renderizarFestividades();
+            });
 
             document.querySelectorAll('.panel-tab[data-tab="festividades"]').forEach(function(tab) {
                 tab.addEventListener("click", cargarFestividades);
@@ -1240,6 +1822,14 @@
             var tbody = document.getElementById('artesanos-table-body');
             var estadoActual = 'PENDIENTE';
             var cargado = false;
+            var artesanosData = [];
+            var artesanosPagina = 1;
+            var artesanosPorPagina = 20;
+            var artesanosPaginacion = document.getElementById('artesanosPaginacion');
+            var artesanosResumen = document.getElementById('artesanosResumen');
+            var artesanosPaginaActual = document.getElementById('artesanosPaginaActual');
+            var artesanosAnterior = document.getElementById('artesanosAnterior');
+            var artesanosSiguiente = document.getElementById('artesanosSiguiente');
 
             // ── Resumen para las tarjetas del header (se carga junto con el panel,
             // sin esperar a que se abra la pestaña de Artesanos) ──
@@ -1252,7 +1842,9 @@
                         return r.json();
                     })
                     .then(function(data) {
-                        if (!data.ok || !Array.isArray(data.artesanos)) return;
+                        if (!data.ok || !Array.isArray(data.artesanos)) {
+                            throw new Error(data.error || 'La respuesta de artesanos no es válida.');
+                        }
                         var total = data.artesanos.length;
                         var pendientes = data.artesanos.filter(function(a) {
                             return a.estado === 'PENDIENTE';
@@ -1260,7 +1852,11 @@
                         document.getElementById('statArtesanosTotal').textContent = total;
                         document.getElementById('statArtesanosPendientes').textContent = pendientes;
                     })
-                    .catch(function() {});
+                    .catch(function(error) {
+                        console.error('No se pudieron cargar las estadísticas de artesanos:', error);
+                        document.getElementById('statArtesanosTotal').textContent = 'No disponible';
+                        document.getElementById('statArtesanosPendientes').textContent = 'No disponible';
+                    });
             }
             cargarStatsArtesanos();
 
@@ -1282,11 +1878,24 @@
                     });
                     btn.classList.add('active');
                     estadoActual = btn.dataset.estadoArtesano;
+                    artesanosPagina = 1;
                     cargarArtesanos(estadoActual);
                 });
             });
 
+            artesanosAnterior.addEventListener('click', function() {
+                if (artesanosPagina <= 1) return;
+                artesanosPagina--;
+                renderArtesanos();
+            });
+            artesanosSiguiente.addEventListener('click', function() {
+                if (artesanosPagina >= Math.ceil(artesanosData.length / artesanosPorPagina)) return;
+                artesanosPagina++;
+                renderArtesanos();
+            });
+
             function cargarArtesanos(estado) {
+                artesanosPaginacion.hidden = true;
                 tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;opacity:.6">' +
                     '<i class="fa-solid fa-spinner fa-spin"></i> Cargando...</td></tr>';
 
@@ -1301,66 +1910,89 @@
                         if (!data.ok || !Array.isArray(data.artesanos)) {
                             throw new Error(data.error || 'Respuesta de artesanos inválida.');
                         }
-                        if (!data.artesanos.length) {
-                            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;opacity:.6">' +
-                                'No hay artesanos en este estado.</td></tr>';
-                            return;
-                        }
-                        tbody.innerHTML = '';
-                        data.artesanos.forEach(function(a) {
-                            var fecha = (a.fecha_registro || '').replace('T', ' ').split('.')[0].split(' ')[0];
-                            var esPendiente = a.estado === 'PENDIENTE';
-                            var esActivo = a.estado === 'ACTIVO';
-                            var badgeColor = esPendiente ? '#d97706' : (esActivo ? '#16a34a' : '#dc2626');
-                            var tr = document.createElement('tr');
-                            tr.innerHTML =
-                                '<td>' + (a.nom_persona_ecommerce || '') + ' ' + (a.ape_persona_ecommerce || '') + '</td>' +
-                                '<td>' + (a.id_persona_ecommerce || '') + '</td>' +
-                                '<td>' + (a.num_cel_persona_ecommerce || '') + '</td>' +
-                                '<td>' + (a.email_login || '') + '</td>' +
-                                '<td>' + fecha + '</td>' +
-                                '<td><span style="background:' + badgeColor + '22;color:' + badgeColor + ';' +
-                                'padding:3px 12px;border-radius:50px;font-size:.75rem;font-weight:700;">' +
-                                a.estado + '</span></td>' +
-                                '<td style="display:flex;gap:6px;flex-wrap:wrap;">' +
-                                (esPendiente || !esActivo ?
-                                    '<button class="btn-aprobar" data-id="' + a.id_persona_ecommerce + '" ' +
-                                    'style="background:#16a34a;color:#fff;border:none;padding:5px 12px;' +
-                                    'border-radius:6px;cursor:pointer;font-size:.8rem;font-weight:700;">' +
-                                    '<i class="fa-solid fa-check"></i> Aprobar</button>' : '') +
-                                (esPendiente || esActivo ?
-                                    '<button class="btn-rechazar" data-id="' + a.id_persona_ecommerce + '" ' +
-                                    'style="background:#dc2626;color:#fff;border:none;padding:5px 12px;' +
-                                    'border-radius:6px;cursor:pointer;font-size:.8rem;font-weight:700;">' +
-                                    '<i class="fa-solid fa-xmark"></i> Rechazar</button>' : '') +
-                                '</td>';
-                            tbody.appendChild(tr);
-                        });
-
-                        // Eventos aprobar/rechazar
-                        tbody.querySelectorAll('.btn-aprobar').forEach(function(btn) {
-                            btn.addEventListener('click', function() {
-                                accionArtesano(btn.dataset.id, 'aprobar');
-                            });
-                        });
-                        tbody.querySelectorAll('.btn-rechazar').forEach(function(btn) {
-                            btn.addEventListener('click', function() {
-                                accionArtesano(btn.dataset.id, 'rechazar');
-                            });
-                        });
+                        artesanosData = data.artesanos;
+                        renderArtesanos();
                     })
                     .catch(function(error) {
                         console.error('Error al cargar artesanos:', error);
+                        artesanosPaginacion.hidden = true;
                         tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#f87171;padding:2rem;">' +
                             'Error al cargar artesanos.</td></tr>';
                     });
             }
 
-            function accionArtesano(id, accion) {
+            function renderArtesanos() {
+                var totalPaginas = Math.ceil(artesanosData.length / artesanosPorPagina);
+                artesanosPagina = Math.min(Math.max(artesanosPagina, 1), Math.max(totalPaginas, 1));
+                var inicio = (artesanosPagina - 1) * artesanosPorPagina;
+                artesanosResumen.textContent = artesanosData.length ?
+                    'Mostrando ' + (inicio + 1) + '–' + Math.min(inicio + artesanosPorPagina, artesanosData.length) +
+                    ' de ' + artesanosData.length + ' artesanos' : 'Sin artesanos';
+                artesanosPaginaActual.textContent = 'Página ' + (totalPaginas ? artesanosPagina : 0) + ' de ' + totalPaginas;
+                artesanosAnterior.disabled = artesanosPagina <= 1;
+                artesanosSiguiente.disabled = artesanosPagina >= totalPaginas;
+                artesanosPaginacion.hidden = totalPaginas <= 1;
+                if (!artesanosData.length) {
+                    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;opacity:.6">' +
+                        'No hay artesanos en este estado.</td></tr>';
+                    return;
+                }
+                tbody.innerHTML = '';
+                artesanosData.slice(inicio, inicio + artesanosPorPagina).forEach(function(a) {
+                    var fecha = (a.fecha_registro || '').replace('T', ' ').split('.')[0].split(' ')[0];
+                    var esPendiente = a.estado === 'PENDIENTE';
+                    var esActivo = a.estado === 'ACTIVO';
+                    var badgeColor = esPendiente ? '#d97706' : (esActivo ? '#16a34a' : '#dc2626');
+                    var tr = document.createElement('tr');
+                    tr.innerHTML =
+                        '<td>' + (a.nom_persona_ecommerce || '') + ' ' + (a.ape_persona_ecommerce || '') + '</td>' +
+                        '<td>' + (a.id_persona_ecommerce || '') + '</td>' +
+                        '<td>' + (a.num_cel_persona_ecommerce || '') + '</td>' +
+                        '<td>' + (a.email_login || '') + '</td>' +
+                        '<td>' + fecha + '</td>' +
+                        '<td><span style="background:' + badgeColor + '22;color:' + badgeColor + ';' +
+                        'padding:3px 12px;border-radius:50px;font-size:.75rem;font-weight:700;">' +
+                        a.estado + '</span></td>' +
+                        '<td style="display:flex;gap:6px;flex-wrap:wrap;">' +
+                        (esPendiente || !esActivo ?
+                            '<button class="btn-aprobar" data-id="' + a.id_persona_ecommerce + '" ' +
+                            'style="background:#16a34a;color:#fff;border:none;padding:5px 12px;' +
+                            'border-radius:6px;cursor:pointer;font-size:.8rem;font-weight:700;">' +
+                            '<i class="fa-solid fa-check"></i> Aprobar</button>' : '') +
+                        (esPendiente || esActivo ?
+                            '<button class="btn-rechazar" data-id="' + a.id_persona_ecommerce + '" ' +
+                            'style="background:#dc2626;color:#fff;border:none;padding:5px 12px;' +
+                            'border-radius:6px;cursor:pointer;font-size:.8rem;font-weight:700;">' +
+                            '<i class="fa-solid fa-xmark"></i> Rechazar</button>' : '') +
+                        '</td>';
+                    tbody.appendChild(tr);
+                });
+
+                // Eventos aprobar/rechazar
+                tbody.querySelectorAll('.btn-aprobar').forEach(function(btn) {
+                    btn.addEventListener('click', function() {
+                        accionArtesano(btn.dataset.id, 'aprobar');
+                    });
+                });
+                tbody.querySelectorAll('.btn-rechazar').forEach(function(btn) {
+                    btn.addEventListener('click', function() {
+                        accionArtesano(btn.dataset.id, 'rechazar');
+                    });
+                });
+            }
+
+            async function accionArtesano(id, accion) {
                 var confirmMsg = accion === 'aprobar' ?
                     '¿Aprobar este artesano? Podrá iniciar sesión y publicar productos.' :
                     '¿Rechazar este artesano? No podrá acceder a la plataforma.';
-                if (!confirm(confirmMsg)) return;
+                var confirmado = await window.TEUI.confirm({
+                    title: accion === 'aprobar' ? 'Aprobar artesano' : 'Rechazar artesano',
+                    message: confirmMsg,
+                    confirmText: accion === 'aprobar' ? 'Sí, aprobar' : 'Sí, rechazar',
+                    tone: accion === 'aprobar' ? 'primary' : undefined,
+                    icon: accion === 'aprobar' ? 'fa-circle-check' : 'fa-ban'
+                });
+                if (!confirmado) return;
 
                 fetch(API, {
                         method: 'POST',
@@ -1380,16 +2012,19 @@
                         if (data.ok) {
                             cargarArtesanos(estadoActual);
                             cargarStatsArtesanos();
+                            window.TEUI.toast(accion === 'aprobar' ? 'Artesano aprobado correctamente.' : 'Solicitud rechazada.');
                         } else {
-                            alert('Error: ' + (data.error || 'Intenta de nuevo.'));
+                            window.TEUI.toast(data.error || 'No se pudo completar la acción.', 'error');
                         }
                     })
                     .catch(function() {
-                        alert('No se pudo conectar con el servidor.');
+                        window.TEUI.toast('No se pudo conectar con el servidor.', 'error');
                     });
             }
         })();
     </script>
+    <script src="../componentes/agente-ia.js?v=private-chat-memory-v1"></script>
+    <script src="../menu_accesibilidad/menu.js?v=a11y-v16"></script>
 </body>
 
 </html>

@@ -9,12 +9,12 @@ let currentPage = 1;
 const productsPerPage = 10;
 let productsLoading = true;
 let productsLoadError = false;
+let productFiltersLoaded = false;
 let productSearchTimer = null;
 
 // Productos publicados en la base de datos.
 let dbProducts = [];
 
-const PRODUCTOS_API_URL = "../e-commerce/listar.php?ajax=1";
 const PRODUCTOS_BUSCAR_API_URL = "../e-commerce/buscar.php";
 let productSearchRequestId = 0;
 
@@ -30,6 +30,7 @@ function mapDbProduct(row) {
         provider: row.proveedor,
         description: row.descripcion,
         category: row.categoria,
+        categoryName: row.nombre_categoria || row.categoria,
         price: Number(row.precio_cop),
         cityId: String(row.id_ciudad || ""),
         cityName: row.nom_ciudad || "",
@@ -40,33 +41,24 @@ function mapDbProduct(row) {
 }
 
 function productImageUrl(image) {
-    if (!image) return "";
-    if (/^https?:\/\//i.test(image)) return image;
-    if (image.startsWith("//")) return "";
-    return image.startsWith("../") ? image : `../${image}`;
+    const path = String(image || "").trim();
+    if (!path || path.startsWith("//")) return "";
+
+    try {
+        const url = /^https?:\/\//i.test(path)
+            ? new URL(path)
+            : new URL(path.startsWith("../") ? path : `../${path}`, window.location.href);
+        return url.protocol === "http:" || url.protocol === "https:" ? url.href : "";
+    } catch (error) {
+        return "";
+    }
 }
 
 /**
  * Trae los productos publicados desde la base de datos.
  */
 async function loadDbProducts() {
-    try {
-        const response = await fetch(PRODUCTOS_API_URL);
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        const result = await response.json();
-        if (!result.ok || !Array.isArray(result.data)) {
-            throw new Error(result.error || "El servidor devolvió una respuesta inválida.");
-        }
-        dbProducts = result.data.map(mapDbProduct);
-        populateProductFilters();
-        await searchProducts();
-    } catch (error) {
-        console.error("Error cargando productos desde el servidor:", error);
-        productsLoadError = true;
-        dbProducts = [];
-        productsLoading = false;
-        renderProducts();
-    }
+    await searchProducts();
 }
 
 async function searchProducts() {
@@ -82,14 +74,20 @@ async function searchProducts() {
     renderProducts();
 
     try {
-        const response = await fetch(`${PRODUCTOS_BUSCAR_API_URL}?${params.toString()}`);
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        const result = await response.json();
+        const result = await window.TECatalogCache.fetchJson(
+            `${PRODUCTOS_BUSCAR_API_URL}?${params.toString()}`,
+            undefined,
+            "No se pudieron cargar los productos."
+        );
         if (requestId !== productSearchRequestId) return;
         if (!result.ok || !Array.isArray(result.data)) {
             throw new Error(result.error || "El servidor devolvió una respuesta inválida.");
         }
         dbProducts = result.data.map(mapDbProduct);
+        if (!productFiltersLoaded) {
+            populateProductFilters();
+            productFiltersLoaded = true;
+        }
         productsLoading = false;
         renderProducts();
     } catch (error) {
@@ -108,10 +106,10 @@ function populateProductFilters() {
     if (!locationFilter || !categoryFilters) return;
 
     const locations = new Map();
-    const categories = new Set();
+    const categories = new Map();
     dbProducts.forEach((product) => {
         if (product.cityId && product.cityName) locations.set(product.cityId, product.cityName);
-        if (product.category) categories.add(product.category);
+        if (product.category) categories.set(product.category, product.categoryName || product.category);
     });
 
     locations.forEach((name, id) => {
@@ -124,11 +122,6 @@ function populateProductFilters() {
         a.textContent.localeCompare(b.textContent, "es")
     ).forEach((option) => locationFilter.appendChild(option));
 
-    const categoryLabels = {
-        talleres: "Talleres",
-        bisuteria: "Bisutería",
-        alfareria: "Alfarería",
-    };
     categoryFilters.replaceChildren();
     const allButton = document.createElement("button");
     allButton.className = "filter-tag active";
@@ -137,12 +130,12 @@ function populateProductFilters() {
     allButton.textContent = "Todos";
     categoryFilters.appendChild(allButton);
 
-    Array.from(categories).sort((a, b) => a.localeCompare(b, "es")).forEach((category) => {
+    Array.from(categories.entries()).sort((a, b) => a[1].localeCompare(b[1], "es")).forEach(([category, label]) => {
         const button = document.createElement("button");
         button.className = "filter-tag";
         button.dataset.cat = category;
         button.type = "button";
-        button.textContent = categoryLabels[category] || category;
+        button.textContent = label;
         categoryFilters.appendChild(button);
     });
 
@@ -163,11 +156,6 @@ function openDetailModal(product) {
     const overlay = document.getElementById("productModalOverlay");
 
     // Etiquetas legibles para cada categoría
-    const catLabel = {
-        talleres: "Taller",
-        bisuteria: "Bisutería",
-        alfareria: "Alfarería",
-    };
 
     // Rellenamos cada elemento del modal con los datos del producto
     const modalImage = overlay.querySelector(".pm-img");
@@ -176,8 +164,7 @@ function openDetailModal(product) {
     modalImage.hidden = !imageUrl;
     if (imageUrl) modalImage.src = imageUrl;
     else modalImage.removeAttribute("src");
-    overlay.querySelector(".pm-cat").textContent =
-        catLabel[product.category] || product.category;
+    overlay.querySelector(".pm-cat").textContent = product.categoryName || product.category;
     overlay.querySelector(".pm-name").textContent = product.name;
     overlay.querySelector(".pm-provider").textContent = product.provider;
     overlay.querySelector(".pm-ubicacion").textContent =
@@ -213,8 +200,11 @@ function openDetailModal(product) {
  * Oculta el modal de detalle y restaura el scroll normal.
  */
 function closeDetailModal() {
-    document.getElementById("productModalOverlay").classList.remove("active");
+    const overlay = document.getElementById("productModalOverlay");
+    if (!overlay.classList.contains("active")) return;
+    overlay.classList.remove("active");
     document.body.style.overflow = "";
+    window.TEUI.notifyClosed("Detalle");
 }
 
 function renderProducts() {
@@ -253,16 +243,15 @@ function renderProducts() {
     noResults.style.display = "none";
     storeStatus.classList.remove("error");
 
+    const hasActiveFilters = Boolean(currentSearch.trim() || currentLocation || currentCategory !== "all");
+    if (!hasActiveFilters) {
+        storeStatus.textContent = "";
+    }
+
     const totalPages = Math.ceil(dbProducts.length / productsPerPage);
     currentPage = Math.max(1, Math.min(currentPage, totalPages));
     const start = (currentPage - 1) * productsPerPage;
     const pageProducts = dbProducts.slice(start, start + productsPerPage);
-    const categoryLabels = {
-        talleres: "Talleres",
-        bisuteria: "Bisutería",
-        alfareria: "Alfarería",
-    };
-
     pageProducts.forEach((product) => {
         const card = document.createElement("div");
         card.classList.add("card");
@@ -276,24 +265,58 @@ function renderProducts() {
             "Consultar precio";
 
         const imageUrl = productImageUrl(product.img);
-        const imageMarkup = imageUrl
-            ? `<img src="${imageUrl}" alt="${product.name}">`
-            : '<div class="product-image-placeholder" aria-label="Producto sin imagen"><i class="fa-solid fa-image" aria-hidden="true"></i></div>';
-        card.innerHTML = `
-      ${imageMarkup}
-      <div class="card-info">
-        <span class="category-tag">${categoryLabels[product.category] || product.category}</span>
-        <h3>${product.name}</h3>
-        <p class="provider">${product.provider}</p>
-        <p class="description">${product.description}</p>
-        <p class="price">${priceFormatted}</p>
-        <button class="btn-add" data-id="${product.id}">Ver más info</button>
-      </div>
-    `;
+        if (imageUrl) {
+            const image = document.createElement("img");
+            image.loading = "lazy";
+            image.decoding = "async";
+            image.src = window.TEImagenCloudinary
+                ? window.TEImagenCloudinary.tarjeta(imageUrl)
+                : imageUrl;
+            image.alt = String(product.name || "");
+            card.appendChild(image);
+        } else {
+            const placeholder = document.createElement("div");
+            placeholder.className = "product-image-placeholder";
+            placeholder.setAttribute("aria-label", "Producto sin imagen");
+            const placeholderIcon = document.createElement("i");
+            placeholderIcon.className = "fa-solid fa-image";
+            placeholderIcon.setAttribute("aria-hidden", "true");
+            placeholder.appendChild(placeholderIcon);
+            card.appendChild(placeholder);
+        }
 
-        card.querySelector(".btn-add").addEventListener("click", () => {
+        const cardInfo = document.createElement("div");
+        cardInfo.className = "card-info";
+
+        const category = document.createElement("span");
+        category.className = "category-tag";
+        category.textContent = product.categoryName || product.category || "";
+
+        const name = document.createElement("h3");
+        name.textContent = product.name || "";
+
+        const provider = document.createElement("p");
+        provider.className = "provider";
+        provider.textContent = product.provider || "";
+
+        const description = document.createElement("p");
+        description.className = "description";
+        description.textContent = product.description || "";
+
+        const price = document.createElement("p");
+        price.className = "price";
+        price.textContent = priceFormatted;
+
+        const detailsButton = document.createElement("button");
+        detailsButton.className = "btn-add";
+        detailsButton.type = "button";
+        detailsButton.textContent = "Ver más info";
+        detailsButton.addEventListener("click", () => {
             openDetailModal(product);
         });
+
+        cardInfo.append(category, name, provider, description, price, detailsButton);
+        card.appendChild(cardInfo);
         productList.appendChild(card);
     });
 
@@ -301,7 +324,12 @@ function renderProducts() {
     previousPage.disabled = currentPage === 1;
     nextPage.disabled = currentPage === totalPages;
     pagination.hidden = totalPages <= 1;
-    storeStatus.textContent = `${dbProducts.length} ${dbProducts.length === 1 ? "producto encontrado." : "productos encontrados."}`;
+
+    if (hasActiveFilters) {
+        storeStatus.textContent = `${dbProducts.length} ${dbProducts.length === 1 ? "producto encontrado." : "productos encontrados."}`;
+    } else {
+        storeStatus.textContent = "";
+    }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -500,19 +528,11 @@ function openTlModal(key) {
     });
 }
 
-document.querySelectorAll("[data-modal]").forEach((link) => {
-    link.addEventListener("click", (e) => {
-        e.preventDefault();
-        openTlModal(link.getAttribute("data-modal"));
-    });
-});
-
-tlClose.addEventListener("click", () =>
-    tlOverlay.classList.remove("active"),
-);
-tlOverlay.addEventListener("click", (e) => {
-    if (e.target === tlOverlay) tlOverlay.classList.remove("active");
-});
+function closeTutorialModal() {
+    if (!tlOverlay.classList.contains("active")) return;
+    tlOverlay.classList.remove("active");
+    window.TEUI.notifyClosed("Ventana");
+}
 
 // ============================================================
 // Sesión artesano — un artesano logueado NO puede ver la tienda pública:
@@ -529,11 +549,8 @@ tlOverlay.addEventListener("click", (e) => {
     window.addEventListener('unload', function() {});
 
     function haySesionArtesano() {
-        var sess = null;
-        try {
-            sess = JSON.parse(localStorage.getItem('te_ecommerce_session') || sessionStorage.getItem('te_ecommerce_session') || 'null');
-        } catch (e) {}
-        return sess && sess.tipo === 'artesano' && sess.estado === 'ACTIVO';
+        var sess = window.TourismSession && window.TourismSession.get();
+        return sess && sess.tipo === 'artesano';
     }
 
     function redirigirSiHaySesion() {

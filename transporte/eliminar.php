@@ -1,11 +1,8 @@
 <?php
 /**
  * transporte/eliminar.php
- * Elimina una ruta de transporte que pertenece a la empresa en sesión,
- * usando fn_eliminar_transporte(). Como esa función exige que la ruta
- * esté DISPONIBILIDAD = FALSE antes de borrarla, aquí la desactivamos
- * automáticamente con fn_toggle_disponibilidad_transporte() si hace falta,
- * para que "Eliminar" siga siendo un solo clic desde el panel.
+ * Elimina una ruta de transporte de la empresa en sesión mediante
+ * fn_eliminar_transporte_empresa().
  */
 
 require_once __DIR__ . '/../con_db/sesion_persistente.php';
@@ -36,6 +33,7 @@ try {
     $stmt = $pdo->prepare('SELECT fn_eliminar_transporte_empresa(:id, :emp)');
     $stmt->execute([':id' => $id, ':emp' => $id_empresa]);
     if (!in_array($stmt->fetchColumn(), [true, 't', 'true', '1', 1], true)) {
+        http_response_code(404);
         echo json_encode(["ok" => false, "error" => "No se pudo eliminar la ruta."]);
         exit;
     }
@@ -44,6 +42,12 @@ try {
 
 } catch (PDOException $e) {
     error_log('[TourismEasy] transporte/eliminar.php - ' . $e->getMessage());
-    http_response_code(500);
-    echo json_encode(["ok" => false, "error" => "Error al eliminar."]);
+    $restriccionRelacion = $e->getCode() === '23503';
+    http_response_code($restriccionRelacion ? 409 : 500);
+    echo json_encode([
+        "ok" => false,
+        "error" => $restriccionRelacion
+            ? "No se puede eliminar la ruta porque tiene información relacionada."
+            : "Error al eliminar la ruta."
+    ]);
 }

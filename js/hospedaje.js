@@ -52,8 +52,10 @@ function actualizarBotonWhatsApp(btn) {
     });
 
     function cerrarModal() {
+        if (!overlay.classList.contains('visible')) return;
         overlay.classList.remove('visible');
         document.body.style.overflow = '';
+        window.TEUI.notifyClosed("Detalle");
     }
 
     cerrar.addEventListener('click', cerrarModal);
@@ -83,6 +85,8 @@ function actualizarBotonWhatsApp(btn) {
     var currentPage = 1;
     var pageSize = 6;
     var requestId = 0;
+    var defaultAdults = 1;
+    var defaultChildren = 0;
 
     function normalize(value) {
         return String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
@@ -149,29 +153,35 @@ function actualizarBotonWhatsApp(btn) {
     }
 
     function filterHospedajes() {
+        var currentRequest = ++requestId;
         var adults = inputAdultos.valueAsNumber;
         var children = inputNinos.valueAsNumber;
         if (!inputAdultos.validity.valid || !inputNinos.validity.valid ||
             !Number.isInteger(adults) || !Number.isInteger(children)) {
+            pagination.hidden = true;
+            noResults.style.display = "none";
+            grid.replaceChildren();
             setSearchStatus("Indica una cantidad válida de adultos y niños.", true);
             return;
         }
 
+        var isDefaultCapacity = adults === defaultAdults && children === defaultChildren;
         var params = new URLSearchParams();
         if (inputDestino.value) params.set("id_ciudad", inputDestino.value);
         if (inputAccesibilidad.value) params.set("accesibilidad", inputAccesibilidad.value);
-        params.set("capacidad", String(adults + children));
-        var currentRequest = ++requestId;
+        if (!isDefaultCapacity || inputDestino.value || inputAccesibilidad.value) {
+            params.set("capacidad", String(adults + children));
+        }
         pagination.hidden = true;
         noResults.style.display = "none";
         setSearchStatus("Buscando hospedajes…");
         grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:48px;color:#94a3b8"><i class="fa-solid fa-spinner fa-spin fa-2x"></i><p style="margin-top:12px">Buscando hospedajes…</p></div>';
 
-        fetch("../hospedaje/buscar.php?" + params.toString(), { credentials: "include" })
-            .then(function(response) {
-                if (!response.ok) throw new Error("No se pudo buscar hospedajes.");
-                return response.json();
-            })
+        window.TECatalogCache.fetchJson(
+            "../hospedaje/buscar.php?" + params.toString(),
+            { credentials: "include" },
+            "No se pudo buscar hospedajes."
+        )
             .then(function(result) {
                 if (currentRequest !== requestId) return;
                 if (!result.ok || !Array.isArray(result.data)) {
@@ -182,9 +192,8 @@ function actualizarBotonWhatsApp(btn) {
                 var matches = Array.from(grid.querySelectorAll(".card-item"));
                 currentPage = 1;
                 noResults.style.display = matches.length ? "none" : "block";
-                noResultsQuery.textContent = inputDestino.value
-                    ? inputDestino.selectedOptions[0].textContent
-                    : "los filtros seleccionados";
+                var queryText = inputDestino.value ? inputDestino.selectedOptions[0].textContent : "la búsqueda actual";
+                noResultsQuery.textContent = queryText;
                 renderPage(matches);
                 setSearchStatus(matches.length + (matches.length === 1 ? " hospedaje coincide." : " hospedajes coinciden."));
             })
@@ -251,11 +260,15 @@ function actualizarBotonWhatsApp(btn) {
         var servicios = escapeHtml(item.servicios_txt || "—");
         var empresa = escapeHtml(item.empresa || "");
         var whatsapp = escapeHtml(item.whatsapp || item.telefono || item.num_contacto_empresa || "");
-        var imagen = escapeHtml(safeImageUrl(item.img_url));
+        var imagenOriginal = safeImageUrl(item.img_url);
+        var imagen = escapeHtml(imagenOriginal);
+        var imagenTarjeta = escapeHtml(window.TEImagenCloudinary
+            ? window.TEImagenCloudinary.tarjeta(imagenOriginal)
+            : imagenOriginal);
         var precioDisplay = item.precio_noche ? "$" + parseInt(item.precio_noche).toLocaleString("es-CO") + " / noche" : "Consultar";
         var imgHtml = imagen ?
-            '<img src="' + imagen + '" class="card-banner" alt="' + nombre + '">' :
-            '<div class="card-banner" style="background:linear-gradient(135deg,#1e1b4b,#4c1d95);display:flex;align-items:center;justify-content:center;height:200px;"><i class="fa-solid fa-hotel" style="font-size:3rem;color:#a855f7;"></i></div>';
+            '<img loading="lazy" decoding="async" src="' + imagenTarjeta + '" class="card-banner" alt="' + nombre + '">' :
+            '<div class="card-banner" style="background:linear-gradient(135deg,#1e1b4b,var(--theme-primary-dark,#4c1d95));display:flex;align-items:center;justify-content:center;height:200px;"><i class="fa-solid fa-hotel" style="font-size:3rem;color:var(--theme-primary-light,#a855f7);"></i></div>';
         var card = document.createElement("article");
         card.className = "card-item card-item--empresa";
         card.dataset.idCiudad = item.id_ciudad || "";
@@ -264,7 +277,7 @@ function actualizarBotonWhatsApp(btn) {
         card.dataset.capacidad = String(Number(item.capacidad_max) || 0);
         card.innerHTML = imgHtml +
             '<div class="card-body">' +
-            '<span class="card-tag" style="background:rgba(168,85,247,0.18);color:#a855f7;">' + tipo + '</span>' +
+            '<span class="card-tag" style="background:rgba(var(--theme-primary-light-rgb,168,85,247),0.18);color:var(--theme-primary-light,#a855f7);">' + tipo + '</span>' +
             '<h3>' + nombre + '</h3>' +
             '<p style="display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;">' +
             descripcion + '</p>' +
@@ -301,11 +314,11 @@ function actualizarBotonWhatsApp(btn) {
     function cargarHospedajes() {
         var currentRequest = ++requestId;
         grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:48px;color:#94a3b8"><i class="fa-solid fa-spinner fa-spin fa-2x"></i><p style="margin-top:12px">Cargando hospedajes disponibles...</p></div>';
-        fetch("../hospedaje/buscar.php", { credentials: "include" })
-            .then(function(response) {
-                if (!response.ok) throw new Error("No se pudieron cargar los hospedajes.");
-                return response.json();
-            })
+        window.TECatalogCache.fetchJson(
+            "../hospedaje/buscar.php",
+            { credentials: "include" },
+            "No se pudieron cargar los hospedajes."
+        )
             .then(function(result) {
                 if (currentRequest !== requestId) return;
                 if (!result.ok || !Array.isArray(result.data)) {

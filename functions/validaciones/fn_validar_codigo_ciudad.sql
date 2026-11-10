@@ -1,0 +1,7 @@
+CREATE OR REPLACE FUNCTION fn_validar_codigo_ciudad(p_codigo TEXT)
+RETURNS BOOLEAN AS
+$$
+    SELECT COALESCE(BTRIM(p_codigo) ~ '^[0-9]{5,6}$', FALSE);
+$$
+LANGUAGE SQL
+IMMUTABLE;

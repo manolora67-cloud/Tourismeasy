@@ -1,0 +1,7 @@
+CREATE OR REPLACE FUNCTION fn_validar_fecha_salida(p_fecha DATE)
+RETURNS BOOLEAN AS
+$$
+    SELECT p_fecha IS NOT NULL AND p_fecha >= CURRENT_DATE;
+$$
+LANGUAGE SQL
+STABLE;

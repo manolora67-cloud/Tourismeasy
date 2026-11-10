@@ -12,11 +12,13 @@ $DB_USER = "postgres";
 $DB_PASS = "hola123";
 */
 
+
 $DB_HOST = "localhost";
 $DB_PORT = "5432";
 $DB_NAME = "db_tourismeasy";
 $DB_USER = "gr_tourismeasy";
 $DB_PASS = "dajaide";
+
 
 /*
 $DB_HOST = "localhost";

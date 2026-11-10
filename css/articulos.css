@@ -229,8 +229,8 @@
 /* ── CTA (Call To Action): caja al final del artículo invitando a reservar ── */
 .art-cta {
   margin-top: 28px;
-  background: linear-gradient(135deg, rgba(124, 58, 237, 0.08), rgba(168, 85, 247, 0.05));
-  border: 1.5px solid rgba(124, 58, 237, 0.2);
+  background: linear-gradient(135deg, rgba(var(--theme-primary-rgb, 124, 58, 237), 0.08), rgba(var(--theme-primary-light-rgb, 168, 85, 247), 0.05));
+  border: 1.5px solid rgba(var(--theme-primary-rgb, 124, 58, 237), 0.2);
   border-radius: 16px;
   padding: 20px 24px;
   display: flex;
@@ -262,7 +262,7 @@
   border-radius: 50px;
   text-decoration: none;
   transition: background 0.2s, transform 0.15s;
-  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.3);
+  box-shadow: 0 4px 16px rgba(var(--theme-primary-rgb, 124, 58, 237), 0.3);
 }
 
 .art-btn-reservar:hover {
@@ -301,8 +301,8 @@ body.dark-mode .art-seccion p {
 }
 
 body.dark-mode .art-cta {
-  background: rgba(168, 85, 247, 0.08);
-  border-color: rgba(168, 85, 247, 0.25);
+  background: rgba(var(--theme-primary-light-rgb, 168, 85, 247), 0.08);
+  border-color: rgba(var(--theme-primary-light-rgb, 168, 85, 247), 0.25);
 }
 
 body.dark-mode .art-cta p {

@@ -4,12 +4,14 @@
    Todos los demás CSS lo importan o heredan estas variables.
 =========================== */
 
+@import url("../tema_global.php?v=global-theme-v1");
+
 :root {
-    --purple: #7c3aed;
+    --purple: var(--theme-primary, #7c3aed);
     /* Morado principal de la marca */
-    --purple-light: #a855f7;
+    --purple-light: var(--theme-primary-light, #a855f7);
     /* Morado más claro (hovers, acentos) */
-    --purple-dark: #5b21b6;
+    --purple-dark: var(--theme-primary-dark, #5b21b6);
     /* Morado oscuro (botones presionados) */
     --dark-nav: #0f172a;
     /* Fondo navbar en dark mode */
@@ -34,7 +36,7 @@
     /* Fuente de párrafos */
     --radius: 14px;
     /* Radio estándar de tarjetas */
-    --shadow: 0 4px 24px rgba(124, 58, 237, 0.1);
+    --shadow: 0 4px 24px rgba(var(--theme-primary-rgb, 124, 58, 237), 0.1);
     --shadow-card: 0 2px 16px rgba(0, 0, 0, 0.08);
 }
 
@@ -60,7 +62,7 @@ body {
     font-family: var(--font-body);
     background: var(--white);
     color: var(--gray-800);
-    overflow-x: hidden;
+    overflow-x: clip;
     /* Evita scroll horizontal */
 }
 
@@ -89,6 +91,16 @@ ul {
     background: var(--white);
     border-bottom: 1px solid var(--gray-200);
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+}
+
+#site-navbar {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+#site-navbar > .navbar {
+    position: static;
 }
 
 
@@ -254,6 +266,13 @@ ul {
     max-width: none;
     margin: 0;
     border-radius: 0;
+    background-color: #171126;
+    background-position: center;
+    background-size: cover;
+}
+
+.hero.hero-poster {
+    background-image: url("../img/hero.jpeg");
 }
 
 
@@ -267,8 +286,23 @@ ul {
     height: 100%;
     object-fit: cover;
     z-index: 0;
-    /* Efecto de zoom suave en loop para dar movimiento */
-    animation: zoomVideo 20s infinite alternate ease-in-out;
+    transform: scale(1.05);
+    opacity: 0;
+    transition: opacity 350ms ease;
+}
+
+.hero-video.is-ready {
+    opacity: 1;
+}
+
+.hero.hero-poster .hero-video {
+    opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hero-video {
+        transition: none;
+    }
 }
 
 
@@ -395,18 +429,6 @@ ul {
 }
 
 
-/* Animación del zoom del video del hero */
-
-@keyframes zoomVideo {
-    from {
-        transform: scale(1);
-    }
-    to {
-        transform: scale(1.1);
-    }
-}
-
-
 /* ===========================
    SECCIONES GENERALES
 =========================== */
@@ -468,7 +490,6 @@ ul {
     background: var(--gray-100);
 }
 
-
 /* Fila de encabezado: título a la izquierda, enlace a la derecha */
 
 .section-header {
@@ -519,10 +540,23 @@ ul {
 }
 
 #site-destinos .destinos-page .card {
+    display: flex;
+    flex-direction: column;
     width: 100%;
     min-width: 0;
     min-height: 0;
     padding: 0;
+}
+
+#site-destinos .destinos-page .card-body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+#site-destinos .destinos-page .card-link {
+    margin-top: auto;
 }
 
 .destinos-page .card-img {
@@ -566,6 +600,14 @@ ul {
     opacity: .4;
 }
 
+.destinos-paginacion {
+    margin: 4px 0 0;
+    color: var(--gray-600);
+    font-size: .82rem;
+    font-weight: 600;
+    text-align: center;
+}
+
 .destinos-error {
     padding: 24px;
     border-radius: var(--radius);
@@ -587,7 +629,7 @@ ul {
 
 .card:hover {
     transform: translateY(-6px);
-    box-shadow: 0 12px 40px rgba(124, 58, 237, 0.18);
+    box-shadow: 0 12px 40px rgba(var(--theme-primary-rgb, 124, 58, 237), 0.18);
 }
 
 
@@ -1006,6 +1048,10 @@ ul {
     color: var(--gray-400);
 }
 
+.footer-authors {
+    margin: 6px 0 0;
+}
+
 
 /* ===========================
    BOTONES DE LOGIN SOCIAL (Google, Facebook)
@@ -1146,7 +1192,7 @@ ul {
     width: 20px;
     height: 20px;
     border: 3px solid #e2e8f0;
-    border-top-color: #7c3aed;
+    border-top-color: var(--theme-primary, #7c3aed);
     border-radius: 50%;
     animation: girar 0.8s linear infinite;
 }
@@ -1179,13 +1225,13 @@ ul {
     width: 90%;
     position: relative;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    border-top: 8px solid #7c3aed;
+    border-top: 8px solid var(--theme-primary, #7c3aed);
     font-family: "Open Sans", sans-serif;
 }
 
 .custom-modal-box h2 {
     font-family: "Montserrat", sans-serif;
-    color: #7c3aed;
+    color: var(--theme-primary, #7c3aed);
     margin-bottom: 20px;
 }
 
@@ -1417,6 +1463,22 @@ body.dark-mode .btn-dark-mode:hover {
 
 body.dark-mode .card {
     background: #1e293b;
+}
+
+body.dark-mode .destinos-arrow {
+    background: #273449;
+    border-color: #64748b;
+    color: var(--theme-primary-light, #c4b5fd);
+}
+
+body.dark-mode .destinos-arrow:hover:not(:disabled) {
+    background: var(--theme-primary-light, #c4b5fd);
+    border-color: var(--theme-primary-light, #c4b5fd);
+    color: #0f172a;
+}
+
+body.dark-mode .destinos-arrow:disabled {
+    opacity: .7;
 }
 
 body.dark-mode .testimonial-card {
@@ -1654,20 +1716,28 @@ body.dark-mode .btn-volver:hover {
     }
     #site-destinos .destinos-page {
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        grid-template-rows: repeat(4, minmax(0, 1fr));
+        grid-template-rows: repeat(2, minmax(210px, auto));
         gap: 12px;
     }
     .destinos-page .card-img {
-        height: 120px;
+        height: 96px;
     }
     .destinos-page .card-body {
-        padding: 12px 10px 14px;
+        padding: 10px;
     }
     .destinos-page .card-body h3 {
-        font-size: .9rem;
+        font-size: .86rem;
     }
     .destinos-page .card-body p {
-        font-size: .75rem;
+        display: -webkit-box;
+        overflow: hidden;
+        margin-bottom: 8px;
+        font-size: .72rem;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 3;
+    }
+    .destinos-page .card-link {
+        font-size: .78rem;
     }
     .card-img {
         height: 170px;
@@ -1787,6 +1857,35 @@ body.dark-mode .btn-volver:hover {
     .destinos-page .card-body p {
         line-height: 1.4;
     }
+    #site-destinos .destinos-page {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: repeat(4, minmax(120px, auto));
+    }
+    #site-destinos .destinos-page .card {
+        display: grid;
+        grid-template-columns: minmax(82px, 30%) minmax(0, 1fr);
+        min-height: 120px;
+    }
+    #site-destinos .destinos-page .card-img {
+        height: 100%;
+        min-height: 120px;
+    }
+    #site-destinos .destinos-page .card-body {
+        min-width: 0;
+        padding: 9px;
+    }
+    #site-destinos .destinos-page .card-body h3 {
+        margin-bottom: 5px;
+        font-size: .84rem;
+    }
+    #site-destinos .destinos-page .card-body p {
+        margin-bottom: 5px;
+        font-size: .68rem;
+        -webkit-line-clamp: 2;
+    }
+    #site-destinos .destinos-page .card-link {
+        font-size: .72rem;
+    }
     .card-img {
         height: 200px;
     }
@@ -1869,13 +1968,13 @@ body.dark-mode .btn-volver:hover {
     position: relative;
     padding: 40px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    border-top: 8px solid #7c3aed;
+    border-top: 8px solid var(--theme-primary, #7c3aed);
     font-family: "Open Sans", sans-serif;
 }
 
 .sn-titulo {
     font-family: "Montserrat", sans-serif;
-    color: #7c3aed;
+    color: var(--theme-primary, #7c3aed);
     margin-bottom: 20px;
 }
 
@@ -2250,16 +2349,16 @@ body.dark-mode .resena-gracias p {
 /* Botón editar: morado */
 
 .resena-btn-editar {
-    background: rgba(124, 58, 237, 0.08);
+    background: rgba(var(--theme-primary-rgb, 124, 58, 237), 0.08);
     color: var(--purple);
-    border-color: rgba(124, 58, 237, 0.2);
+    border-color: rgba(var(--theme-primary-rgb, 124, 58, 237), 0.2);
 }
 
 .resena-btn-editar:hover {
-    background: rgba(124, 58, 237, 0.15);
-    border-color: rgba(124, 58, 237, 0.4);
+    background: rgba(var(--theme-primary-rgb, 124, 58, 237), 0.15);
+    border-color: rgba(var(--theme-primary-rgb, 124, 58, 237), 0.4);
     transform: translateY(-1px);
-    box-shadow: 0 3px 10px rgba(124, 58, 237, 0.15);
+    box-shadow: 0 3px 10px rgba(var(--theme-primary-rgb, 124, 58, 237), 0.15);
 }
 
 
@@ -2307,13 +2406,13 @@ body.dark-mode .resena-acciones {
 }
 
 body.dark-mode .resena-btn-editar {
-    background: rgba(124, 58, 237, 0.15);
-    border-color: rgba(124, 58, 237, 0.3);
+    background: rgba(var(--theme-primary-rgb, 124, 58, 237), 0.15);
+    border-color: rgba(var(--theme-primary-rgb, 124, 58, 237), 0.3);
     color: #a78bfa;
 }
 
 body.dark-mode .resena-btn-editar:hover {
-    background: rgba(124, 58, 237, 0.25);
+    background: rgba(var(--theme-primary-rgb, 124, 58, 237), 0.25);
 }
 
 body.dark-mode .resena-btn-borrar {

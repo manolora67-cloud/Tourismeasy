@@ -655,6 +655,46 @@
         return {};
     }
 
+    function fetchMunicipalitiesCached(url) {
+        const cacheKey = "tourismeasy_public_cities_v1";
+        const cacheDuration = 30 * 60 * 1000;
+
+        try {
+            const cached = JSON.parse(window.sessionStorage.getItem(cacheKey) || "null");
+            if (
+                cached
+                && cached.expiresAt > Date.now()
+                && Array.isArray(cached.data)
+            ) {
+                return Promise.resolve(cached.data);
+            }
+            if (cached) window.sessionStorage.removeItem(cacheKey);
+        } catch (error) {
+            console.warn("[TourismEasy] No se pudo leer la caché de municipios; se consultará el servidor.", error);
+        }
+
+        return fetch(url)
+            .then((response) => {
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return response.json();
+            })
+            .then((result) => {
+                if (!result.ok || !result.data || !Array.isArray(result.data.ciudades)) {
+                    throw new Error(result.error || "La lista de municipios no tiene el formato esperado.");
+                }
+                const cities = result.data.ciudades.filter((city) => String(city.id).startsWith("68"));
+                try {
+                    window.sessionStorage.setItem(cacheKey, JSON.stringify({
+                        expiresAt: Date.now() + cacheDuration,
+                        data: cities,
+                    }));
+                } catch (error) {
+                    console.warn("[TourismEasy] No se pudo guardar la caché de municipios.", error);
+                }
+                return cities;
+            });
+    }
+
     function createMunicipalities(cities, content, initialized) {
         return cities.map((city, index) => {
             const slug = slugify(city.nombre);
@@ -668,6 +708,7 @@
             };
             const saved = content.find((item) => [slug, base.key].includes(String(item.key || "").toLowerCase()));
             return {
+                id: String(city.id),
                 key: saved ? saved.key : base.key,
                 img: (saved && saved.img) || base.img,
                 alt: (saved && saved.alt) || base.alt,
@@ -685,10 +726,13 @@
     }
 
     function cardTemplate(destination) {
+        const imageUrl = window.TEImagenCloudinary
+            ? window.TEImagenCloudinary.tarjeta(destination.img)
+            : destination.img;
         return `
     <article class="card">
       <div class="card-img">
-        <img src="${escapeHtml(destination.img)}" alt="${escapeHtml(destination.alt)}" loading="lazy" />
+        <img data-src="${escapeHtml(imageUrl)}" alt="${escapeHtml(destination.alt)}" loading="lazy" decoding="async" />
         ${destination.badge ? `<span class="card-badge">${escapeHtml(destination.badge)}</span>` : ""}
       </div>
       <div class="card-body">
@@ -699,8 +743,7 @@
     </article>`;
     }
 
-    function renderPages(destinations) {
-        const pageSize = 8;
+    function renderPages(destinations, pageSize) {
         const pages = [];
         for (let index = 0; index < destinations.length; index += pageSize) {
             pages.push(destinations.slice(index, index + pageSize));
@@ -708,7 +751,8 @@
         return pages;
     }
 
-    function updateCarousel(track, previous, next, pageIndex, pageCount) {
+    function updateCarousel(track, previous, next, pagination, pageIndex, pageSize, total) {
+        const pageCount = track.children.length;
         track.style.transform = `translateX(-${pageIndex * 100}%)`;
         Array.from(track.children).forEach((page, index) => {
             page.setAttribute("aria-hidden", index === pageIndex ? "false" : "true");
@@ -716,12 +760,24 @@
         });
         previous.disabled = pageIndex === 0;
         next.disabled = pageIndex >= pageCount - 1;
+        const firstMunicipality = pageIndex * pageSize + 1;
+        const lastMunicipality = Math.min((pageIndex + 1) * pageSize, total);
+        pagination.textContent = `Página ${pageIndex + 1} · Municipios ${firstMunicipality}–${lastMunicipality} de ${total}`;
+    }
+
+    function cargarImagenesPagina(track, pageIndex) {
+        const page = track.children[pageIndex];
+        if (!page) return;
+
+        page.querySelectorAll("img[data-src]").forEach((image) => {
+            image.src = image.dataset.src;
+            image.removeAttribute("data-src");
+        });
     }
 
     function renderDestinos(destinations) {
         if (!mount) return;
         const publicDestinations = destinations.filter((destination) => destination.publicado);
-        const previewKey = new URLSearchParams(window.location.search).get("previewDestino");
         if (!publicDestinations.length) {
             mount.innerHTML = '<section class="destinos" id="destinos"><div class="section-container"><p class="destinos-error">Próximamente encontrarás nuevos destinos de Santander.</p></div></section>';
             return;
@@ -731,9 +787,9 @@
       <div class="section-container">
         <div class="section-header">
           <div>
-            <h2 class="section-title">Municipios de Santander</h2>
+            <h2 class="section-title">Descubre los municipios</h2>
             <p class="section-desc">
-              Explora los municipios de Santander. Usa las flechas para recorrer todos los destinos.
+              Conoce sus destinos y planea tu próxima visita.
             </p>
           </div>
         </div>
@@ -743,49 +799,51 @@
           </button>
           <div class="destinos-viewport" aria-label="Carrusel de municipios">
             <div class="destinos-track">
-              ${renderPages(publicDestinations).map((page, index) => `
-                <div class="destinos-page" role="group" aria-label="Municipios ${index * 8 + 1} a ${Math.min((index + 1) * 8, publicDestinations.length)}">
-                  ${page.map(cardTemplate).join("")}
-                </div>
-              `).join("")}
             </div>
           </div>
           <button class="destinos-arrow destinos-arrow-next" type="button" aria-label="Ver municipios siguientes">
             <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
           </button>
         </div>
+        <p class="destinos-paginacion" aria-live="polite"></p>
       </div>
     </section>`;
 
         const track = mount.querySelector(".destinos-track");
         const previous = mount.querySelector(".destinos-arrow-prev");
         const next = mount.querySelector(".destinos-arrow-next");
-        const pageCount = track.children.length;
-        const destinationIndex = publicDestinations.findIndex((destination) => destination.key === previewKey);
-        let pageIndex = destinationIndex < 0 ? 0 : Math.floor(destinationIndex / 8);
-        const update = () => updateCarousel(track, previous, next, pageIndex, pageCount);
+        const pagination = mount.querySelector(".destinos-paginacion");
+        const mobileLayout = window.matchMedia("(max-width: 767px)");
+        let pageSize = mobileLayout.matches ? 4 : 8;
+        let pageIndex = 0;
+        const renderCarousel = (firstMunicipality = 0) => {
+            pageSize = mobileLayout.matches ? 4 : 8;
+            const pages = renderPages(publicDestinations, pageSize);
+            track.innerHTML = pages.map((page, index) => `
+                <div class="destinos-page" role="group" aria-label="Municipios ${index * pageSize + 1} a ${Math.min((index + 1) * pageSize, publicDestinations.length)}">
+                  ${page.map(cardTemplate).join("")}
+                </div>
+              `).join("");
+            pageIndex = Math.min(Math.floor(firstMunicipality / pageSize), pages.length - 1);
+            cargarImagenesPagina(track, pageIndex);
+            updateCarousel(track, previous, next, pagination, pageIndex, pageSize, publicDestinations.length);
+        };
+        const update = () => {
+            cargarImagenesPagina(track, pageIndex);
+            updateCarousel(track, previous, next, pagination, pageIndex, pageSize, publicDestinations.length);
+        };
         const changePage = (direction) => {
-            pageIndex = Math.max(0, Math.min(pageCount - 1, pageIndex + direction));
+            pageIndex = Math.max(0, Math.min(track.children.length - 1, pageIndex + direction));
             update();
         };
 
         previous.addEventListener("click", () => changePage(-1));
         next.addEventListener("click", () => changePage(1));
-        update();
-        if (previewKey && destinationIndex >= 0) mount.scrollIntoView({ block: "start" });
+        renderCarousel();
+        mobileLayout.addEventListener("change", () => renderCarousel(pageIndex * pageSize));
     }
 
-    const citiesPromise = fetch(`${basePath}datos_referencia.php?tipo=ciudades`)
-        .then((response) => {
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            return response.json();
-        })
-        .then((result) => {
-            if (!result.ok || !result.data || !Array.isArray(result.data.ciudades)) {
-                throw new Error(result.error || "La lista de municipios no tiene el formato esperado.");
-            }
-            return result.data.ciudades.filter((city) => String(city.id).startsWith("68"));
-        });
+    const citiesPromise = fetchMunicipalitiesCached(`${basePath}datos_referencia.php?tipo=ciudades`);
 
     const contentPromise = fetch(`${basePath}admin/contenido_portada.php`)
         .then((response) => {

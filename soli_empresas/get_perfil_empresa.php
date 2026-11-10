@@ -9,6 +9,7 @@ iniciarSesionPersistente();
 require_once __DIR__ . '/../con_db/db.php';
 
 header('Content-Type: application/json');
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
 require_once __DIR__ . '/../cors.php';
 
 $id = ($_SESSION['tipo'] ?? '') === 'empresa' ? ($_SESSION['id_empresa'] ?? '') : '';
@@ -30,20 +31,7 @@ try {
         exit;
     }
 
-    $metaStmt = $pdo->prepare(
-        "SELECT FECHA_ULTIMA_EDICION_PERFIL AS ultima_edicion_perfil,
-                CASE
-                    WHEN FECHA_ULTIMA_EDICION_PERFIL IS NULL THEN TRUE
-                    ELSE DATE_TRUNC('month', FECHA_ULTIMA_EDICION_PERFIL)
-                         < DATE_TRUNC('month', CURRENT_TIMESTAMP::TIMESTAMP)
-                END AS puede_editar_perfil,
-                CASE
-                    WHEN FECHA_ULTIMA_EDICION_PERFIL IS NULL THEN NULL
-                    ELSE (DATE_TRUNC('month', FECHA_ULTIMA_EDICION_PERFIL) + INTERVAL '1 month')::TIMESTAMP
-                END AS proxima_edicion
-         FROM USUARIOS_EMPRESA
-         WHERE ID_EMPRESA = :id"
-    );
+    $metaStmt = $pdo->prepare('SELECT * FROM fn_obtener_meta_edicion_perfil_empresa(:id)');
     $metaStmt->execute([':id' => $id]);
     $meta = $metaStmt->fetch();
     if (!$meta) {

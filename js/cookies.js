@@ -25,11 +25,11 @@
                         <div class="ck-header">
                             <div class="ck-icon-big">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                    <circle cx="12" cy="12" r="10" stroke="#a855f7" stroke-width="1.5"/>
-                                    <circle cx="8.5" cy="9" r="1.5" fill="#a855f7"/>
-                                    <circle cx="15.5" cy="10" r="1.5" fill="#a855f7"/>
-                                    <circle cx="9" cy="15" r="1.2" fill="#7c3aed"/>
-                                    <circle cx="15" cy="15" r="1" fill="#7c3aed"/>
+                                    <circle cx="12" cy="12" r="10" stroke="var(--theme-primary-light, #a855f7)" stroke-width="1.5"/>
+                                    <circle cx="8.5" cy="9" r="1.5" fill="var(--theme-primary-light, #a855f7)"/>
+                                    <circle cx="15.5" cy="10" r="1.5" fill="var(--theme-primary-light, #a855f7)"/>
+                                    <circle cx="9" cy="15" r="1.2" fill="var(--theme-primary, #7c3aed)"/>
+                                    <circle cx="15" cy="15" r="1" fill="var(--theme-primary, #7c3aed)"/>
                                     <circle cx="12" cy="6.5" r="1" fill="#c4b5fd"/>
                                 </svg>
                             </div>

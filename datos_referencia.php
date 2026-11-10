@@ -2,9 +2,11 @@
 /**
  * datos_referencia.php
  * Devuelve listas de referencia para poblar selects en los paneles empresa.
- * GET ?tipo=ciudades        → lista de ciudades
- * GET ?tipo=tipos_plan      → tipos de plan turístico
- * GET ?tipo=todos           → ciudades y tipos de plan
+ * GET ?tipo=ciudades            → lista de ciudades
+ * GET ?tipo=tipos_plan          → tipos de plan turístico activos
+ * GET ?tipo=tipos_hospedaje      → tipos de hospedaje activos
+ * GET ?tipo=categorias_artesania → categorías artesanales activas
+ * GET ?tipo=todos                → todas las referencias
  */
 
 require_once __DIR__ . '/con_db/db.php';
@@ -13,7 +15,7 @@ require_once __DIR__ . '/cors.php';
 header('Content-Type: application/json');
 
 $tipo = $_GET['tipo'] ?? 'todos';
-$tiposPermitidos = ['ciudades', 'tipos_plan', 'todos'];
+$tiposPermitidos = ['ciudades', 'tipos_plan', 'tipos_hospedaje', 'categorias_artesania', 'todos'];
 
 if (!in_array($tipo, $tiposPermitidos, true)) {
     http_response_code(400);

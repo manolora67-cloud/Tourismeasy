@@ -4,19 +4,22 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="../js/control_tiempo_sesion.js?v=secure-session-v4"></script>
     <title>Mi Perfil - Panel Administrador - TourismEasy</title>
     <link rel="stylesheet" href="../css/index.css" />
-    <link rel="stylesheet" href="../css/login.css" />
-    <link rel="stylesheet" href="../css/panel_admin.css" />
+    <link rel="stylesheet" href="../css/login.css?v=device-approval-v2" />
+    <link rel="stylesheet" href="../css/panel_admin.css?v=admin-footer-size-v2" />
+    <link rel="stylesheet" href="../css/agente-ia.css?v=mobile-layout-v2" />
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;500&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
+    <script src="../componentes/ui-feedback.js?v=ui-feedback-v4"></script>
 </head>
 
 <body>
     <nav class="navbar">
         <div class="nav-container">
-            <a href="javascript:location.reload()" class="nav-logo">
+            <a href="../index.html" class="nav-logo">
                 <img src="../img/TURISMEASY.png" alt="Logo" class="logo-img" />
                 <span class="logo-text">TOURISMEASY</span>
             </a>
@@ -38,35 +41,28 @@
                     AD
                 </div>
                 <div class="pu-sidebar-nombre" id="sidebarNombre">
-                    Administrador TourismEasy
+                    Cargando administrador…
                 </div>
                 <div class="pu-sidebar-tipo">
                     <i class="fa-solid fa-shield-halved"></i> Administrador
                 </div>
                 <nav class="pu-sidebar-nav">
-                    <a href="panel_admin.html" class="pu-nav-item pu-nav-highlight"><i
-                            class="fa-solid fa-shield-halved"></i>
-                        Panel Admin</a>
-                    <a href="perfil_admin.html" class="pu-nav-item active"><i class="fa-solid fa-user"></i> Mi
-                        Perfil</a>
-                    <a href="config_admin.html" class="pu-nav-item"><i class="fa-solid fa-gear"></i> Configuración</a>
-                    <a href="festividades_admin.html" class="pu-nav-item"><i class="fa-solid fa-calendar-days"></i>
-                        Festividades</a>
+                    <a href="../index.html" class="pu-nav-item">🏠 Ir al sitio</a>
+                    <a href="panel_admin.html" class="pu-nav-item pu-nav-highlight">🛡️ Panel Admin</a>
+                    <a href="perfil_admin.html" class="pu-nav-item active">👤 Mi Perfil</a>
+                    <a href="config_admin.html" class="pu-nav-item">⚙️ Configuración</a>
+                    <a href="festividades_admin.html" class="pu-nav-item">📅 Festividades</a>
+                    <a href="catalogos_admin.html" class="pu-nav-item">📚 Catálogos</a>
                 </nav>
 
                 <div class="pe-sidebar-bloque pe-sidebar-bloque--purple">
                     <p class="pe-sidebar-bloque__titulo pe-sidebar-bloque__titulo--purple">
-                        <i class="fa-solid fa-circle-nodes"></i> Estado del sistema
+                        <i class="fa-solid fa-circle-nodes"></i> Estado de la cuenta
                     </p>
                     <div class="pe-sidebar-checks">
                         <div class="pe-sidebar-check">
-                            <i class="fa-solid fa-circle-check" style="color: #22c55e"></i> Plataforma operativa
-                        </div>
-                        <div class="pe-sidebar-check">
-                            <i class="fa-solid fa-circle-check" style="color: #22c55e"></i> Base de datos activa
-                        </div>
-                        <div class="pe-sidebar-check">
-                            <i class="fa-solid fa-circle-check" style="color: #22c55e"></i> Perfil activo
+                            <i class="fa-solid fa-circle-question" id="adminAccountStateIcon" style="color: #64748b"></i>
+                            <span id="adminAccountState">Consultando estado…</span>
                         </div>
                     </div>
                 </div>
@@ -103,7 +99,7 @@
 
                 <div style="margin-top: auto; padding-top: 16px">
                     <a href="#" class="pu-nav-item pu-nav-danger" style="display: block" id="sidebarLogout">
-                        <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión
+                        🚪 Cerrar Sesión
                     </a>
                 </div>
             </aside>
@@ -112,7 +108,7 @@
             <div class="pu-content">
                 <div class="pu-page-header">
                     <h1><i class="fa-solid fa-user"></i> Perfil de Administrador</h1>
-                    <button class="pu-btn-edit" id="btnEditPerfil">
+                    <button class="pu-btn-edit" id="btnEditPerfil" disabled>
                         <i class="fa-solid fa-pen"></i> Editar perfil
                     </button>
                 </div>
@@ -123,16 +119,14 @@
                             AD
                         </div>
                         <div class="pu-perfil-info">
-                            <h2 id="perfilNombre">Administrador TourismEasy</h2>
+                            <h2 id="perfilNombre">Cargando…</h2>
                             <p>
-                                <i class="fa-solid fa-envelope"></i> <span id="perfilEmail">admin@tourismeasy.com</span>
+                                <i class="fa-solid fa-envelope"></i> <span id="perfilEmail" aria-live="polite">Cargando correo...</span>
                             </p>
-                            <p><i class="fa-solid fa-shield-halved"></i> Acceso: Total</p>
                             <p>
-                                <i class="fa-solid fa-location-dot"></i> Bucaramanga, Santander
+                                <i class="fa-solid fa-shield-halved"></i> <span id="perfilRol">Administrador</span>
                             </p>
-                            <span class="pu-badge-tipo pu-badge-empresa"><i class="fa-solid fa-crown"></i> Administrador
-                                principal</span>
+                            <span class="pu-badge-tipo pu-badge-empresa"><i class="fa-solid fa-crown"></i> Cuenta <span id="perfilEstado">Cargando…</span></span>
                         </div>
                     </div>
                 </div>
@@ -144,25 +138,22 @@
                         </h3>
                         <div class="pu-field-list">
                             <div class="pu-field">
-                                <span class="pu-field-label">Nombre</span><span class="pu-field-val" id="infoNombre">Administrador
-                                    TourismEasy</span>
+                                <span class="pu-field-label">Nombre</span><span class="pu-field-val" id="infoNombre">Cargando…</span>
                             </div>
                             <div class="pu-field">
-                                <span class="pu-field-label">Rol</span><span class="pu-field-val">Administrador
-                                    principal</span>
+                                <span class="pu-field-label">Rol</span><span class="pu-field-val" id="infoRol">Administrador</span>
                             </div>
                             <div class="pu-field">
-                                <span class="pu-field-label">Correo</span><span class="pu-field-val" id="infoEmail">admin@tourismeasy.com</span>
+                                <span class="pu-field-label">Correo</span><span class="pu-field-val" id="infoEmail">Cargando correo...</span>
                             </div>
                             <div class="pu-field">
-                                <span class="pu-field-label">Teléfono</span><span class="pu-field-val" id="infoTelefono">+57 317 461 3395</span>
+                                <span class="pu-field-label">Teléfono</span><span class="pu-field-val" id="infoTelefono">Cargando…</span>
                             </div>
                             <div class="pu-field">
-                                <span class="pu-field-label">Ciudad</span><span class="pu-field-val">Bucaramanga,
-                                    Santander</span>
+                                <span class="pu-field-label">Identificación</span><span class="pu-field-val" id="infoIdentificacion">Cargando…</span>
                             </div>
                             <div class="pu-field">
-                                <span class="pu-field-label">Activo desde</span><span class="pu-field-val" id="infoActivoDesde">Abril 2026</span>
+                                <span class="pu-field-label">Activo desde</span><span class="pu-field-val" id="infoActivoDesde">Cargando…</span>
                             </div>
                         </div>
                     </div>
@@ -197,19 +188,57 @@
                     </h3>
                     <div class="pu-stats-row">
                         <div class="pu-stat">
-                            <span class="pu-stat-num" id="adminStatEmpresas">—</span><span class="pu-stat-label">Empresas registradas</span>
+                            <span class="pu-stat-num" id="adminStatEmpresas">Cargando…</span><span class="pu-stat-label">Cuentas de empresa activas</span>
                         </div>
                         <div class="pu-stat">
-                            <span class="pu-stat-num" id="adminStatCalif">—</span><span class="pu-stat-label">Calificación promedio</span>
+                            <span class="pu-stat-num" id="adminStatCalif">Cargando…</span><span class="pu-stat-label">Calificación promedio</span>
                         </div>
                         <div class="pu-stat">
-                            <span class="pu-stat-num" id="adminStatServicios">—</span><span class="pu-stat-label">Servicios activos</span>
+                            <span class="pu-stat-num" id="adminStatServicios">Cargando…</span><span class="pu-stat-label">Servicios activos</span>
+                        </div>
+                        <div class="pu-stat">
+                            <span class="pu-stat-num" id="adminStatClicsWhatsapp">Cargando…</span><span class="pu-stat-label">Clics de WhatsApp (últimos 30 días)</span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </main>
+
+    <div class="pu-modal" id="modalEditarAdmin" role="dialog" aria-modal="true" aria-labelledby="modalEditarAdminTitulo">
+        <div class="pu-modal-box">
+            <button class="pu-modal-close" id="btnCerrarModalAdmin" type="button" aria-label="Cerrar">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <h2 class="pu-modal-titulo" id="modalEditarAdminTitulo">
+                <i class="fa-solid fa-user-pen"></i> Editar perfil
+            </h2>
+            <p class="pu-modal-desc">Actualiza tus datos de administrador.</p>
+            <div class="pu-modal-fields">
+                <label class="pu-modal-field">
+                    <span class="pu-modal-label">Nombre completo</span>
+                    <input class="pu-modal-input" id="editNombreAdmin" type="text" autocomplete="name" required>
+                </label>
+                <label class="pu-modal-field">
+                    <span class="pu-modal-label">Correo de acceso</span>
+                    <input class="pu-modal-input" id="editEmailAdmin" type="email" autocomplete="email" required>
+                </label>
+                <label class="pu-modal-field">
+                    <span class="pu-modal-label">Teléfono</span>
+                    <input class="pu-modal-input" id="editTelAdmin" type="tel" autocomplete="tel">
+                </label>
+            </div>
+            <div class="pu-modal-actions">
+                <button class="pu-modal-btn-cancel" id="btnCancelarModalAdmin" type="button">Cancelar</button>
+                <button class="pu-modal-btn-save" id="btnGuardarPerfilAdmin" type="button">
+                    <i class="fa-solid fa-check"></i> Guardar cambios
+                </button>
+            </div>
+            <div class="pu-modal-toast" id="toastExitoAdmin" role="status" style="display:none">
+                <i class="fa-solid fa-circle-check"></i> Perfil actualizado correctamente.
+            </div>
+        </div>
+    </div>
 
     <!-- FOOTER -->
     <div id="site-footer"></div>
@@ -231,11 +260,11 @@
             var pa = document.getElementById("perfilAvatar");
             var pn = document.getElementById("perfilNombre");
             var ni = document.getElementById("infoNombre");
-            if (av) av.textContent = u.avatar || "AD";
-            if (nm) nm.textContent = u.nombre || "Administrador";
-            if (pa) pa.textContent = u.avatar || "AD";
-            if (pn) pn.textContent = u.nombre || "Administrador TourismEasy";
-            if (ni) ni.textContent = u.nombre || "Administrador TourismEasy";
+            if (av) av.textContent = "AD";
+            if (nm) nm.textContent = "Cargando administrador…";
+            if (pa) pa.textContent = "AD";
+            if (pn) pn.textContent = "Cargando…";
+            if (ni) ni.textContent = "Cargando…";
         })();
 
         // SESSION WIDGET
@@ -246,10 +275,7 @@
             var w = document.createElement("div");
             w.id = "sessionWidget";
             w.className = "session-widget";
-            var ini = user.avatar || ((user.nombre || "AD").trim().split(/\s+/).map(function(x) {
-                return x[0] || "";
-            }).join("").toUpperCase().slice(0, 2) || "AD");
-            w.innerHTML = '<button class="session-trigger" id="sessionTrigger"><div class="session-avatar">' + ini + '</div><div class="session-info"><span class="session-name">' + (user.nombre || "Administrador") + '</span><span class="session-tipo">Administrador</span></div><i class="fa-solid fa-chevron-down session-chevron" id="sessionChevron"></i></button><div class="session-dropdown" id="sessionDropdown"><a class="session-menu-item session-menu-highlight" href="panel_admin.html"><i class="fa-solid fa-shield-halved"></i> Panel Administrador</a><a class="session-menu-item" href="perfil_admin.html"><i class="fa-solid fa-user"></i> Mi Perfil</a><a class="session-menu-item" href="config_admin.html"><i class="fa-solid fa-gear"></i> Configuracion</a><a class="session-menu-item" href="festividades_admin.html"><i class="fa-solid fa-calendar-days"></i> Festividades</a><a class="session-menu-item session-menu-danger" id="btnLogout" href="#"><i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesion</a></div>';
+            w.innerHTML = '<button class="session-trigger" id="sessionTrigger"><div class="session-avatar">AD</div><div class="session-info"><span class="session-name">Cargando…</span><span class="session-tipo">Administrador</span></div><i class="fa-solid fa-chevron-down session-chevron" id="sessionChevron"></i></button><div class="session-dropdown" id="sessionDropdown"><a class="session-menu-item" href="../index.html">🏠 Ir al sitio</a><a class="session-menu-item session-menu-highlight" href="panel_admin.html">🛡️ Panel Administrador</a><a class="session-menu-item" href="perfil_admin.html">👤 Mi Perfil</a><a class="session-menu-item" href="config_admin.html">⚙️ Configuración</a><a class="session-menu-item" href="festividades_admin.html">📅 Festividades</a><a class="session-menu-item" href="catalogos_admin.html">📚 Catálogos</a><a class="session-menu-item session-menu-danger" id="btnLogout" href="#">🚪 Cerrar Sesión</a></div>';
             slot.appendChild(w);
             var trig = w.querySelector("#sessionTrigger"),
                 drop = w.querySelector("#sessionDropdown"),
@@ -266,9 +292,7 @@
             w.querySelector("#btnLogout").addEventListener("click", function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                sessionStorage.removeItem("te_session");
-                localStorage.removeItem("te_session");
-                window.location.href = "../index.html";
+                window.TEUI.logoutAdmin("../login/logout_admin.php", "../index.html");
             });
         })();
 
@@ -294,9 +318,7 @@
         if (logoutBtn) {
             logoutBtn.addEventListener("click", function(e) {
                 e.preventDefault();
-                sessionStorage.removeItem("te_session");
-                localStorage.removeItem("te_session");
-                window.location.href = "../index.html";
+                window.TEUI.logoutAdmin("../login/logout_admin.php", "../index.html");
             });
         }
     </script>
@@ -328,8 +350,12 @@
             }
 
             function aplicarDatos(d) {
-                var nombreCompleto = ((d.nombre || "") + " " + (d.apellido || "")).trim() || sesion.nombre || "Administrador TourismEasy";
-                var email = d.email_login || sesion.email || "admin@tourismeasy.com";
+                var nombreCompleto = ((d.nombre || "") + " " + (d.apellido || "")).trim() || "Administrador";
+                var email = typeof d.email_login === "string" ? d.email_login.trim() : "";
+                if (!email) throw new Error("El servidor no devolvió el correo del administrador.");
+                var rol = String(d.rol || "").toLowerCase() === "admin" ? "Administrador" : (d.rol || "No disponible");
+                var estado = String(d.estado || "").toUpperCase();
+                var estadoLabel = estado === "ACTIVO" ? "Activa" : estado === "INACTIVO" ? "Inactiva" : "No disponible";
                 var initials = nombreCompleto.split(/\s+/).map(function(w) {
                     return w[0] || "";
                 }).join("").substring(0, 2).toUpperCase() || "AD";
@@ -337,34 +363,77 @@
                 set("perfilNombre", nombreCompleto);
                 set("perfilEmail", email);
                 set("perfilAvatar", initials);
+                set("perfilRol", rol);
+                set("perfilEstado", estadoLabel);
                 set("infoNombre", nombreCompleto);
+                set("infoRol", rol);
                 set("infoEmail", email);
                 set("infoTelefono", d.celular || "—");
+                set("infoIdentificacion", d.cedula || "—");
                 set("infoActivoDesde", formatearFechaRegistro(d.fecha_registro) || "—");
+                set("adminAccountState", "Cuenta " + estadoLabel.toLowerCase());
+                var accountStateIcon = document.getElementById("adminAccountStateIcon");
+                if (accountStateIcon) {
+                    accountStateIcon.className = estado === "ACTIVO" ? "fa-solid fa-circle-check" :
+                        estado === "INACTIVO" ? "fa-solid fa-circle-xmark" : "fa-solid fa-circle-question";
+                    accountStateIcon.style.color = estado === "ACTIVO" ? "#22c55e" :
+                        estado === "INACTIVO" ? "#dc2626" : "#64748b";
+                }
 
                 var sidebarAv = document.getElementById("sidebarAvatar");
                 if (sidebarAv) sidebarAv.textContent = initials;
                 var sidebarNm = document.getElementById("sidebarNombre");
                 if (sidebarNm) sidebarNm.textContent = nombreCompleto;
+                var sessionName = document.querySelector("#sessionWidget .session-name");
+                var sessionAvatar = document.querySelector("#sessionWidget .session-avatar");
+                if (sessionName) sessionName.textContent = nombreCompleto;
+                if (sessionAvatar) sessionAvatar.textContent = initials;
+
             }
 
             function cargarPerfil() {
-                if (!sesion.id) return;
-                fetch(API_BASE + 'get_perfil_admin.php?id=' + encodeURIComponent(sesion.id))
+                if (sesion.tipo !== "admin") return Promise.reject(new Error("No se encontró la sesión del administrador."));
+                return fetch(API_BASE + 'get_perfil_admin.php', {
+                        credentials: 'include',
+                        cache: 'no-store'
+                    })
                     .then(function(r) {
+                        if (!r.ok) throw new Error("HTTP " + r.status);
                         return r.json();
                     })
                     .then(function(data) {
                         if (data.ok && data.admin) {
                             adminActual = data.admin;
                             aplicarDatos(adminActual);
+                            btnAbrir.disabled = false;
+                            return true;
                         }
+                        throw new Error(data.error || "La respuesta del perfil no es válida.");
                     })
                     .catch(function(err) {
                         console.error("No se pudo cargar el perfil del administrador:", err);
+                        set("perfilEmail", "No se pudo cargar el correo");
+                        set("infoEmail", "No se pudo cargar el correo");
+                        set("perfilNombre", "No disponible");
+                        set("infoNombre", "No disponible");
+                        set("infoTelefono", "No disponible");
+                        set("infoIdentificacion", "No disponible");
+                        set("infoActivoDesde", "No disponible");
+                        set("perfilRol", "No disponible");
+                        set("perfilEstado", "No disponible");
+                        set("adminAccountState", "Estado no disponible");
+                        var accountStateIcon = document.getElementById("adminAccountStateIcon");
+                        if (accountStateIcon) {
+                            accountStateIcon.className = "fa-solid fa-circle-question";
+                            accountStateIcon.style.color = "#64748b";
+                        }
+                        set("sidebarNombre", "No disponible");
+                        var sessionName = document.querySelector("#sessionWidget .session-name");
+                        if (sessionName) sessionName.textContent = "No disponible";
+                        return false;
                     });
             }
-            cargarPerfil();
+            var perfilPromise = cargarPerfil();
 
             function tiempoRelativo(fechaStr) {
                 var f = new Date((fechaStr || "").replace(" ", "T"));
@@ -397,49 +466,85 @@
 
                 var activityUrl = new URL("../soli_empresas/get_auditoria.php", window.location.href);
                 fetch(activityUrl, {
-                        credentials: 'include'
+                        credentials: 'include',
+                        cache: 'no-store'
                     })
-                    .then(function(r) {
-                        return r.json();
-                    })
-                    .then(function(data) {
-                        if (!data.ok || !data.data || !data.data.length) {
-                            cont.innerHTML = '<div class="pe-actividad-item"><div><p class="pe-actividad-titulo">Sin actividad reciente</p></div></div>';
-                            return;
-                        }
-
-                        cont.innerHTML = data.data.slice(0, 3).map(function(ev) {
-                            return '<div class="pe-actividad-item">' +
-                                '<div class="pe-actividad-icon pe-actividad-icon--purple"><i class="fa-solid fa-circle-dot"></i></div>' +
-                                '<div>' +
-                                '<p class="pe-actividad-titulo">' + ev.accion + '</p>' +
-                                '<p class="pe-actividad-hora">' + tiempoRelativo(ev.fecha) + '</p>' +
-                                '</div>' +
-                                '</div>';
-                        }).join('');
-                    })
-                    .catch(function(err) {
-                        console.error("No se pudo cargar la última actividad:", err);
-                        cont.innerHTML = '<div class="pe-actividad-item"><div><p class="pe-actividad-titulo">No se pudo cargar</p></div></div>';
-                    });
-            }
-            cargarUltimaActividad();
-
-            function cargarEstadisticas() {
-                fetch(API_BASE + 'get_estadisticas_admin.php')
                     .then(function(r) {
                         if (!r.ok) throw new Error("HTTP " + r.status);
                         return r.json();
                     })
                     .then(function(data) {
-                        if (!data.ok || !data.estadisticas) return;
+                        if (!data.ok || !Array.isArray(data.data)) {
+                            throw new Error(data.error || "La respuesta de auditoría no es válida.");
+                        }
+                        var emailAdmin = String(adminActual.email_login || "").toLowerCase();
+                        var actividadPropia = data.data.filter(function(ev) {
+                            return String(ev.usuario || "").toLowerCase() === emailAdmin;
+                        }).slice(0, 3);
+                        cont.replaceChildren();
+                        if (!actividadPropia.length) {
+                            var vacio = document.createElement("p");
+                            vacio.className = "pe-actividad-titulo";
+                            vacio.textContent = "Sin actividad registrada para esta cuenta.";
+                            cont.appendChild(vacio);
+                            return;
+                        }
+                        actividadPropia.forEach(function(ev) {
+                            var item = document.createElement("div");
+                            item.className = "pe-actividad-item";
+                            var icon = document.createElement("div");
+                            icon.className = "pe-actividad-icon pe-actividad-icon--purple";
+                            icon.innerHTML = '<i class="fa-solid fa-circle-dot"></i>';
+                            var content = document.createElement("div");
+                            var action = document.createElement("p");
+                            action.className = "pe-actividad-titulo";
+                            action.textContent = ev.accion || "Actividad administrativa";
+                            var when = document.createElement("p");
+                            when.className = "pe-actividad-hora";
+                            when.textContent = tiempoRelativo(ev.fecha) || "Fecha no disponible";
+                            content.append(action, when);
+                            item.append(icon, content);
+                            cont.appendChild(item);
+                        });
+                    })
+                    .catch(function(err) {
+                        console.error("No se pudo cargar la última actividad:", err);
+                        cont.replaceChildren();
+                        var mensaje = document.createElement("p");
+                        mensaje.className = "pe-actividad-titulo";
+                        mensaje.textContent = "No se pudo cargar la actividad.";
+                        cont.appendChild(mensaje);
+                    });
+            }
+            perfilPromise.then(function(perfilDisponible) {
+                if (perfilDisponible) cargarUltimaActividad();
+            });
+
+            function cargarEstadisticas() {
+                fetch(API_BASE + 'get_estadisticas_admin.php', {
+                    credentials: 'include',
+                    cache: 'no-store'
+                })
+                    .then(function(r) {
+                        if (!r.ok) throw new Error("HTTP " + r.status);
+                        return r.json();
+                    })
+                    .then(function(data) {
+                        if (!data.ok || !data.estadisticas) {
+                            throw new Error(data.error || "La respuesta de estadísticas no es válida.");
+                        }
                         var st = data.estadisticas;
                         set("adminStatEmpresas", (st.empresas_registradas !== null && st.empresas_registradas !== undefined) ? st.empresas_registradas : "—");
                         set("adminStatCalif", st.calificacion_promedio !== null ? st.calificacion_promedio.toFixed(1) : "—");
                         set("adminStatServicios", (st.servicios_activos !== null && st.servicios_activos !== undefined) ? st.servicios_activos : "—");
+                        set("adminStatClicsWhatsapp", Number.isInteger(st.clics_whatsapp_30_dias) ? st.clics_whatsapp_30_dias.toLocaleString("es-CO") : "—");
                     })
                     .catch(function(err) {
                         console.error("No se pudieron cargar las estadísticas:", err);
+                        set("adminStatEmpresas", "No disponible");
+                        set("adminStatCalif", "No disponible");
+                        set("adminStatServicios", "No disponible");
+                        set("adminStatClicsWhatsapp", "No disponible");
                     });
             }
             cargarEstadisticas();
@@ -458,21 +563,27 @@
                 document.getElementById("editNombreAdmin").value = nombreCompleto;
                 document.getElementById("editEmailAdmin").value = adminActual.email_login || sesion.email || "";
                 document.getElementById("editTelAdmin").value = adminActual.celular || "";
+                window.TEUI.markClean(modal);
                 modal.style.display = "flex";
                 toast.style.display = "none";
                 document.body.style.overflow = "hidden";
             }
 
-            function cerrarModal() {
+            function cerrarModal(notify) {
+                var estabaAbierto = modal.style.display === "flex";
                 modal.style.display = "none";
                 document.body.style.overflow = "";
+                if (notify && estabaAbierto) window.TEUI.notifyClosed("Formulario");
             }
 
             btnAbrir.addEventListener("click", abrirModal);
-            btnCerrar.addEventListener("click", cerrarModal);
-            btnCancelar.addEventListener("click", cerrarModal);
+            async function solicitarCierreModal() {
+                if (await window.TEUI.confirmDiscard(modal)) cerrarModal(true);
+            }
+            btnCerrar.addEventListener("click", solicitarCierreModal);
+            btnCancelar.addEventListener("click", solicitarCierreModal);
             modal.addEventListener("click", function(e) {
-                if (e.target === modal) cerrarModal();
+                if (e.target === modal) solicitarCierreModal();
             });
 
             btnGuardar.addEventListener("click", function() {
@@ -497,11 +608,11 @@
 
                 fetch(API_BASE + 'actualizar_perfil_admin.php', {
                         method: 'POST',
+                        credentials: 'include',
                         headers: {
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
-                            id: sesion.id,
                             nombre: nombre,
                             apellido: apellido,
                             email: email,
@@ -514,7 +625,7 @@
                     .then(function(data) {
                         btnGuardar.disabled = false;
                         if (!data.ok) {
-                            alert(data.error || "No se pudo actualizar el perfil.");
+                            window.TEUI.toast(data.error || "No se pudo actualizar el perfil.", "error");
                             return;
                         }
 
@@ -524,19 +635,16 @@
                         adminActual.email_login = email;
                         aplicarDatos(adminActual);
 
-                        sesion.nombre = nombreCompleto;
-                        sesion.email = email;
-                        localStorage.setItem("te_session", JSON.stringify(sesion));
-
-                        toast.style.display = "block";
+                        window.TEUI.markClean(modal);
+                        window.TEUI.toast("Perfil actualizado correctamente.");
                         setTimeout(function() {
-                            cerrarModal();
+                            cerrarModal(false);
                         }, 1400);
                     })
                     .catch(function(err) {
                         btnGuardar.disabled = false;
                         console.error("Error al actualizar el perfil:", err);
-                        alert("No se pudo actualizar el perfil. Intenta de nuevo.");
+                        window.TEUI.toast("No se pudo actualizar el perfil. Intenta de nuevo.", "error");
                     });
             });
 
@@ -548,8 +656,16 @@
                     this.style.borderColor = "var(--gray-200)";
                 });
             });
+
+            if (new URLSearchParams(window.location.search).get("editar") === "correo") {
+                perfilPromise.then(function(cargado) {
+                    if (cargado) abrirModal();
+                });
+            }
         })();
     </script>
+    <script src="../componentes/agente-ia.js?v=private-chat-memory-v1"></script>
+    <script src="../menu_accesibilidad/menu.js?v=a11y-v16"></script>
 </body>
 
 </html>

@@ -1,0 +1,7 @@
+CREATE OR REPLACE FUNCTION fn_validar_celular(p_celular TEXT)
+RETURNS BOOLEAN AS
+$$
+    SELECT COALESCE(BTRIM(p_celular) ~ '^\+?[0-9]{7,15}$', FALSE);
+$$
+LANGUAGE SQL
+IMMUTABLE;

@@ -1,0 +1,183 @@
+CREATE OR REPLACE FUNCTION fn_estadisticas_clicks(
+    p_id_empresa EMPRESAS.ID_EMPRESA%TYPE,
+    p_pagina INTEGER,
+    p_id_persona_ecommerce PERSONAS_ECOMMERCE.ID_PERSONA_ECOMMERCE%TYPE
+)
+RETURNS JSONB
+AS $$
+DECLARE
+    v_resumen JSONB;
+    v_por_categoria JSONB;
+    v_por_producto JSONB;
+    v_por_empresa JSONB;
+    v_recientes JSONB;
+BEGIN
+    SELECT JSONB_BUILD_OBJECT(
+        'total', COUNT(*),
+        'ultimos_30_dias', COUNT(*) FILTER (
+            WHERE L.FECHA_HORA >= CURRENT_TIMESTAMP - INTERVAL '30 days'
+        )
+    )
+    INTO v_resumen
+    FROM LOGS_CLICS_WEB_EXTERNOS L
+    WHERE (p_id_persona_ecommerce IS NULL OR L.ID_PERSONA_ECOMMERCE = p_id_persona_ecommerce)
+      AND (p_id_persona_ecommerce IS NOT NULL OR p_id_empresa IS NULL OR L.ID_EMPRESA = p_id_empresa);
+
+    SELECT COALESCE(
+        JSONB_AGG(
+            JSONB_BUILD_OBJECT(
+                'categoria', datos.categoria,
+                'cantidad', datos.cantidad
+            )
+            ORDER BY datos.cantidad DESC, datos.categoria
+        ),
+        '[]'::JSONB
+    )
+    INTO v_por_categoria
+    FROM (
+        SELECT L.TIPO_CATEGORIA AS categoria, COUNT(*) AS cantidad
+        FROM LOGS_CLICS_WEB_EXTERNOS L
+        WHERE (p_id_persona_ecommerce IS NULL OR L.ID_PERSONA_ECOMMERCE = p_id_persona_ecommerce)
+          AND (p_id_persona_ecommerce IS NOT NULL OR p_id_empresa IS NULL OR L.ID_EMPRESA = p_id_empresa)
+        GROUP BY L.TIPO_CATEGORIA
+    ) datos;
+
+    SELECT COALESCE(
+        JSONB_AGG(
+            JSONB_BUILD_OBJECT(
+                'producto', datos.producto,
+                'cantidad', datos.cantidad
+            )
+            ORDER BY datos.cantidad DESC, datos.producto
+        ),
+        '[]'::JSONB
+    )
+    INTO v_por_producto
+    FROM (
+        SELECT
+            COALESCE(
+                CASE L.TIPO_CATEGORIA
+                    WHEN 'Transporte' THEN NULLIF(BTRIM(CONCAT_WS(' → ', T.ORIGEN, T.DESTINO)), '')
+                    WHEN 'Hospedaje' THEN NULLIF(BTRIM(H.NOM_HOSPEDAJE), '')
+                    WHEN 'Plan' THEN NULLIF(BTRIM(P.NOM_PLAN_TURISTICO), '')
+                    WHEN 'Artesanía' THEN NULLIF(BTRIM(A.NOM_PRODUCTO), '')
+                END,
+                'Producto #' || L.ID_PRODUCTO
+            ) AS producto,
+            COUNT(*) AS cantidad
+        FROM LOGS_CLICS_WEB_EXTERNOS L
+        LEFT JOIN TRANSPORTE T
+            ON L.TIPO_CATEGORIA = 'Transporte'
+           AND T.ID_TRANSPORTE::VARCHAR = L.ID_PRODUCTO
+        LEFT JOIN HOSPEDAJE H
+            ON L.TIPO_CATEGORIA = 'Hospedaje'
+           AND H.ID_HOSPEDAJE::VARCHAR = L.ID_PRODUCTO
+        LEFT JOIN PLANES_TURISTICOS P
+            ON L.TIPO_CATEGORIA = 'Plan'
+           AND P.ID_PLAN_TURISTICO::VARCHAR = L.ID_PRODUCTO
+        LEFT JOIN PRODUCTOS_ARTESANALES A
+            ON L.TIPO_CATEGORIA = 'Artesanía'
+           AND A.ID_PRODUCTO::VARCHAR = L.ID_PRODUCTO
+        WHERE (p_id_persona_ecommerce IS NULL OR L.ID_PERSONA_ECOMMERCE = p_id_persona_ecommerce)
+          AND (p_id_persona_ecommerce IS NOT NULL OR p_id_empresa IS NULL OR L.ID_EMPRESA = p_id_empresa)
+        GROUP BY L.TIPO_CATEGORIA, L.ID_PRODUCTO, T.ORIGEN, T.DESTINO,
+                 H.NOM_HOSPEDAJE, P.NOM_PLAN_TURISTICO, A.NOM_PRODUCTO
+    ) datos;
+
+    IF p_id_empresa IS NULL AND p_id_persona_ecommerce IS NULL THEN
+        SELECT COALESCE(
+            JSONB_AGG(
+                JSONB_BUILD_OBJECT(
+                    'empresa', datos.empresa,
+                    'cantidad', datos.cantidad
+                )
+                ORDER BY datos.cantidad DESC, datos.empresa
+            ),
+            '[]'::JSONB
+        )
+        INTO v_por_empresa
+        FROM (
+            SELECT E.NOM_EMPRESA AS empresa, COUNT(*) AS cantidad
+            FROM LOGS_CLICS_WEB_EXTERNOS L
+            JOIN EMPRESAS E ON E.ID_EMPRESA = L.ID_EMPRESA
+            GROUP BY E.ID_EMPRESA, E.NOM_EMPRESA
+        ) datos;
+    ELSE
+        v_por_empresa := '[]'::JSONB;
+    END IF;
+
+    SELECT COALESCE(
+        JSONB_AGG(
+            JSONB_BUILD_OBJECT(
+                'fecha_hora', datos.fecha_hora,
+                'empresa', datos.empresa,
+                'categoria', datos.categoria,
+                'id_producto', datos.id_producto,
+                'producto', datos.producto,
+                'dispositivo', datos.dispositivo
+            )
+            ORDER BY datos.fecha_hora DESC, datos.id_click DESC
+        ),
+        '[]'::JSONB
+    )
+    INTO v_recientes
+    FROM (
+        SELECT
+            L.ID_CLICK AS id_click,
+            L.FECHA_HORA AS fecha_hora,
+            COALESCE(
+                E.NOM_EMPRESA,
+                NULLIF(CONCAT_WS(' ', PE.NOM_PERSONA_ECOMMERCE, PE.APE_PERSONA_ECOMMERCE), ''),
+                NULLIF(BTRIM(A.PROVEEDOR), ''),
+                'Contacto artesanal'
+            ) AS empresa,
+            L.TIPO_CATEGORIA AS categoria,
+            L.ID_PRODUCTO AS id_producto,
+            COALESCE(
+                CASE L.TIPO_CATEGORIA
+                    WHEN 'Transporte' THEN NULLIF(BTRIM(CONCAT_WS(' → ', T.ORIGEN, T.DESTINO)), '')
+                    WHEN 'Hospedaje' THEN NULLIF(BTRIM(H.NOM_HOSPEDAJE), '')
+                    WHEN 'Plan' THEN NULLIF(BTRIM(P.NOM_PLAN_TURISTICO), '')
+                    WHEN 'Artesanía' THEN NULLIF(BTRIM(A.NOM_PRODUCTO), '')
+                END,
+                'Producto #' || L.ID_PRODUCTO
+            ) AS producto,
+            CASE
+                WHEN L.USER_AGENT ~* '(android|iphone|ipod|mobile|windows phone|blackberry|opera mini|iemobile)'
+                    THEN 'Celular'
+                ELSE 'Computador'
+            END AS dispositivo
+        FROM LOGS_CLICS_WEB_EXTERNOS L
+        LEFT JOIN EMPRESAS E ON E.ID_EMPRESA = L.ID_EMPRESA
+        LEFT JOIN TRANSPORTE T
+            ON L.TIPO_CATEGORIA = 'Transporte'
+           AND T.ID_TRANSPORTE::VARCHAR = L.ID_PRODUCTO
+        LEFT JOIN HOSPEDAJE H
+            ON L.TIPO_CATEGORIA = 'Hospedaje'
+           AND H.ID_HOSPEDAJE::VARCHAR = L.ID_PRODUCTO
+        LEFT JOIN PLANES_TURISTICOS P
+            ON L.TIPO_CATEGORIA = 'Plan'
+           AND P.ID_PLAN_TURISTICO::VARCHAR = L.ID_PRODUCTO
+        LEFT JOIN PRODUCTOS_ARTESANALES A
+            ON L.TIPO_CATEGORIA = 'Artesanía'
+           AND A.ID_PRODUCTO::VARCHAR = L.ID_PRODUCTO
+        LEFT JOIN PERSONAS_ECOMMERCE PE
+            ON PE.ID_PERSONA_ECOMMERCE = L.ID_PERSONA_ECOMMERCE
+        WHERE (p_id_persona_ecommerce IS NULL OR L.ID_PERSONA_ECOMMERCE = p_id_persona_ecommerce)
+          AND (p_id_persona_ecommerce IS NOT NULL OR p_id_empresa IS NULL OR L.ID_EMPRESA = p_id_empresa)
+        ORDER BY L.FECHA_HORA DESC, L.ID_CLICK DESC
+        LIMIT 20
+        OFFSET ((GREATEST(COALESCE(p_pagina, 1), 1)::BIGINT - 1) * 20)
+    ) datos;
+
+    RETURN JSONB_BUILD_OBJECT(
+        'resumen', v_resumen,
+        'por_categoria', v_por_categoria,
+        'por_producto', v_por_producto,
+        'por_empresa', v_por_empresa,
+        'recientes', v_recientes,
+        'pagina', GREATEST(COALESCE(p_pagina, 1), 1),
+        'por_pagina', 20
+    );
+END;
+$$ LANGUAGE plpgsql STABLE;

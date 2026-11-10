@@ -7,13 +7,21 @@
     const editorDialog = document.getElementById('portadaEditorDialog');
     const previewDialog = document.getElementById('portadaPreviewDialog');
     const previewFrame = document.getElementById('portadaPreviewFrame');
+    const pagination = document.getElementById('portadaPaginacion');
+    const paginationSummary = document.getElementById('portadaResumen');
+    const pageLabel = document.getElementById('portadaPaginaActual');
+    const previousPageButton = document.getElementById('portadaAnterior');
+    const nextPageButton = document.getElementById('portadaSiguiente');
     if (!list || !editor || !status || !newButton || !editorDialog || !previewDialog || !previewFrame) return;
 
     let destinos = [];
+    let currentPage = 1;
+    const pageSize = 20;
     let csrf = '';
     let cargando = false;
     let uploadsEnCurso = 0;
     let portadaInicializada = false;
+    let previewPendiente = null;
 
     const escapeHtml = (value) => String(value == null ? '' : value).replace(/[&<>"']/g, (char) => ({
         '&': '&amp;',
@@ -114,11 +122,23 @@
     }
 
     function render() {
+        const pageCount = Math.ceil(destinos.length / pageSize);
+        currentPage = Math.max(1, Math.min(currentPage, pageCount || 1));
+        const start = (currentPage - 1) * pageSize;
+        if (pagination) {
+            pagination.hidden = pageCount <= 1;
+            paginationSummary.textContent = destinos.length
+                ? `Mostrando ${start + 1}–${Math.min(start + pageSize, destinos.length)} de ${destinos.length} destinos`
+                : 'Sin destinos';
+            pageLabel.textContent = `Página ${pageCount ? currentPage : 0} de ${pageCount}`;
+            previousPageButton.disabled = currentPage <= 1;
+            nextPageButton.disabled = currentPage >= pageCount;
+        }
         if (!destinos.length) {
             list.innerHTML = '<p class="portada-help">No hay destinos todavía. Usa “Crear destino” para agregar el primero.</p>';
             return;
         }
-        list.innerHTML = destinos.map((destino) => `
+        list.innerHTML = destinos.slice(start, start + pageSize).map((destino) => `
             <article class="portada-card">
                 <img src="${escapeHtml(adminAsset(destino.img))}" alt="${escapeHtml(destino.alt)}" loading="lazy">
                 <div class="portada-card-body">
@@ -135,14 +155,51 @@
     }
 
     function closePreview() {
-        if (previewDialog.open) previewDialog.close();
+        previewPendiente = null;
+        if (previewDialog.open) {
+            previewDialog.close();
+            window.TEUI.notifyClosed("Vista previa");
+        }
         previewFrame.src = 'about:blank';
+    }
+
+    function closeEditor(notify) {
+        if (!editorDialog.open) return;
+        editorDialog.close();
+        if (notify) window.TEUI.notifyClosed("Formulario");
     }
 
     function openPreview(key) {
         const destination = destinos.find((item) => item.key === key);
         if (!destination) return;
-        previewFrame.src = `../index.html?previewDestino=${encodeURIComponent(key)}#destinos`;
+        const baseArticle = (window.TE_ARTICULOS || []).find((item) => item.key === destination.key) || {};
+        const customArticle = destination.article || {};
+        const article = {
+            ...baseArticle,
+            ...customArticle,
+            key: destination.key,
+            poster: destination.img,
+            badge: customArticle.badge || destination.badge || baseArticle.badge || '',
+            titulo: customArticle.titulo || destination.titulo,
+            subtitulo: customArticle.subtitulo !== undefined ? customArticle.subtitulo : baseArticle.subtitulo || '',
+            datos: Array.isArray(customArticle.datos) ? customArticle.datos : baseArticle.datos || [],
+            intro: customArticle.intro !== undefined ? customArticle.intro : baseArticle.intro || '',
+            secciones: Array.isArray(customArticle.secciones) ? customArticle.secciones : baseArticle.secciones || [],
+            ctaTexto: customArticle.ctaTexto !== undefined ? customArticle.ctaTexto : baseArticle.ctaTexto || ''
+        };
+        delete article.video;
+        previewPendiente = {
+            destination: {
+                key: destination.key,
+                img: destination.img,
+                alt: destination.alt,
+                badge: destination.badge,
+                titulo: destination.titulo,
+                desc: destination.desc
+            },
+            article
+        };
+        previewFrame.src = `vista_previa_destino.html?previewDestino=${encodeURIComponent(key)}&previewVersion=2`;
         previewDialog.showModal();
     }
 
@@ -160,7 +217,12 @@
 
     function editorMarkup() {
         editor.innerHTML = `
-            <h3 id="portadaFormTitle">Crear destino</h3>
+            <header class="portada-editor-header">
+                <h3 id="portadaFormTitle">Crear destino</h3>
+                <button type="button" class="portada-editor-close" id="pdClose" aria-label="Cerrar formulario de destino">
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                </button>
+            </header>
             <p class="portada-editor-intro">Completa la tarjeta de la portada y el artículo asociado. Para los datos y secciones usa una entrada por línea con el formato indicado.</p>
             <p id="portadaEditorStatus" class="portada-status" role="status"></p>
             <form id="portadaForm">
@@ -226,6 +288,7 @@
         const article = item.article || {};
         editorMarkup();
         editor.hidden = false;
+        const form = document.getElementById('portadaForm');
         document.getElementById('portadaFormTitle').textContent = isNew ? 'Crear destino' : `Editar ${item.titulo}`;
         editor.querySelector('.portada-editor-intro').textContent = item.municipio
             ? 'Edita la tarjeta de portada y todos los campos del artículo. La clave y el orden se mantienen fijos.'
@@ -263,7 +326,13 @@
             videoPreview.hidden = true;
             videoRemove.hidden = true;
         }
-        document.getElementById('pdCancel').addEventListener('click', () => editorDialog.close());
+        window.TEUI.markClean(form);
+        document.getElementById('pdClose').addEventListener('click', async () => {
+            if (await window.TEUI.confirmDiscard(form)) closeEditor(true);
+        });
+        document.getElementById('pdCancel').addEventListener('click', async () => {
+            if (await window.TEUI.confirmDiscard(form)) closeEditor(true);
+        });
         document.getElementById('pdFile').addEventListener('change', uploadImage);
         document.getElementById('paVideoFile').addEventListener('change', uploadVideo);
         videoRemove.addEventListener('click', () => {
@@ -275,7 +344,7 @@
             videoRemove.hidden = true;
             document.getElementById('paVideoUploadStatus').textContent = 'Video quitado. Guarda el destino para aplicar el cambio.';
         });
-        document.getElementById('portadaForm').addEventListener('submit', (event) => save(event, item));
+        form.addEventListener('submit', (event) => save(event, item));
         if (!editorDialog.open) editorDialog.showModal();
         document.getElementById('pdTitle').focus();
     }
@@ -396,6 +465,7 @@
             orden: Number(original.orden) || Number(value('pdOrder')) || 0,
             publicado: document.getElementById('pdPublished').checked,
             article: {
+                ...(original.article || {}),
                 video: value('paVideo'),
                 badge: value('paBadge'),
                 titulo: value('paTitle') || value('pdTitle'),
@@ -421,9 +491,15 @@
             if (index < 0) destinos.push(result.data);
             else destinos[index] = { ...result.data, municipio: original.municipio, persistido: true };
             destinos.sort((a, b) => a.orden - b.orden || a.titulo.localeCompare(b.titulo));
+            if (index < 0) {
+                const savedIndex = destinos.findIndex((destination) => destination.key === record.key);
+                currentPage = Math.floor(savedIndex / pageSize) + 1;
+            }
             render();
-            editorDialog.close();
+            window.TEUI.markClean(document.getElementById('portadaForm'));
+            closeEditor(false);
             showStatus('Destino guardado. La portada pública ya mostrará los cambios.');
+            window.TEUI.toast(original.persistido ? 'Destino actualizado correctamente.' : 'Destino guardado correctamente.');
         } catch (error) {
             showStatus(error.message, true);
         } finally {
@@ -433,7 +509,11 @@
 
     async function deleteDestination(key) {
         const item = destinos.find((destination) => destination.key === key);
-        if (!item || !item.persistido || !window.confirm(`¿Eliminar definitivamente el contenido de “${item.titulo}” de la portada? El municipio seguirá en la base de datos y podrás volver a crear su contenido editándolo.`)) return;
+        if (!item || !item.persistido || !await window.TEUI.confirm({
+            title: 'Eliminar contenido de portada',
+            message: `¿Eliminar definitivamente el contenido de “${item.titulo}” de la portada? El municipio seguirá en la base de datos y podrás volver a crear su contenido editándolo.`,
+            confirmText: 'Sí, eliminar'
+        })) return;
         try {
             await request(API, {
                 method: 'POST',
@@ -445,12 +525,23 @@
                 : destination);
             render();
             showStatus('Contenido del municipio eliminado de la portada. El municipio permanece en el catálogo y puedes volver a publicarlo editándolo.');
+            window.TEUI.toast('Contenido eliminado de la portada correctamente.');
         } catch (error) {
             showStatus(error.message, true);
         }
     }
 
     newButton.addEventListener('click', () => openEditor(blankDestination()));
+    if (previousPageButton) previousPageButton.addEventListener('click', () => {
+        if (currentPage <= 1) return;
+        currentPage--;
+        render();
+    });
+    if (nextPageButton) nextPageButton.addEventListener('click', () => {
+        if (currentPage >= Math.ceil(destinos.length / pageSize)) return;
+        currentPage++;
+        render();
+    });
     list.addEventListener('click', (event) => {
         const editButton = event.target.closest('[data-edit]');
         const deleteButton = event.target.closest('[data-delete]');
@@ -465,12 +556,34 @@
     previewDialog.addEventListener('click', (event) => {
         if (event.target === previewDialog) closePreview();
     });
+    previewFrame.addEventListener('load', () => {
+        if (!previewPendiente) return;
+        const previewUrl = new URL(previewFrame.contentWindow.location.href);
+        if (!previewUrl.pathname.endsWith('/vista_previa_destino.html')) return;
+        if (previewUrl.searchParams.get('previewDestino') !== previewPendiente.destination.key) return;
+        previewFrame.contentWindow.postMessage({
+            type: 'tourismeasy:preview-destino',
+            destination: previewPendiente
+        }, window.location.origin);
+        previewPendiente = null;
+    });
     previewDialog.addEventListener('close', () => { previewFrame.src = 'about:blank'; });
     previewDialog.querySelector('[data-preview-close]').addEventListener('click', closePreview);
-    editorDialog.addEventListener('click', (event) => {
-        if (event.target === editorDialog) editorDialog.close();
+    editorDialog.addEventListener('cancel', (event) => {
+        event.preventDefault();
+        const form = document.getElementById('portadaForm');
+        window.TEUI.confirmDiscard(form).then((confirmed) => {
+            if (confirmed) closeEditor(true);
+        });
     });
-    editorDialog.addEventListener('close', () => { editor.hidden = true; });
+    editorDialog.addEventListener('mousedown', (event) => {
+        if (event.target === editorDialog) {
+            event.preventDefault();
+        }
+    });
+    editorDialog.addEventListener('close', () => {
+        editor.hidden = true;
+    });
     document.addEventListener('keydown', (event) => {
         if (event.key === 'Escape' && previewDialog.open) closePreview();
     });

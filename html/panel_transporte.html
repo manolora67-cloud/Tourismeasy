@@ -4,16 +4,31 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="../js/control_tiempo_sesion.js?v=secure-session-v4"></script>
     <title>Panel Transporte - TourismEasy</title>
     <link rel="stylesheet" href="../css/index.css" />
-    <link rel="stylesheet" href="../css/login.css" />
-    <link rel="stylesheet" href="../css/panel_transporte.css" />
+    <link rel="stylesheet" href="../css/login.css?v=device-approval-v2" />
+    <link rel="stylesheet" href="../componentes/panel_empresa_servicios.css?v=shared-panels-v1" />
+    <link rel="stylesheet" href="../css/panel_transporte.css?v=transport-overrides-v1" />
     <link rel="stylesheet" href="../css/click_metrics.css" />
+    <link rel="stylesheet" href="../css/agente-ia.css?v=mobile-layout-v2" />
     <link
         href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;500&display=swap"
         rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
+    <script src="../componentes/ui-feedback.js?v=ui-feedback-v4"></script>
+    <script src="../componentes/panel-modals.js?v=panel-modals-v1"></script>
+    <script src="../componentes/modal.js"></script>
+    <script src="../componentes/toast.js"></script>
+    <script src="../componentes/boton-accion.js"></script>
+    <script src="../componentes/lista-tarjetas.js"></script>
+    <script src="../componentes/panel-filtros.js"></script>
+    <script src="../componentes/tabla-datos.js"></script>
+    <script src="../componentes/filtro-chips.js"></script>
+    <script src="../componentes/estado-badge.js"></script>
+    <script src="../componentes/barra-busqueda.js"></script>
+    <script src="../componentes/paginacion.js"></script>
 </head>
 
 <body>
@@ -36,10 +51,10 @@
 
         <div class="panel-header">
             <div class="panel-header-info">
-                <div class="panel-empresa-avatar" id="panelAvatar">AV</div>
+                <div class="panel-empresa-avatar" id="panelAvatar">EM</div>
                 <div>
-                    <h1 class="panel-empresa-nombre" id="panelNombre">Mi Empresa</h1>
-                    <p class="panel-empresa-sub">Panel de empresa · TourismEasy</p>
+                    <h1 class="panel-empresa-nombre" id="panelNombre" aria-live="polite">Cargando…</h1>
+                    <p class="panel-empresa-sub" id="panelPerfilEstado" aria-live="polite">Cargando datos de la empresa…</p>
                 </div>
             </div>
             <div class="panel-header-badges">
@@ -51,62 +66,37 @@
         <div class="panel-stats">
             <div class="stat-card">
                 <div class="stat-icon stat-icon-blue"><i class="fa-solid fa-bus"></i></div>
-                <div class="stat-info"><span class="stat-num" id="statPublicados">0</span><span
+                <div class="stat-info"><span class="stat-num" id="statPublicados">Cargando…</span><span
                         class="stat-label">Transporte publicado</span></div>
             </div>
             <div class="stat-card">
+                <div class="stat-icon stat-icon-green"><i class="fa-brands fa-whatsapp"></i></div>
+                <div class="stat-info"><span class="stat-num" data-clicks-total>Cargando…</span><span
+                        class="stat-label">Clics de WhatsApp</span></div>
+            </div>
+            <div class="stat-card">
                 <div class="stat-icon stat-icon-orange"><i class="fa-solid fa-sack-dollar"></i></div>
-                <div class="stat-info"><span class="stat-num" id="statPrecioPromedio">$0</span><span
+                <div class="stat-info"><span class="stat-num" id="statPrecioPromedio">Cargando…</span><span
                         class="stat-label">Precio promedio</span></div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon stat-icon-yellow"><i class="fa-solid fa-calendar-day"></i></div>
-                <div class="stat-info"><span class="stat-num" id="statProximaSalida">—</span><span
+                <div class="stat-info"><span class="stat-num" id="statProximaSalida">Cargando…</span><span
                         class="stat-label" id="statProximaSalidaLabel">Próxima salida</span></div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon stat-icon-purple"><i class="fa-solid fa-clock-rotate-left"></i></div>
-                <div class="stat-info"><span class="stat-num" id="statUltimaRuta">—</span><span class="stat-label"
-                        id="statUltimaRutaLabel">Última ruta publicada</span></div>
-            </div>
-            <div class="stat-card">
                 <div class="stat-icon stat-icon-red"><i class="fa-solid fa-arrow-trend-up"></i></div>
-                <div class="stat-info"><span class="stat-num" id="statRutaCara">—</span><span class="stat-label"
+                <div class="stat-info"><span class="stat-num" id="statRutaCara">Cargando…</span><span class="stat-label"
                         id="statRutaCaraLabel">Ruta más cara</span></div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon stat-icon-blue"><i class="fa-solid fa-arrow-trend-down"></i></div>
-                <div class="stat-info"><span class="stat-num" id="statRutaBarata">—</span><span class="stat-label"
+                <div class="stat-info"><span class="stat-num" id="statRutaBarata">Cargando…</span><span class="stat-label"
                         id="statRutaBarataLabel">Ruta más barata</span></div>
             </div>
         </div>
 
-        <section class="click-metrics" data-clicks-dashboard aria-labelledby="transporteClicksTitle">
-            <div class="click-metrics__heading">
-                <div>
-                    <h2 id="transporteClicksTitle"><i class="fa-brands fa-whatsapp"></i> Contactos por WhatsApp</h2>
-                    <p>Solo se muestran los clics de los servicios de tu empresa.</p>
-                </div>
-                <button class="btn-panel-add" type="button" data-clicks-reload>Actualizar</button>
-            </div>
-            <div class="click-metrics__summary">
-                <div class="click-metrics__card"><span>Clics registrados</span><strong data-clicks-total>—</strong></div>
-                <div class="click-metrics__card"><span>Últimos 30 días</span><strong data-clicks-30-days>—</strong></div>
-            </div>
-            <p class="click-metrics__status" data-clicks-status aria-live="polite">Cargando estadísticas…</p>
-            <div class="click-metrics__block">
-                <h3>Clics por categoría</h3>
-                <div class="panel-table-wrap">
-                    <table class="panel-table"><thead><tr><th>Categoría</th><th>Clics</th></tr></thead><tbody data-clicks-categories></tbody></table>
-                </div>
-            </div>
-            <div class="click-metrics__block">
-                <h3>Últimos clics</h3>
-                <div class="panel-table-wrap">
-                    <table class="panel-table"><thead><tr><th>Fecha</th><th>Empresa</th><th>Categoría</th><th>Producto</th><th>Ciudad</th><th>Dispositivo</th></tr></thead><tbody data-clicks-recent></tbody></table>
-                </div>
-            </div>
-        </section>
+        <section class="click-metrics" data-clicks-dashboard data-clicks-dashboard-template data-recent-item-label="Producto / ruta" aria-label="Contactos por WhatsApp"></section>
 
         <!-- TAB: MI TRANSPORTE -->
         <div class="panel-content active" id="tab-servicios">
@@ -134,6 +124,7 @@
                     </tbody>
                 </table>
             </div>
+            <nav class="pagination panel-product-pagination" id="serviciosPaginacion" aria-label="Paginación de transportes" hidden></nav>
         </div>
 
     </main>
@@ -298,26 +289,6 @@
         </div>
     </div>
 
-    <!-- MODAL: ELIMINAR -->
-    <div id="vDel-overlay" class="vm-overlay" aria-hidden="true">
-        <div class="vm-box vm-box--sm" role="dialog" aria-modal="true">
-            <div class="vm-topbar vm-topbar--red"></div>
-            <div class="vm-header">
-                <h2 class="vm-title vm-title--red"><i class="fa-solid fa-triangle-exclamation"></i> Eliminar transporte
-                </h2>
-                <button class="vm-close" id="vDel-close">&times;</button>
-            </div>
-            <div class="vm-body">
-                <p class="vm-del-msg">Seguro de que deseas eliminar el transporte <strong id="vDel-ruta"></strong>? Esta
-                    accion no se puede deshacer.</p>
-            </div>
-            <div class="vm-footer">
-                <button class="vm-btn-cancel" id="vDel-cancel">Cancelar</button>
-                <button class="vm-btn-del" id="vDel-confirm"><i class="fa-solid fa-trash"></i> Si, eliminar</button>
-            </div>
-        </div>
-    </div>
-
     <!-- MODAL: DETALLE -->
     <div id="vDetalle-overlay" class="vm-overlay" aria-hidden="true">
         <div class="vm-box" role="dialog" aria-modal="true">
@@ -331,7 +302,7 @@
                     <img id="vDetalle-foto" src="" alt="Foto"
                         style="width:100%;max-height:180px;object-fit:cover;border-radius:10px;border:1.5px solid #334155;">
                 </div>
-                <h3 id="vDetalle-ruta" style="color:#a855f7;font-size:1.2rem;margin:0 0 18px 0;"></h3>
+                <h3 id="vDetalle-ruta" style="color:var(--theme-primary-light,#a855f7);font-size:1.2rem;margin:0 0 18px 0;"></h3>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px 24px;">
                     <div>
                         <p style="font-size:.72rem;font-weight:700;letter-spacing:.06em;color:#64748b;margin:0 0 4px">
@@ -356,7 +327,7 @@
                     <div>
                         <p style="font-size:.72rem;font-weight:700;letter-spacing:.06em;color:#64748b;margin:0 0 4px">
                             PRECIO</p>
-                        <p id="vDetalle-precio" style="margin:0;font-weight:700;color:#a855f7;font-size:1.1rem"></p>
+                        <p id="vDetalle-precio" style="margin:0;font-weight:700;color:var(--theme-primary-light,#a855f7);font-size:1.1rem"></p>
                     </div>
                     <div>
                         <p style="font-size:.72rem;font-weight:700;letter-spacing:.06em;color:#64748b;margin:0 0 4px">
@@ -396,8 +367,8 @@
             }
             var av = document.getElementById("panelAvatar"),
                 nm = document.getElementById("panelNombre");
-            if (av) av.textContent = u.avatar || "AV";
-            if (nm) nm.textContent = u.nombre || "Mi Empresa";
+            if (av) av.textContent = "EM";
+            if (nm) nm.textContent = "Cargando…";
         })();
 
         // DARK MODE
@@ -423,9 +394,7 @@
             var w = document.createElement("div");
             w.id = "sessionWidget";
             w.className = "session-widget";
-            var ini = ((user.nombre || user.avatar || "AV").trim().split(/\s+/).map(function (x) {
-                return x[0] || "";
-            }).join("").toUpperCase().slice(0, 2) || "AV");
+            var ini = "EM";
             var _srv = (user.tipoServicio || user.servicio || "TRANSPORTE").toUpperCase();
             var _panelLinks = {
                 TRANSPORTE: "panel_transporte.html",
@@ -443,7 +412,7 @@
             };
             var _panelHref = _panelLinks[_srv] || "panel_transporte.html";
             var _panelIcon = _panelIcons[_srv] || "fa-bus";
-            w.innerHTML = '<button class="session-trigger" id="sessionTrigger"><div class="session-avatar">' + ini + '</div><div class="session-info"><span class="session-name">' + (user.nombre || "Empresa") + '</span><span class="session-tipo">Empresa</span></div><i class="fa-solid fa-chevron-down session-chevron" id="sessionChevron"></i></button><div class="session-dropdown" id="sessionDropdown"><a class="session-menu-item session-menu-highlight" href="' + _panelHref + '"><i class="fa-solid ' + _panelIcon + '"></i> Panel Empresa</a><a class="session-menu-item" href="perfil_empresa.html"><i class="fa-solid fa-user"></i> Mi Perfil</a><a class="session-menu-item" href="config_empresa.html"><i class="fa-solid fa-gear"></i> Configuracion</a><a class="session-menu-item session-menu-danger" id="btnLogout" href="#"><i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesion</a></div>';
+            w.innerHTML = '<button class="session-trigger" id="sessionTrigger"><div class="session-avatar">' + ini + '</div><div class="session-info"><span class="session-name">Cargando…</span><span class="session-tipo">Empresa</span></div><i class="fa-solid fa-chevron-down session-chevron" id="sessionChevron"></i></button><div class="session-dropdown" id="sessionDropdown"><a class="session-menu-item session-menu-highlight" href="' + _panelHref + '"><i class="fa-solid ' + _panelIcon + '"></i> Panel Empresa</a><a class="session-menu-item" href="perfil_empresa.html"><i class="fa-solid fa-user"></i> Mi Perfil</a><a class="session-menu-item" href="config_empresa.html"><i class="fa-solid fa-gear"></i> Configuracion</a><a class="session-menu-item session-menu-danger" id="btnLogout" href="#"><i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesion</a></div>';
             slot.appendChild(w);
             var trig = w.querySelector("#sessionTrigger"),
                 drop = w.querySelector("#sessionDropdown"),
@@ -460,9 +429,7 @@
             w.querySelector("#btnLogout").addEventListener("click", function (e) {
                 e.preventDefault();
                 e.stopPropagation();
-                sessionStorage.removeItem("te_session");
-                localStorage.removeItem("te_session");
-                window.location.href = "../index.html";
+                window.TEUI.logoutAdmin("../login/logout_admin.php", "../index.html");
             });
         })();
 
@@ -476,17 +443,15 @@
             ramp: '<span class="badge-acc"><i class="fa-solid fa-person-walking"></i> Rampa de acceso</span>'
         };
         var EST_MAP = {
-            activo: '<span class="estado-activo">Activo</span>',
-            pendiente: '<span class="estado-pendiente">Pendiente</span>',
-            cancelado: '<span class="estado-cancelado">Cancelado</span>'
+            activo: '<span class="status-badge status-badge--active">Activo</span>',
+            pendiente: '<span class="status-badge status-badge--warning">Pendiente</span>',
+            cancelado: '<span class="status-badge status-badge--inactive">Cancelado</span>'
         };
 
         // CRUD TRANSPORTE
         var _foto64 = "",
             editRow = null,
-            rowDel = null,
             _editId = null,
-            _delId = null,
             clasesTransporte = [];
 
         function cargarClasesTransporte() {
@@ -520,7 +485,7 @@
                 });
         }
 
-        cargarClasesTransporte();
+        var clasesTransportePromise = cargarClasesTransporte();
 
         function cargarCiudadesTransporte() {
             return fetch("../datos_referencia.php?tipo=ciudades", {
@@ -556,16 +521,6 @@
 
         cargarCiudadesTransporte();
 
-        // Cierra cualquier modal de transporte que haya quedado abierto
-        // antes de mostrar uno nuevo (evita que se apilen unos encima de otros)
-        function closeAllVM() {
-            if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
-            document.querySelectorAll(".vm-overlay.vm-visible").forEach(function (ov) {
-                ov.classList.remove("vm-visible");
-                ov.setAttribute("aria-hidden", "true");
-            });
-        }
-
         function fmtDate(iso) {
             if (!iso || iso.indexOf("-") === -1) return iso || "--";
             var p = iso.split("-"),
@@ -582,12 +537,18 @@
             return (h % 12 || 12) + ":" + m + " " + (h >= 12 ? "PM" : "AM");
         }
 
-        function openModal(row) {
-            closeAllVM();
+        async function openModal(row) {
             editRow = row || null;
             _editId = row ? parseInt(row.dataset.id || "0", 10) : null;
             document.getElementById("vModal-title").textContent = row ? "Editar transporte" : "Nuevo transporte";
             if (row) {
+                await clasesTransportePromise;
+                var claseSelect = document.getElementById("vm-clase");
+                if (!Array.from(claseSelect.options).some(function(option) { return option.value === row.dataset.idClase; })) {
+                    var claseInactiva = new Option((row.dataset.nombreClase || row.dataset.idClase || "Clase") + " (inactiva)", row.dataset.idClase);
+                    claseInactiva.disabled = true;
+                    claseSelect.add(claseInactiva);
+                }
                 var cells = row.querySelectorAll("td");
                 document.getElementById("vm-origen").value = row.dataset.idCiudadOrigen || "";
                 document.getElementById("vm-destino").value = row.dataset.idCiudadDestino || "";
@@ -605,7 +566,7 @@
                     document.getElementById("vm-hora-ampm").value = ampm;
                 })();
                 document.getElementById("vm-precio").value = cells[3].textContent.trim();
-                document.getElementById("vm-clase").value = row.dataset.idClase || "";
+                claseSelect.value = row.dataset.idClase || "";
                 document.getElementById("vm-descripcion").value = row.dataset.descripcion || "";
                 var estTexto = cells[4].textContent.trim().toLowerCase();
                 document.getElementById("vm-estado").value = (estTexto === "activo") ? "activo" : "cancelado";
@@ -638,13 +599,12 @@
                 document.getElementById("vm-foto-img").src = "";
                 _foto64 = "";
             }
-            document.getElementById("vModal-overlay").classList.add("vm-visible");
-            document.getElementById("vModal-overlay").removeAttribute("aria-hidden");
+            window.TEPanelModals.open("#vModal-overlay");
+            window.TEUI.markClean(document.querySelector("#vModal-overlay .vm-box"));
         }
 
         function closeModal() {
-            document.getElementById("vModal-overlay").classList.remove("vm-visible");
-            document.getElementById("vModal-overlay").setAttribute("aria-hidden", "true");
+            window.TEPanelModals.close("#vModal-overlay");
             editRow = null;
             document.getElementById("vm-foto").value = "";
             document.getElementById("vm-foto").value = "";
@@ -668,8 +628,11 @@
         document.getElementById("btn-nuevo").addEventListener("click", function () {
             openModal(null);
         });
-        document.getElementById("vModal-close").addEventListener("click", closeModal);
-        document.getElementById("vModal-cancel").addEventListener("click", closeModal);
+        window.TEPanelModals.bindDiscardClose(
+            "#vModal-overlay",
+            ["#vModal-close", "#vModal-cancel"],
+            closeModal
+        );
 
         document.getElementById("vModal-save").addEventListener("click", function () {
             var idCiudadOrigen = document.getElementById("vm-origen").value;
@@ -685,7 +648,7 @@
             var hora = (horaH < 10 ? "0" + horaH : "" + horaH) + ":" + horaM;
             if (!idCiudadOrigen || !idCiudadDestino || idCiudadOrigen === idCiudadDestino
                 || !precioRaw || !fecha || !hora) {
-                alert("Selecciona municipios distintos para origen y destino, y completa fecha, hora y precio.");
+                window.TEUI.toast("Selecciona municipios distintos para origen y destino, y completa fecha, hora y precio.", "error");
                 return;
             }
             var accVal = document.getElementById("vm-acc").value;
@@ -694,7 +657,7 @@
             var clase = document.getElementById("vm-clase").value;
 
             if (!clase) {
-                alert("Selecciona una clase de servicio.");
+                window.TEUI.toast("Selecciona una clase de servicio.", "error");
                 return;
             }
 
@@ -711,7 +674,7 @@
             var _fotoFile = document.getElementById("vm-foto").files[0];
 
             function _doSave(imgUrl) {
-                payload.img_url = imgUrl || null;
+                payload.img_url = imgUrl;
                 if (_editId) payload.id = _editId;
                 var btn = document.getElementById("vModal-save");
                 btn.disabled = true;
@@ -729,14 +692,15 @@
                     })
                     .then(function (res) {
                         if (!res.ok) {
-                            alert("Error: " + (res.error || "No se pudo guardar."));
+                            window.TEUI.toast(res.error || "No se pudo guardar el transporte.", "error");
                             return;
                         }
                         cargarTransportes();
+                        window.TEUI.toast(_editId ? "Transporte actualizado correctamente." : "Transporte guardado correctamente.");
                         closeModal();
                     })
                     .catch(function () {
-                        alert("Error de conexión al guardar.");
+                        window.TEUI.toast("No se pudo conectar para guardar el transporte.", "error");
                     })
                     .finally(function () {
                         btn.disabled = false;
@@ -744,7 +708,7 @@
                     });
             }
             var _imgActual = document.getElementById("vm-foto-img").src;
-            var _imgUrl = _imgActual.includes("uploads/") ? _imgActual.replace(/.*uploads\//, "uploads/") : null;
+            var _imgUrl = _imgActual && !_imgActual.startsWith("data:") ? _imgActual : null;
             if (_fotoFile) {
                 var fd = new FormData();
                 fd.append("imagen", _fotoFile);
@@ -757,75 +721,42 @@
                         return r.json();
                     })
                     .then(function (res) {
-                        _doSave(res.ok ? res.url : _imgUrl);
+                        if (!res.ok || !res.url) {
+                            window.TEUI.toast(res.error || "No se pudo subir la imagen.", "error");
+                            return;
+                        }
+                        _doSave(res.url);
                     })
-                    .catch(function () {
-                        _doSave(_imgUrl);
+                    .catch(function (error) {
+                        console.error("Error subiendo la imagen del transporte:", error);
+                        window.TEUI.toast("No se pudo subir la imagen. La ruta no se guardó.", "error");
                     });
             } else {
                 _doSave(_imgUrl);
             }
         });
 
-        // ELIMINAR TRANSPORTE
-        function openDel(row) {
-            closeAllVM();
-            rowDel = row;
-            _delId = parseInt(row.dataset.id || "0", 10);
-            document.getElementById("vDel-ruta").textContent = row.querySelectorAll("td")[0].textContent.trim();
-            document.getElementById("vDel-overlay").classList.add("vm-visible");
-            document.getElementById("vDel-overlay").removeAttribute("aria-hidden");
-        }
+        async function openDel(row) {
+            var id = parseInt(row.dataset.id || "0", 10);
+            var nombre = row.querySelectorAll("td")[0].textContent.trim();
+            if (!id) return;
 
-        function closeDel() {
-            document.getElementById("vDel-overlay").classList.remove("vm-visible");
-            document.getElementById("vDel-overlay").setAttribute("aria-hidden", "true");
-            rowDel = null;
-            _delId = null;
+            await window.TEUI.confirmDelete({
+                title: "Eliminar transporte",
+                message: '¿Quieres eliminar "' + nombre + '"? Esta acción no se puede deshacer.',
+                endpoint: "../transporte/eliminar.php",
+                payload: { id: id },
+                button: row.querySelector(".btn-tbl-del"),
+                successMessage: "Transporte eliminado correctamente.",
+                errorMessage: "No se pudo eliminar el transporte.",
+                connectionError: "No se pudo conectar para eliminar el transporte.",
+                logMessage: "Error eliminando el transporte:",
+                onSuccess: cargarTransportes
+            });
         }
-        document.getElementById("vDel-close").addEventListener("click", closeDel);
-        document.getElementById("vDel-cancel").addEventListener("click", closeDel);
-        document.getElementById("vDel-confirm").addEventListener("click", function () {
-            if (!_delId) {
-                closeDel();
-                return;
-            }
-            var btn = document.getElementById("vDel-confirm");
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Eliminando...';
-            fetch("../transporte/eliminar.php", {
-                method: "POST",
-                credentials: "include",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    id: _delId
-                })
-            })
-                .then(function (r) {
-                    return r.json();
-                })
-                .then(function (res) {
-                    if (!res.ok) {
-                        alert("Error: " + (res.error || "No se pudo eliminar."));
-                        return;
-                    }
-                    cargarTransportes();
-                    closeDel();
-                })
-                .catch(function () {
-                    alert("Error de conexión al eliminar.");
-                })
-                .finally(function () {
-                    btn.disabled = false;
-                    btn.innerHTML = '<i class="fa-solid fa-trash"></i> Si, eliminar';
-                });
-        });
 
         // DETALLE
         function openDetalle(row) {
-            closeAllVM();
             var cells = row.querySelectorAll("td");
             var ruta = cells[0].textContent.trim();
             var partes = ruta.split(" → ");
@@ -847,16 +778,10 @@
             } else {
                 fw.style.display = "none";
             }
-            document.getElementById("vDetalle-overlay").classList.add("vm-visible");
-            document.getElementById("vDetalle-overlay").removeAttribute("aria-hidden");
+            window.TEPanelModals.open("#vDetalle-overlay");
         }
 
-        function closeDetalle() {
-            document.getElementById("vDetalle-overlay").classList.remove("vm-visible");
-            document.getElementById("vDetalle-overlay").setAttribute("aria-hidden", "true");
-        }
-        document.getElementById("vDetalle-close").addEventListener("click", closeDetalle);
-        document.getElementById("vDetalle-close2").addEventListener("click", closeDetalle);
+        window.TEPanelModals.bindClose("#vDetalle-overlay", ["#vDetalle-close", "#vDetalle-close2"], "Detalle");
 
         document.getElementById("tabla-servicios").addEventListener("click", function (e) {
             var row = e.target.closest("tr");
@@ -867,10 +792,38 @@
         });
 
         // CONTADOR
-        function actualizarContador() {
+        var transportes = [];
+        var paginaActual = 1;
+        var tamanioPagina = 10;
+
+        function renderPaginaTransportes() {
             var tbody = document.getElementById("tabla-servicios");
-            var empty = tbody.querySelector("td[colspan]");
-            document.getElementById("statPublicados").textContent = empty ? 0 : tbody.querySelectorAll("tr").length;
+            tbody.replaceChildren();
+            if (!transportes.length) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:#94a3b8">Aun no has publicado rutas de transporte.</td></tr>';
+            } else {
+                var inicio = (paginaActual - 1) * tamanioPagina;
+                transportes.slice(inicio, inicio + tamanioPagina).forEach(function (item) {
+                    tbody.appendChild(renderFila(item));
+                });
+            }
+
+            var pagination = window.TourismEasyPagination.render({
+                selector: "#serviciosPaginacion",
+                currentPage: paginaActual,
+                totalItems: transportes.length,
+                pageSize: tamanioPagina,
+                label: "Mostrando",
+                onPageChange: function (page) {
+                    paginaActual = page;
+                    renderPaginaTransportes();
+                }
+            });
+            if (pagination) paginaActual = pagination.currentPage;
+        }
+
+        function actualizarContador() {
+            document.getElementById("statPublicados").textContent = transportes.length;
         }
 
         // PRECIO PROMEDIO
@@ -878,7 +831,7 @@
             var el = document.getElementById("statPrecioPromedio");
             if (!el) return;
             if (!data || !data.length) {
-                el.textContent = "$0";
+                el.textContent = "—";
                 return;
             }
             var suma = data.reduce(function (acc, item) {
@@ -896,14 +849,12 @@
             return parseInt(p[2], 10) + " " + mo[parseInt(p[1], 10) - 1];
         }
 
-        // NUEVAS TARJETAS: clase top, ruta cara/barata, última publicada, próxima salida
+        // Estadísticas adicionales de precios y próximas salidas.
         function actualizarStatsExtra(data) {
             var elRutaCaraNum = document.getElementById("statRutaCara");
             var elRutaCaraLabel = document.getElementById("statRutaCaraLabel");
             var elRutaBarataNum = document.getElementById("statRutaBarata");
             var elRutaBarataLabel = document.getElementById("statRutaBarataLabel");
-            var elUltimaNum = document.getElementById("statUltimaRuta");
-            var elUltimaLabel = document.getElementById("statUltimaRutaLabel");
             var elProximaNum = document.getElementById("statProximaSalida");
             var elProximaLabel = document.getElementById("statProximaSalidaLabel");
 
@@ -912,8 +863,6 @@
                 if (elRutaCaraLabel) elRutaCaraLabel.textContent = "Ruta más cara";
                 if (elRutaBarataNum) elRutaBarataNum.textContent = "—";
                 if (elRutaBarataLabel) elRutaBarataLabel.textContent = "Ruta más barata";
-                if (elUltimaNum) elUltimaNum.textContent = "—";
-                if (elUltimaLabel) elUltimaLabel.textContent = "Última ruta publicada";
                 if (elProximaNum) elProximaNum.textContent = "—";
                 if (elProximaLabel) elProximaLabel.textContent = "Próxima salida";
                 return;
@@ -929,19 +878,6 @@
             if (elRutaCaraLabel) elRutaCaraLabel.textContent = "Más cara: " + (rutaCara.origen || "") + " → " + (rutaCara.destino || "");
             if (elRutaBarataNum) elRutaBarataNum.textContent = "$" + Number(rutaBarata.precio || 0).toLocaleString("es-CO");
             if (elRutaBarataLabel) elRutaBarataLabel.textContent = "Más barata: " + (rutaBarata.origen || "") + " → " + (rutaBarata.destino || "");
-
-            // Última ruta publicada (por fecha_creacion)
-            var conFechaCreacion = data.filter(function (item) { return !!item.fecha_creacion; });
-            if (conFechaCreacion.length) {
-                var ultima = conFechaCreacion.slice().sort(function (a, b) {
-                    return new Date(b.fecha_creacion) - new Date(a.fecha_creacion);
-                })[0];
-                var fechaCreacionCorta = (ultima.fecha_creacion || "").split(/[T ]/)[0];
-                if (elUltimaNum) elUltimaNum.textContent = fmtDateCorta(fechaCreacionCorta);
-                if (elUltimaLabel) elUltimaLabel.textContent = "Última: " + (ultima.origen || "") + " → " + (ultima.destino || "");
-            } else {
-                if (elUltimaNum) elUltimaNum.textContent = "—";
-            }
 
             // Próxima salida (primera fecha_salida futura o de hoy en adelante)
             var hoy = new Date();
@@ -990,36 +926,42 @@
             var tbody = document.getElementById("tabla-servicios");
             tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:#94a3b8"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</td></tr>';
             fetch("../transporte/listar.php?panel=1", {
-                credentials: "include"
+                credentials: "include",
+                cache: "no-store"
             })
                 .then(function (r) {
+                    if (!r.ok) throw new Error("El servidor respondió con HTTP " + r.status);
                     return r.json();
                 })
                 .then(function (res) {
-                    tbody.innerHTML = "";
-                    if (!res.ok || !res.data || !res.data.length) {
-                        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:#94a3b8">Aun no has publicado rutas de transporte.</td></tr>';
-                        actualizarContador();
-                        actualizarPrecioPromedio([]);
-                        actualizarStatsExtra([]);
-                        return;
+                    if (!res.ok || !Array.isArray(res.data)) {
+                        throw new Error(res.error || "No se recibieron las rutas de transporte.");
                     }
-                    res.data.forEach(function (item) {
-                        tbody.appendChild(renderFila(item));
-                    });
+                    transportes = res.data;
+                    paginaActual = Math.min(paginaActual, Math.max(1, Math.ceil(transportes.length / tamanioPagina)));
+                    renderPaginaTransportes();
                     actualizarContador();
                     actualizarPrecioPromedio(res.data);
                     actualizarStatsExtra(res.data);
                 })
-                .catch(function () {
+                .catch(function (error) {
+                    console.error("No se pudieron cargar las rutas de transporte:", error);
                     tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#ef4444;padding:24px">Error al cargar las rutas. Recarga la pagina.</td></tr>';
+                    ["statPublicados", "statPrecioPromedio", "statRutaCara", "statRutaBarata", "statProximaSalida"].forEach(function (id) {
+                        var element = document.getElementById(id);
+                        if (element) element.textContent = "No disponible";
+                    });
                 });
         }
         cargarTransportes();
 
         // FOOTER MODALES
     </script>
-    <script src="../js/click_metrics.js"></script>
+    <script src="../componentes/click-metrics-dashboard.js?v=click-metrics-v2"></script>
+    <script src="../js/encabezado_perfil_empresa.js"></script>
+    <script src="../js/metricas_clics.js"></script>
+    <script src="../componentes/agente-ia.js?v=private-chat-memory-v1"></script>
+    <script src="../menu_accesibilidad/menu.js?v=a11y-v16"></script>
 </body>
 
 </html>

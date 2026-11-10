@@ -4,20 +4,23 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="../js/control_tiempo_sesion.js?v=secure-session-v4"></script>
     <title>Festividades - Panel Administrador - TourismEasy</title>
     <link rel="stylesheet" href="../css/index.css" />
-    <link rel="stylesheet" href="../css/login.css" />
-    <link rel="stylesheet" href="../css/panel_admin.css" />
-    <link rel="stylesheet" href="../css/festividades_admin.css" />
+    <link rel="stylesheet" href="../css/login.css?v=device-approval-v2" />
+    <link rel="stylesheet" href="../css/panel_admin.css?v=admin-footer-size-v2" />
+    <link rel="stylesheet" href="../css/festividades_admin.css?v=admin-pagination-v5" />
+    <link rel="stylesheet" href="../css/agente-ia.css?v=mobile-layout-v2" />
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;500&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
+    <script src="../componentes/ui-feedback.js?v=ui-feedback-v4"></script>
 </head>
 
 <body>
     <nav class="navbar">
         <div class="nav-container">
-            <a href="panel_admin.html" class="nav-logo">
+            <a href="../index.html" class="nav-logo" title="Ir a TourismEasy">
                 <img src="../img/TURISMEASY.png" alt="TourismEasy Logo" class="logo-img" />
                 <span class="logo-text">TOURISMEASY</span>
             </a>
@@ -33,19 +36,69 @@
 
     <main class="pu-main">
         <div class="pu-container festividades-admin-layout">
-            <aside class="pu-sidebar">
+            <aside class="pu-sidebar festividades-admin-sidebar">
                 <div class="pu-sidebar-avatar pu-sidebar-avatar-empresa" id="sidebarAvatar">AD</div>
-                <div class="pu-sidebar-nombre" id="sidebarNombre">Administrador TourismEasy</div>
-                <div class="pu-sidebar-tipo"><i class="fa-solid fa-shield-halved"></i> Administrador</div>
+                <div class="pu-sidebar-nombre" id="sidebarNombre" aria-live="polite">Cargando administrador…</div>
+                <div class="pu-sidebar-tipo" id="adminProfileStatus" role="status" aria-live="polite">
+                    <i class="fa-solid fa-shield-halved"></i> Cargando perfil…
+                </div>
                 <nav class="pu-sidebar-nav">
-                    <a href="panel_admin.html" class="pu-nav-item"><i class="fa-solid fa-shield-halved"></i> Panel Admin</a>
-                    <a href="perfil_admin.html" class="pu-nav-item"><i class="fa-solid fa-user"></i> Mi Perfil</a>
-                    <a href="config_admin.html" class="pu-nav-item"><i class="fa-solid fa-gear"></i> Configuración</a>
-                    <a href="festividades_admin.html" class="pu-nav-item active"><i class="fa-solid fa-calendar-days"></i> Festividades</a>
+                    <a href="../index.html" class="pu-nav-item">🏠 Ir al sitio</a>
+                    <a href="panel_admin.html" class="pu-nav-item">🛡️ Panel Admin</a>
+                    <a href="perfil_admin.html" class="pu-nav-item">👤 Mi Perfil</a>
+                    <a href="config_admin.html" class="pu-nav-item">⚙️ Configuración</a>
+                    <a href="festividades_admin.html" class="pu-nav-item active">📅 Festividades</a>
+                    <a href="catalogos_admin.html" class="pu-nav-item">📚 Catálogos</a>
                 </nav>
-                <a href="#" class="pu-nav-item pu-nav-danger festividades-logout" id="btnLogout">
-                    <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión
-                </a>
+                <section class="pe-sidebar-bloque pe-sidebar-bloque--purple">
+                    <h2 class="pe-sidebar-bloque__titulo pe-sidebar-bloque__titulo--purple">
+                        <i class="fa-solid fa-chart-pie"></i> Resumen del calendario
+                    </h2>
+                    <div class="pe-sidebar-row">
+                        <span>Registradas</span><strong id="festividadesTotal" class="pe-sidebar-row__val--purple">—</strong>
+                    </div>
+                    <div class="pe-sidebar-row">
+                        <span>Nacionales</span><strong id="festividadesNacionales" class="pe-sidebar-row__val--gray">—</strong>
+                    </div>
+                    <div class="pe-sidebar-row">
+                        <span>Regionales</span><strong id="festividadesRegionales" class="pe-sidebar-row__val--gray">—</strong>
+                    </div>
+                </section>
+                <section class="pe-sidebar-bloque pe-sidebar-bloque--verde">
+                    <h2 class="pe-sidebar-bloque__titulo pe-sidebar-bloque__titulo--verde">
+                        <i class="fa-solid fa-list-ol"></i> Vista actual
+                    </h2>
+                    <div class="pe-sidebar-row">
+                        <span>Elementos</span><strong id="festividadesRango" class="pe-sidebar-row__val--verde">—</strong>
+                    </div>
+                    <div class="pe-sidebar-row">
+                        <span>Página</span><strong id="festividadesPaginaSidebar" class="pe-sidebar-row__val--gray">—</strong>
+                    </div>
+                </section>
+                <section class="pe-sidebar-bloque pe-sidebar-bloque--amber">
+                    <h2 class="pe-sidebar-bloque__titulo pe-sidebar-bloque__titulo--amber">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Accesos rápidos
+                    </h2>
+                    <div class="pe-accesos">
+                        <a href="#" class="pe-acceso-link" id="agregarFestividadSidebar">
+                            <i class="fa-solid fa-plus"></i> Agregar festividad
+                        </a>
+                        <a href="panel_admin.html" class="pe-acceso-link">
+                            <i class="fa-solid fa-shield-halved"></i> Volver al Panel Admin
+                        </a>
+                    </div>
+                </section>
+                <section class="pe-sidebar-bloque pe-sidebar-bloque--red">
+                    <h2 class="pe-sidebar-bloque__titulo pe-sidebar-bloque__titulo--red">
+                        <i class="fa-solid fa-circle-info"></i> Orden del calendario
+                    </h2>
+                    <p class="festividades-sidebar-help">Las fechas se ordenan por mes y día (MM-DD) en la portada del sitio.</p>
+                </section>
+                <div class="pu-nav-logout-wrapper">
+                    <a href="#" class="pu-nav-item pu-nav-danger festividades-logout" id="btnLogout">
+                        🚪 Cerrar Sesión
+                    </a>
+                </div>
             </aside>
 
             <section class="festividades-admin-content">
@@ -78,6 +131,14 @@
                         </tbody>
                     </table>
                 </div>
+                <nav class="festividades-pagination" id="festividadesPaginacion" aria-label="Paginación de festividades" hidden>
+                    <span id="festividadesResumen" aria-live="polite"></span>
+                    <div class="festividades-pagination-actions">
+                        <button class="festividades-page-button" id="festividadesAnterior" type="button">Anterior</button>
+                        <span id="festividadesPaginaActual" aria-live="polite"></span>
+                        <button class="festividades-page-button" id="festividadesSiguiente" type="button">Siguiente</button>
+                    </div>
+                </nav>
             </section>
         </div>
     </main>
@@ -159,8 +220,60 @@
             </footer>
         </form>
     </dialog>
+    <script>
+        (function () {
+            var rawSession = localStorage.getItem("te_session") || sessionStorage.getItem("te_session");
+            var nameElement = document.getElementById("sidebarNombre");
+            var avatarElement = document.getElementById("sidebarAvatar");
+            var statusElement = document.getElementById("adminProfileStatus");
+
+            function setUnavailable(error) {
+                console.error("No se pudo cargar el perfil del administrador:", error);
+                nameElement.textContent = "No disponible";
+                statusElement.textContent = "No se pudo cargar el perfil.";
+            }
+
+            var user;
+            try {
+                user = JSON.parse(rawSession || "null");
+            } catch (error) {
+                setUnavailable(error);
+                return;
+            }
+            if (!user || user.tipo !== "admin") {
+                setUnavailable(new Error("No se encontró la sesión del administrador."));
+                return;
+            }
+
+            fetch("../login/get_perfil_admin.php", {
+                credentials: "include",
+                cache: "no-store"
+            })
+                .then(function (response) {
+                    if (!response.ok) throw new Error("HTTP " + response.status);
+                    return response.json();
+                })
+                .then(function (data) {
+                    if (!data.ok || !data.admin) {
+                        throw new Error(data.error || "La respuesta del perfil no es válida.");
+                    }
+                    var admin = data.admin;
+                    var nombre = ((admin.nombre || "") + " " + (admin.apellido || "")).trim();
+                    if (!nombre) throw new Error("El servidor no devolvió el nombre del administrador.");
+                    var initials = nombre.split(/\s+/).map(function (word) {
+                        return word[0] || "";
+                    }).join("").toUpperCase().slice(0, 2) || "AD";
+                    nameElement.textContent = nombre;
+                    avatarElement.textContent = initials;
+                    statusElement.textContent = "Administrador";
+                })
+                .catch(setUnavailable);
+        })();
+    </script>
     <script src="../js/santanderianidad.js"></script>
-    <script src="../js/festividades-admin.js"></script>
+    <script src="../js/festividades-admin.js?v=secure-session-v1"></script>
+    <script src="../componentes/agente-ia.js?v=private-chat-memory-v1"></script>
+    <script src="../menu_accesibilidad/menu.js?v=a11y-v16"></script>
 </body>
 
 </html>

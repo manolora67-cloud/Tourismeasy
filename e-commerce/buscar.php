@@ -25,12 +25,12 @@ if (mb_strlen($busqueda, 'UTF-8') > 100) {
 }
 
 $categoria = trim((string)($_GET['categoria'] ?? ''));
-if ($categoria !== '' && !in_array($categoria, ['talleres', 'bisuteria', 'alfareria'], true)) {
+if ($categoria !== '' && !preg_match('/^[a-z0-9_]{2,20}$/D', $categoria)) {
     responderBusquedaProductos(400, ['ok' => false, 'error' => 'La categoría seleccionada no es válida.']);
 }
 
 $idCiudad = trim((string)($_GET['id_ciudad'] ?? ''));
-if ($idCiudad !== '' && !preg_match('/^[A-Za-z0-9]{5,6}$/D', $idCiudad)) {
+if ($idCiudad !== '' && !preg_match('/^[0-9]{5,6}$/D', $idCiudad)) {
     responderBusquedaProductos(400, ['ok' => false, 'error' => 'El municipio seleccionado no es válido.']);
 }
 

@@ -4,15 +4,18 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="../js/control_tiempo_sesion.js?v=secure-session-v4"></script>
     <title>Perfil Empresa - TourismEasy</title>
     <link rel="stylesheet" href="../css/index.css" />
-    <link rel="stylesheet" href="../css/login.css" />
+    <link rel="stylesheet" href="../css/login.css?v=device-approval-v2" />
     <link rel="stylesheet" href="../css/panel_empresa.css" />
+    <link rel="stylesheet" href="../css/agente-ia.css?v=mobile-layout-v2" />
     <link
         href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;500&display=swap"
         rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
+    <script src="../componentes/ui-feedback.js?v=ui-feedback-v4"></script>
 </head>
 
 <body>
@@ -37,7 +40,7 @@
             <!-- ── SIDEBAR ── -->
             <aside class="pu-sidebar">
                 <div class="pu-sidebar-avatar" id="sidebarAvatar">AV</div>
-                <div class="pu-sidebar-nombre" id="sidebarNombre">Empresa</div>
+                <div class="pu-sidebar-nombre" id="sidebarNombre">Cargando empresa…</div>
                 <div class="pu-sidebar-tipo">
                     <i class="fa-solid fa-bus"></i> Empresa aliada
                 </div>
@@ -68,24 +71,9 @@
                     <p class="pe-sidebar-bloque__titulo pe-sidebar-bloque__titulo--purple">
                         <i class="fa-solid fa-clock-rotate-left"></i> Actividad reciente
                     </p>
-                    <div class="pe-actividad">
+                    <div class="pe-actividad" data-company-recent-activity>
                         <div class="pe-actividad-item">
-                            <div class="pe-actividad-icon pe-actividad-icon--purple">
-                                <i class="fa-solid fa-bus"></i>
-                            </div>
-                            <div>
-                                <p class="pe-actividad-titulo">Transporte publicado</p>
-                                <p class="pe-actividad-hora">Hace 1 día</p>
-                            </div>
-                        </div>
-                        <div class="pe-actividad-item">
-                            <div class="pe-actividad-icon pe-actividad-icon--purple">
-                                <i class="fa-solid fa-pen"></i>
-                            </div>
-                            <div>
-                                <p class="pe-actividad-titulo">Perfil actualizado</p>
-                                <p class="pe-actividad-hora">Hace 3 días</p>
-                            </div>
+                            <div><p class="pe-actividad-titulo">Cargando actividad real…</p></div>
                         </div>
                     </div>
                 </div>
@@ -219,9 +207,18 @@
                     <h3 class="pu-card-title">
                         <i class="fa-solid fa-chart-simple"></i> Estadísticas de la empresa
                     </h3>
-                    <div class="pu-stats-row">
+                    <div class="pu-stats-row pu-stats-row--empresa">
                         <div class="pu-stat">
-                            <span class="pu-stat-num">—</span><span class="pu-stat-label">Servicios publicados</span>
+                            <span class="pu-stat-num" id="statEmpresaActivos">Cargando…</span>
+                            <span class="pu-stat-label" id="statEmpresaActivosLabel">Servicios activos</span>
+                        </div>
+                        <div class="pu-stat">
+                            <span class="pu-stat-num" id="statEmpresaTotal">Cargando…</span>
+                            <span class="pu-stat-label" id="statEmpresaTotalLabel">Servicios registrados</span>
+                        </div>
+                        <div class="pu-stat">
+                            <span class="pu-stat-num" id="statEmpresaWhatsApp">Cargando…</span>
+                            <span class="pu-stat-label">Clics de WhatsApp (últimos 30 días)</span>
                         </div>
                     </div>
                 </div>
@@ -232,6 +229,7 @@
     <!-- FOOTER -->
     <div id="site-footer"></div>
     <script src="../componentes/footer.js"></script>
+    <script src="../js/empresa-actividad-reciente.js?v=real-company-activity-v1"></script>
     <script>
         (function () {
             // ── 1. VERIFICAR SESIÓN ───────────────────────────────────────────────
@@ -275,14 +273,6 @@
                 "planes": "fa-map-location-dot",
                 "todo": "fa-star"
             };
-            // Label de la primera estadística según tipo
-            var STAT_LABEL = {
-                "transporte": "Transporte publicado",
-                "auxiliar": "Auxiliares registrados",
-                "hospedaje": "Hospedajes publicados",
-                "planes": "Planes publicados",
-                "todo": "Servicios publicados"
-            };
             // Ícono del sidebar tipo empresa
             var SIDEBAR_ICONO = {
                 "transporte": "fa-bus",
@@ -295,7 +285,10 @@
 
             // ── 4. CARGAR DATOS DESDE LA BD ──────────────────────────────────────
             var perfilUrl = new URL("../soli_empresas/get_perfil_empresa.php", window.location.href);
-            fetch(perfilUrl)
+            fetch(perfilUrl, {
+                    credentials: "include",
+                    cache: "no-store"
+                })
                 .then(function (r) {
                     if (!r.ok) throw new Error("El servidor respondió con HTTP " + r.status);
                     return r.json();
@@ -303,9 +296,6 @@
                 .then(function (data) {
                     if (!data.ok || !data.empresa) {
                         throw new Error(data.error || "No se recibieron los datos de la empresa.");
-                    }
-                    if (String(data.empresa.nit) !== String(u.id)) {
-                        throw new Error("La sesión del navegador no coincide con la empresa autenticada en el servidor.");
                     }
                     rellenarPerfil(data.empresa);
                 })
@@ -324,9 +314,8 @@
                     return palabra[0] || "";
                 }).join("").toUpperCase().slice(0, 2) || "EM";
 
-                u.nombre = nombre;
                 u.tipoServicio = servicioRaw;
-                localStorage.setItem("te_session", JSON.stringify(u));
+                window.TourismSession.save(u);
                 if (av) av.textContent = iniciales;
                 if (nm) nm.textContent = nombre;
 
@@ -365,7 +354,7 @@
                 });
                 mostrarValor("empresaEstado", "No disponible");
                 document.querySelectorAll(".pu-stat-num").forEach(function (numEl) {
-                    numEl.textContent = "—";
+                    numEl.textContent = "No disponible";
                 });
             }
 
@@ -435,6 +424,7 @@
                 document.getElementById("editarPerfilEmailInstitucional").value = empresaActual.email_inst || "";
                 document.getElementById("editarPerfilEmailAcceso").value = empresaActual.email_login || "";
                 document.getElementById("editarPerfilContacto").value = empresaActual.contacto || "";
+                window.TEUI.markClean(formEditarPerfil);
                 estadoFormularioPerfil.hidden = true;
                 estadoFormularioPerfil.textContent = "";
                 var proximaFecha = formatearProximaEdicion(empresaActual.proxima_edicion);
@@ -449,6 +439,7 @@
                     .then(function (select) {
                         select.value = empresaActual.id_ciudad || "";
                         btnGuardarPerfil.disabled = !perfilEditable;
+                        window.TEUI.markClean(formEditarPerfil);
                     })
                     .catch(function (error) {
                         console.error("No se pudo cargar la lista de municipios:", error);
@@ -456,11 +447,17 @@
                     });
             });
 
-            document.getElementById("btnCerrarEditarPerfil").addEventListener("click", function () {
-                modalEditarPerfil.close();
-            });
-            document.getElementById("btnCancelarEditarPerfil").addEventListener("click", function () {
-                modalEditarPerfil.close();
+            async function solicitarCierrePerfil() {
+                if (await window.TEUI.confirmDiscard(formEditarPerfil)) {
+                    modalEditarPerfil.close();
+                    window.TEUI.notifyClosed("Formulario");
+                }
+            }
+            document.getElementById("btnCerrarEditarPerfil").addEventListener("click", solicitarCierrePerfil);
+            document.getElementById("btnCancelarEditarPerfil").addEventListener("click", solicitarCierrePerfil);
+            modalEditarPerfil.addEventListener("cancel", function (event) {
+                event.preventDefault();
+                solicitarCierrePerfil();
             });
 
             formEditarPerfil.addEventListener("submit", function (event) {
@@ -500,13 +497,12 @@
                         });
                     })
                     .then(function (data) {
-                        u.nombre = datos.nombre;
-                        u.email = datos.email_acceso;
-                        localStorage.setItem("te_session", JSON.stringify(u));
                         mostrarEstadoFormulario(data.mensaje || "Perfil actualizado.");
+                        window.TEUI.markClean(formEditarPerfil);
+                        window.TEUI.toast("Perfil actualizado correctamente.");
                         setTimeout(function () {
                             window.location.reload();
-                        }, 700);
+                        }, 1800);
                     })
                     .catch(function (error) {
                         console.error("No se pudo actualizar el perfil:", error);
@@ -570,15 +566,12 @@
                     estadoIcono.style.color = estado === "ACTIVO" ? "#22c55e" : "#f59e0b";
                 }
 
-                // ── 8. ESTADÍSTICAS: label correcto de inmediato según el tipo de empresa ──
-                document.querySelectorAll(".pu-stat").forEach(function (stat) {
-                    var labelEl = stat.querySelector(".pu-stat-label");
-                    if (labelEl) labelEl.textContent = STAT_LABEL[servicio] || "Servicios publicados";
-                });
-
                 // ── 8b. ESTADÍSTICAS: número real desde la BD ────────────────────────
                 var estadisticasUrl = new URL("../login/get_estadisticas_empresa.php", window.location.href);
-                fetch(estadisticasUrl)
+                fetch(estadisticasUrl, {
+                        credentials: "include",
+                        cache: "no-store"
+                    })
                     .then(function (r) {
                         if (!r.ok) throw new Error("El servidor respondió con HTTP " + r.status);
                         return r.json();
@@ -587,20 +580,31 @@
                         if (!data.ok || !data.estadisticas) {
                             throw new Error(data.error || "No se recibieron las estadísticas.");
                         }
-                        document.querySelectorAll(".pu-stat").forEach(function (stat) {
-                            var numEl = stat.querySelector(".pu-stat-num");
-                            var labelEl = stat.querySelector(".pu-stat-label");
-                            if (!numEl) return;
-                            if (typeof data.estadisticas.servicios_publicados !== "undefined") {
-                                numEl.textContent = data.estadisticas.servicios_publicados;
-                                if (labelEl && data.estadisticas.servicios_label) labelEl.textContent = data.estadisticas.servicios_label;
-                            }
-                        });
+                        var stats = data.estadisticas;
+                        if (
+                            !Number.isInteger(stats.servicios_publicados)
+                            || !Number.isInteger(stats.servicios_totales)
+                            || !Number.isInteger(stats.clics_whatsapp_30_dias)
+                            || typeof stats.servicios_label !== "string"
+                            || typeof stats.servicios_totales_label !== "string"
+                        ) {
+                            throw new Error("Las estadísticas recibidas tienen un formato inválido.");
+                        }
+                        document.getElementById("statEmpresaActivos").textContent =
+                            stats.servicios_publicados;
+                        document.getElementById("statEmpresaActivosLabel").textContent =
+                            stats.servicios_label;
+                        document.getElementById("statEmpresaTotal").textContent =
+                            stats.servicios_totales;
+                        document.getElementById("statEmpresaTotalLabel").textContent =
+                            stats.servicios_totales_label;
+                        document.getElementById("statEmpresaWhatsApp").textContent =
+                            stats.clics_whatsapp_30_dias;
                     })
                     .catch(function (err) {
                         console.error("No se pudieron cargar las estadísticas de la empresa:", err);
                         document.querySelectorAll(".pu-stat-num").forEach(function (numEl) {
-                            numEl.textContent = "—";
+                            numEl.textContent = "No disponible";
                         });
                     });
 
@@ -610,22 +614,6 @@
                     navbarLabel.innerHTML = '<i class="fa-solid ' + (SECTOR_ICONO[servicio] || "fa-star") + '"></i> Panel Empresa';
                 }
 
-
-                // ── 10. ACTIVIDAD RECIENTE ───────────────────────────────────────
-                var ACTIVIDAD_LABEL = {
-                    "transporte": "Transporte publicado",
-                    "auxiliar": "Auxiliar registrado",
-                    "hospedaje": "Hospedaje publicado",
-                    "planes": "Plan publicado",
-                    "todo": "Servicio publicado"
-                };
-                var actItems = document.querySelectorAll(".pe-actividad-item");
-                if (actItems.length >= 1) {
-                    var actIcon = actItems[0].querySelector(".pe-actividad-icon i");
-                    var actTxt = actItems[0].querySelector(".pe-actividad-titulo");
-                    if (actIcon) actIcon.className = "fa-solid " + (SECTOR_ICONO[servicio] || "fa-bus");
-                    if (actTxt) actTxt.textContent = ACTIVIDAD_LABEL[servicio] || "Servicio publicado";
-                }
 
                 // ── 11. TÍTULO DE PÁGINA ─────────────────────────────────────────
                 document.title = "Perfil - " + (nombre || "Empresa") + " - TourismEasy";
@@ -675,9 +663,7 @@
             w.querySelector("#btnLogout").addEventListener("click", function (e) {
                 e.preventDefault();
                 e.stopPropagation();
-                sessionStorage.removeItem("te_session");
-                localStorage.removeItem("te_session");
-                window.location.href = "../index.html";
+                window.TEUI.logoutAdmin("../login/logout_admin.php", "../index.html");
             });
         })();
 
@@ -703,9 +689,7 @@
             .getElementById("sidebarLogout")
             .addEventListener("click", function (e) {
                 e.preventDefault();
-                sessionStorage.removeItem("te_session");
-                localStorage.removeItem("te_session");
-                window.location.href = "../index.html";
+                window.TEUI.logoutAdmin("../login/logout_admin.php", "../index.html");
             });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
@@ -729,6 +713,8 @@
             } catch (e) { }
         })();
     </script>
+    <script src="../componentes/agente-ia.js?v=private-chat-memory-v1"></script>
+    <script src="../menu_accesibilidad/menu.js?v=a11y-v16"></script>
 </body>
 
 </html>

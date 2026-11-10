@@ -13,11 +13,11 @@
    Separadas del index.css para no interferir con el resto del sitio */
 
 :root {
-    --te-primary: #6d28d9;
+    --te-primary: var(--theme-primary-dark, #6d28d9);
     /* Morado principal del chat */
-    --te-primary-light: #8b5cf6;
+    --te-primary-light: var(--theme-primary-light, #8b5cf6);
     /* Morado claro (hovers, acentos) */
-    --te-primary-dark: #4c1d95;
+    --te-primary-dark: var(--theme-primary-dark, #4c1d95);
     /* Morado oscuro (fondo del header) */
     --te-accent: #f59e0b;
     /* Ámbar (no usado actualmente, reservado) */
@@ -31,7 +31,7 @@
     /* Texto secundario */
     --te-border: #ede9fe;
     /* Bordes y separadores */
-    --te-shadow: rgba(109, 40, 217, 0.18);
+    --te-shadow: rgba(var(--theme-primary-dark-rgb, 109, 40, 217), 0.18);
     /* Sombra morada */
 }
 
@@ -100,7 +100,7 @@
     position: absolute;
     inset: -5px;
     border-radius: 50%;
-    border: 2px solid rgba(139, 92, 246, 0.45);
+    border: 2px solid rgba(var(--theme-primary-light-rgb, 139, 92, 246), 0.45);
     animation: tePulse 2.2s infinite;
 }
 
@@ -140,8 +140,8 @@
 
 .te-chat-bubble {
     position: fixed;
-    bottom: 98px;
-    /* Justo encima del FAB */
+    bottom: 156px;
+    /* Encima de los botones flotantes */
     right: 28px;
     background: #fff;
     color: var(--te-primary-dark);
@@ -194,14 +194,16 @@
     bottom: 100px;
     /* Justo encima del FAB */
     right: 28px;
-    width: 375px;
-    max-height: 560px;
+    box-sizing: border-box;
+    width: min(375px, calc(100vw - 32px));
+    max-height: min(560px, calc(100vh - 120px));
+    max-height: min(560px, calc(100dvh - 120px));
     background: var(--te-surface);
     border-radius: 22px;
     box-shadow: 0 24px 64px rgba(0, 0, 0, 0.16), 0 4px 16px rgba(0, 0, 0, 0.08);
     display: flex;
     flex-direction: column;
-    z-index: 9999;
+    z-index: 10001;
     overflow: hidden;
     /* Empieza pequeño y desplazado abajo, luego escala a su posición */
     transform: scale(0.88) translateY(24px);
@@ -281,6 +283,7 @@
 
 .te-header-info {
     flex: 1;
+    min-width: 0;
 }
 
 .te-header-info strong {
@@ -346,6 +349,7 @@
 
 .te-chat-messages {
     flex: 1;
+    min-height: 0;
     overflow-y: auto;
     padding: 16px 14px;
     display: flex;
@@ -363,7 +367,7 @@
 }
 
 .te-chat-messages::-webkit-scrollbar-thumb {
-    background: #c4b5fd;
+    background: var(--theme-primary-light, #c4b5fd);
     border-radius: 3px;
 }
 
@@ -440,9 +444,9 @@
     font-weight: 600;
     padding: 6px 12px;
     border-radius: 20px;
-    border: 1.5px solid rgba(109, 40, 217, 0.3);
+    border: 1.5px solid rgba(var(--theme-primary-dark-rgb, 109, 40, 217), 0.3);
     color: var(--te-primary);
-    background: rgba(109, 40, 217, 0.06);
+    background: rgba(var(--theme-primary-dark-rgb, 109, 40, 217), 0.06);
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
     white-space: nowrap;
@@ -569,14 +573,14 @@
 
 .te-chat-input:focus {
     border-color: var(--te-primary-light);
-    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.12);
+    box-shadow: 0 0 0 3px rgba(var(--theme-primary-light-rgb, 139, 92, 246), 0.12);
 }
 
 
 /* Placeholder en lila claro */
 
 .te-chat-input::placeholder {
-    color: #c4b5fd;
+    color: var(--theme-primary-light, #c4b5fd);
 }
 
 
@@ -646,7 +650,7 @@ body.dark-mode {
     /* Texto claro */
     --te-border: #2d2562;
     /* Bordes oscuros */
-    --te-shadow: rgba(109, 40, 217, 0.3);
+    --te-shadow: rgba(var(--theme-primary-dark-rgb, 109, 40, 217), 0.3);
 }
 
 body.dark-mode .te-msg.bot {
@@ -656,9 +660,9 @@ body.dark-mode .te-msg.bot {
 }
 
 body.dark-mode .te-chip {
-    background: rgba(139, 92, 246, 0.1);
-    border-color: rgba(139, 92, 246, 0.3);
-    color: #c4b5fd;
+    background: rgba(var(--theme-primary-light-rgb, 139, 92, 246), 0.1);
+    border-color: rgba(var(--theme-primary-light-rgb, 139, 92, 246), 0.3);
+    color: var(--theme-primary-light, #c4b5fd);
 }
 
 body.dark-mode .te-chip:hover {
@@ -706,28 +710,30 @@ body.dark-mode .te-chat-bubble {
 
 /* ══════════════════════════════════════════
    RESPONSIVE MÓVIL
-   En móvil el panel ocupa toda la pantalla desde abajo
+   El panel se ajusta al viewport y queda por encima del botón flotante
 ══════════════════════════════════════════ */
 
-@media (max-width: 480px) {
+@media (max-width: 767px) {
     .te-chat-panel {
-        right: 0;
-        left: 0;
-        bottom: 0;
-        width: 100%;
-        max-height: 72vh;
-        border-radius: 22px 22px 0 0;
-        /* Bordes redondeados solo arriba */
+        right: 12px;
+        left: 12px;
+        bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+        width: auto;
+        height: min(72vh, calc(100vh - 108px));
+        height: min(72dvh, calc(100dvh - 108px - env(safe-area-inset-bottom, 0px)));
+        max-height: min(72vh, calc(100vh - 108px));
+        max-height: min(72dvh, calc(100dvh - 108px - env(safe-area-inset-bottom, 0px)));
+        border-radius: 20px;
     }
 
     .te-chat-fab {
-        bottom: 20px;
+        bottom: calc(16px + env(safe-area-inset-bottom, 0px));
         right: 16px;
     }
 
     .te-chat-bubble {
         right: 16px;
-        bottom: 90px;
+        bottom: calc(144px + env(safe-area-inset-bottom, 0px));
     }
 
     /* Mostrar el botón X dentro del header en móvil */

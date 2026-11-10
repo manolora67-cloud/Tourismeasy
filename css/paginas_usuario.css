@@ -46,7 +46,7 @@
   width: 72px;
   height: 72px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #7c3aed, #a855f7);
+  background: linear-gradient(135deg, var(--theme-primary, #7c3aed), var(--theme-primary-light, #a855f7));
   /* Morado para viajeros */
   color: #fff;
   font-family: var(--font-head);
@@ -122,7 +122,7 @@
 }
 
 .pu-nav-item.active {
-  background: rgba(124, 58, 237, 0.08);
+  background: rgba(var(--theme-primary-rgb, 124, 58, 237), 0.08);
   color: var(--purple);
   font-weight: 700;
 }
@@ -211,7 +211,7 @@
 /* Badge de conteo junto al título (ej: "3" al lado de "Mis reseñas") */
 .pu-card-title__count {
   margin-left: auto;
-  background: rgba(124, 58, 237, 0.1);
+  background: rgba(var(--theme-primary-rgb, 124, 58, 237), 0.1);
   color: var(--purple);
   font-size: 0.78rem;
   font-weight: 800;
@@ -307,7 +307,7 @@ body.dark-mode .pu-resena-item__stars .pu-resena-star--vacia {
   width: 80px;
   height: 80px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #7c3aed, #a855f7);
+  background: linear-gradient(135deg, var(--theme-primary, #7c3aed), var(--theme-primary-light, #a855f7));
   color: #fff;
   font-family: var(--font-head);
   font-weight: 800;
@@ -345,7 +345,7 @@ body.dark-mode .pu-resena-item__stars .pu-resena-star--vacia {
   align-items: center;
   gap: 6px;
   margin-top: 10px;
-  background: rgba(124, 58, 237, 0.08);
+  background: rgba(var(--theme-primary-rgb, 124, 58, 237), 0.08);
   color: var(--purple);
   padding: 5px 14px;
   border-radius: 50px;
@@ -568,7 +568,7 @@ body.dark-mode .pu-resena-item__stars .pu-resena-star--vacia {
 .pu-filter-btn.active {
   border-color: var(--purple);
   color: var(--purple);
-  background: rgba(124, 58, 237, 0.07);
+  background: rgba(var(--theme-primary-rgb, 124, 58, 237), 0.07);
 }
 
 /* ===========================
@@ -622,7 +622,7 @@ body.dark-mode .pu-resena-item__stars .pu-resena-star--vacia {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #7c3aed, #a855f7);
+  background: linear-gradient(135deg, var(--theme-primary, #7c3aed), var(--theme-primary-light, #a855f7));
   color: #fff;
   font-family: var(--font-head);
   font-weight: 800;
@@ -761,10 +761,10 @@ body.dark-mode .pu-resena-item__stars .pu-resena-star--vacia {
 .pu-sidebar-promo {
   margin-top: 40px;
   padding: 20px;
-  background: rgba(124, 58, 237, 0.05);
+  background: rgba(var(--theme-primary-rgb, 124, 58, 237), 0.05);
   border-radius: 14px;
   text-align: left;
-  border: 1px solid rgba(124, 58, 237, 0.1);
+  border: 1px solid rgba(var(--theme-primary-rgb, 124, 58, 237), 0.1);
 }
 
 .pu-sidebar-promo__title {
@@ -820,7 +820,7 @@ body.dark-mode .pu-resena-item__stars .pu-resena-star--vacia {
    CARD PROMO — Tarjeta de oferta/invitación
 =========================== */
 .pu-card--promo {
-  background: linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(168, 85, 247, 0.1));
+  background: linear-gradient(135deg, rgba(var(--theme-primary-rgb, 124, 58, 237), 0.1), rgba(var(--theme-primary-light-rgb, 168, 85, 247), 0.1));
   border: 1.5px dashed var(--purple);
   padding: 35px;
 }
@@ -908,7 +908,7 @@ body.dark-mode .pu-resena-item__stars .pu-resena-star--vacia {
 .pu-card-callout {
   margin-top: 16px;
   padding: 12px 14px;
-  background: rgba(124, 58, 237, 0.07);
+  background: rgba(var(--theme-primary-rgb, 124, 58, 237), 0.07);
   border-radius: 10px;
   border-left: 3px solid var(--purple);
 }
@@ -1136,7 +1136,7 @@ body.dark-mode .pu-modal-close {
 }
 
 body.dark-mode .pu-card-callout {
-  background: rgba(124, 58, 237, 0.12);
+  background: rgba(var(--theme-primary-rgb, 124, 58, 237), 0.12);
 }
 
 body.dark-mode .pu-card-callout__text {
@@ -1175,8 +1175,8 @@ body.dark-mode .pu-card-callout__text {
 }
 
 .pu-sidebar-bloque--nivel {
-  background: rgba(124, 58, 237, 0.07);
-  border: 1px solid rgba(124, 58, 237, 0.15);
+  background: rgba(var(--theme-primary-rgb, 124, 58, 237), 0.07);
+  border: 1px solid rgba(var(--theme-primary-rgb, 124, 58, 237), 0.15);
 }
 
 .pu-sidebar-bloque--soporte {
@@ -1348,8 +1348,8 @@ body.dark-mode .pu-empty-icon {
 }
 
 body.dark-mode .pu-sidebar-promo {
-  background: rgba(124, 58, 237, 0.08);
-  border-color: rgba(124, 58, 237, 0.2);
+  background: rgba(var(--theme-primary-rgb, 124, 58, 237), 0.08);
+  border-color: rgba(var(--theme-primary-rgb, 124, 58, 237), 0.2);
 }
 
 body.dark-mode .pu-sidebar-promo__text {
@@ -1373,7 +1373,7 @@ body.dark-mode .pu-table__row {
 }
 
 body.dark-mode .pu-table__row:hover {
-  background: rgba(124, 58, 237, 0.05);
+  background: rgba(var(--theme-primary-rgb, 124, 58, 237), 0.05);
 }
 
 body.dark-mode .pu-table__td--fecha {
@@ -1413,8 +1413,8 @@ body.dark-mode .pu-perfil-datos {
 }
 
 body.dark-mode .pu-sidebar-bloque--nivel {
-  background: rgba(124, 58, 237, 0.12);
-  border-color: rgba(124, 58, 237, 0.25);
+  background: rgba(var(--theme-primary-rgb, 124, 58, 237), 0.12);
+  border-color: rgba(var(--theme-primary-rgb, 124, 58, 237), 0.25);
 }
 
 body.dark-mode .pu-sidebar-bloque--soporte {

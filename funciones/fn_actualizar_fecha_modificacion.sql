@@ -1,9 +1,0 @@
-CREATE OR REPLACE FUNCTION fn_actualizar_fecha_modificacion()
-RETURNS TRIGGER AS
-$$
-BEGIN
-    NEW.FECHA_MODIFICACION := NOW();
-    RETURN NEW;
-END;
-$$
-LANGUAGE plpgsql;

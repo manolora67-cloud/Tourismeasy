@@ -4,11 +4,15 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="../js/control_tiempo_sesion.js?v=secure-session-v4"></script>
     <title>TourismLocal - Santander</title>
-    <link rel="stylesheet" href="../css/e-comemerce.css" />
+    <link rel="stylesheet" href="../css/e-comemerce.css?v=footer-component-v3" />
+    <link rel="stylesheet" href="../css/login.css?v=device-approval-v2" />
+    <link rel="stylesheet" href="../css/captcha.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-    <link rel="stylesheet" href="../css/agente-ia.css" />
+    <link rel="stylesheet" href="../css/agente-ia.css?v=mobile-layout-v2" />
     <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
+    <script src="../componentes/ui-feedback.js?v=ui-feedback-v4"></script>
 </head>
 
 <body>
@@ -72,11 +76,11 @@
             <button class="filter-tag active" data-cat="all" type="button">Todos</button>
         </div>
 
+        <p class="store-status" id="storeStatus" role="status" aria-live="polite"></p>
         <div class="product-grid" id="product-list"></div>
         <p class="no-results" id="noResults" style="display: none">
             No se encontraron resultados para tu búsqueda.
         </p>
-        <p class="store-status" id="storeStatus" role="status" aria-live="polite"></p>
         <nav class="product-pagination" id="productPagination" aria-label="Paginación de productos" hidden>
             <button type="button" id="productPreviousPage" aria-label="Página anterior">Anterior</button>
             <span id="productPageSummary" aria-live="polite"></span>
@@ -84,48 +88,7 @@
         </nav>
     </main>
 
-    <footer class="main-footer">
-        <div class="footer-container">
-            <div class="footer-grid">
-                <div class="footer-col">
-                    <h4>Turismo<span>Local</span></h4>
-                    <p>
-                        Descubre la riqueza artesanal de Santander y conecta con sus creadores.
-                    </p>
-                </div>
-                <div class="footer-col">
-                    <h4>Explorar</h4>
-                    <ul>
-                        <li><a href="#talleres">Talleres</a></li>
-                        <li><a href="#bisuteria">Bisutería</a></li>
-                        <li><a href="#alfareria">Alfarería</a></li>
-                        <li><a href="#" data-modal="destinos">Destinos artesanales</a></li>
-                    </ul>
-                </div>
-                <div class="footer-col">
-                    <h4>Nosotros</h4>
-                    <ul>
-                        <li><a href="#" data-modal="sobre-nosotros">Sobre Nosotros</a></li>
-                        <li><a href="#" data-modal="artesanos">Nuestros Artesanos</a></li>
-                        <li><a href="#" data-modal="registro">Registra tu Taller</a></li>
-                    </ul>
-                </div>
-                <div class="footer-col">
-                    <h4>Información</h4>
-                    <ul>
-                        <li><a href="#" data-modal="contacto">Contacto</a></li>
-                        <li><a href="#" data-modal="faq">Preguntas Frecuentes</a></li>
-                        <li>
-                            <a href="#" data-modal="privacidad">Política de Privacidad</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>&copy; 2026 TourismLocal Santander - Prototipo ADSO</p>
-        </div>
-    </footer>
+    <div id="site-footer"></div>
 
     <!-- MODAL DETALLE PRODUCTO -->
     <div class="pm-overlay" id="productModalOverlay">
@@ -164,21 +127,28 @@
         </div>
     </div>
 
-    <!-- MODAL OVERLAY FOOTER -->
-    <div class="tl-modal-overlay" id="tlModalOverlay">
-        <div class="tl-modal-box">
-            <button class="tl-modal-close" id="tlModalClose">&times;</button>
-            <h2 id="tlModalTitle"></h2>
-            <div id="tlModalContent"></div>
-        </div>
-    </div>
-
     <script src="../componentes/dark-mode-toggle.js"></script>
-    <script src="../js/e-commerce.js"></script>
+    <script src="../componentes/footer.js"></script>
+    <script src="../componentes/modal.js"></script>
+    <script src="../componentes/toast.js"></script>
+    <script src="../componentes/boton-accion.js"></script>
+    <script src="../componentes/lista-tarjetas.js"></script>
+    <script src="../componentes/panel-filtros.js"></script>
+    <script src="../componentes/tabla-datos.js"></script>
+    <script src="../componentes/filtro-chips.js"></script>
+    <script src="../componentes/estado-badge.js"></script>
+    <script src="../componentes/barra-busqueda.js"></script>
+    <script src="../componentes/paginacion.js"></script>
+    <script src="../js/catalog-cache.js?v=catalog-cache-v1"></script>
+    <script src="../js/imagen-cloudinary.js?v=cloudinary-delivery-v1"></script>
+    <script src="../js/e-commerce.js?v=secure-client-session-v1"></script>
+    <script src="../js/captcha.js"></script>
+    <script src="../js/auth.js?v=secure-client-session-v1"></script>
     <script src="../js/registrar_click_whatsapp.js"></script>
-    <script src="../componentes/agente-ia.js"></script>
+    <script src="../componentes/agente-ia.js?v=private-chat-memory-v1"></script>
     <script src="../js/santanderianidad.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <script src="../menu_accesibilidad/menu.js?v=a11y-v16"></script>
 </body>
 
 </html>

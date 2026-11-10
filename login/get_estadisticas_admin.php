@@ -1,7 +1,7 @@
 <?php
 /**
  * login/get_estadisticas_admin.php
- * Devuelve estadísticas globales reales de la plataforma, vía fn_estadisticas_admin().
+ * Devuelve estadísticas globales reales de la plataforma.
  * GET (sin parámetros)
  */
 
@@ -11,7 +11,10 @@ header('Content-Type: application/json');
 require_once __DIR__ . '/../cors.php';
 
 try {
-    $stmt = $pdo->query("SELECT * FROM fn_estadisticas_admin()");
+    $stmt = $pdo->query(
+        'SELECT estadisticas.*, fn_clics_whatsapp_ultimos_30_dias_admin() AS clics_whatsapp_30_dias
+         FROM fn_estadisticas_admin() AS estadisticas'
+    );
     $row = $stmt->fetch();
 
     echo json_encode([
@@ -20,6 +23,7 @@ try {
             "empresas_registradas"  => (int) $row['empresas_registradas'],
             "calificacion_promedio" => $row['calificacion_promedio'] !== null ? (float) $row['calificacion_promedio'] : null,
             "servicios_activos"     => (int) $row['servicios_activos'],
+            "clics_whatsapp_30_dias" => $row['clics_whatsapp_30_dias'] !== null ? (int) $row['clics_whatsapp_30_dias'] : null,
         ]
     ]);
 

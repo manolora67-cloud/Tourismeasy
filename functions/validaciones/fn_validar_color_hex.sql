@@ -1,0 +1,7 @@
+CREATE OR REPLACE FUNCTION fn_validar_color_hex(p_color TEXT)
+RETURNS BOOLEAN AS
+$$
+    SELECT COALESCE(BTRIM(p_color) ~* '^#[0-9A-F]{6}$', FALSE);
+$$
+LANGUAGE SQL
+IMMUTABLE;

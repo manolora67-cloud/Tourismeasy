@@ -64,7 +64,7 @@ function formatDateLong(iso) {
 // Devuelve null si no hay teléfono válido.
 
 function buildWhatsAppLink(telefono, mensaje) {
-    var digits = (telefono || "").replace(/[^\d]/g, "");
+    var digits = String(telefono || "").replace(/[^\d]/g, "");
 
     if (!digits) return null;
 
@@ -79,24 +79,50 @@ function buildWhatsAppLink(telefono, mensaje) {
             : "");
 }
 
+function getTransportImageUrl(imagePath) {
+    var path = String(imagePath || "").trim();
+    if (!path) return "";
+
+    try {
+        var url = /^https?:\/\//i.test(path)
+            ? new URL(path)
+            : new URL(path.startsWith("../") ? path : "../" + path, window.location.href);
+        return url.protocol === "http:" || url.protocol === "https:" ? url.href : "";
+    } catch (error) {
+        return "";
+    }
+}
+
+function escapeTransportHtml(value) {
+    return String(value == null ? "" : value).replace(/[&<>"']/g, function (character) {
+        return {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            "\"": "&quot;",
+            "'": "&#39;"
+        }[character];
+    });
+}
+
 
 // Actualiza (o esconde) el botón de WhatsApp del modal
 // según los datos del botón clickeado
 
-function actualizarBotonWhatsApp(btn) {
+function actualizarBotonWhatsApp(datos) {
     var waBtn = document.getElementById("vd-whatsapp");
 
     if (!waBtn) return;
 
-    var telefono = btn.dataset.whatsapp || "";
+    var telefono = datos.whatsapp || "";
 
     var mensaje =
         "Hola, vi el transporte " +
-        (btn.dataset.titulo || "") +
+        (datos.titulo || "") +
         " en TourismEasy y quisiera más información.";
 
     var link = buildWhatsAppLink(telefono, mensaje);
-    waBtn.dataset.idProducto = btn.dataset.idProducto || "";
+    waBtn.dataset.idProducto = datos.idProducto || "";
     waBtn.dataset.categoria = "Transporte";
 
     if (link) {
@@ -105,6 +131,32 @@ function actualizarBotonWhatsApp(btn) {
     } else {
         waBtn.style.display = "none";
     }
+}
+
+function mostrarDetalleTransporte(datos) {
+    var image = document.getElementById("vd-img");
+    var imageUrl = getTransportImageUrl(datos.img);
+    image.src = imageUrl;
+    image.alt = datos.titulo || "";
+    image.style.display = imageUrl ? "" : "none";
+
+    document.getElementById("vd-titulo").textContent = datos.titulo || "";
+    document.getElementById("vd-origen").textContent = datos.origen || "";
+    document.getElementById("vd-destino").textContent = datos.destino || "";
+    document.getElementById("vd-fecha").textContent = formatDateLong(datos.fecha || "");
+    document.getElementById("vd-hora").textContent = formatTime24to12(datos.hora || "");
+    document.getElementById("vd-empresa").textContent = datos.empresa || "";
+    document.getElementById("vd-accesibilidad").textContent = datos.accesibilidad || "";
+    document.getElementById("vd-precio").textContent = datos.precio || "";
+
+    var detalleClase = document.getElementById("vd-clase");
+    if (detalleClase) detalleClase.textContent = datos.clase || "Sin clase";
+
+    actualizarBotonWhatsApp(datos);
+    var overlay = document.getElementById("transporte-detalle-overlay");
+    overlay.removeAttribute("aria-hidden");
+    overlay.classList.add("visible");
+    document.body.style.overflow = "hidden";
 }
 
 
@@ -120,60 +172,20 @@ function actualizarBotonWhatsApp(btn) {
     document.querySelectorAll('.btn-ver-detalles').forEach(function (btn) {
 
         btn.addEventListener('click', function () {
-
-            document.getElementById('vd-img').src =
-                btn.dataset.img || '';
-
-            document.getElementById('vd-titulo').textContent =
-                btn.dataset.titulo || '';
-
-            document.getElementById('vd-origen').textContent =
-                btn.dataset.origen || '';
-
-            document.getElementById('vd-destino').textContent =
-                btn.dataset.destino || '';
-
-            document.getElementById('vd-fecha').textContent =
-                formatDateLong(btn.dataset.fecha || '');
-
-            document.getElementById('vd-hora').textContent =
-                formatTime24to12(btn.dataset.hora || '');
-
-            document.getElementById('vd-empresa').textContent =
-                btn.dataset.empresa || '';
-
-            document.getElementById('vd-accesibilidad').textContent =
-                btn.dataset.accesibilidad || '';
-
-            document.getElementById('vd-precio').textContent =
-                btn.dataset.precio || '';
-
-
-            // Mostrar clase si el HTML tiene el campo
-            var detalleClase =
-                document.getElementById('vd-clase');
-
-            if (detalleClase) {
-                detalleClase.textContent =
-                    btn.dataset.clase || 'Sin clase';
-            }
-
-
-            actualizarBotonWhatsApp(btn);
-
-            overlay.classList.add('visible');
-
-            document.body.style.overflow = 'hidden';
+            mostrarDetalleTransporte(btn.dataset);
         });
 
     });
 
 
     function cerrarModal() {
-
+        if (!overlay.classList.contains('visible')) return;
         overlay.classList.remove('visible');
-
+        overlay.setAttribute('aria-hidden', 'true');
+        document.getElementById('vd-img').src = '';
+        document.getElementById('vd-img').style.display = '';
         document.body.style.overflow = '';
+        window.TEUI.notifyClosed("Detalle");
     }
 
 
@@ -207,13 +219,14 @@ function cargarCiudadesTransporte() {
     var destino = document.getElementById('tDestino');
     if (!origen || !destino) return;
 
-    fetch('../datos_referencia.php?tipo=ciudades', {
+    [origen, destino].forEach(function (select) {
+        select.disabled = true;
+        select.replaceChildren(new Option('Cargando municipios...', ''));
+    });
+
+    window.TECatalogCache.fetchJson('../datos_referencia.php?tipo=ciudades', {
         credentials: 'include'
-    })
-        .then(function (response) {
-            if (!response.ok) throw new Error('No se pudieron cargar los municipios.');
-            return response.json();
-        })
+    }, 'No se pudieron cargar los municipios.')
         .then(function (result) {
             if (!result.ok || !result.data || !Array.isArray(result.data.ciudades)) {
                 throw new Error(result.error || 'Respuesta inválida al cargar municipios.');
@@ -223,17 +236,21 @@ function cargarCiudadesTransporte() {
                 { select: origen, placeholder: 'Cualquier origen' },
                 { select: destino, placeholder: 'Cualquier destino' }
             ].forEach(function (item) {
-                item.select.innerHTML = '<option value="">' + item.placeholder + '</option>';
+                item.select.replaceChildren(new Option(item.placeholder, ''));
                 result.data.ciudades.forEach(function (ciudad) {
                     var option = document.createElement('option');
                     option.value = ciudad.id;
                     option.textContent = ciudad.nombre;
                     item.select.appendChild(option);
                 });
+                item.select.disabled = false;
             });
         })
         .catch(function (error) {
             console.error('Error cargando municipios de transporte:', error);
+            [origen, destino].forEach(function (select) {
+                select.replaceChildren(new Option('No se pudieron cargar los municipios', ''));
+            });
         });
 }
 
@@ -248,24 +265,21 @@ function cargarClasesTransporte() {
     // no hacemos nada.
     if (!select) return;
 
+    select.disabled = true;
+    select.replaceChildren(new Option('Cargando clases...', ''));
 
-    fetch('../transporte/clases.php', {
+    window.TECatalogCache.fetchJson('../transporte/clases.php', {
         credentials: 'include'
-    })
-
-        .then(function (r) {
-            return r.json();
-        })
+    }, 'No se pudieron cargar las clases de transporte.')
 
         .then(function (res) {
 
             if (!res.ok || !Array.isArray(res.data)) {
-                return;
+                throw new Error(res.error || 'Respuesta inválida al cargar las clases.');
             }
 
 
-            select.innerHTML =
-                '<option value="">Todas las clases</option>';
+            select.replaceChildren(new Option('Todas las clases', ''));
 
 
             res.data.forEach(function (clase) {
@@ -280,6 +294,7 @@ function cargarClasesTransporte() {
                 select.appendChild(option);
 
             });
+            select.disabled = false;
 
         })
 
@@ -289,6 +304,7 @@ function cargarClasesTransporte() {
                 'Error cargando clases de transporte:',
                 error
             );
+            select.replaceChildren(new Option('No se pudieron cargar las clases', ''));
 
         });
 
@@ -430,6 +446,7 @@ function buscarTransporte() {
 
 
     var solicitudId = ++busquedaTransporteId;
+    emptyBox.style.display = 'none';
 
     if (
         !origenTexto &&
@@ -500,20 +517,14 @@ function buscarTransporte() {
     }
 
 
-    fetch(
+    window.TECatalogCache.fetchJson(
         '../transporte/buscar.php?' +
         params.toString(),
         {
             credentials: 'include'
-        }
+        },
+        'No se pudo buscar el transporte. Intenta de nuevo.'
     )
-
-        .then(function (r) {
-            if (!r.ok) {
-                throw new Error('No se pudo buscar el transporte. Intenta de nuevo.');
-            }
-            return r.json();
-        })
 
         .then(function (res) {
             if (solicitudId !== busquedaTransporteId) return;
@@ -712,12 +723,47 @@ document
 
     function renderCard(item) {
 
+        var origen =
+            String(item.origen || "");
+
+        var destino =
+            String(item.destino || "");
+
+        var titulo =
+            origen + " → " + destino;
+
+        var empresa =
+            String(item.empresa || "Empresa");
+
+        var clase =
+            String(item.nombre_clase || "");
+
+        var descripcion =
+            String(item.descripcion || (
+                "Salida: " +
+                formatTime24to12(item.hora_salida || "") +
+                " · " +
+                (item.ciudad_origen || "")
+            ));
+
+        var fecha =
+            String(item.fecha_salida || "—");
+
+        var hora =
+            String(item.hora_salida || "—");
+
+        var whatsapp =
+            item.whatsapp ||
+            item.telefono ||
+            item.num_contacto_empresa ||
+            "";
+
         var origenSlug =
-            slugify(item.origen);
+            slugify(origen);
 
 
         var destinoSlug =
-            slugify(item.destino);
+            slugify(destino);
 
 
         var precioDisplay =
@@ -731,30 +777,21 @@ document
                 : "Consultar";
 
 
+        var imageUrl =
+            getTransportImageUrl(item.img_url);
+        var cardImageUrl = window.TEImagenCloudinary
+            ? window.TEImagenCloudinary.tarjeta(imageUrl)
+            : imageUrl;
+
         var imgHtml =
-            item.img_url
-
-                ? '<img src="' +
-                (
-                    item.img_url
-                        ? (
-                            item.img_url.startsWith(
-                                "http"
-                            )
-                                ? item.img_url
-                                : "../" +
-                                item.img_url
-                        )
-                        : ""
-                ) +
+            cardImageUrl
+                ? '<img loading="lazy" decoding="async" src="' +
+                escapeTransportHtml(cardImageUrl) +
                 '" class="card-banner" alt="Transporte ' +
-                item.origen +
-                ' - ' +
-                item.destino +
+                escapeTransportHtml(titulo) +
                 '">'
-
-                : '<div class="card-banner" style="background:linear-gradient(135deg,#1e1b4b,#4c1d95);display:flex;align-items:center;justify-content:center;height:180px;">' +
-                '<i class="fa-solid fa-bus" style="font-size:3rem;color:#a855f7;"></i>' +
+                : '<div class="card-banner" style="background:linear-gradient(135deg,#1e1b4b,var(--theme-primary-dark,#4c1d95));display:flex;align-items:center;justify-content:center;height:180px;">' +
+                '<i class="fa-solid fa-bus" style="font-size:3rem;color:var(--theme-primary-light,#a855f7);"></i>' +
                 '</div>';
 
 
@@ -786,53 +823,25 @@ document
 
             '<div class="card-body">' +
 
-            '<span class="card-tag" style="background:rgba(168,85,247,0.18);color:#a855f7;">' +
-            (
-                item.empresa ||
-                "Empresa"
-            ) +
+            '<span class="card-tag" style="background:rgba(var(--theme-primary-light-rgb,168,85,247),0.18);color:var(--theme-primary-light,#a855f7);">' +
+            escapeTransportHtml(empresa) +
             '</span>' +
 
             // Mostrar la clase en la tarjeta
             (
-                item.nombre_clase
+                clase
                     ? '<span class="card-tag" style="margin-left:6px;">' +
-                    item.nombre_clase +
+                    escapeTransportHtml(clase) +
                     '</span>'
                     : ''
             ) +
 
             '<h3>' +
-            (
-                item.origen ||
-                ""
-            ) +
-            ' → ' +
-            (
-                item.destino ||
-                ""
-            ) +
+            escapeTransportHtml(titulo) +
             '</h3>' +
 
             '<p style="display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;line-height:1.5;min-height:3em;">' +
-
-            (
-                item.descripcion ||
-
-                (
-                    'Salida: ' +
-                    formatTime24to12(
-                        item.hora_salida ||
-                        ""
-                    ) +
-                    ' · ' +
-                    (
-                        item.ciudad_origen ||
-                        ""
-                    )
-                )
-            ) +
-
+            escapeTransportHtml(descripcion) +
             '</p>' +
 
             '<div class="card-footer">' +
@@ -844,27 +853,19 @@ document
             '<button class="btn-reservar btn-ver-detalles-empresa"' +
 
             ' data-titulo="' +
-            item.origen +
-            ' → ' +
-            item.destino +
+            escapeTransportHtml(titulo) +
             '"' +
 
             ' data-id-producto="' +
-            (item.id || "") +
+            escapeTransportHtml(item.id || "") +
             '"' +
 
             ' data-origen="' +
-            (
-                item.origen ||
-                ""
-            ) +
+            escapeTransportHtml(origen) +
             '"' +
 
             ' data-destino="' +
-            (
-                item.destino ||
-                ""
-            ) +
+            escapeTransportHtml(destino) +
             '"' +
 
             ' data-precio="' +
@@ -873,57 +874,29 @@ document
 
             // NUEVO: clase para el modal
             ' data-clase="' +
-            (
-                item.nombre_clase ||
-                ""
-            ) +
+            escapeTransportHtml(clase) +
             '"' +
 
             ' data-fecha="' +
-            (
-                item.fecha_salida ||
-                "—"
-            ) +
+            escapeTransportHtml(fecha) +
             '"' +
 
             ' data-hora="' +
-            (
-                item.hora_salida ||
-                "—"
-            ) +
+            escapeTransportHtml(hora) +
             '"' +
 
             ' data-empresa="' +
-            (
-                item.empresa ||
-                ""
-            ) +
+            escapeTransportHtml(item.empresa || "") +
             '"' +
 
             ' data-accesibilidad="Servicio de transporte"' +
 
             ' data-whatsapp="' +
-            (
-                item.whatsapp ||
-                item.telefono ||
-                item.num_contacto_empresa ||
-                ""
-            ) +
+            escapeTransportHtml(whatsapp) +
             '"' +
 
             ' data-img="' +
-            (
-                item.img_url
-                    ? (
-                        item.img_url.startsWith(
-                            "http"
-                        )
-                            ? item.img_url
-                            : "../" +
-                            item.img_url
-                    )
-                    : ""
-            ) +
+            escapeTransportHtml(imageUrl) +
             '"' +
 
             '>Ver detalles</button>' +
@@ -931,132 +904,10 @@ document
             '</div></div>';
 
 
-        card
-            .querySelector(
-                ".btn-ver-detalles-empresa"
-            )
-            .addEventListener(
-                "click",
-                function () {
-
-                    var btn = this;
-
-
-                    var overlay =
-                        document.getElementById(
-                            "transporte-detalle-overlay"
-                        );
-
-
-                    var imgEl =
-                        document.getElementById(
-                            "vd-img"
-                        );
-
-
-                    imgEl.src =
-                        btn.dataset.img ||
-                        "";
-
-
-                    imgEl.style.display =
-                        btn.dataset.img
-                            ? ""
-                            : "none";
-
-
-                    document.getElementById(
-                        "vd-titulo"
-                    ).textContent =
-                        btn.dataset.titulo ||
-                        "";
-
-
-                    document.getElementById(
-                        "vd-origen"
-                    ).textContent =
-                        btn.dataset.origen ||
-                        "";
-
-
-                    document.getElementById(
-                        "vd-destino"
-                    ).textContent =
-                        btn.dataset.destino ||
-                        "";
-
-
-                    document.getElementById(
-                        "vd-fecha"
-                    ).textContent =
-                        formatDateLong(
-                            btn.dataset.fecha ||
-                            ""
-                        );
-
-
-                    document.getElementById(
-                        "vd-hora"
-                    ).textContent =
-                        formatTime24to12(
-                            btn.dataset.hora ||
-                            ""
-                        );
-
-
-                    document.getElementById(
-                        "vd-empresa"
-                    ).textContent =
-                        btn.dataset.empresa ||
-                        "";
-
-
-                    document.getElementById(
-                        "vd-accesibilidad"
-                    ).textContent =
-                        btn.dataset.accesibilidad ||
-                        "";
-
-
-                    document.getElementById(
-                        "vd-precio"
-                    ).textContent =
-                        btn.dataset.precio ||
-                        "";
-
-
-                    // Mostrar clase en detalle,
-                    // solamente si el HTML ya tiene #vd-clase.
-                    var detalleClase =
-                        document.getElementById(
-                            "vd-clase"
-                        );
-
-
-                    if (detalleClase) {
-
-                        detalleClase.textContent =
-                            btn.dataset.clase ||
-                            "Sin clase";
-
-                    }
-
-
-                    actualizarBotonWhatsApp(
-                        btn
-                    );
-
-
-                    overlay.classList.add(
-                        "visible"
-                    );
-
-
-                    document.body.style.overflow =
-                        "hidden";
-
-                }
-            );
+        card.querySelector(".btn-ver-detalles-empresa")
+            .addEventListener("click", function () {
+                mostrarDetalleTransporte(this.dataset);
+            });
 
 
         grid.appendChild(card);
@@ -1078,29 +929,32 @@ document
         var solicitudId = ++busquedaTransporteId;
         transportePaginaActual = 1;
         ocultarPaginacionTransporte();
+        document.getElementById('transporteEmpty').style.display = 'none';
+        document.getElementById('transporteStatus').style.display = 'none';
+        grid.innerHTML =
+            '<div style="grid-column:1/-1;text-align:center;padding:48px;color:#94a3b8">' +
+            '<i class="fa-solid fa-spinner fa-spin fa-2x"></i>' +
+            '<p style="margin-top:12px">Cargando rutas disponibles...</p>' +
+            '</div>';
 
-        fetch(
+        window.TECatalogCache.fetchJson(
             "../transporte/listar.php",
             {
                 credentials: "include"
-            }
+            },
+            'No se pudieron cargar las rutas disponibles.'
         )
-
-            .then(function (r) {
-                return r.json();
-            })
 
             .then(function (res) {
                 if (solicitudId !== busquedaTransporteId) return;
+                if (!res.ok || !Array.isArray(res.data)) {
+                    throw new Error(res.error || 'El servidor devolvió una respuesta inválida.');
+                }
 
                 grid.innerHTML = "";
 
 
-                if (
-                    !res.ok ||
-                    !res.data ||
-                    !res.data.length
-                ) {
+                if (!res.data.length) {
 
                     grid.innerHTML =
                         '<div style="grid-column:1/-1;text-align:center;padding:48px;color:#94a3b8">' +
@@ -1123,14 +977,15 @@ document
                 actualizarPaginacionTransporte();
             })
 
-            .catch(function () {
+            .catch(function (error) {
                 if (solicitudId !== busquedaTransporteId) return;
                 ocultarPaginacionTransporte();
+                console.error('Error cargando rutas de transporte:', error);
 
-                grid.innerHTML =
-                    '<div style="grid-column:1/-1;text-align:center;padding:48px;color:#ef4444">' +
-                    'Error al cargar las rutas. Intenta recargar la página.' +
-                    '</div>';
+                var errorMessage = document.createElement('p');
+                errorMessage.textContent = error.message || 'Error al cargar las rutas. Intenta recargar la página.';
+                errorMessage.style.cssText = 'grid-column:1/-1;text-align:center;padding:48px;color:#ef4444';
+                grid.replaceChildren(errorMessage);
 
             });
 

@@ -4,14 +4,28 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="../js/control_tiempo_sesion.js?v=secure-session-v4"></script>
     <title>Panel Hospedaje - TourismEasy</title>
     <link rel="stylesheet" href="../css/index.css" />
-    <link rel="stylesheet" href="../css/login.css" />
-    <link rel="stylesheet" href="../css/panel_hospedaje.css" />
+    <link rel="stylesheet" href="../css/login.css?v=device-approval-v2" />
+    <link rel="stylesheet" href="../componentes/panel_empresa_servicios.css?v=shared-panels-v1" />
     <link rel="stylesheet" href="../css/click_metrics.css" />
+    <link rel="stylesheet" href="../css/agente-ia.css?v=mobile-layout-v2" />
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;500&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
+    <script src="../componentes/ui-feedback.js?v=ui-feedback-v4"></script>
+    <script src="../componentes/panel-modals.js?v=panel-modals-v1"></script>
+    <script src="../componentes/modal.js"></script>
+    <script src="../componentes/toast.js"></script>
+    <script src="../componentes/boton-accion.js"></script>
+    <script src="../componentes/lista-tarjetas.js"></script>
+    <script src="../componentes/panel-filtros.js"></script>
+    <script src="../componentes/tabla-datos.js"></script>
+    <script src="../componentes/filtro-chips.js"></script>
+    <script src="../componentes/estado-badge.js"></script>
+    <script src="../componentes/barra-busqueda.js"></script>
+    <script src="../componentes/paginacion.js"></script>
 </head>
 
 <body>
@@ -34,10 +48,10 @@
 
         <div class="panel-header">
             <div class="panel-header-info">
-                <div class="panel-empresa-avatar" id="panelAvatar">AV</div>
+                <div class="panel-empresa-avatar" id="panelAvatar">EM</div>
                 <div>
-                    <h1 class="panel-empresa-nombre" id="panelNombre">Mi Empresa</h1>
-                    <p class="panel-empresa-sub">Panel de empresa · TourismEasy</p>
+                    <h1 class="panel-empresa-nombre" id="panelNombre" aria-live="polite">Cargando…</h1>
+                    <p class="panel-empresa-sub" id="panelPerfilEstado" aria-live="polite">Cargando datos de la empresa…</p>
                 </div>
             </div>
             <div class="panel-header-badges">
@@ -49,56 +63,31 @@
         <div class="panel-stats">
             <div class="stat-card">
                 <div class="stat-icon stat-icon-blue"><i class="fa-solid fa-hotel"></i></div>
-                <div class="stat-info"><span class="stat-num" id="statPublicados">0</span><span class="stat-label">Hospedajes publicados</span></div>
+                <div class="stat-info"><span class="stat-num" id="statPublicados">Cargando…</span><span class="stat-label">Hospedajes publicados</span></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon stat-icon-green"><i class="fa-brands fa-whatsapp"></i></div>
+                <div class="stat-info"><span class="stat-num" data-clicks-total>Cargando…</span><span class="stat-label">Clics de WhatsApp</span></div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon stat-icon-orange"><i class="fa-solid fa-sack-dollar"></i></div>
-                <div class="stat-info"><span class="stat-num" id="statPrecioPromedio">$0</span><span class="stat-label">Precio promedio / noche</span></div>
+                <div class="stat-info"><span class="stat-num" id="statPrecioPromedio">Cargando…</span><span class="stat-label">Precio promedio / noche</span></div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon stat-icon-yellow"><i class="fa-solid fa-circle-check"></i></div>
-                <div class="stat-info"><span class="stat-num" id="statActivos">0</span><span class="stat-label">Hospedajes activos</span></div>
+                <div class="stat-info"><span class="stat-num" id="statActivos">Cargando…</span><span class="stat-label">Hospedajes activos</span></div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon stat-icon-red"><i class="fa-solid fa-arrow-trend-up"></i></div>
-                <div class="stat-info"><span class="stat-num" id="statPrecioCaro">—</span><span class="stat-label" id="statPrecioCaroLabel">Más caro / noche</span></div>
+                <div class="stat-info"><span class="stat-num" id="statPrecioCaro">Cargando…</span><span class="stat-label" id="statPrecioCaroLabel">Más caro / noche</span></div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon stat-icon-green"><i class="fa-solid fa-arrow-trend-down"></i></div>
-                <div class="stat-info"><span class="stat-num" id="statPrecioBarato">—</span><span class="stat-label" id="statPrecioBaratoLabel">Más barato / noche</span></div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon stat-icon-blue"><i class="fa-solid fa-clock-rotate-left"></i></div>
-                <div class="stat-info"><span class="stat-num" id="statUltimo">—</span><span class="stat-label" id="statUltimoLabel">Último publicado</span></div>
+                <div class="stat-info"><span class="stat-num" id="statPrecioBarato">Cargando…</span><span class="stat-label" id="statPrecioBaratoLabel">Más barato / noche</span></div>
             </div>
         </div>
 
-        <section class="click-metrics" data-clicks-dashboard aria-labelledby="hospedajeClicksTitle">
-            <div class="click-metrics__heading">
-                <div>
-                    <h2 id="hospedajeClicksTitle"><i class="fa-brands fa-whatsapp"></i> Contactos por WhatsApp</h2>
-                    <p>Solo se muestran los clics de los servicios de tu empresa.</p>
-                </div>
-                <button class="btn-panel-add" type="button" data-clicks-reload>Actualizar</button>
-            </div>
-            <div class="click-metrics__summary">
-                <div class="click-metrics__card"><span>Clics registrados</span><strong data-clicks-total>—</strong></div>
-                <div class="click-metrics__card"><span>Últimos 30 días</span><strong data-clicks-30-days>—</strong></div>
-            </div>
-            <p class="click-metrics__status" data-clicks-status aria-live="polite">Cargando estadísticas…</p>
-            <div class="click-metrics__block">
-                <h3>Clics por categoría</h3>
-                <div class="panel-table-wrap">
-                    <table class="panel-table"><thead><tr><th>Categoría</th><th>Clics</th></tr></thead><tbody data-clicks-categories></tbody></table>
-                </div>
-            </div>
-            <div class="click-metrics__block">
-                <h3>Últimos clics</h3>
-                <div class="panel-table-wrap">
-                    <table class="panel-table"><thead><tr><th>Fecha</th><th>Empresa</th><th>Categoría</th><th>Producto</th><th>Ciudad</th><th>Dispositivo</th></tr></thead><tbody data-clicks-recent></tbody></table>
-                </div>
-            </div>
-        </section>
+        <section class="click-metrics" data-clicks-dashboard data-clicks-dashboard-template aria-label="Contactos por WhatsApp"></section>
 
         <!-- TAB: MIS HOSPEDAJES -->
         <div class="panel-content active" id="tab-servicios">
@@ -125,6 +114,7 @@
                     </tbody>
                 </table>
             </div>
+            <nav class="pagination panel-product-pagination" id="serviciosPaginacion" aria-label="Paginación de hospedajes" hidden></nav>
         </div>
 
     </main>
@@ -146,14 +136,7 @@
                 <div class="vm-grid">
                     <div class="vm-field"><label class="vm-label">Nombre</label><input class="vm-input" id="vm-nombre" type="text" placeholder="Ej: Hotel El Prado" /></div>
                     <div class="vm-field"><label class="vm-label">Tipo</label><select class="vm-input" id="vm-tipo">
-                            <option value="">Selecciona...</option>
-                            <option value="Hotel">Hotel</option>
-                            <option value="Hotel Boutique">Hotel Boutique</option>
-                            <option value="Finca">Finca</option>
-                            <option value="Cabaña">Cabaña</option>
-                            <option value="Hostal">Hostal</option>
-                            <option value="Apartamento">Apartamento</option>
-                            <option value="Glamping">Glamping</option>
+                            <option value="">Cargando tipos...</option>
                         </select></div>
                     <div class="vm-field"><label class="vm-label">Capacidad max. (personas)</label><input class="vm-input" id="vm-capacidad" type="number" min="1" placeholder="Ej: 4" /></div>
                     <div class="vm-field"><label class="vm-label">Precio (/ noche)</label><input class="vm-input" id="vm-precio" type="text" placeholder="Ej: 180000" /></div>
@@ -200,25 +183,6 @@
         </div>
     </div>
 
-    <!-- MODAL: ELIMINAR -->
-    <div id="vDel-overlay" class="vm-overlay" aria-hidden="true">
-        <div class="vm-box vm-box--sm" role="dialog" aria-modal="true">
-            <div class="vm-topbar vm-topbar--red"></div>
-            <div class="vm-header">
-                <h2 class="vm-title vm-title--red"><i class="fa-solid fa-triangle-exclamation"></i> Eliminar hospedaje
-                </h2>
-                <button class="vm-close" id="vDel-close">&times;</button>
-            </div>
-            <div class="vm-body">
-                <p class="vm-del-msg">Seguro de eliminar el hospedaje <strong id="vDel-ruta"></strong>? Esta accion no se puede deshacer.</p>
-            </div>
-            <div class="vm-footer">
-                <button class="vm-btn-cancel" id="vDel-cancel">Cancelar</button>
-                <button class="vm-btn-del" id="vDel-confirm"><i class="fa-solid fa-trash"></i> Si, eliminar</button>
-            </div>
-        </div>
-    </div>
-
     <!-- MODAL: DETALLE -->
     <div id="vDetalle-overlay" class="vm-overlay" aria-hidden="true">
         <div class="vm-box" role="dialog" aria-modal="true">
@@ -231,7 +195,7 @@
                 <div id="vDetalle-foto-wrap" style="display:none;margin-bottom:16px;">
                     <img id="vDetalle-foto" src="" alt="Foto" style="width:100%;max-height:180px;object-fit:cover;border-radius:10px;border:1.5px solid #334155;">
                 </div>
-                <h3 id="vDetalle-nombre" style="color:#a855f7;font-size:1.2rem;margin:0 0 18px 0;"></h3>
+                <h3 id="vDetalle-nombre" style="color:var(--theme-primary-light,#a855f7);font-size:1.2rem;margin:0 0 18px 0;"></h3>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px 24px;">
                     <div>
                         <p style="font-size:.72rem;font-weight:700;letter-spacing:.06em;color:#64748b;margin:0 0 4px">
@@ -246,7 +210,7 @@
                     <div>
                         <p style="font-size:.72rem;font-weight:700;letter-spacing:.06em;color:#64748b;margin:0 0 4px">
                             PRECIO / NOCHE</p>
-                        <p id="vDetalle-precio" style="margin:0;font-weight:700;color:#a855f7;font-size:1.1rem"></p>
+                        <p id="vDetalle-precio" style="margin:0;font-weight:700;color:var(--theme-primary-light,#a855f7);font-size:1.1rem"></p>
                     </div>
                     <div>
                         <p style="font-size:.72rem;font-weight:700;letter-spacing:.06em;color:#64748b;margin:0 0 4px">
@@ -296,8 +260,8 @@
             }
             var av = document.getElementById("panelAvatar"),
                 nm = document.getElementById("panelNombre");
-            if (av) av.textContent = u.avatar || "AV";
-            if (nm) nm.textContent = u.nombre || "Mi Empresa";
+            if (av) av.textContent = "EM";
+            if (nm) nm.textContent = "Cargando…";
         })();
 
         // DARK MODE
@@ -323,9 +287,7 @@
             var w = document.createElement("div");
             w.id = "sessionWidget";
             w.className = "session-widget";
-            var ini = ((user.nombre || "AV").trim().split(/\s+/).map(function(x) {
-                return x[0] || "";
-            }).join("").toUpperCase().slice(0, 2) || "AV");
+            var ini = "EM";
             var _srv = (user.tipoServicio || user.servicio || "HOSPEDAJE").toUpperCase();
             var _panelLinks = {
                 TRANSPORTE: "panel_transporte.html",
@@ -343,7 +305,7 @@
             };
             var _panelHref = _panelLinks[_srv] || "panel_hospedaje.html";
             var _panelIcon = _panelIcons[_srv] || "fa-hotel";
-            w.innerHTML = '<button class="session-trigger" id="sessionTrigger"><div class="session-avatar">' + ini + '</div><div class="session-info"><span class="session-name">' + (user.nombre || "Empresa") + '</span><span class="session-tipo">Empresa</span></div><i class="fa-solid fa-chevron-down session-chevron" id="sessionChevron"></i></button><div class="session-dropdown" id="sessionDropdown"><a class="session-menu-item session-menu-highlight" href="' + _panelHref + '"><i class="fa-solid ' + _panelIcon + '"></i> Panel Empresa</a><a class="session-menu-item" href="perfil_empresa.html"><i class="fa-solid fa-user"></i> Mi Perfil</a><a class="session-menu-item" href="config_empresa.html"><i class="fa-solid fa-gear"></i> Configuracion</a><a class="session-menu-item session-menu-danger" id="btnLogout" href="#"><i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesion</a></div>';
+            w.innerHTML = '<button class="session-trigger" id="sessionTrigger"><div class="session-avatar">' + ini + '</div><div class="session-info"><span class="session-name">Cargando…</span><span class="session-tipo">Empresa</span></div><i class="fa-solid fa-chevron-down session-chevron" id="sessionChevron"></i></button><div class="session-dropdown" id="sessionDropdown"><a class="session-menu-item session-menu-highlight" href="' + _panelHref + '"><i class="fa-solid ' + _panelIcon + '"></i> Panel Empresa</a><a class="session-menu-item" href="perfil_empresa.html"><i class="fa-solid fa-user"></i> Mi Perfil</a><a class="session-menu-item" href="config_empresa.html"><i class="fa-solid fa-gear"></i> Configuracion</a><a class="session-menu-item session-menu-danger" id="btnLogout" href="#"><i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesion</a></div>';
             slot.appendChild(w);
             var trig = w.querySelector("#sessionTrigger"),
                 drop = w.querySelector("#sessionDropdown"),
@@ -360,9 +322,7 @@
             w.querySelector("#btnLogout").addEventListener("click", function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                sessionStorage.removeItem("te_session");
-                localStorage.removeItem("te_session");
-                window.location.href = "../index.html";
+                window.TEUI.logoutAdmin("../login/logout_admin.php", "../index.html");
             });
         })();
 
@@ -389,16 +349,14 @@
             ramp: "ramp"
         };
         var EST_MAP = {
-            activo: '<span class="estado-activo">Activo</span>',
-            pendiente: '<span class="estado-pendiente">Pendiente</span>',
-            cancelado: '<span class="estado-cancelado">Cancelado</span>'
+            activo: '<span class="status-badge status-badge--active">Activo</span>',
+            pendiente: '<span class="status-badge status-badge--warning">Pendiente</span>',
+            cancelado: '<span class="status-badge status-badge--inactive">Cancelado</span>'
         };
 
         var _foto64 = "",
             editRow = null,
-            rowDel = null,
-            _editId = null,
-            _delId = null;
+            _editId = null;
 
         var _catalogoServicios = [];
 
@@ -415,10 +373,17 @@
                     box.innerHTML = '<span style="opacity:.6;font-size:.85rem;">No hay servicios disponibles.</span>';
                     return;
                 }
-                box.innerHTML = _catalogoServicios.map(function(s) {
-                    return '<label style="display:flex;align-items:center;gap:6px;font-size:.85rem;cursor:pointer;">' +
-                        '<input type="checkbox" class="vm-servicio-chk" value="' + s.id + '"> ' + s.nombre + '</label>';
-                }).join("");
+                box.replaceChildren();
+                _catalogoServicios.forEach(function(s) {
+                    var label = document.createElement("label");
+                    label.style.cssText = "display:flex;align-items:center;gap:6px;font-size:.85rem;cursor:pointer;";
+                    var checkbox = document.createElement("input");
+                    checkbox.type = "checkbox";
+                    checkbox.className = "vm-servicio-chk";
+                    checkbox.value = s.id;
+                    label.append(checkbox, document.createTextNode(" " + s.nombre));
+                    box.appendChild(label);
+                });
             })
             .catch(function() {
                 document.getElementById("vm-servicios-box").innerHTML = '<span style="opacity:.6;font-size:.85rem;">No se pudieron cargar los servicios.</span>';
@@ -431,7 +396,7 @@
             });
         }
 
-        fetch("../datos_referencia.php?tipo=ciudades", {
+        fetch("../datos_referencia.php?tipo=todos", {
                 credentials: "include"
             })
             .then(function(r) {
@@ -446,24 +411,28 @@
                     o.textContent = c.nombre;
                     sel.appendChild(o);
                 });
+                var selTipo = document.getElementById("vm-tipo");
+                selTipo.innerHTML = '<option value="">Selecciona tipo...</option>';
+                (res.data && res.data.tipos_hospedaje || []).forEach(function(t) {
+                    var o = document.createElement("option");
+                    o.value = t.id;
+                    o.textContent = t.nombre;
+                    selTipo.appendChild(o);
+                });
             });
-
-        // Cierra cualquier modal que haya quedado abierto antes de mostrar uno nuevo
-        function closeAllVM() {
-            if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
-            document.querySelectorAll(".vm-overlay.vm-visible").forEach(function(ov) {
-                ov.classList.remove("vm-visible");
-                ov.setAttribute("aria-hidden", "true");
-            });
-        }
 
         function openModal(row) {
-            closeAllVM();
             editRow = row || null;
             _editId = row ? parseInt(row.dataset.id || "0", 10) : null;
             document.getElementById("vModal-title").textContent = row ? "Editar hospedaje" : "Nuevo hospedaje";
             if (row) {
                 document.getElementById("vm-nombre").value = row.dataset.nombre || "";
+                var tipoSelect = document.getElementById("vm-tipo");
+                if (!Array.from(tipoSelect.options).some(function(option) { return option.value === row.dataset.tipo; })) {
+                    var tipoInactivo = new Option((row.dataset.tipo || "Tipo") + " (inactivo)", row.dataset.tipo);
+                    tipoInactivo.disabled = true;
+                    tipoSelect.add(tipoInactivo);
+                }
                 document.getElementById("vm-tipo").value = row.dataset.tipo || "";
                 document.getElementById("vm-capacidad").value = row.dataset.capacidad || "";
                 document.getElementById("vm-precio").value = row.dataset.precio || "";
@@ -500,13 +469,12 @@
                 document.getElementById("vm-foto-img").src = "";
                 _foto64 = "";
             }
-            document.getElementById("vModal-overlay").classList.add("vm-visible");
-            document.getElementById("vModal-overlay").removeAttribute("aria-hidden");
+            window.TEPanelModals.open("#vModal-overlay");
+            window.TEUI.markClean(document.querySelector("#vModal-overlay .vm-box"));
         }
 
         function closeModal() {
-            document.getElementById("vModal-overlay").classList.remove("vm-visible");
-            document.getElementById("vModal-overlay").setAttribute("aria-hidden", "true");
+            window.TEPanelModals.close("#vModal-overlay");
             editRow = null;
             _editId = null;
             document.getElementById("vm-foto").value = "";
@@ -529,8 +497,11 @@
         document.getElementById("btn-nuevo").addEventListener("click", function() {
             openModal(null);
         });
-        document.getElementById("vModal-close").addEventListener("click", closeModal);
-        document.getElementById("vModal-cancel").addEventListener("click", closeModal);
+        window.TEPanelModals.bindDiscardClose(
+            "#vModal-overlay",
+            ["#vModal-close", "#vModal-cancel"],
+            closeModal
+        );
 
         document.getElementById("vModal-save").addEventListener("click", function() {
             var nombre = document.getElementById("vm-nombre").value.trim();
@@ -541,7 +512,7 @@
             var accVal = document.getElementById("vm-acc").value;
             var estVal = document.getElementById("vm-estado").value;
             if (!nombre || !tipo || !precioRaw || !cap || !idCiudad) {
-                alert("Completa: Nombre, Tipo, Ciudad, Precio y Capacidad.");
+                window.TEUI.toast("Completa: nombre, tipo, ciudad, precio y capacidad.", "error");
                 return;
             }
             var ACC_LABEL = {
@@ -586,14 +557,15 @@
                     })
                     .then(function(res) {
                         if (!res.ok) {
-                            alert("Error: " + (res.error || "No se pudo guardar."));
+                            window.TEUI.toast(res.error || "No se pudo guardar el hospedaje.", "error");
                             return;
                         }
                         cargarHospedajes();
+                        window.TEUI.toast(_editId ? "Hospedaje actualizado correctamente." : "Hospedaje guardado correctamente.");
                         closeModal();
                     })
                     .catch(function() {
-                        alert("Error de conexión al guardar.");
+                        window.TEUI.toast("No se pudo conectar para guardar el hospedaje.", "error");
                     })
                     .finally(function() {
                         btn.disabled = false;
@@ -624,63 +596,26 @@
             }
         });
 
-        function openDel(row) {
-            closeAllVM();
-            rowDel = row;
-            _delId = parseInt(row.dataset.id || "0", 10);
-            document.getElementById("vDel-ruta").textContent = row.querySelectorAll("td")[0].textContent.trim();
-            document.getElementById("vDel-overlay").classList.add("vm-visible");
-            document.getElementById("vDel-overlay").removeAttribute("aria-hidden");
-        }
+        async function openDel(row) {
+            var id = parseInt(row.dataset.id || "0", 10);
+            var nombre = row.querySelectorAll("td")[0].textContent.trim();
+            if (!id) return;
 
-        function closeDel() {
-            document.getElementById("vDel-overlay").classList.remove("vm-visible");
-            document.getElementById("vDel-overlay").setAttribute("aria-hidden", "true");
-            rowDel = null;
-            _delId = null;
+            await window.TEUI.confirmDelete({
+                title: "Eliminar hospedaje",
+                message: '¿Quieres eliminar "' + nombre + '"? Esta acción no se puede deshacer.',
+                endpoint: "../hospedaje/eliminar.php",
+                payload: { id: id },
+                button: row.querySelector(".btn-tbl-del"),
+                successMessage: "Hospedaje eliminado correctamente.",
+                errorMessage: "No se pudo eliminar el hospedaje.",
+                connectionError: "No se pudo conectar para eliminar el hospedaje.",
+                logMessage: "Error eliminando el hospedaje:",
+                onSuccess: cargarHospedajes
+            });
         }
-        document.getElementById("vDel-close").addEventListener("click", closeDel);
-        document.getElementById("vDel-cancel").addEventListener("click", closeDel);
-        document.getElementById("vDel-confirm").addEventListener("click", function() {
-            if (!_delId) {
-                closeDel();
-                return;
-            }
-            var btn = document.getElementById("vDel-confirm");
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Eliminando...';
-            fetch("../hospedaje/eliminar.php", {
-                    method: "POST",
-                    credentials: "include",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        id: _delId
-                    })
-                })
-                .then(function(r) {
-                    return r.json();
-                })
-                .then(function(res) {
-                    if (!res.ok) {
-                        alert("Error: " + (res.error || "No se pudo eliminar."));
-                        return;
-                    }
-                    cargarHospedajes();
-                    closeDel();
-                })
-                .catch(function() {
-                    alert("Error de conexión al eliminar.");
-                })
-                .finally(function() {
-                    btn.disabled = false;
-                    btn.innerHTML = '<i class="fa-solid fa-trash"></i> Si, eliminar';
-                });
-        });
 
         function openDetalle(row) {
-            closeAllVM();
             var cells = row.querySelectorAll("td");
             var nombre = cells[0].textContent.trim();
             document.getElementById("vDetalle-nombre").textContent = "Hospedaje: " + nombre;
@@ -700,16 +635,10 @@
             } else {
                 fw.style.display = "none";
             }
-            document.getElementById("vDetalle-overlay").classList.add("vm-visible");
-            document.getElementById("vDetalle-overlay").removeAttribute("aria-hidden");
+            window.TEPanelModals.open("#vDetalle-overlay");
         }
 
-        function closeDetalle() {
-            document.getElementById("vDetalle-overlay").classList.remove("vm-visible");
-            document.getElementById("vDetalle-overlay").setAttribute("aria-hidden", "true");
-        }
-        document.getElementById("vDetalle-close").addEventListener("click", closeDetalle);
-        document.getElementById("vDetalle-close2").addEventListener("click", closeDetalle);
+        window.TEPanelModals.bindClose("#vDetalle-overlay", ["#vDetalle-close", "#vDetalle-close2"], "Detalle");
         document.getElementById("tabla-servicios").addEventListener("click", function(e) {
             var row = e.target.closest("tr");
             if (!row) return;
@@ -718,10 +647,38 @@
             if (e.target.closest(".btn-tbl-del")) openDel(row);
         });
 
-        function actualizarContador() {
+        var hospedajes = [];
+        var paginaActual = 1;
+        var tamanioPagina = 10;
+
+        function renderPaginaHospedajes() {
             var tbody = document.getElementById("tabla-servicios");
-            var empty = tbody.querySelector("td[colspan]");
-            document.getElementById("statPublicados").textContent = empty ? 0 : tbody.querySelectorAll("tr").length;
+            tbody.replaceChildren();
+            if (!hospedajes.length) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:#94a3b8">Aun no has publicado hospedajes.</td></tr>';
+            } else {
+                var inicio = (paginaActual - 1) * tamanioPagina;
+                hospedajes.slice(inicio, inicio + tamanioPagina).forEach(function(item) {
+                    tbody.appendChild(renderFila(item));
+                });
+            }
+
+            var pagination = window.TourismEasyPagination.render({
+                selector: "#serviciosPaginacion",
+                currentPage: paginaActual,
+                totalItems: hospedajes.length,
+                pageSize: tamanioPagina,
+                label: "Mostrando",
+                onPageChange: function(page) {
+                    paginaActual = page;
+                    renderPaginaHospedajes();
+                }
+            });
+            if (pagination) paginaActual = pagination.currentPage;
+        }
+
+        function actualizarContador() {
+            document.getElementById("statPublicados").textContent = hospedajes.length;
         }
 
         // PRECIO PROMEDIO POR NOCHE
@@ -729,7 +686,7 @@
             var el = document.getElementById("statPrecioPromedio");
             if (!el) return;
             if (!data || !data.length) {
-                el.textContent = "$0";
+                el.textContent = "—";
                 return;
             }
             var suma = data.reduce(function(acc, item) {
@@ -739,25 +696,13 @@
             el.textContent = "$" + promedio.toLocaleString("es-CO");
         }
 
-        // FECHA CORTA para tarjetas (ej: "22 ago")
-        function fmtDateCorta(iso) {
-            if (!iso) return "—";
-            var soloFecha = iso.split(/[T ]/)[0];
-            if (soloFecha.indexOf("-") === -1) return "—";
-            var p = soloFecha.split("-"),
-                mo = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
-            return parseInt(p[2], 10) + " " + mo[parseInt(p[1], 10) - 1];
-        }
-
-        // NUEVAS TARJETAS: activos, tipo top, precio caro/barato, último publicado
+        // Estadísticas adicionales de disponibilidad y precios.
         function actualizarStatsExtra(data) {
             var elActivos = document.getElementById("statActivos");
             var elCaroNum = document.getElementById("statPrecioCaro");
             var elCaroLabel = document.getElementById("statPrecioCaroLabel");
             var elBaratoNum = document.getElementById("statPrecioBarato");
             var elBaratoLabel = document.getElementById("statPrecioBaratoLabel");
-            var elUltimoNum = document.getElementById("statUltimo");
-            var elUltimoLabel = document.getElementById("statUltimoLabel");
 
             if (elActivos) {
                 elActivos.textContent = (data || []).filter(function(item) {
@@ -770,8 +715,6 @@
                 if (elCaroLabel) elCaroLabel.textContent = "Más caro / noche";
                 if (elBaratoNum) elBaratoNum.textContent = "—";
                 if (elBaratoLabel) elBaratoLabel.textContent = "Más barato / noche";
-                if (elUltimoNum) elUltimoNum.textContent = "—";
-                if (elUltimoLabel) elUltimoLabel.textContent = "Último publicado";
                 return;
             }
 
@@ -785,20 +728,6 @@
             if (elCaroLabel) elCaroLabel.textContent = "Más caro: " + (caro.nombre || "");
             if (elBaratoNum) elBaratoNum.textContent = "$" + Number(barato.precio_noche || 0).toLocaleString("es-CO");
             if (elBaratoLabel) elBaratoLabel.textContent = "Más barato: " + (barato.nombre || "");
-
-            // Último hospedaje publicado (por fecha_creacion)
-            var conFecha = data.filter(function(item) {
-                return !!item.fecha_creacion;
-            });
-            if (conFecha.length) {
-                var ultimo = conFecha.slice().sort(function(a, b) {
-                    return new Date(b.fecha_creacion) - new Date(a.fecha_creacion);
-                })[0];
-                if (elUltimoNum) elUltimoNum.textContent = fmtDateCorta(ultimo.fecha_creacion);
-                if (elUltimoLabel) elUltimoLabel.textContent = "Último: " + (ultimo.nombre || "");
-            } else {
-                if (elUltimoNum) elUltimoNum.textContent = "—";
-            }
         }
 
         function escapeHtml(value) {
@@ -840,34 +769,40 @@
             var tbody = document.getElementById("tabla-servicios");
             tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:#94a3b8"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</td></tr>';
             fetch("../hospedaje/listar.php?panel=1", {
-                    credentials: "include"
+                    credentials: "include",
+                    cache: "no-store"
                 })
                 .then(function(r) {
+                    if (!r.ok) throw new Error("El servidor respondió con HTTP " + r.status);
                     return r.json();
                 })
                 .then(function(res) {
-                    tbody.innerHTML = "";
-                    if (!res.ok || !res.data || !res.data.length) {
-                        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:#94a3b8">Aun no has publicado hospedajes.</td></tr>';
-                        actualizarContador();
-                        actualizarPrecioPromedio([]);
-                        actualizarStatsExtra([]);
-                        return;
+                    if (!res.ok || !Array.isArray(res.data)) {
+                        throw new Error(res.error || "No se recibieron los hospedajes.");
                     }
-                    res.data.forEach(function(item) {
-                        tbody.appendChild(renderFila(item));
-                    });
+                    hospedajes = res.data;
+                    paginaActual = Math.min(paginaActual, Math.max(1, Math.ceil(hospedajes.length / tamanioPagina)));
+                    renderPaginaHospedajes();
                     actualizarContador();
                     actualizarPrecioPromedio(res.data);
                     actualizarStatsExtra(res.data);
                 })
-                .catch(function() {
+                .catch(function(error) {
+                    console.error("No se pudieron cargar los hospedajes:", error);
                     tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#ef4444;padding:24px">Error al cargar. Recarga la pagina.</td></tr>';
+                    ["statPublicados", "statPrecioPromedio", "statActivos", "statPrecioCaro", "statPrecioBarato"].forEach(function(id) {
+                        var element = document.getElementById(id);
+                        if (element) element.textContent = "No disponible";
+                    });
                 });
         }
         cargarHospedajes();
     </script>
-    <script src="../js/click_metrics.js"></script>
+    <script src="../componentes/click-metrics-dashboard.js?v=click-metrics-v2"></script>
+    <script src="../js/encabezado_perfil_empresa.js"></script>
+    <script src="../js/metricas_clics.js"></script>
+    <script src="../componentes/agente-ia.js?v=private-chat-memory-v1"></script>
+    <script src="../menu_accesibilidad/menu.js?v=a11y-v16"></script>
 </body>
 
 </html>

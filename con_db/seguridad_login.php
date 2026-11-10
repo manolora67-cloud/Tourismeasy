@@ -101,8 +101,7 @@ function obtenerTokenDispositivo(): string
 
 function guardarCookieDispositivo(string $token): void
 {
-    $seguro = (!empty($_SERVER['HTTPS']) && strtolower((string)$_SERVER['HTTPS']) !== 'off')
-        || (string)($_SERVER['SERVER_PORT'] ?? '') === '443';
+    $seguro = sesionPersistenteUsaHttps();
 
     setcookie('te_device', $token, [
         'expires' => time() + (400 * 24 * 60 * 60),
@@ -116,8 +115,7 @@ function guardarCookieDispositivo(string $token): void
 
 function borrarCookieDispositivo(): void
 {
-    $seguro = (!empty($_SERVER['HTTPS']) && strtolower((string)$_SERVER['HTTPS']) !== 'off')
-        || (string)($_SERVER['SERVER_PORT'] ?? '') === '443';
+    $seguro = sesionPersistenteUsaHttps();
 
     setcookie('te_device', '', [
         'expires' => time() - 42000,
@@ -147,8 +145,23 @@ function validarSesionActivaEnBD($pdo): void
         return;
     }
 
+    $ultimaActividad = $_SESSION['te_ultima_actividad'] ?? 0;
+    if (!is_int($ultimaActividad) || time() - $ultimaActividad >= 600) {
+        $cerrarExpirada = $pdo->prepare(
+            'SELECT fn_cerrar_sesion_activa(:tipo, :id, NULL, :sesion)'
+        );
+        $cerrarExpirada->execute([
+            ':tipo' => $tipo,
+            ':id' => $id,
+            ':sesion' => hash('sha256', session_id()),
+        ]);
+        $_SESSION = [];
+        session_regenerate_id(true);
+        return;
+    }
+
     $stmt = $pdo->prepare(
-        'SELECT EXISTS (SELECT 1 FROM SESIONES_ACTIVAS WHERE TIPO_CUENTA = :tipo AND ID_CUENTA = :id AND ID_SESION_HASH = :sesion)'
+        'SELECT fn_sesion_activa_existe(:tipo, :id, :sesion)'
     );
     $stmt->execute([
         ':tipo' => $tipo,
@@ -157,8 +170,20 @@ function validarSesionActivaEnBD($pdo): void
     ]);
 
     if (!in_array($stmt->fetchColumn(), [true, 't', 'true', '1', 1], true)) {
-        destruirSesionActual();
+        destruirSesionActual(false);
+        return;
     }
+
+    $actividad = $pdo->prepare(
+        'SELECT fn_actualizar_actividad_sesion_activa(:tipo, :id, :sesion)'
+    );
+    $actividad->execute([
+        ':tipo' => $tipo,
+        ':id' => $id,
+        ':sesion' => hash('sha256', session_id()),
+    ]);
+    $_SESSION['te_ultima_actividad'] = time();
+    renovarCookieSesionPersistente();
 }
 
 function cerrarSesionActiva($pdo): bool
@@ -197,10 +222,10 @@ function cerrarSesionActiva($pdo): bool
     return in_array($stmt->fetchColumn(), [true, 't', 'true', '1', 1], true);
 }
 
-function destruirSesionActual(): void
+function destruirSesionActual(bool $eliminarCookies = true): void
 {
     $_SESSION = [];
-    if (ini_get('session.use_cookies')) {
+    if ($eliminarCookies && ini_get('session.use_cookies')) {
         $params = session_get_cookie_params();
         setcookie(session_name(), '', [
             'expires' => time() - 42000,
@@ -211,6 +236,8 @@ function destruirSesionActual(): void
             'samesite' => 'Lax',
         ]);
     }
-    borrarCookieDispositivo();
+    if ($eliminarCookies) {
+        borrarCookieDispositivo();
+    }
     session_destroy();
 }

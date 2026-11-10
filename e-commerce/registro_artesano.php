@@ -30,23 +30,8 @@ if (!$documento || !$tipo_doc || !$nombre || !$apellido || !$celular || !$email 
     exit;
 }
 
-if (!preg_match('/^[0-9]{6,10}$/', $documento)) {
-    echo json_encode(["ok" => false, "error" => "El documento debe tener entre 6 y 10 dígitos."]);
-    exit;
-}
-
-if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    echo json_encode(["ok" => false, "error" => "Correo electrónico inválido."]);
-    exit;
-}
-
 if (strlen($password) < 8) {
     echo json_encode(["ok" => false, "error" => "La contraseña debe tener al menos 8 caracteres."]);
-    exit;
-}
-
-if (!preg_match('/^\+?[0-9]{7,15}$/', $celular)) {
-    echo json_encode(["ok" => false, "error" => "Número de celular inválido."]);
     exit;
 }
 

@@ -20,7 +20,7 @@
 
 .te-captcha-box:focus-within {
     border-color: var(--purple);
-    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+    box-shadow: 0 0 0 3px rgba(var(--theme-primary-rgb, 124, 58, 237), 0.1);
 }
 
 /* ── Header ── */
@@ -28,7 +28,7 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+    background: linear-gradient(135deg, var(--theme-primary, #7c3aed) 0%, var(--theme-primary-light, #a855f7) 100%);
     padding: 12px 14px;
     transition: background 0.4s;
 }
@@ -420,7 +420,7 @@ body.dark-mode .te-cap-cell {
 }
 
 body.dark-mode .te-cap-cell:hover {
-    border-color: rgba(168, 85, 247, 0.3);
+    border-color: rgba(var(--theme-primary-light-rgb, 168, 85, 247), 0.3);
 }
 
 body.dark-mode .te-cap-cell.selected {

@@ -17,24 +17,46 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     responderEstadisticasClicks(405, ['ok' => false, 'error' => 'Método no permitido.']);
 }
 
-$tipo = $_SESSION['tipo'] ?? '';
+$tipo = $_SESSION['tipo'] ?? (!empty($_SESSION['artesano_id']) ? 'artesano' : '');
 $idEmpresa = $tipo === 'empresa' ? ($_SESSION['id_empresa'] ?? null) : null;
-if ($tipo !== 'admin' && (!is_string($idEmpresa) || $idEmpresa === '')) {
+$idArtesano = $tipo === 'artesano' ? ($_SESSION['artesano_id'] ?? null) : null;
+if (
+    ($tipo === 'empresa' && (!is_string($idEmpresa) || $idEmpresa === ''))
+    || ($tipo === 'artesano' && (!is_string($idArtesano) || $idArtesano === ''))
+    || !in_array($tipo, ['admin', 'empresa', 'artesano'], true)
+) {
     responderEstadisticasClicks(401, ['ok' => false, 'error' => 'No autorizado.']);
 }
 
+$paginaEntrada = $_GET['pagina'] ?? '1';
+if (!is_string($paginaEntrada) || !preg_match('/^[1-9][0-9]{0,5}$/D', $paginaEntrada)) {
+    responderEstadisticasClicks(400, ['ok' => false, 'error' => 'Número de página inválido.']);
+}
+$pagina = (int)$paginaEntrada;
+
 try {
     $stmt = $pdo->prepare(
-        'SELECT fn_estadisticas_clicks(CAST(:id_empresa AS VARCHAR(10)))::TEXT'
+        'SELECT fn_estadisticas_clicks(
+            CAST(:id_empresa AS VARCHAR(10)),
+            CAST(:pagina AS INTEGER),
+            CAST(:id_artesano AS VARCHAR(10))
+        )::TEXT'
     );
-    $stmt->execute([':id_empresa' => $idEmpresa]);
+    $stmt->execute([
+        ':id_empresa' => $idEmpresa,
+        ':pagina' => $pagina,
+        ':id_artesano' => $idArtesano,
+    ]);
     $estadisticas = json_decode($stmt->fetchColumn(), true, 512, JSON_THROW_ON_ERROR);
     if (
         !is_array($estadisticas)
         || !is_array($estadisticas['resumen'] ?? null)
         || !is_array($estadisticas['por_categoria'] ?? null)
+        || !is_array($estadisticas['por_producto'] ?? null)
         || !is_array($estadisticas['por_empresa'] ?? null)
         || !is_array($estadisticas['recientes'] ?? null)
+        || !is_int($estadisticas['pagina'] ?? null)
+        || !is_int($estadisticas['por_pagina'] ?? null)
     ) {
         throw new RuntimeException('La función de estadísticas no devolvió un objeto válido.');
     }
@@ -44,8 +66,12 @@ try {
         'rol' => $tipo,
         'resumen' => $estadisticas['resumen'],
         'por_categoria' => $estadisticas['por_categoria'],
+        'por_producto' => $estadisticas['por_producto'],
         'por_empresa' => $estadisticas['por_empresa'],
         'recientes' => $estadisticas['recientes'],
+        'pagina' => $estadisticas['pagina'],
+        'por_pagina' => $estadisticas['por_pagina'],
+        'total' => (int)$estadisticas['resumen']['total'],
     ]);
 } catch (Throwable $e) {
     error_log('[TourismEasy] get_estadisticas_clicks.php - ' . $e->getMessage());

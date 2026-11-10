@@ -4,21 +4,26 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="../js/control_tiempo_sesion.js?v=secure-session-v4"></script>
     <title>Configuración - Panel Administrador - TourismEasy</title>
     <link rel="stylesheet" href="../css/index.css" />
-    <link rel="stylesheet" href="../css/login.css" />
-    <link rel="stylesheet" href="../css/panel_admin.css" />
+    <link rel="stylesheet" href="../css/login.css?v=device-approval-v2" />
+    <link rel="stylesheet" href="../css/panel_admin.css?v=admin-footer-size-v2" />
+    <link rel="stylesheet" href="../componentes/cambio-contrasena.css?v=password-change-v1" />
+    <link rel="stylesheet" href="../css/agente-ia.css?v=mobile-layout-v2" />
+    <link rel="stylesheet" href="../css/tema-global-admin.css?v=global-theme-v1" />
     <link
         href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;500&display=swap"
         rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
+    <script src="../componentes/ui-feedback.js?v=ui-feedback-v4"></script>
 </head>
 
 <body>
     <nav class="navbar">
         <div class="nav-container">
-            <a href="javascript:location.reload()" class="nav-logo">
+            <a href="../index.html" class="nav-logo">
                 <img src="../img/TURISMEASY.png" alt="Logo" class="logo-img" />
                 <span class="logo-text">TOURISMEASY</span>
             </a>
@@ -40,20 +45,18 @@
                     AD
                 </div>
                 <div class="pu-sidebar-nombre" id="sidebarNombre">
-                    Administrador TourismEasy
+                    Cargando administrador…
                 </div>
                 <div class="pu-sidebar-tipo">
                     <i class="fa-solid fa-shield-halved"></i> Administrador
                 </div>
                 <nav class="pu-sidebar-nav">
-                    <a href="panel_admin.html" class="pu-nav-item pu-nav-highlight"><i
-                            class="fa-solid fa-shield-halved"></i>
-                        Panel Admin</a>
-                    <a href="perfil_admin.html" class="pu-nav-item"><i class="fa-solid fa-user"></i> Mi Perfil</a>
-                    <a href="config_admin.html" class="pu-nav-item active"><i class="fa-solid fa-gear"></i>
-                        Configuración</a>
-                    <a href="festividades_admin.html" class="pu-nav-item"><i class="fa-solid fa-calendar-days"></i>
-                        Festividades</a>
+                    <a href="../index.html" class="pu-nav-item">🏠 Ir al sitio</a>
+                    <a href="panel_admin.html" class="pu-nav-item pu-nav-highlight">🛡️ Panel Admin</a>
+                    <a href="perfil_admin.html" class="pu-nav-item">👤 Mi Perfil</a>
+                    <a href="config_admin.html" class="pu-nav-item active">⚙️ Configuración</a>
+                    <a href="festividades_admin.html" class="pu-nav-item">📅 Festividades</a>
+                    <a href="catalogos_admin.html" class="pu-nav-item">📚 Catálogos</a>
                 </nav>
 
                 <div class="pe-sidebar-bloque pe-sidebar-bloque--purple">
@@ -61,50 +64,23 @@
                         <i class="fa-solid fa-sliders"></i> Preferencias actuales
                     </p>
                     <div class="pe-sidebar-row">
-                        <span>Tema</span><span class="pe-sidebar-row__val--gray">Oscuro</span>
+                        <span>Tema</span><span class="pe-sidebar-row__val--gray" id="currentThemePreference">Consultando…</span>
                     </div>
                     <div class="pe-sidebar-row">
-                        <span>Notificaciones</span><span style="color: #22c55e; font-weight: 600">3 activas</span>
+                        <span>Idioma</span><span class="pe-sidebar-row__val--gray" id="currentLanguagePreference">Consultando…</span>
                     </div>
                     <div class="pe-sidebar-row">
-                        <span>Idioma</span><span class="pe-sidebar-row__val--gray">Español</span>
-                    </div>
-                    <div class="pe-sidebar-row">
-                        <span>Zona horaria</span><span class="pe-sidebar-row__val--gray">GMT-5</span>
+                        <span>Zona horaria</span><span class="pe-sidebar-row__val--gray" id="currentTimezonePreference">Consultando…</span>
                     </div>
                 </div>
 
                 <div class="pe-sidebar-bloque pe-sidebar-bloque--verde">
                     <p class="pe-sidebar-bloque__titulo pe-sidebar-bloque__titulo--verde">
-                        <i class="fa-solid fa-rotate-left"></i> Cambios recientes
+                        <i class="fa-solid fa-rotate-left"></i> Actividad reciente
                     </p>
-                    <div class="pe-actividad">
+                    <div class="pe-actividad" id="adminRecentActivity" aria-live="polite">
                         <div class="pe-actividad-item">
-                            <div class="pe-actividad-icon pe-actividad-icon--verde">
-                                <i class="fa-solid fa-circle-dot"></i>
-                            </div>
-                            <div>
-                                <p class="pe-actividad-titulo">Notificaciones actualizadas</p>
-                                <p class="pe-actividad-hora">Hace 1 día</p>
-                            </div>
-                        </div>
-                        <div class="pe-actividad-item">
-                            <div class="pe-actividad-icon pe-actividad-icon--verde">
-                                <i class="fa-solid fa-circle-dot"></i>
-                            </div>
-                            <div>
-                                <p class="pe-actividad-titulo">Tema cambiado a oscuro</p>
-                                <p class="pe-actividad-hora">Hace 3 días</p>
-                            </div>
-                        </div>
-                        <div class="pe-actividad-item">
-                            <div class="pe-actividad-icon pe-actividad-icon--verde">
-                                <i class="fa-solid fa-circle-dot"></i>
-                            </div>
-                            <div>
-                                <p class="pe-actividad-titulo">Contraseña actualizada</p>
-                                <p class="pe-actividad-hora">Hace 7 días</p>
-                            </div>
+                            <div><p class="pe-actividad-titulo">Cargando actividad…</p></div>
                         </div>
                     </div>
                 </div>
@@ -122,39 +98,23 @@
                         </div>
                         <div class="pe-sidebar-check">
                             <i class="fa-solid fa-right-from-bracket" style="color: #d97706"></i> Cierra sesión en
-                            equipos pãºblicos
+                            equipos públicos
                         </div>
                     </div>
                 </div>
 
                 <div class="pe-sidebar-bloque pe-sidebar-bloque--purple">
                     <p class="pe-sidebar-bloque__titulo pe-sidebar-bloque__titulo--purple">
-                        <i class="fa-solid fa-laptop"></i> Sesiones activas
+                        <i class="fa-solid fa-laptop"></i> Sesión actual
                     </p>
                     <div class="pe-sidebar-check">
-                        <i class="fa-solid fa-desktop" style="color: #a855f7"></i> Este dispositivo
-                        <span style="
-                  font-size: 0.68rem;
-                  background: rgba(34, 197, 94, 0.15);
-                  color: #22c55e;
-                  border-radius: 4px;
-                  padding: 1px 6px;
-                  margin-left: 4px;
-                ">Activa</span>
-                    </div>
-                    <div style="
-                font-size: 0.68rem;
-                color: var(--gray-400);
-                padding-left: 20px;
-                margin-top: 4px;
-              ">
-                        Windows &bull; Chrome &bull; Bucaramanga
+                        <i class="fa-solid fa-circle-check" style="color: #22c55e"></i> Cuenta conectada en este navegador
                     </div>
                 </div>
 
                 <div style="margin-top: auto; padding-top: 16px">
                     <a href="#" class="pu-nav-item pu-nav-danger" style="display: block" id="sidebarLogout">
-                        <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión
+                        🚪 Cerrar Sesión
                     </a>
                 </div>
             </aside>
@@ -166,6 +126,7 @@
                         <i class="fa-solid fa-gear"></i> Configuración de Administrador
                     </h1>
                 </div>
+                <div class="pu-card" id="adminProfileError" role="alert" hidden></div>
 
                 <div class="pu-card">
                     <h3 class="pu-card-title">
@@ -174,51 +135,33 @@
                     <div class="pu-config-item">
                         <div>
                             <strong>Contraseña</strong>
-                            <p>Ultima actualización: hace 0 días</p>
+                            <p>No se registra la fecha del último cambio.</p>
                         </div>
-                        <button class="pu-btn-secondary">Cambiar contraseña</button>
-                    </div>
-                    <div class="pu-config-item">
-                        <div>
-                            <strong>Correo de administrador</strong>
-                            <p id="configEmail">admin@tourismeasy.com</p>
-                        </div>
-                        <button class="pu-btn-secondary">Cambiar correo</button>
+                        <button class="pu-btn-secondary" type="button" data-password-change data-password-endpoint="../login/actualizar_contrasena_admin.php">Cambiar contraseña</button>
                     </div>
                 </div>
 
-                <div class="pu-card">
+                <div class="pu-card pu-card--monthly-report">
                     <h3 class="pu-card-title">
-                        <i class="fa-solid fa-bell"></i> Notificaciones
+                        <i class="fa-solid fa-file-pdf"></i> Informe mensual
                     </h3>
-                    <div class="pu-toggle-item">
-                        <div>
-                            <strong>Cancelaciones</strong>
-                            <p>Recibir alerta cuando se cancele una solicitud</p>
+                    <div class="monthly-report__content">
+                        <div class="monthly-report__intro">
+                            <strong>Descargar informe del mes</strong>
+                            <p>Consulta empresas y artesanos nuevos, clics de WhatsApp y los rankings de contacto, comparados con el mes anterior.</p>
                         </div>
-                        <label class="pu-toggle"><input type="checkbox" id="toggleNotifCancelaciones" checked /><span
-                                class="pu-toggle-slider"></span></label>
-                    </div>
-                    <div class="pu-toggle-item">
-                        <div>
-                            <strong>Nuevas reseñas</strong>
-                            <p>Recibir alerta cuando un viajero deje una reseña</p>
+                        <div class="monthly-report__controls">
+                            <div class="monthly-report__month">
+                                <label for="mesInformeAdmin"><i class="fa-regular fa-calendar"></i> Mes del informe</label>
+                                <input id="mesInformeAdmin" type="month" required>
+                            </div>
+                            <button class="pu-btn-primary monthly-report__button" id="btnGenerarInformeAdmin" type="button">
+                                <i class="fa-solid fa-file-pdf"></i> Generar informe
+                            </button>
                         </div>
-                        <label class="pu-toggle"><input type="checkbox" id="toggleNotifResenas" checked /><span
-                                class="pu-toggle-slider"></span></label>
+                        <p class="monthly-report__hint"><i class="fa-solid fa-circle-info"></i> Solo puedes generar informes de meses completos. Al abrir la vista de impresión, elige «Guardar como PDF».</p>
+                        <p id="estadoInformeAdmin" class="monthly-report__status" role="status" aria-live="polite"></p>
                     </div>
-                    <div class="pu-toggle-item">
-                        <div>
-                            <strong>Boletín mensual</strong>
-                            <p>Estadísticas y novedades de TourismEasy</p>
-                        </div>
-                        <label class="pu-toggle"><input type="checkbox" id="toggleNotifBoletin" /><span
-                                class="pu-toggle-slider"></span></label>
-                    </div>
-
-                    <button class="pu-btn-primary" id="btnGuardarConfigAdmin">
-                        <i class="fa-solid fa-check"></i> Guardar preferencias
-                    </button>
                 </div>
 
                 <div class="pu-card">
@@ -233,6 +176,44 @@
                         <label class="pu-toggle"><input type="checkbox" id="themeToggle" /><span
                                 class="pu-toggle-slider"></span></label>
                     </div>
+                </div>
+
+                <div class="pu-card">
+                    <h3 class="pu-card-title">
+                        <i class="fa-solid fa-swatchbook"></i> Colores globales del sitio
+                    </h3>
+                    <p class="tema-global__intro">Esta paleta la administra el equipo de TourismEasy y se aplica a todas las páginas. Los cambios se guardan para todos los visitantes; los navegadores pueden tardar hasta 30 segundos en actualizar la paleta almacenada en caché.</p>
+                    <form id="formTemaGlobal">
+                        <div class="tema-global__fields">
+                            <label class="tema-global__field" for="tema-primary">
+                                <input id="tema-primary" type="color" value="#7c3aed" aria-label="Color principal">
+                                <span><strong>Principal</strong><small>Acciones y elementos de marca</small></span>
+                            </label>
+                            <label class="tema-global__field" for="tema-primaryLight">
+                                <input id="tema-primaryLight" type="color" value="#a855f7" aria-label="Color principal claro">
+                                <span><strong>Principal claro</strong><small>Estados activos y degradados</small></span>
+                            </label>
+                            <label class="tema-global__field" for="tema-primaryDark">
+                                <input id="tema-primaryDark" type="color" value="#5b21b6" aria-label="Color principal oscuro">
+                                <span><strong>Principal oscuro</strong><small>Estados presionados y contraste</small></span>
+                            </label>
+                            <label class="tema-global__field" for="tema-accent">
+                                <input id="tema-accent" type="color" value="#f59e0b" aria-label="Color de acento">
+                                <span><strong>Acento</strong><small>Detalles y elementos destacados</small></span>
+                            </label>
+                        </div>
+                        <div class="tema-global__preview" aria-label="Vista previa de la paleta">
+                            <span class="tema-global__preview-primary">Color principal</span>
+                            <span class="tema-global__preview-accent">Color de acento</span>
+                        </div>
+                        <div class="tema-global__actions">
+                            <button class="pu-btn-primary" id="btnGuardarTemaGlobal" type="submit" disabled>
+                                <i class="fa-solid fa-floppy-disk"></i> Guardar colores
+                            </button>
+                            <button class="pu-btn-secondary" type="reset">Restablecer valores iniciales</button>
+                            <p class="tema-global__status" id="estadoTemaGlobal" role="status" aria-live="polite"></p>
+                        </div>
+                    </form>
                 </div>
 
                 <div class="pu-card pu-card-danger">
@@ -275,10 +256,8 @@
             }
             var av = document.getElementById("sidebarAvatar");
             var nm = document.getElementById("sidebarNombre");
-            var em = document.getElementById("configEmail");
-            if (av) av.textContent = u.avatar || "AD";
-            if (nm) nm.textContent = u.nombre || "Administrador";
-            if (em) em.textContent = u.email || "admin@tourismeasy.com";
+            if (av) av.textContent = "AD";
+            if (nm) nm.textContent = "Cargando administrador…";
         })();
 
         // SESSION WIDGET
@@ -289,10 +268,7 @@
             var w = document.createElement("div");
             w.id = "sessionWidget";
             w.className = "session-widget";
-            var ini = user.avatar || ((user.nombre || "AD").trim().split(/\s+/).map(function (x) {
-                return x[0] || "";
-            }).join("").toUpperCase().slice(0, 2) || "AD");
-            w.innerHTML = '<button class="session-trigger" id="sessionTrigger"><div class="session-avatar">' + ini + '</div><div class="session-info"><span class="session-name">' + (user.nombre || "Administrador") + '</span><span class="session-tipo">Administrador</span></div><i class="fa-solid fa-chevron-down session-chevron" id="sessionChevron"></i></button><div class="session-dropdown" id="sessionDropdown"><a class="session-menu-item session-menu-highlight" href="panel_admin.html"><i class="fa-solid fa-shield-halved"></i> Panel Administrador</a><a class="session-menu-item" href="perfil_admin.html"><i class="fa-solid fa-user"></i> Mi Perfil</a><a class="session-menu-item" href="config_admin.html"><i class="fa-solid fa-gear"></i> Configuracion</a><a class="session-menu-item" href="festividades_admin.html"><i class="fa-solid fa-calendar-days"></i> Festividades</a><a class="session-menu-item session-menu-danger" id="btnLogout" href="#"><i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesion</a></div>';
+            w.innerHTML = '<button class="session-trigger" id="sessionTrigger"><div class="session-avatar">AD</div><div class="session-info"><span class="session-name">Cargando…</span><span class="session-tipo">Administrador</span></div><i class="fa-solid fa-chevron-down session-chevron" id="sessionChevron"></i></button><div class="session-dropdown" id="sessionDropdown"><a class="session-menu-item" href="../index.html">🏠 Ir al sitio</a><a class="session-menu-item session-menu-highlight" href="panel_admin.html">🛡️ Panel Administrador</a><a class="session-menu-item" href="perfil_admin.html">👤 Mi Perfil</a><a class="session-menu-item" href="config_admin.html">⚙️ Configuración</a><a class="session-menu-item" href="festividades_admin.html">📅 Festividades</a><a class="session-menu-item" href="catalogos_admin.html">📚 Catálogos</a><a class="session-menu-item session-menu-danger" id="btnLogout" href="#">🚪 Cerrar Sesión</a></div>';
             slot.appendChild(w);
             var trig = w.querySelector("#sessionTrigger"),
                 drop = w.querySelector("#sessionDropdown"),
@@ -309,9 +285,7 @@
             w.querySelector("#btnLogout").addEventListener("click", function (e) {
                 e.preventDefault();
                 e.stopPropagation();
-                sessionStorage.removeItem("te_session");
-                localStorage.removeItem("te_session");
-                window.location.href = "../index.html";
+                window.TEUI.logoutAdmin("../login/logout_admin.php", "../index.html");
             });
         })();
 
@@ -322,6 +296,8 @@
             document.body.classList.toggle("dark-mode", dark);
             darkModeIcon.className = dark ? "fa-solid fa-sun" : "fa-solid fa-moon";
             localStorage.setItem("theme", dark ? "dark" : "light");
+            var preference = document.getElementById("currentThemePreference");
+            if (preference) preference.textContent = dark ? "Oscuro" : "Claro";
         }
         var savedTheme = localStorage.getItem("theme");
         applyTheme(
@@ -345,9 +321,7 @@
         if (logoutBtn) {
             logoutBtn.addEventListener("click", function (e) {
                 e.preventDefault();
-                sessionStorage.removeItem("te_session");
-                localStorage.removeItem("te_session");
-                window.location.href = "../index.html";
+                window.TEUI.logoutAdmin("../login/logout_admin.php", "../index.html");
             });
         }
     </script>
@@ -358,20 +332,125 @@
             try {
                 sesion = JSON.parse((localStorage.getItem("te_session") || sessionStorage.getItem("te_session")) || "{}");
             } catch (e) { }
-            if (!sesion.id) return;
 
-            var API_BASE = window.location.origin + '/Tourismeasy/login/';
+            var API_BASE = new URL("../login/", window.location.href).href;
+            var errorElement = document.getElementById("adminProfileError");
+            var adminActual = null;
 
-            // Refrescar nombre/correo/avatar reales desde la BD
-            fetch(API_BASE + 'get_perfil_admin.php?id=' + encodeURIComponent(sesion.id))
+            function setText(id, value) {
+                var element = document.getElementById(id);
+                if (element) element.textContent = value;
+            }
+
+            function actualizarPreferencias() {
+                var language = document.documentElement.lang === "en" ? "English" : "Español";
+                setText("currentLanguagePreference", language);
+                try {
+                    setText("currentTimezonePreference", Intl.DateTimeFormat().resolvedOptions().timeZone || "No disponible");
+                } catch (error) {
+                    console.error("No se pudo determinar la zona horaria del navegador:", error);
+                    setText("currentTimezonePreference", "No disponible");
+                }
+            }
+
+            function cargarActividadAdmin() {
+                var activity = document.getElementById("adminRecentActivity");
+                fetch(new URL("../soli_empresas/get_auditoria.php", window.location.href), {
+                    credentials: "include",
+                    cache: "no-store"
+                })
+                    .then(function (response) {
+                        if (!response.ok) throw new Error("HTTP " + response.status);
+                        return response.json();
+                    })
+                    .then(function (data) {
+                        if (!data.ok || !Array.isArray(data.data)) {
+                            throw new Error(data.error || "La respuesta de auditoría no es válida.");
+                        }
+                        var email = String(adminActual.email_login || "").toLowerCase();
+                        var eventos = data.data.filter(function (event) {
+                            return String(event.usuario || "").toLowerCase() === email;
+                        }).slice(0, 3);
+                        activity.replaceChildren();
+                        if (!eventos.length) {
+                            var empty = document.createElement("p");
+                            empty.className = "pe-actividad-titulo";
+                            empty.textContent = "Sin actividad registrada para esta cuenta.";
+                            activity.appendChild(empty);
+                            return;
+                        }
+                        eventos.forEach(function (event) {
+                            var item = document.createElement("div");
+                            item.className = "pe-actividad-item";
+                            var icon = document.createElement("div");
+                            icon.className = "pe-actividad-icon pe-actividad-icon--green";
+                            icon.innerHTML = '<i class="fa-solid fa-circle-dot"></i>';
+                            var content = document.createElement("div");
+                            var title = document.createElement("p");
+                            title.className = "pe-actividad-titulo";
+                            title.textContent = event.accion || "Actividad administrativa";
+                            var date = document.createElement("p");
+                            date.className = "pe-actividad-hora";
+                            var timestamp = new Date(String(event.fecha || "").replace(" ", "T"));
+                            date.textContent = Number.isNaN(timestamp.getTime())
+                                ? "Fecha no disponible"
+                                : timestamp.toLocaleString("es-CO");
+                            content.append(title, date);
+                            item.append(icon, content);
+                            activity.appendChild(item);
+                        });
+                    })
+                    .catch(function (error) {
+                        console.error("No se pudo cargar la actividad del administrador:", error);
+                        activity.replaceChildren();
+                        var message = document.createElement("p");
+                        message.className = "pe-actividad-titulo";
+                        message.textContent = "No se pudo cargar la actividad.";
+                        activity.appendChild(message);
+                    });
+            }
+
+            actualizarPreferencias();
+            document.addEventListener("te-language-change", actualizarPreferencias);
+
+            function mostrarError(error) {
+                console.error("No se pudo cargar el perfil del administrador:", error);
+                var mensaje = error && error.message ? error.message : "Error desconocido.";
+                if (errorElement) {
+                    errorElement.textContent = "No se pudieron cargar los datos del administrador. " + mensaje;
+                    errorElement.hidden = false;
+                }
+                var sidebarNombre = document.getElementById("sidebarNombre");
+                if (sidebarNombre) sidebarNombre.textContent = "No disponible";
+                var sessionName = document.querySelector("#sessionWidget .session-name");
+                if (sessionName) sessionName.textContent = "No disponible";
+                var activity = document.getElementById("adminRecentActivity");
+                if (activity) {
+                    var message = document.createElement("p");
+                    message.className = "pe-actividad-titulo";
+                    message.textContent = "Actividad no disponible.";
+                    activity.replaceChildren(message);
+                }
+            }
+
+            if (sesion.tipo !== "admin") {
+                mostrarError(new Error("No se encontró la sesión del administrador."));
+            } else {
+                fetch(API_BASE + 'get_perfil_admin.php', {
+                    credentials: 'include',
+                    cache: 'no-store'
+                })
                 .then(function (r) {
+                    if (!r.ok) throw new Error("HTTP " + r.status);
                     return r.json();
                 })
                 .then(function (data) {
-                    if (!data.ok || !data.admin) return;
+                    if (!data.ok || !data.admin) {
+                        throw new Error(data.error || "La respuesta del perfil no es válida.");
+                    }
                     var d = data.admin;
-                    var nombreCompleto = ((d.nombre || "") + " " + (d.apellido || "")).trim() || sesion.nombre || "Administrador";
-                    var email = d.email_login || sesion.email || "admin@tourismeasy.com";
+                    adminActual = d;
+                    var nombreCompleto = ((d.nombre || "") + " " + (d.apellido || "")).trim() || "Administrador";
                     var initials = nombreCompleto.split(/\s+/).map(function (w) {
                         return w[0] || "";
                     }).join("").substring(0, 2).toUpperCase() || "AD";
@@ -379,108 +458,190 @@
                     if (av) av.textContent = initials;
                     var nm = document.getElementById("sidebarNombre");
                     if (nm) nm.textContent = nombreCompleto;
-                    var em = document.getElementById("configEmail");
-                    if (em) em.textContent = email;
+                    var sessionName = document.querySelector("#sessionWidget .session-name");
+                    var sessionAvatar = document.querySelector("#sessionWidget .session-avatar");
+                    if (sessionName) sessionName.textContent = nombreCompleto;
+                    if (sessionAvatar) sessionAvatar.textContent = initials;
+                    if (errorElement) errorElement.hidden = true;
+                    cargarActividadAdmin();
                 })
                 .catch(function (err) {
-                    console.error("No se pudo cargar el perfil del administrador:", err);
-                });
-
-            // Notificaciones y tema (CONFIG_ADMIN)
-            var chkCancelaciones = document.getElementById("toggleNotifCancelaciones");
-            var chkResenas = document.getElementById("toggleNotifResenas");
-            var chkBoletin = document.getElementById("toggleNotifBoletin");
-
-            function guardarConfig(campo, valor) {
-                return fetch(API_BASE + 'actualizar_config_admin.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        id: sesion.id,
-                        campo: campo,
-                        valor: valor
-                    }),
-                }).catch(function (err) {
-                    console.error("No se pudo guardar la configuración:", err);
+                    mostrarError(err);
                 });
             }
 
-            fetch(API_BASE + 'get_config_admin.php?id=' + encodeURIComponent(sesion.id))
-                .then(function (r) {
-                    return r.json();
+            var mesInforme = document.getElementById("mesInformeAdmin");
+            var btnInforme = document.getElementById("btnGenerarInformeAdmin");
+            var estadoInforme = document.getElementById("estadoInformeAdmin");
+            function mesLocal(fecha) {
+                return fecha.getFullYear() + "-" + String(fecha.getMonth() + 1).padStart(2, "0");
+            }
+            var fechaDefaultInforme = new Date();
+            fechaDefaultInforme.setDate(1);
+            fechaDefaultInforme.setMonth(fechaDefaultInforme.getMonth() - 1);
+            mesInforme.value = mesLocal(fechaDefaultInforme);
+            mesInforme.max = mesInforme.value;
+
+            function escaparHtml(valor) {
+                return String(valor == null ? "" : valor).replace(/[&<>"']/g, function (caracter) {
+                    return {
+                        "&": "&amp;",
+                        "<": "&lt;",
+                        ">": "&gt;",
+                        '"': "&quot;",
+                        "'": "&#39;"
+                    }[caracter];
+                });
+            }
+
+            function formatearMes(valor) {
+                var fecha = new Date(valor + "-02T12:00:00");
+                return fecha.toLocaleDateString("es-CO", { month: "long", year: "numeric" });
+            }
+
+            function formatearVariacion(valor) {
+                if (valor === null || valor === undefined) return "Sin base de comparación";
+                return (valor > 0 ? "+" : "") + valor + "%";
+            }
+
+            function filasRanking(items) {
+                if (!Array.isArray(items) || !items.length) {
+                    return '<tr><td colspan="3">Sin clics de empresas registrados</td></tr>';
+                }
+                return items.map(function (item, index) {
+                    return "<tr><td>" + (index + 1) + "</td><td>" + escaparHtml(item.empresa) +
+                        "</td><td>" + escaparHtml(item.clics) + "</td></tr>";
+                }).join("");
+            }
+
+            function filasRankingArtesanos(items) {
+                if (!Array.isArray(items) || !items.length) {
+                    return '<tr><td colspan="3">Sin clics de productos artesanales registrados</td></tr>';
+                }
+                return items.map(function (item, index) {
+                    return "<tr><td>" + (index + 1) + "</td><td>" + escaparHtml(item.artesano) +
+                        "</td><td>" + escaparHtml(item.clics) + "</td></tr>";
+                }).join("");
+            }
+
+            function abrirInformePdf(informe, ventana) {
+                var empresas = informe.empresas_nuevas || {};
+                var artesanos = informe.artesanos_nuevos || {};
+                var clics = informe.clics_whatsapp || {};
+                var fechaGeneracion = new Date().toLocaleString("es-CO");
+                var themeColors = getComputedStyle(document.documentElement);
+                var primaryColor = themeColors.getPropertyValue("--theme-primary").trim() || "#7c3aed";
+                var darkColor = themeColors.getPropertyValue("--theme-primary-dark").trim() || "#5b21b6";
+
+                ventana.document.open();
+                ventana.document.write(
+                    '<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Informe TourismEasy - ' +
+                    escaparHtml(formatearMes(informe.mes)) + '</title><style>' +
+                    'body{font-family:Arial,sans-serif;color:#1e293b;margin:36px;font-size:12px}' +
+                    'header{border-bottom:3px solid ' + primaryColor + ';padding-bottom:16px;margin-bottom:24px}' +
+                    'h1{font-size:24px;margin:0 0 6px}h2{font-size:16px;margin:25px 0 10px;color:' + darkColor + '}' +
+                    '.muted{color:#64748b}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}' +
+                    '.metric{border:1px solid #cbd5e1;border-radius:8px;padding:14px}.metric strong{display:block;font-size:20px;margin:5px 0}' +
+                    'table{width:100%;border-collapse:collapse;margin:8px 0 20px}th,td{text-align:left;padding:8px;border-bottom:1px solid #cbd5e1}' +
+                    'th{background:#f1f5f9}.period{font-size:14px;text-transform:capitalize}.actions{margin:0 0 20px}' +
+                    '.actions button{background:' + primaryColor + ';color:white;border:0;border-radius:6px;padding:10px 16px;font-weight:bold;cursor:pointer}' +
+                    '@media print{body{margin:15mm}.actions{display:none}h2{break-after:avoid}table{break-inside:avoid}}' +
+                    '</style></head><body>' +
+                    '<div class="actions"><button onclick="window.print()">Guardar como PDF / Imprimir</button>' +
+                    '<span class="muted"> En el diálogo, selecciona "Guardar como PDF".</span></div>' +
+                    '<header><h1>TourismEasy · Informe mensual</h1>' +
+                    '<div class="period">' + escaparHtml(formatearMes(informe.mes)) + '</div>' +
+                    '<div class="muted">Comparado con ' + escaparHtml(formatearMes(informe.mes_anterior)) +
+                    ' · Generado: ' + escaparHtml(fechaGeneracion) + '</div></header>' +
+                    '<h2>Resumen</h2><div class="grid">' +
+                    '<div class="metric">Cuentas nuevas de empresa<strong>' + escaparHtml(empresas.mes || 0) +
+                    '</strong><span class="muted">Mes anterior: ' + escaparHtml(empresas.mes_anterior || 0) +
+                    ' · Variación: ' + escaparHtml(formatearVariacion(empresas.variacion_porcentual)) +
+                    ' · Incluye todos los estados</span></div>' +
+                    '<div class="metric">Artesanos registrados<strong>' + escaparHtml(artesanos.mes || 0) +
+                    '</strong><span class="muted">Mes anterior: ' + escaparHtml(artesanos.mes_anterior || 0) +
+                    ' · Variación: ' + escaparHtml(formatearVariacion(artesanos.variacion_porcentual)) + '</span></div>' +
+                    '<div class="metric">Clics de WhatsApp<strong>' + escaparHtml(clics.mes || 0) +
+                    '</strong><span class="muted">Mes anterior: ' + escaparHtml(clics.mes_anterior || 0) +
+                    ' · Variación: ' + escaparHtml(formatearVariacion(clics.variacion_porcentual)) + '</span></div>' +
+                    '</div><h2>Empresas más contactadas · ' + escaparHtml(formatearMes(informe.mes)) + '</h2>' +
+                    '<table><thead><tr><th>#</th><th>Empresa</th><th>Clics</th></tr></thead><tbody>' +
+                    filasRanking(clics.empresas_mas_contactadas) + '</tbody></table>' +
+                    '<h2>Empresas más contactadas · ' + escaparHtml(formatearMes(informe.mes_anterior)) + '</h2>' +
+                    '<table><thead><tr><th>#</th><th>Empresa</th><th>Clics</th></tr></thead><tbody>' +
+                    filasRanking(clics.empresas_mas_contactadas_mes_anterior) + '</tbody></table>' +
+                    '<h2>Artesanos más contactados · ' + escaparHtml(formatearMes(informe.mes)) + '</h2>' +
+                    '<table><thead><tr><th>#</th><th>Artesano</th><th>Clics en sus productos</th></tr></thead><tbody>' +
+                    filasRankingArtesanos(clics.artesanos_mas_contactados) + '</tbody></table>' +
+                    '<h2>Artesanos más contactados · ' + escaparHtml(formatearMes(informe.mes_anterior)) + '</h2>' +
+                    '<table><thead><tr><th>#</th><th>Artesano</th><th>Clics en sus productos</th></tr></thead><tbody>' +
+                    filasRankingArtesanos(clics.artesanos_mas_contactados_mes_anterior) + '</tbody></table>' +
+                    '<p class="muted">Fuente: registros transaccionales de TourismEasy (OLTP).</p>' +
+                    '</body></html>'
+                );
+                ventana.document.close();
+                window.setTimeout(function () {
+                    ventana.focus();
+                    ventana.print();
+                }, 300);
+            }
+
+            function actualizarEstadoInforme(mensaje, estado) {
+                estadoInforme.textContent = mensaje;
+                if (estado) {
+                    estadoInforme.dataset.estado = estado;
+                } else {
+                    delete estadoInforme.dataset.estado;
+                }
+            }
+
+            btnInforme.addEventListener("click", function () {
+                if (!mesInforme.value) {
+                    actualizarEstadoInforme("Selecciona un mes para continuar.", "error");
+                    mesInforme.focus();
+                    return;
+                }
+
+                var ventanaInforme = window.open("", "_blank");
+                if (!ventanaInforme) {
+                    actualizarEstadoInforme("Permite las ventanas emergentes para generar el informe.", "error");
+                    return;
+                }
+
+                btnInforme.disabled = true;
+                actualizarEstadoInforme("Estamos preparando tu informe…", "loading");
+                fetch(API_BASE + "get_informe_mensual_admin.php?mes=" + encodeURIComponent(mesInforme.value), {
+                    credentials: "include"
                 })
-                .then(function (data) {
-                    if (!data.ok || !data.config) return;
-                    var cfg = data.config;
-                    if (chkCancelaciones) chkCancelaciones.checked = !!cfg.notif_cancelaciones;
-                    if (chkResenas) chkResenas.checked = !!cfg.notif_resenas;
-                    if (chkBoletin) chkBoletin.checked = !!cfg.notif_boletin;
-
-                    // El tema guardado en la BD manda sobre lo detectado localmente
-                    if (cfg.tema_oscuro !== null && cfg.tema_oscuro !== undefined && typeof applyTheme === "function") {
-                        applyTheme(!!cfg.tema_oscuro);
-                        if (themeToggle) themeToggle.checked = !!cfg.tema_oscuro;
-                    }
-                })
-                .catch(function (err) {
-                    console.error("No se pudo cargar la configuración:", err);
-                });
-
-            if (chkCancelaciones) {
-                chkCancelaciones.addEventListener("change", function () {
-                    guardarConfig("notif_cancelaciones", chkCancelaciones.checked);
-                });
-            }
-            if (chkResenas) {
-                chkResenas.addEventListener("change", function () {
-                    guardarConfig("notif_resenas", chkResenas.checked);
-                });
-            }
-            if (chkBoletin) {
-                chkBoletin.addEventListener("change", function () {
-                    guardarConfig("notif_boletin", chkBoletin.checked);
-                });
-            }
-
-            // Persistir el tema en la BD cuando el usuario lo cambia manualmente
-            if (darkModeBtn) {
-                darkModeBtn.addEventListener("click", function () {
-                    guardarConfig("tema_oscuro", document.body.classList.contains("dark-mode"));
-                });
-            }
-            if (themeToggle) {
-                themeToggle.addEventListener("change", function () {
-                    guardarConfig("tema_oscuro", document.body.classList.contains("dark-mode"));
-                });
-            }
-
-            // Botón "Guardar preferencias": reenvía el estado actual de todo y confirma visualmente
-            var btnGuardarConfigAdmin = document.getElementById("btnGuardarConfigAdmin");
-            if (btnGuardarConfigAdmin) {
-                btnGuardarConfigAdmin.addEventListener("click", function () {
-                    var original = btnGuardarConfigAdmin.innerHTML;
-                    var pendientes = [];
-                    if (chkCancelaciones) pendientes.push(guardarConfig("notif_cancelaciones", chkCancelaciones.checked));
-                    if (chkResenas) pendientes.push(guardarConfig("notif_resenas", chkResenas.checked));
-                    if (chkBoletin) pendientes.push(guardarConfig("notif_boletin", chkBoletin.checked));
-                    if (themeToggle) pendientes.push(guardarConfig("tema_oscuro", document.body.classList.contains("dark-mode")));
-
-                    btnGuardarConfigAdmin.disabled = true;
-                    Promise.all(pendientes).then(function () {
-                        btnGuardarConfigAdmin.innerHTML = '<i class="fa-solid fa-circle-check"></i> ¡Guardado!';
-                        setTimeout(function () {
-                            btnGuardarConfigAdmin.innerHTML = original;
-                            btnGuardarConfigAdmin.disabled = false;
-                        }, 1800);
+                    .then(function (response) {
+                        return response.json().then(function (data) {
+                            if (!response.ok || !data.ok) {
+                                throw new Error(data.error || "No se pudo generar el informe.");
+                            }
+                            return data.informe;
+                        });
+                    })
+                    .then(function (informe) {
+                        abrirInformePdf(informe, ventanaInforme);
+                        actualizarEstadoInforme("Informe listo. Selecciona «Guardar como PDF» en el diálogo de impresión.", "success");
+                    })
+                    .catch(function (error) {
+                        ventanaInforme.close();
+                        actualizarEstadoInforme(error.message || "No se pudo generar el informe.", "error");
+                    })
+                    .finally(function () {
+                        btnInforme.disabled = false;
                     });
-                });
-            }
+            });
+
         })();
     </script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <script src="../js/santanderianidad.js"></script>
+    <script src="../componentes/agente-ia.js?v=private-chat-memory-v1"></script>
+    <script src="../menu_accesibilidad/menu.js?v=a11y-v16"></script>
+    <script src="../js/tema-global-admin.js?v=global-theme-v1"></script>
+    <script src="../componentes/cambio-contrasena.js?v=password-change-v1"></script>
 </body>
 
 </html>

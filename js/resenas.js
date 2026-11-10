@@ -10,7 +10,20 @@
     var charCount = document.getElementById("resenaCharCount");
     var submitBtn = document.getElementById("resenaSubmit");
     var sliderTrack = document.getElementById("sliderTrack");
+    var reviewPagination = document.getElementById("resenasPaginacion");
+    var reviewSummary = document.getElementById("resenasResumen");
+    var reviewPageLabel = document.getElementById("resenasPaginaActual");
+    var previousReviewPage = document.getElementById("resenasAnterior");
+    var nextReviewPage = document.getElementById("resenasSiguiente");
+    var resenasStatus = document.createElement("p");
     var rating = 0;
+    var resenasRequestId = 0;
+    var resenasData = [];
+    var paginaResenas = 1;
+    var resenasPorPagina = reviewPagination ? 20 : Infinity;
+    resenasStatus.setAttribute("role", "status");
+    resenasStatus.setAttribute("aria-live", "polite");
+    sliderTrack.parentNode.insertBefore(resenasStatus, sliderTrack);
 
     // ── Rutas a los PHP ──
     var _enHtml = window.location.pathname.includes("/html/");
@@ -68,13 +81,6 @@
     });
 
     // ── Helpers ──────────────────────────────────────────────────────────
-
-    function buildStarsHtml(val) {
-        var h = "";
-        for (var i = 1; i <= 5; i++)
-            h += '<span style="color:' + (i <= val ? "#f59e0b" : "#cbd5e1") + '">&#9733;</span>';
-        return h;
-    }
 
     /**
      * Convierte una fecha ISO en texto relativo: "hace 2 días", "hace 1 mes", etc.
@@ -188,7 +194,8 @@
     // ── Construir tarjeta ─────────────────────────────────────────────────
 
     function buildCard(r) {
-        var partes = (r.nombre || "Viajero").trim().split(" ");
+        var nombre = typeof r.nombre === "string" && r.nombre.trim() ? r.nombre.trim() : "Viajero";
+        var partes = nombre.split(/\s+/);
         var iniciales = (partes[0][0] + (partes[1] ? partes[1][0] : "")).toUpperCase();
         var puedelikeear = true;
         var likesCount = parseInt(r.likes) || 0;
@@ -200,36 +207,81 @@
         // Botón de like
         var likeClass = puedelikeear ? "resena-btn-like" : "resena-btn-like disabled";
         if (yaLeDiLike) likeClass += " liked";
-        var likeTitle = "¿Te gustó esta reseña?";
-
-        var likeHtml =
-            '<button class="' + likeClass + '" data-id="' + r.id + '" ' +
-            'data-liked="' + (yaLeDiLike ? "1" : "0") + '" title="' + likeTitle + '">' +
-            '<span class="like-icon">' + (yaLeDiLike ? "♥" : "♡") + '</span>' +
-            '<span class="like-count">' + likesCount + '</span>' +
-            '</button>';
 
         var card = document.createElement("div");
         card.className = "testimonial-card resena-nueva";
         card.dataset.id = r.id;
-        card.innerHTML =
-            '<div class="testimonial-author">' +
-            '<div class="author-avatar">' + iniciales + '</div>' +
-            '<div>' +
-            '<strong>' + r.nombre + '</strong>' +
-            (r.fecha ? '<span class="resena-fecha">' + tiempoRelativo(r.fecha) + '</span>' : '') +
-            '</div>' +
-            '</div>' +
-            '<p class="testimonial-text">' + (r.texto || r.comentario || "").replace(/</g, "&lt;") + '</p>' +
-            '<div class="resena-footer">' +
-            '<div class="resena-stars-display">' + buildStarsHtml(r.rating || r.puntuacion) + '</div>' +
-            '<div class="resena-actions">' +
-            likeHtml +
-            (mostrarModeracion
-                ? '<button class="resena-btn-delete" type="button" title="Eliminar reseña" aria-label="Eliminar reseña" data-id="' + r.id + '"><i class="fa-solid fa-trash"></i> Eliminar</button>'
-                : '') +
-            '</div>' +
-            '</div>';
+
+        var author = document.createElement("div");
+        author.className = "testimonial-author";
+        var avatar = document.createElement("div");
+        avatar.className = "author-avatar";
+        avatar.textContent = iniciales;
+        var authorDetails = document.createElement("div");
+        var authorName = document.createElement("strong");
+        authorName.textContent = nombre;
+        authorDetails.appendChild(authorName);
+        if (r.fecha) {
+            var date = document.createElement("span");
+            date.className = "resena-fecha";
+            date.textContent = tiempoRelativo(r.fecha);
+            authorDetails.appendChild(date);
+        }
+        author.appendChild(avatar);
+        author.appendChild(authorDetails);
+        card.appendChild(author);
+
+        var text = document.createElement("p");
+        text.className = "testimonial-text";
+        text.textContent = r.texto || r.comentario || "";
+        card.appendChild(text);
+
+        var footer = document.createElement("div");
+        footer.className = "resena-footer";
+        var starsDisplay = document.createElement("div");
+        starsDisplay.className = "resena-stars-display";
+        var score = r.rating || r.puntuacion;
+        for (var i = 1; i <= 5; i++) {
+            var star = document.createElement("span");
+            star.style.color = i <= score ? "#f59e0b" : "#cbd5e1";
+            star.textContent = "★";
+            starsDisplay.appendChild(star);
+        }
+        footer.appendChild(starsDisplay);
+
+        var actions = document.createElement("div");
+        actions.className = "resena-actions";
+        var btnLike = document.createElement("button");
+        btnLike.className = likeClass;
+        btnLike.dataset.id = r.id;
+        btnLike.dataset.liked = yaLeDiLike ? "1" : "0";
+        btnLike.title = "¿Te gustó esta reseña?";
+        var likeIcon = document.createElement("span");
+        likeIcon.className = "like-icon";
+        likeIcon.textContent = yaLeDiLike ? "♥" : "♡";
+        var likeCount = document.createElement("span");
+        likeCount.className = "like-count";
+        likeCount.textContent = likesCount;
+        btnLike.appendChild(likeIcon);
+        btnLike.appendChild(likeCount);
+        actions.appendChild(btnLike);
+
+        if (mostrarModeracion) {
+            var btnDelete = document.createElement("button");
+            btnDelete.className = "resena-btn-delete";
+            btnDelete.type = "button";
+            btnDelete.title = "Eliminar reseña";
+            btnDelete.setAttribute("aria-label", "Eliminar reseña");
+            btnDelete.dataset.id = r.id;
+            var deleteIcon = document.createElement("i");
+            deleteIcon.className = "fa-solid fa-trash";
+            deleteIcon.setAttribute("aria-hidden", "true");
+            btnDelete.appendChild(deleteIcon);
+            btnDelete.appendChild(document.createTextNode(" Eliminar"));
+            actions.appendChild(btnDelete);
+        }
+        footer.appendChild(actions);
+        card.appendChild(footer);
 
         var btnDelete = card.querySelector(".resena-btn-delete");
         if (btnDelete) {
@@ -256,10 +308,12 @@
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(body)
                 })
-                    .then(function (r) { return r.json(); })
+                    .then(function (r) {
+                        if (!r.ok) throw new Error("No se pudo actualizar el me gusta.");
+                        return r.json();
+                    })
                     .then(function (res) {
-                        btn.disabled = false;
-                        if (!res.ok) { return; }
+                        if (!res.ok) throw new Error(res.error || "No se pudo actualizar el me gusta.");
                         var nuevoLiked = !yaLiked;
                         btn.dataset.liked = nuevoLiked ? "1" : "0";
                         btn.querySelector(".like-icon").textContent = nuevoLiked ? "♥" : "♡";
@@ -270,7 +324,12 @@
                             btn.classList.remove("liked");
                         }
                     })
-                    .catch(function () { btn.disabled = false; });
+                    .catch(function (error) {
+                        window.TEUI.toast(error.message || "No se pudo actualizar el me gusta.", "error");
+                    })
+                    .finally(function () {
+                        btn.disabled = false;
+                    });
             });
         }
 
@@ -278,7 +337,11 @@
     }
 
     async function borrarResena(id, button) {
-        if (!window.confirm("¿Eliminar esta reseña? Esta acción no se puede deshacer.")) return;
+        if (!await window.TEUI.confirm({
+            title: "Eliminar reseña",
+            message: "¿Quieres eliminar esta reseña? Esta acción no se puede deshacer.",
+            confirmText: "Sí, eliminar"
+        })) return;
 
         button.disabled = true;
         try {
@@ -295,33 +358,90 @@
 
             cargarResenas();
             window.dispatchEvent(new Event("teResenasActualizadas"));
+            window.TEUI.toast("Reseña eliminada correctamente.");
         } catch (error) {
             button.disabled = false;
-            window.alert(error.message || "No se pudo eliminar la reseña. Intenta de nuevo.");
+            window.TEUI.toast(error.message || "No se pudo eliminar la reseña. Intenta de nuevo.", "error");
         }
     }
 
     // ── Cargar reseñas desde la BD ────────────────────────────────────────
 
+    function renderizarResenas() {
+        var totalPaginas = resenasPorPagina === Infinity ? 1 : Math.ceil(resenasData.length / resenasPorPagina);
+        paginaResenas = Math.max(1, Math.min(paginaResenas, totalPaginas));
+        var inicio = resenasPorPagina === Infinity ? 0 : (paginaResenas - 1) * resenasPorPagina;
+        var resenasVisibles = resenasData.slice(inicio, inicio + resenasPorPagina);
+        sliderTrack.replaceChildren();
+        resenasVisibles.forEach(function (resena) {
+            sliderTrack.appendChild(buildCard(resena));
+        });
+        if (reviewPagination) {
+            reviewPagination.hidden = resenasData.length <= resenasPorPagina;
+            reviewSummary.textContent = resenasData.length
+                ? "Mostrando " + (inicio + 1) + "–" + Math.min(inicio + resenasPorPagina, resenasData.length) +
+                    " de " + resenasData.length + " reseñas"
+                : "Sin reseñas";
+            reviewPageLabel.textContent = "Página " + (resenasData.length ? paginaResenas : 0) +
+                " de " + (resenasData.length ? totalPaginas : 0);
+            previousReviewPage.disabled = paginaResenas <= 1;
+            nextReviewPage.disabled = paginaResenas >= totalPaginas;
+        }
+        resenasStatus.textContent = resenasData.length ? "" : "Aún no hay reseñas.";
+        window.dispatchEvent(new Event("resenasListas"));
+    }
+
     function cargarResenas() {
+        var requestId = ++resenasRequestId;
         var params = new URLSearchParams();
         params.set("visitor_id", getVisitorId());
         var url = URL_GET + "?" + params.toString();
 
+        sliderTrack.setAttribute("aria-busy", "true");
+        sliderTrack.replaceChildren();
+        resenasStatus.textContent = "Cargando reseñas…";
+
         fetch(url)
-            .then(function (r) { return r.json(); })
+            .then(function (r) {
+                if (!r.ok) throw new Error("No se pudieron cargar las reseñas.");
+                return r.json();
+            })
             .then(function (data) {
-                if (!data.ok) return;
-                sliderTrack.innerHTML = "";
-                data.data.forEach(function (r) {
-                    sliderTrack.appendChild(buildCard(r));
-                });
+                if (requestId !== resenasRequestId) return;
+                if (!data.ok || !Array.isArray(data.data)) {
+                    throw new Error(data.error || "El servidor devolvió una respuesta inválida.");
+                }
+                resenasData = data.data;
+                paginaResenas = 1;
+                renderizarResenas();
+            })
+            .catch(function (error) {
+                if (requestId !== resenasRequestId) return;
+                console.error("[TourismEasy] No se pudieron cargar las reseñas:", error);
+                resenasData = [];
+                sliderTrack.replaceChildren();
+                if (reviewPagination) reviewPagination.hidden = true;
+                resenasStatus.textContent = "No se pudieron cargar las reseñas. Intenta recargar la página.";
                 window.dispatchEvent(new Event("resenasListas"));
             })
-            .catch(function () {
-                console.warn("[TourismEasy] No se pudieron cargar las reseñas.");
+            .finally(function () {
+                if (requestId === resenasRequestId) {
+                    sliderTrack.removeAttribute("aria-busy");
+                }
             });
     }
+
+    if (previousReviewPage) previousReviewPage.addEventListener("click", function () {
+        if (paginaResenas <= 1) return;
+        paginaResenas--;
+        renderizarResenas();
+    });
+    if (nextReviewPage) nextReviewPage.addEventListener("click", function () {
+        var totalPaginas = Math.ceil(resenasData.length / resenasPorPagina);
+        if (paginaResenas >= totalPaginas) return;
+        paginaResenas++;
+        renderizarResenas();
+    });
 
     cargarResenas();
 
@@ -421,61 +541,64 @@
             return;
         }
         if (textoOriginal.length < 10) {
-            alert("El comentario debe tener al menos 10 caracteres.");
+            window.TEUI.toast("El comentario debe tener al menos 10 caracteres.", "error");
             textarea.focus();
             return;
         }
 
         // Aplicamos el filtro de censura (inglés + español) antes de armar el envío
         submitBtn.disabled = true;
-        var texto = await limpiarTexto(textoOriginal);
-
-        var body = { accion: "CREAR", rating: rating, texto: texto };
-        body.nombre_anonimo = nombreAnonimo;
-
+        var ratingEnviado = rating;
         var nombreParaMostrar = nombreAnonimo;
-
-        fetch(URL_ACCION, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(body)
-        })
-            .then(function (r) { return r.json(); })
-            .then(function (res) {
-                submitBtn.disabled = false;
-                if (!res.ok) { alert(res.error || "Error al publicar reseña."); return; }
-
-                var nueva = {
-                    id: res.id_resena,
-                    nombre: nombreParaMostrar,
-                    rating: rating,
+        try {
+            var texto = await limpiarTexto(textoOriginal);
+            var response = await fetch(URL_ACCION, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    accion: "CREAR",
+                    rating: ratingEnviado,
                     texto: texto,
-                    fecha: res.fecha || new Date().toISOString(),
-                    likes: 0
-                };
-                sliderTrack.insertBefore(buildCard(nueva), sliderTrack.firstChild);
-                window.dispatchEvent(new Event("resenasListas"));
-
-                // Resetear formulario
-                textarea.value = "";
-                charCount.textContent = "0 / 140";
-                rating = 0;
-                stars.forEach(function (s) { s.classList.remove("selected", "hovered"); });
-
-                // Mensaje de agradecimiento
-                formBox.style.display = "none";
-                gracias.style.display = "flex";
-                document.getElementById("resenaNombreGracias").textContent =
-                    nombreParaMostrar.split(" ")[0];
-                setTimeout(function () {
-                    gracias.style.display = "none";
-                    formBox.style.display = "block";
-                }, 4000);
-            })
-            .catch(function () {
-                submitBtn.disabled = false;
-                alert("Error de conexión. Intenta de nuevo.");
+                    nombre_anonimo: nombreParaMostrar
+                })
             });
+            if (!response.ok) throw new Error("No se pudo publicar la reseña.");
+            var res = await response.json();
+            if (!res.ok) throw new Error(res.error || "No se pudo publicar la reseña.");
+
+            var nueva = {
+                id: res.id_resena,
+                nombre: nombreParaMostrar,
+                rating: ratingEnviado,
+                texto: texto,
+                fecha: res.fecha || new Date().toISOString(),
+                likes: 0
+            };
+            window.TEUI.toast("Reseña publicada correctamente.");
+            resenasRequestId++;
+            sliderTrack.removeAttribute("aria-busy");
+            resenasData.unshift(nueva);
+            paginaResenas = 1;
+            renderizarResenas();
+
+            textarea.value = "";
+            charCount.textContent = "0 / 140";
+            rating = 0;
+            stars.forEach(function (s) { s.classList.remove("selected", "hovered"); });
+
+            formBox.style.display = "none";
+            gracias.style.display = "flex";
+            document.getElementById("resenaNombreGracias").textContent =
+                nombreParaMostrar.split(" ")[0];
+            setTimeout(function () {
+                gracias.style.display = "none";
+                formBox.style.display = "block";
+            }, 4000);
+        } catch (error) {
+            window.TEUI.toast(error.message || "Error de conexión. Intenta de nuevo.", "error");
+        } finally {
+            submitBtn.disabled = false;
+        }
     });
 
 })();

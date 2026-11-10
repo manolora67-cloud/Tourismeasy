@@ -1,7 +1,6 @@
 # Environment variables and local secrets
-.env
-.env.*
-!.env.example
 /api/config.php
+/api/config.local.php
 /api/cloudinary_config.php
 /con_db/db.php
+/recuperacion/servicio_correo.php

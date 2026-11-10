@@ -36,11 +36,6 @@ if (isset($_GET['id_clase']) && $_GET['id_clase'] !== '') {
     }
 }
 
-
-/* =========================================================
-   VALIDAR FECHA
-   ========================================================= */
-
 if ($fecha && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $fecha)) {
     http_response_code(400);
     echo json_encode([
@@ -59,7 +54,7 @@ if (($origenEntrada !== null && !is_string($origenEntrada) && !is_int($origenEnt
 }
 
 foreach (['origen' => $origen, 'destino' => $destino] as $extremo => $idCiudad) {
-    if ($idCiudad !== null && !preg_match('/^[A-Za-z0-9]{5,6}$/D', $idCiudad)) {
+    if ($idCiudad !== null && !preg_match('/^[0-9]{5,6}$/D', $idCiudad)) {
         http_response_code(400);
         echo json_encode([
             "ok" => false,
@@ -69,9 +64,7 @@ foreach (['origen' => $origen, 'destino' => $destino] as $extremo => $idCiudad) 
     }
 }
 
-
 try {
-
     $stmt = $pdo->prepare("
         SELECT *
         FROM fn_buscar_transporte(
@@ -84,9 +77,9 @@ try {
     ");
 
     $stmt->execute([
-        ':id_ciudad_origen'  => $origen,
+        ':id_ciudad_origen' => $origen,
         ':id_ciudad_destino' => $destino,
-        ':fecha'    => $fecha,
+        ':fecha' => $fecha,
         ':id_clase' => $id_clase,
     ]);
 
@@ -96,13 +89,10 @@ try {
         "ok" => true,
         "data" => array_values($data)
     ]);
-
 } catch (PDOException $e) {
-
     error_log('[TourismEasy] transporte/buscar.php - ' . $e->getMessage());
 
     http_response_code(500);
-
     echo json_encode([
         "ok" => false,
         "error" => "Error al buscar rutas."

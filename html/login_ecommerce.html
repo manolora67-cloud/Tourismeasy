@@ -4,9 +4,10 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="../js/control_tiempo_sesion.js?v=secure-session-v4"></script>
     <title>Acceder – TourismLocal</title>
     <link rel="stylesheet" href="../css/e-comemerce.css" />
-    <link rel="stylesheet" href="../css/login-ecommerce.css" />
+    <link rel="stylesheet" href="../css/login-ecommerce.css?v=device-approval-v2" />
     <link rel="stylesheet" href="../css/captcha.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
@@ -39,6 +40,7 @@
                 <div class="lec-field">
                     <label>Correo electrónico</label>
                     <input type="email" id="loginEmail" placeholder="tu@correo.com" required />
+                    <div class="lec-msg" id="loginEmailMsg" role="status" aria-live="polite"></div>
                 </div>
                 <div class="lec-field">
                     <label>Contraseña</label>
@@ -51,15 +53,32 @@
                 </div>
 
                 <div class="lec-forgot-link">
-                    <a href="restablecer_contrasena.html?origen=ecommerce">¿Olvidaste tu contraseña?</a>
+                    <a href="#" id="forgotLink">¿Olvidaste tu contraseña?</a>
                 </div>
-                <div class="lec-msg" id="loginMsg"></div>
+                <div class="lec-msg" id="loginMsg" role="status" aria-live="polite"></div>
                 <button type="submit" class="lec-btn" id="btnLogin">
                     <i class="fa-solid fa-right-to-bracket"></i> Ingresar
                 </button>
-                <button type="button" class="lec-btn" id="btnReplaceSession" style="display:none">
-                    Cerrar la otra sesión e iniciar aquí
-                </button>
+                <section id="approvalCodeSection" class="approval-code-card" aria-labelledby="approvalCodeTitle" hidden>
+                    <div class="approval-code-heading">
+                        <span class="approval-code-icon" aria-hidden="true"><i class="fa-solid fa-shield-halved"></i></span>
+                        <div>
+                            <span class="approval-code-eyebrow">Verificación de seguridad</span>
+                            <h3 id="approvalCodeTitle">Confirma este dispositivo</h3>
+                        </div>
+                    </div>
+                    <p class="approval-code-copy">Aprueba el intento desde el correo de tu cuenta. Luego escribe aquí el código que te enviamos.</p>
+                    <ol class="approval-code-steps" aria-label="Pasos para confirmar el acceso">
+                        <li><span>1</span>Revisa tu correo</li>
+                        <li><span>2</span>Ingresa el código</li>
+                    </ol>
+                    <div class="lec-field">
+                        <label for="approvalCode">Código de seis dígitos</label>
+                        <input class="approval-code-input" type="text" id="approvalCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" placeholder="000000" aria-label="Código de confirmación de seis dígitos" />
+                    </div>
+                    <button type="button" class="lec-btn approval-code-submit" id="btnVerifyApproval"><i class="fa-solid fa-arrow-right-to-bracket" aria-hidden="true"></i> Verificar e iniciar sesión</button>
+                    <p class="approval-code-footnote"><i class="fa-regular fa-clock" aria-hidden="true"></i> El código vence en 5 minutos y solo se puede usar una vez.</p>
+                </section>
             </form>
 
             <!-- ── FORMULARIO REGISTRO ── -->
@@ -127,15 +146,12 @@
         </div>
     </div>
 
-    <script>
-        // La carpeta img/ es hermana de html/, js/ y css/ (todas en la raíz del e-commerce),
-        // igual que este archivo vive en html/login_ecommerce.html.
-        window.TE_CAPTCHA_IMG_BASE = '../img/';
-    </script>
+    <script src="../componentes/ui-feedback.js?v=ui-feedback-v4"></script>
     <script src="../componentes/dark-mode-toggle.js"></script>
-    <script src="../js/login-ecommerce.js"></script>
+    <script src="../js/login-ecommerce.js?v=secure-client-session-v1"></script>
     <script src="../js/captcha.js"></script>
     <script src="../js/santanderianidad.js"></script>
+    <script src="../menu_accesibilidad/menu.js?v=a11y-v16"></script>
 </body>
 
 </html>

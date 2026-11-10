@@ -1857,10 +1857,19 @@
     </div>`;
 
     const videoHTML = (a) => a.video ? `
-          <video class="art-video-bg" poster="${escapeHtml(a.poster || "")}" muted loop playsinline preload="metadata">
-            <source src="${escapeHtml(a.video)}" />
+          <video class="art-video-bg" data-poster="${escapeHtml(a.poster || "")}" muted loop playsinline preload="none">
+            <source data-src="${escapeHtml(a.video)}" />
           </video>
-          <button class="art-btn-sound" onclick="toggleArtSound(this)">🔇</button>` : "";
+          <button
+            class="art-btn-sound"
+            type="button"
+            data-sound-toggle
+            data-sound-muted-label="🔇"
+            data-sound-active-label="🔊"
+            data-sound-muted-aria="Activar sonido"
+            data-sound-active-aria="Silenciar video"
+            aria-label="Activar sonido"
+            aria-pressed="false">🔇</button>` : "";
 
     const heroStyle = (a) => !a.video && a.poster
         ? ` style="background: url('${escapeHtml(a.poster)}') center / cover no-repeat"`
@@ -1899,6 +1908,22 @@
         mount.innerHTML = articulos.map(overlayHTML).join("");
     }
 
+    function prepararArtVideo(video) {
+        if (!video) return;
+
+        const source = video.querySelector("source[data-src]");
+        if (source) {
+            source.src = source.dataset.src;
+            source.removeAttribute("data-src");
+            video.load();
+        }
+
+        if (video.dataset.poster) {
+            video.poster = video.dataset.poster;
+            delete video.dataset.poster;
+        }
+    }
+
     renderArticulos(ARTICULOS);
     const municipiosPromise = window.TE_MUNICIPIOS_PROMISE || Promise.resolve([]);
     municipiosPromise.then((municipios) => {
@@ -1914,7 +1939,9 @@
                 ...base,
                 ...custom,
                 key: municipio.key,
-                poster: municipio.img,
+                poster: window.TEImagenCloudinary
+                    ? window.TEImagenCloudinary.portada(municipio.img)
+                    : municipio.img,
                 titulo: custom.titulo || municipio.titulo,
                 subtitulo: custom.subtitulo !== undefined ? custom.subtitulo : base.subtitulo,
                 datos: Array.isArray(custom.datos) ? custom.datos : base.datos,
@@ -1932,7 +1959,10 @@
                 overlay.classList.add("open");
                 document.body.style.overflow = "hidden";
                 const video = overlay.querySelector(".art-video-bg");
-                if (video) video.play().catch(() => {});
+                if (video) {
+                    prepararArtVideo(video);
+                    video.play().catch(() => {});
+                }
             }
         }
     }).catch((error) => {
@@ -1947,7 +1977,7 @@
             video.pause();
             video.muted = true;
         }
-        if (btn) btn.innerText = "🔇";
+        if (btn && window.TEVideoSound) window.TEVideoSound.sync(video);
     }
 
     function closeOverlay(overlay) {
@@ -1971,6 +2001,7 @@
             if (modal) modal.scrollTop = 0;
             const video = overlay.querySelector(".art-video-bg");
             if (video) {
+                prepararArtVideo(video);
                 video.currentTime = 0;
                 video.play().catch(() => {});
             }
@@ -1995,11 +2026,4 @@
         }
     });
 
-    // Sonido del video dentro del modal (usada por el onclick inline arriba)
-    window.toggleArtSound = function(btn) {
-        const video = btn.parentElement.querySelector(".art-video-bg");
-        if (!video) return;
-        video.muted = !video.muted;
-        btn.innerText = video.muted ? "🔇" : "🔊";
-    };
 })();

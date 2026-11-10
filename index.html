@@ -4,29 +4,73 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="js/control_tiempo_sesion.js?v=secure-session-v4"></script>
     <title>TourismEasy -Ojos, oidos y pasos libres</title>
-    <link rel="stylesheet" href="css/index.css?v=municipios-4x2-v3" />
-    <link rel="stylesheet" href="css/login.css" />
+    <script>
+        let welcomeAlreadySeen = false;
+        try {
+            welcomeAlreadySeen = sessionStorage.getItem("tourismeasy_welcome_seen") === "1";
+        } catch (error) {
+            console.warn("[TourismEasy] No se pudo comprobar el estado de sesión de la bienvenida:", error);
+        }
+        if (welcomeAlreadySeen) {
+            document.documentElement.classList.add("welcome-seen");
+        }
+    </script>
+    <link rel="stylesheet" href="css/index.css?v=navbar-sticky-v1" />
+    <link rel="stylesheet" href="home/entrada.css?v=responsive-v1" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="mapa_interactuable/mapa.css?v=mapa-mobile-perf-v2" />
+    <link rel="stylesheet" href="css/login.css?v=device-approval-v2" />
     <link rel="stylesheet" href="css/articulos.css" />
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;500&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="stylesheet" href="css/captcha.css" />
     <link rel="stylesheet" href="css/cookies.css" />
-    <link rel="stylesheet" href="css/agente-ia.css" />
+    <link rel="stylesheet" href="css/agente-ia.css?v=mobile-layout-v2" />
     <link rel="stylesheet" href="css/resenas_likes.css" />
     <link rel="icon" type="image/png" href="img/TURISMEASY.png">
+    <script src="componentes/ui-feedback.js?v=ui-feedback-v4"></script>
 </head>
 
-<body>
-    <!-- NAVBAR: se rellena solo con js/components/navbar.js -->
-    <div id="site-navbar" data-context="root" data-active="inicio"></div>
+<body class="welcome-active">
+    <section class="welcome-screen" id="welcomeScreen" role="dialog" aria-modal="true" aria-labelledby="welcomeTitle" aria-describedby="welcomeDescription">
+        <img class="welcome-image" src="img/home.jpeg" alt="" fetchpriority="high" />
+        <div class="welcome-overlay"></div>
+        <div class="welcome-content">
+            <img class="welcome-logo" src="img/TURISMEASY.png" alt="TourismEasy" />
+            <p class="welcome-eyebrow">Turismo inclusivo · Santander, Colombia</p>
+            <h1 id="welcomeTitle">¡Hola, bienvenido a TourismEasy!</h1>
+            <p class="welcome-description" id="welcomeDescription">
+                Explora Santander a tu ritmo. Descubre destinos, experiencias y servicios turísticos accesibles para todos.
+            </p>
+            <button class="welcome-button" id="welcomeButton" type="button">Comenzar a explorar <span aria-hidden="true">&rarr;</span></button>
+        </div>
+        <div class="welcome-footer">
+            <p>Un destino para todos</p>
+            <p class="welcome-credit">Hecho por talento santandereano</p>
+        </div>
+    </section>
+
+    <div id="site-content" inert>
+        <!-- NAVBAR: se rellena solo con js/components/navbar.js -->
+        <div id="site-navbar" data-context="root" data-active="inicio"></div>
 
     <!-- HERO -->
-    <section class="hero">
-        <video class="hero-video" autoplay muted loop playsinline id="miVideo">
-            <source src="audio-video/chaparro.mp4" type="video/mp4" />
+    <section class="hero" id="inicioHero">
+        <video class="hero-video" muted loop playsinline preload="none" id="miVideo">
+            <source data-src="videos/hero.mp4" type="video/mp4" />
         </video>
-        <button class="btn-sound" onclick="toggleAudio()" id="btnSound">🔇 Activar sonido</button>
+        <button
+            class="btn-sound"
+            type="button"
+            data-sound-toggle
+            data-sound-muted-label="🔇 Activar sonido"
+            data-sound-active-label="🔊 Silenciar"
+            data-sound-muted-aria="Activar sonido"
+            data-sound-active-aria="Silenciar video"
+            aria-label="Activar sonido"
+            aria-pressed="false">🔇 Activar sonido</button>
 
         <div class="hero-content">
             <h1 class="hero-title">Turismo Inclusivo,<br />Ojos, Oídos y<br />Pasos Libres</h1>
@@ -92,41 +136,73 @@
     <div id="site-articulos"></div>
 
     <div id="site-footer"></div>
+    </div>
 
+    <script src="home/entrada.js?v=session-welcome-v1"></script>
     <script src="componentes/navbar.js"></script>
     <script src="componentes/btn-acceder.js"></script>
     <script src="componentes/dark-mode-toggle.js"></script>
-    <script src="componentes/destinos.js?v=municipios-4x2-v3"></script>
-    <script src="componentes/articulos.js?v=municipios-info-v2"></script>
-    <script src="componentes/footer.js"></script>
+    <script src="js/catalog-cache.js?v=catalog-cache-v1"></script>
+    <script src="js/imagen-cloudinary.js?v=cloudinary-delivery-v1"></script>
+    <script src="componentes/destinos.js?v=municipios-paginados-v9"></script>
+    <script>
+        (function () {
+            const mount = document.getElementById("site-destinos");
+            if (!mount) return;
 
+            let started = false;
+            const loadScript = function (src) {
+                return new Promise(function (resolve, reject) {
+                    const script = document.createElement("script");
+                    script.src = src;
+                    script.onload = resolve;
+                    script.onerror = function () {
+                        reject(new Error("No se pudo cargar " + src));
+                    };
+                    document.body.appendChild(script);
+                });
+            };
+
+            const loadMap = async function () {
+                if (started) return;
+                started = true;
+                try {
+                    await loadScript("https://unpkg.com/leaflet@1.9.4/dist/leaflet.js");
+                    await loadScript("mapa_interactuable/mapa.js?v=mapa-mobile-perf-v2");
+                } catch (error) {
+                    console.error("[TourismEasy] No se pudo iniciar el mapa.", error);
+                    const notice = document.createElement("p");
+                    notice.className = "destinos-error";
+                    notice.setAttribute("role", "alert");
+                    notice.textContent = "No se pudo cargar el mapa. Puedes explorar los municipios en las tarjetas.";
+                    mount.appendChild(notice);
+                }
+            };
+
+            if (!("IntersectionObserver" in window)) {
+                loadMap();
+                return;
+            }
+
+            const observer = new IntersectionObserver(function (entries) {
+                if (!entries.some(function (entry) { return entry.isIntersecting; })) return;
+                observer.disconnect();
+                loadMap();
+            }, { rootMargin: "700px 0px" });
+            observer.observe(mount);
+        })();
+    </script>
+    <script src="componentes/articulos.js?v=municipios-info-v3"></script>
+    <script src="componentes/control-sonido-video.js?v=video-sound-v3"></script>
+    <script src="componentes/footer.js"></script>
     <script src="js/captcha.js"></script>
     <script src="js/cookies.js"></script>
-    <script src="js/auth.js"></script>
+    <script src="js/auth.js?v=secure-client-session-v1"></script>
     <script src="js/resenas.js"></script>
-    <script src="componentes/agente-ia.js"></script>
+    <script src="componentes/agente-ia.js?v=private-chat-memory-v1"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <script src="js/santanderianidad.js"></script>
-
-    <script>
-        // Activa/silencia el sonido del video del hero.
-        // El video arranca "muted" a propósito: así lo exigen los navegadores
-        // para permitir el autoplay. Solo se puede des-mutear tras un clic
-        // real del usuario (que es justo lo que dispara este botón).
-        function toggleAudio() {
-            const video = document.getElementById('miVideo');
-            const btn = document.getElementById('btnSound');
-            if (!video || !btn) return;
-
-            if (video.muted) {
-                video.muted = false;
-                btn.textContent = '🔊 Silenciar';
-            } else {
-                video.muted = true;
-                btn.textContent = '🔇 Activar sonido';
-            }
-        }
-    </script>
+    <script src="menu_accesibilidad/menu.js?v=a11y-v14"></script>
 </body>
 
 </html>
