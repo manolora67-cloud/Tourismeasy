@@ -101,8 +101,7 @@ function obtenerTokenDispositivo(): string
 
 function guardarCookieDispositivo(string $token): void
 {
-    $seguro = (!empty($_SERVER['HTTPS']) && strtolower((string)$_SERVER['HTTPS']) !== 'off')
-        || (string)($_SERVER['SERVER_PORT'] ?? '') === '443';
+    $seguro = sesionPersistenteUsaHttps();
 
     setcookie('te_device', $token, [
         'expires' => time() + (400 * 24 * 60 * 60),
@@ -116,8 +115,7 @@ function guardarCookieDispositivo(string $token): void
 
 function borrarCookieDispositivo(): void
 {
-    $seguro = (!empty($_SERVER['HTTPS']) && strtolower((string)$_SERVER['HTTPS']) !== 'off')
-        || (string)($_SERVER['SERVER_PORT'] ?? '') === '443';
+    $seguro = sesionPersistenteUsaHttps();
 
     setcookie('te_device', '', [
         'expires' => time() - 42000,

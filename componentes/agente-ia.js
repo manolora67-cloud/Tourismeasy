@@ -31,38 +31,10 @@
         ],
     };
 
-    const HISTORIAL_KEY = "tourismeasy_sue_chat";
-    const MAX_HISTORIAL = 40;
+    sessionStorage.removeItem("tourismeasy_sue_chat");
     const MENSAJE_BIENVENIDA = `¡Hola! 👋 Soy **Sue**, tu guía de viajes en **TourismEasy**.\n\nEstoy aquí para ayudarte a explorar los destinos más hermosos y accesibles de Santander, Colombia. Desde el Cañón del Chicamocha hasta las calles coloniales de Barichara. 🌿\n\n¿Sobre qué te puedo ayudar hoy?`;
 
-    function cargarConversacion() {
-        try {
-            const guardada = JSON.parse(sessionStorage.getItem(HISTORIAL_KEY) || "[]");
-            if (!Array.isArray(guardada)) return [];
-
-            return guardada
-                .filter((mensaje) =>
-                    mensaje &&
-                    (mensaje.role === "user" || mensaje.role === "assistant") &&
-                    typeof mensaje.content === "string"
-                )
-                .slice(-MAX_HISTORIAL);
-        } catch (error) {
-            console.warn("[TourismEasy IA] No se pudo recuperar el historial del chat:", error);
-            return [];
-        }
-    }
-
-    let conversacion = cargarConversacion();
-
-    function guardarConversacion() {
-        conversacion = conversacion.slice(-MAX_HISTORIAL);
-        try {
-            sessionStorage.setItem(HISTORIAL_KEY, JSON.stringify(conversacion));
-        } catch (error) {
-            console.warn("[TourismEasy IA] No se pudo guardar el historial del chat:", error);
-        }
-    }
+    let conversacion = [];
 
     function inyectarHTML() {
         const chipsHTML = TE_CONFIG.chips //esta constante muestra los chips de sugerencias rápidas
@@ -451,7 +423,6 @@
         if (chips) chips.style.display = "none";
 
         conversacion.push({ role: "user", content: texto });
-        guardarConversacion();
         agregarMensaje(texto, "user");
         document.getElementById("teInput").value = "";
         autoResize(document.getElementById("teInput"));
@@ -462,13 +433,11 @@
             ocultarTyping();
             agregarMensaje(respuesta, "bot"); // se muestra la respuesta de Sue en el chat
             conversacion.push({ role: "assistant", content: respuesta });
-            guardarConversacion();
         } catch (err) {
             ocultarTyping();
             const respuesta = "Lo siento, tuve un inconveniente conectándome. ¿Puedes intentarlo de nuevo? 🙏";
             agregarMensaje(respuesta, "bot");
             conversacion.push({ role: "assistant", content: respuesta });
-            guardarConversacion();
             console.error("[TourismEasy IA]", err);
         }
 
@@ -498,7 +467,6 @@
                 role: "assistant",
                 content: MENSAJE_BIENVENIDA.replace(/\*\*/g, ""),
             });
-            guardarConversacion();
         } else {
             conversacion.forEach((mensaje) =>
                 agregarMensaje(mensaje.content, mensaje.role === "user" ? "user" : "bot")

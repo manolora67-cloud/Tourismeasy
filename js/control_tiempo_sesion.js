@@ -1,11 +1,11 @@
 (function () {
     "use strict";
 
-    const timeoutMs = 10 * 60 * 1000;
     const heartbeatIntervalMs = 10 * 1000;
     const adminSessionKey = "te_session";
     const artisanSessionKey = "te_ecommerce_session";
-    const privatePage = /\/(?:panel_[^/]+|perfil_(?:admin|empresa)\.html|config_(?:admin|empresa)\.html|festividades_admin\.html|e-commerce\/admin\.php)$/i
+    sessionStorage.removeItem("tourismeasy_sue_chat");
+    const privatePage = /\/(?:panel_[^/]+|perfil_(?:admin|empresa)\.html|config_(?:admin|empresa)\.html|festividades_admin\.html|catalogos_admin\.html|e-commerce\/admin\.php)$/i
         .test(window.location.pathname);
     const loginPage = /\/login(?:_ecommerce)?\.html$/i.test(window.location.pathname);
     const heartbeatUrl = new URL(
@@ -16,24 +16,80 @@
     );
     let lastHeartbeat = 0;
     let heartbeatPending = false;
+    let lastUserActivity = Date.now();
+
+    function normalizarSesion(session) {
+        if (!session || typeof session !== "object") return null;
+        if (!["admin", "empresa", "artesano"].includes(session.tipo)) return null;
+
+        const normalized = { tipo: session.tipo };
+        const service = String(session.tipoServicio || session.servicio || "").trim();
+        if (session.tipo === "empresa" && service) normalized.tipoServicio = service;
+        return normalized;
+    }
+
+    function guardarSesion(session) {
+        const normalized = normalizarSesion(session);
+        localStorage.removeItem(adminSessionKey);
+        localStorage.removeItem(artisanSessionKey);
+        sessionStorage.removeItem(adminSessionKey);
+        sessionStorage.removeItem(artisanSessionKey);
+        if (!normalized) return null;
+
+        const key = normalized.tipo === "artesano" ? artisanSessionKey : adminSessionKey;
+        localStorage.setItem(key, JSON.stringify(normalized));
+        return normalized;
+    }
+
+    const storedLegacy = [adminSessionKey, artisanSessionKey]
+        .map(function (key) {
+            return localStorage.getItem(key) || sessionStorage.getItem(key);
+        })
+        .find(Boolean);
+    let currentSession = null;
+    if (storedLegacy) {
+        try {
+            currentSession = guardarSesion(JSON.parse(storedLegacy));
+        } catch (error) {
+            localStorage.removeItem(adminSessionKey);
+            localStorage.removeItem(artisanSessionKey);
+            sessionStorage.removeItem(adminSessionKey);
+            sessionStorage.removeItem(artisanSessionKey);
+        }
+    }
+
+    window.TourismSession = {
+        get: function () {
+            const raw = localStorage.getItem(adminSessionKey) || localStorage.getItem(artisanSessionKey);
+            if (!raw) {
+                currentSession = null;
+                return null;
+            }
+            try {
+                currentSession = normalizarSesion(JSON.parse(raw));
+                return currentSession ? { ...currentSession } : null;
+            } catch (error) {
+                clearSession();
+                return null;
+            }
+        },
+        save: function (session) {
+            currentSession = guardarSesion(session);
+            return currentSession ? { ...currentSession } : null;
+        },
+        clear: function () {
+            currentSession = null;
+            clearSession();
+        }
+    };
 
     function getStoredSession() {
-        for (const key of [adminSessionKey, artisanSessionKey]) {
-            const value = localStorage.getItem(key) || sessionStorage.getItem(key);
-            if (!value) continue;
-
-            try {
-                const session = JSON.parse(value);
-                if (session && typeof session === "object" && session.id) {
-                    return { key: key, session: session };
-                }
-            } catch (error) {
-                console.warn("[TourismEasy] No se pudo leer la sesión guardada.", error);
-                localStorage.removeItem(key);
-                sessionStorage.removeItem(key);
-            }
-        }
-        return null;
+        const session = window.TourismSession.get();
+        if (!session) return null;
+        return {
+            key: session.tipo === "artesano" ? artisanSessionKey : adminSessionKey,
+            session: session
+        };
     }
 
     function clearSession() {
@@ -46,7 +102,8 @@
 
     function redirectToLogin(session) {
         if (!privatePage || loginPage) return;
-        const artisan = session && session.tipo === "artesano";
+        const artisan = (session && session.tipo === "artesano")
+            || window.location.pathname.includes("/e-commerce/");
         const target = artisan ? "../html/login_ecommerce.html" : "login.html";
         const loginUrl = new URL(target, window.location.href);
         loginUrl.searchParams.set("sesion_expirada", "1");
@@ -59,23 +116,12 @@
     }
 
     function isExpired(session) {
-        const lastActivity = Number(session.ultimaActividad);
-        return !Number.isFinite(lastActivity) || Date.now() - lastActivity >= timeoutMs;
+        return !session || !["admin", "empresa", "artesano"].includes(session.tipo);
     }
 
     function saveActivity(stored) {
-        stored.session.ultimaActividad = Date.now();
-        const value = JSON.stringify(stored.session);
-        try {
-            if (localStorage.getItem(stored.key)) {
-                localStorage.setItem(stored.key, value);
-                sessionStorage.removeItem(stored.key);
-            } else {
-                sessionStorage.setItem(stored.key, value);
-            }
-        } catch (error) {
-            console.warn("[TourismEasy] No se pudo actualizar la actividad de la sesión.", error);
-        }
+        lastUserActivity = Date.now();
+        validateWithServer(stored, true);
     }
 
     function checkSession() {
@@ -106,8 +152,7 @@
             })
             .then(function (result) {
                 if (result && result.activa === true) {
-                    const current = checkSession();
-                    if (current) saveActivity(current);
+                    checkSession();
                 } else if (result && result.activa === false) {
                     expireSession(stored.session);
                 }
@@ -142,6 +187,7 @@
         if (![adminSessionKey, artisanSessionKey].includes(event.key)) return;
         const stored = checkSession();
         if (stored) validateWithServer(stored);
+        else if (privatePage) redirectToLogin(null);
     });
 
     document.addEventListener("visibilitychange", function () {
@@ -153,7 +199,7 @@
     window.setInterval(function () {
         const stored = checkSession();
         if (!stored) return;
-        if (Date.now() - Number(stored.session.ultimaActividad) < 60 * 1000) {
+        if (Date.now() - lastUserActivity < 60 * 1000) {
             validateWithServer(stored);
         }
     }, heartbeatIntervalMs);

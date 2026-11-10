@@ -11,8 +11,7 @@
     // redirecciones entre esta página y admin.php.
     var sessionExpiredByDevice = new URLSearchParams(window.location.search).get('sesion_expirada') === '1';
     if (sessionExpiredByDevice) {
-        sessionStorage.removeItem('te_ecommerce_session');
-        localStorage.removeItem('te_ecommerce_session');
+        window.TourismSession.clear();
         sessionStorage.removeItem('te_ecommerce_login_approval');
         // Limpiamos el parámetro de la URL para que no quede ahí si el usuario recarga
         window.history.replaceState({}, '', window.location.pathname);
@@ -20,21 +19,14 @@
 
     // ── Si ya hay sesión activa redirigir ──
     try {
-        var storedSession = localStorage.getItem('te_ecommerce_session') || sessionStorage.getItem('te_ecommerce_session');
-        var sess = JSON.parse(storedSession || 'null');
-        var ultimaActividad = sess ? Number(sess.ultimaActividad) : 0;
-        if (sess && (!Number.isFinite(ultimaActividad) || Date.now() - ultimaActividad >= 10 * 60 * 1000)) {
-            sessionStorage.removeItem('te_ecommerce_session');
-            localStorage.removeItem('te_ecommerce_session');
-            sess = null;
-        }
-        if (sess && sess.tipo === 'artesano' && sess.estado === 'ACTIVO') {
-            localStorage.setItem('te_ecommerce_session', JSON.stringify(sess));
-            sessionStorage.removeItem('te_ecommerce_session');
+        var sess = window.TourismSession.get();
+        if (sess && sess.tipo === 'artesano') {
             window.location.href = '../e-commerce/admin.php';
             return;
         }
-    } catch (e) {}
+    } catch (error) {
+        console.error('No se pudo leer el estado de sesión del artesano.', error);
+    }
 
     // Cargar tipos de documento desde el inicio
     cargarTiposDoc();
@@ -226,8 +218,9 @@
                 }
                 sessionStorage.removeItem(approvalStorageKey);
                 // Guardar sesión artesano
-                data.session.ultimaActividad = Date.now();
-                localStorage.setItem('te_ecommerce_session', JSON.stringify(data.session));
+                if (!window.TourismSession.save(data.session)) {
+                    throw new Error('La respuesta de sesión no es válida.');
+                }
                 window.location.href = '../e-commerce/admin.php';
             })
             .catch(function() {

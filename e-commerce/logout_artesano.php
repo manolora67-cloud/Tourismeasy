@@ -2,10 +2,8 @@
 /**
  * e-commerce/logout_artesano.php
  * Cierra la sesión de servidor del artesano.
- * Borrar sessionStorage en el navegador (lo que hacía antes btnLogoutArtesano)
- * solo le oculta la sesión a ESE navegador: la cookie de sesión seguiría
- * siendo válida hasta que el servidor la destruya de verdad, que es lo que
- * hace este endpoint.
+ * El endpoint invalida la sesión en el servidor; borrar la pista de interfaz
+ * del navegador por sí sola no cerraría la cookie de sesión.
  */
 
 require_once __DIR__ . '/../con_db/sesion_persistente.php';

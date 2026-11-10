@@ -289,8 +289,6 @@
             window.location.href = "../index.html";
             return;
         }
-        localStorage.setItem("te_session", JSON.stringify(session));
-        sessionStorage.removeItem("te_session");
         document.getElementById("sidebarAvatar").textContent = session.avatar || "AD";
         document.getElementById("sidebarNombre").textContent = session.nombre || "Administrador";
 
@@ -349,6 +347,31 @@
         });
 
         logoutLink.addEventListener("click", cerrarSesion);
+        fetch("../login/get_perfil_admin.php", {
+            credentials: "include",
+            cache: "no-store"
+        })
+            .then(function(response) {
+                if (!response.ok) throw new Error("No se pudo cargar el perfil del administrador.");
+                return response.json();
+            })
+            .then(function(data) {
+                if (!data.ok || !data.admin) {
+                    throw new Error(data.error || "No se recibieron los datos del administrador.");
+                }
+                var fullName = [data.admin.nombre, data.admin.apellido].filter(Boolean).join(" ").trim();
+                if (!fullName) return;
+                var initials = fullName.split(/\s+/).map(function(part) {
+                    return part[0] || "";
+                }).join("").slice(0, 2).toUpperCase();
+                document.getElementById("sidebarAvatar").textContent = initials;
+                document.getElementById("sidebarNombre").textContent = fullName;
+                avatar.textContent = initials;
+                name.textContent = fullName;
+            })
+            .catch(function(error) {
+                console.warn("[TourismEasy] No se pudo mostrar el nombre del administrador.", error);
+            });
     })();
 
     async function cerrarSesion(event) {

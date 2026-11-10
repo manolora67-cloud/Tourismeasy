@@ -14,6 +14,7 @@ require_once __DIR__ . '/../con_db/seguridad_login.php';
 require_once __DIR__ . '/../con_db/aprobacion_dispositivo.php';
 
 header('Content-Type: application/json');
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
 require_once __DIR__ . '/../cors.php';
 
 $input    = json_decode(file_get_contents('php://input'), true);
@@ -222,12 +223,7 @@ try {
     echo json_encode([
         "ok" => true,
         "session" => [
-            "tipo"   => "artesano",
-            "id"     => $row['id'],
-            "email"  => $row['email_login'],
-            "nombre" => $nombre,
-            "avatar" => $avatar,
-            "estado" => $row['estado'],
+            "tipo" => "artesano",
         ]
     ]);
 

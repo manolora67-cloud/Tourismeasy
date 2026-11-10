@@ -1,10 +1,7 @@
 (function () {
     try {
-        const storedSession = localStorage.getItem("te_session") || sessionStorage.getItem("te_session");
-        const session = JSON.parse(storedSession || "null");
+        const session = window.TourismSession.get();
         if (session && ["admin", "empresa"].includes(session.tipo)) {
-            localStorage.setItem("te_session", JSON.stringify(session));
-            sessionStorage.removeItem("te_session");
             const panel = session.tipo === "admin"
                 ? "panel_admin.html"
                 : ({
@@ -16,8 +13,7 @@
             return;
         }
     } catch (error) {
-        sessionStorage.removeItem("te_session");
-        localStorage.removeItem("te_session");
+        window.TourismSession.clear();
     }
 
     const darkBtn = document.getElementById("darkModeToggle");

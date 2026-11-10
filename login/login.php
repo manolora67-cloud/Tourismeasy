@@ -13,6 +13,7 @@ require_once __DIR__ . '/../con_db/seguridad_login.php';
 require_once __DIR__ . '/../con_db/aprobacion_dispositivo.php';
 
 header('Content-Type: application/json');
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
 require_once __DIR__ . '/../cors.php';
 
 $input = json_decode(file_get_contents('php://input'), true);
@@ -212,11 +213,7 @@ try {
         $nombre_sesion = $row['nombre'];
         $datos_sesion = [
             "tipo" => "empresa",
-            "id" => $row['id'],
-            "email" => $row['email_login'],
-            "nombre" => $row['nombre'],
             "tipoServicio" => $row['tipo_servicio'],
-            "avatar" => $avatar,
         ];
     } else {
         $_SESSION['id_persona'] = $row['id'];
@@ -225,10 +222,6 @@ try {
         $avatar = strtoupper(substr($row['nombre'], 0, 1) . substr($row['apellido'], 0, 1));
         $datos_sesion = [
             "tipo" => $row['rol'],
-            "id" => $row['id'],
-            "email" => $row['email_login'],
-            "nombre" => $nombre_sesion,
-            "avatar" => $avatar,
         ];
     }
 

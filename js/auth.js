@@ -5,7 +5,6 @@
     const apiBase = inHtml ? "../" : "";
     const pageBase = inHtml ? "" : "html/";
     const loginPage = document.getElementById("loginPageCard");
-    const sessionTimeoutMs = 10 * 60 * 1000;
 
     const modal = `
 <div class="auth-overlay" id="authOverlay" role="dialog" aria-modal="true" aria-labelledby="authDialogTitle">
@@ -154,11 +153,8 @@
         let recoveryRequestPending = false;
 
         if (sessionExpiredByDevice) {
-            for (const storage of [localStorage, sessionStorage]) {
-                storage.removeItem("te_session");
-                storage.removeItem("te_ecommerce_session");
-                storage.removeItem(approvalStorageKey);
-            }
+            window.TourismSession.clear();
+            sessionStorage.removeItem(approvalStorageKey);
             pendingApproval = "";
             loginStatus.textContent = "La sesión de este equipo se cerró porque se autorizó el acceso desde otro dispositivo. Puedes volver a iniciar sesión aquí.";
             loginStatus.classList.add("info");
@@ -309,11 +305,11 @@
                 }
                 if (!response.ok || !result.ok) throw new Error(result.error || "No se pudo iniciar sesión.");
                 sessionStorage.removeItem(approvalStorageKey);
-                result.session.ultimaActividad = Date.now();
-                localStorage.setItem("te_session", JSON.stringify(result.session));
-                const destino = result.session.tipo === "admin" ?
+                const session = window.TourismSession.save(result.session);
+                if (!session) throw new Error("La respuesta de sesión no es válida.");
+                const destino = session.tipo === "admin" ?
                     "panel_admin.html" :
-                    ({ transporte: "panel_transporte.html", hospedaje: "panel_hospedaje.html", planes: "panel_planes.html" }[String(result.session.tipoServicio || "").toLowerCase()] || "panel_transporte.html");
+                    ({ transporte: "panel_transporte.html", hospedaje: "panel_hospedaje.html", planes: "panel_planes.html" }[String(session.tipoServicio || "").toLowerCase()] || "panel_transporte.html");
                 window._loginSuccess = true;
                 window.location.href = destino;
             } catch (error) {
@@ -391,29 +387,12 @@
     }
 
     function clearSession() {
-        sessionStorage.removeItem("te_session");
-        localStorage.removeItem("te_session");
+        window.TourismSession.clear();
     }
 
     function getSession() {
-        try {
-            const storedSession = localStorage.getItem("te_session") || sessionStorage.getItem("te_session");
-            const session = JSON.parse(storedSession || "null");
-            if (session) {
-                const ultimaActividad = Number(session.ultimaActividad);
-                if (!Number.isFinite(ultimaActividad) || Date.now() - ultimaActividad >= sessionTimeoutMs) {
-                    clearSession();
-                    return null;
-                }
-                localStorage.setItem("te_session", JSON.stringify(session));
-                sessionStorage.removeItem("te_session");
-            }
-            if (session && ["admin", "empresa"].includes(session.tipo)) return session;
-        } catch (error) {
-            console.error("No se pudo leer la sesión:", error);
-        }
-        clearSession();
-        return null;
+        const session = window.TourismSession.get();
+        return session && ["admin", "empresa"].includes(session.tipo) ? session : null;
     }
 
     function route(file) {
@@ -466,6 +445,28 @@
         widget.querySelector(".session-avatar").textContent = name.split(/\s+/).map((part) => part[0]).join("").slice(0, 2).toUpperCase();
         widget.querySelector(".session-name").textContent = name;
         widget.querySelector(".session-tipo").textContent = user.tipo === "admin" ? "Administrador" : "Empresa";
+        const profileUrl = user.tipo === "admin"
+            ? apiBase + "login/get_perfil_admin.php"
+            : apiBase + "soli_empresas/get_perfil_empresa.php";
+        fetch(profileUrl, { credentials: "include", cache: "no-store" })
+            .then((response) => {
+                if (!response.ok) throw new Error("No se pudo cargar el nombre de la cuenta.");
+                return response.json();
+            })
+            .then((data) => {
+                const profile = user.tipo === "admin"
+                    ? data.admin
+                    : data.empresa;
+                if (!data.ok || !profile) throw new Error(data.error || "No se recibieron los datos de la cuenta.");
+                const fullName = user.tipo === "admin"
+                    ? [profile.nombre, profile.apellido].filter(Boolean).join(" ").trim()
+                    : String(profile.nombre || "").trim();
+                if (!fullName) return;
+                widget.querySelector(".session-name").textContent = fullName;
+                widget.querySelector(".session-avatar").textContent = fullName
+                    .split(/\s+/).map((part) => part[0]).join("").slice(0, 2).toUpperCase();
+            })
+            .catch((error) => console.warn("[TourismEasy] No se pudo mostrar el nombre de la cuenta.", error));
         const darkMode = document.getElementById("dark-mode-toggle");
         if (darkMode && darkMode.parentElement) darkMode.parentElement.insertBefore(widget, darkMode);
         else {
@@ -507,31 +508,5 @@
         if (event.persisted && guardCompanyPage()) applySession();
     });
 
-    function registrarActividadSesion() {
-        try {
-            const storedSession = localStorage.getItem("te_session") || sessionStorage.getItem("te_session");
-            const session = JSON.parse(storedSession || "null");
-            if (!session || !["admin", "empresa"].includes(session.tipo)) return;
-            const ultimaActividad = Number(session.ultimaActividad);
-            if (!Number.isFinite(ultimaActividad) || Date.now() - ultimaActividad >= sessionTimeoutMs) {
-                clearSession();
-                applySession();
-                return;
-            }
-            session.ultimaActividad = Date.now();
-            localStorage.setItem("te_session", JSON.stringify(session));
-            sessionStorage.removeItem("te_session");
-        } catch (error) {
-            console.error("No se pudo actualizar la actividad de la sesión:", error);
-            clearSession();
-        }
-    }
-
-    ["pointerdown", "keydown", "touchstart", "input", "scroll"].forEach((eventName) => {
-        document.addEventListener(eventName, registrarActividadSesion, { passive: true });
-    });
     window.addEventListener("te-session-expired", applySession);
-    window.setInterval(() => {
-        if (!getSession()) applySession();
-    }, 30 * 1000);
 })();

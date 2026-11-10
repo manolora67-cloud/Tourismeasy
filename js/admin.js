@@ -87,23 +87,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ── Sesión del artesano logueado ──
-    // Coincide con lo que login_ecommerce.html guarda tras un login exitoso:
-    // localStorage.setItem('te_ecommerce_session', JSON.stringify(data.session))
-    const SESSION_KEY = 'te_ecommerce_session';
-
     function getSesionArtesano() {
-        try {
-            const raw = localStorage.getItem(SESSION_KEY) || sessionStorage.getItem(SESSION_KEY);
-            if (!raw) return null;
-            const data = JSON.parse(raw);
-            if (!data || !data.id) return null;
-            localStorage.setItem(SESSION_KEY, JSON.stringify(data));
-            sessionStorage.removeItem(SESSION_KEY);
-            return data;
-        } catch (error) {
-            console.error('No se pudo leer la sesión del artesano:', error);
-            return null;
-        }
+        const session = window.TourismSession && window.TourismSession.get();
+        return session && session.tipo === 'artesano' ? session : { tipo: 'artesano' };
     }
 
     const sesion = getSesionArtesano();
@@ -129,9 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const artesanoNombreEl = document.getElementById('artesanoNombre');
     const btnLogoutArtesano = document.getElementById('btnLogoutArtesano');
 
-    if (sesion && artesanoNombreEl) {
-        artesanoNombreEl.textContent = sesion.nombre || 'Artesano';
-    }
+    if (artesanoNombreEl) artesanoNombreEl.textContent = 'Artesano';
 
     if (btnLogoutArtesano) {
         btnLogoutArtesano.addEventListener('click', async() => {
@@ -144,8 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             if (!confirmado) return;
 
-            // Primero destruimos la sesión real de servidor; sessionStorage
-            // solo era para mostrar el nombre en pantalla, no da acceso.
+            // Primero destruimos la sesión real del servidor; la interfaz solo conserva el rol.
             try {
                 const response = await fetch('../e-commerce/logout_artesano.php', {
                     method: 'POST',
@@ -155,8 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!response.ok || !result.ok) {
                     throw new Error(result.error || 'No se pudo cerrar la sesión.');
                 }
-                sessionStorage.removeItem(SESSION_KEY);
-                localStorage.removeItem(SESSION_KEY);
+                window.TourismSession.clear();
                 window.location.replace('../html/e-commerce.html');
             } catch (e) {
                 console.error('Error cerrando sesión en el servidor:', e);
@@ -444,7 +426,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // GET: Obtener todos los productos (solo los del artesano logueado)
     async function fetchProducts() {
-        const url = sesion ? `${API_URL}&id_persona=${encodeURIComponent(sesion.id)}` : API_URL;
+        const url = `${API_URL}&id_persona=1`;
         const response = await fetch(url, {
             credentials: 'include',
             cache: 'no-store'
@@ -830,16 +812,30 @@ document.addEventListener('DOMContentLoaded', () => {
     // Se llama al cargar la página Y dentro de resetForm(), porque form.reset()
     // borra el valor de vuelta a su default (vacío) pero no toca el readOnly,
     // dejando el campo bloqueado y en blanco tras el primer producto.
-    function precargarProveedor() {
-        if (sesion && sesion.nombre) {
-            const providerInput = document.getElementById('provider');
-            providerInput.value = sesion.nombre;
-            providerInput.readOnly = true;
-            providerInput.style.background = 'var(--gray-100)';
-            providerInput.style.cursor = 'not-allowed';
-        }
+    function precargarProveedor(nombre) {
+        const providerInput = document.getElementById('provider');
+        providerInput.value = nombre || 'Artesano';
+        providerInput.readOnly = true;
+        providerInput.style.background = 'var(--gray-100)';
+        providerInput.style.cursor = 'not-allowed';
     }
-    precargarProveedor();
+    precargarProveedor('Artesano');
+    fetch('../e-commerce/perfil_artesano.php', {
+        credentials: 'include',
+        headers: { Accept: 'application/json' },
+        cache: 'no-store'
+    })
+        .then(response => response.json().then(data => ({ response, data })))
+        .then(({ response, data }) => {
+            if (!response.ok || !data.ok || !data.perfil) {
+                throw new Error(data.error || 'No se pudo cargar el perfil del artesano.');
+            }
+            const name = [data.perfil.nombre, data.perfil.apellido].filter(Boolean).join(' ').trim();
+            if (!name) return;
+            precargarProveedor(name);
+            if (artesanoNombreEl) artesanoNombreEl.textContent = name;
+        })
+        .catch(error => console.error('No se pudo cargar el nombre del artesano:', error));
     window.TEUI.markClean(productForm);
 
     // ── Inicializar ──

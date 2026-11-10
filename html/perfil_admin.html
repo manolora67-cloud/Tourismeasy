@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script src="../js/control_tiempo_sesion.js?v=control-tiempo-v3"></script>
+    <script src="../js/control_tiempo_sesion.js?v=secure-session-v4"></script>
     <title>Mi Perfil - Panel Administrador - TourismEasy</title>
     <link rel="stylesheet" href="../css/index.css" />
     <link rel="stylesheet" href="../css/login.css?v=device-approval-v2" />
@@ -13,7 +13,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;500&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
-    <script src="../componentes/ui-feedback.js?v=ui-feedback-v3"></script>
+    <script src="../componentes/ui-feedback.js?v=ui-feedback-v4"></script>
 </head>
 
 <body>
@@ -389,14 +389,11 @@
                 if (sessionName) sessionName.textContent = nombreCompleto;
                 if (sessionAvatar) sessionAvatar.textContent = initials;
 
-                sesion.email = email;
-                var sessionStore = localStorage.getItem("te_session") ? localStorage : sessionStorage;
-                sessionStore.setItem("te_session", JSON.stringify(sesion));
             }
 
             function cargarPerfil() {
-                if (!sesion.id) return Promise.reject(new Error("No se encontró la sesión del administrador."));
-                return fetch(API_BASE + 'get_perfil_admin.php?id=' + encodeURIComponent(sesion.id), {
+                if (sesion.tipo !== "admin") return Promise.reject(new Error("No se encontró la sesión del administrador."));
+                return fetch(API_BASE + 'get_perfil_admin.php', {
                         credentials: 'include',
                         cache: 'no-store'
                     })
@@ -638,11 +635,6 @@
                         adminActual.email_login = email;
                         aplicarDatos(adminActual);
 
-                        sesion.nombre = nombreCompleto;
-                        sesion.email = email;
-                        var sessionStore = localStorage.getItem("te_session") ? localStorage : sessionStorage;
-                        sessionStore.setItem("te_session", JSON.stringify(sesion));
-
                         window.TEUI.markClean(modal);
                         window.TEUI.toast("Perfil actualizado correctamente.");
                         setTimeout(function() {
@@ -672,7 +664,7 @@
             }
         })();
     </script>
-    <script src="../componentes/agente-ia.js?v=tooltip-sue-v1"></script>
+    <script src="../componentes/agente-ia.js?v=private-chat-memory-v1"></script>
     <script src="../menu_accesibilidad/menu.js?v=a11y-v16"></script>
 </body>
 

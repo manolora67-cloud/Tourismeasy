@@ -32,7 +32,7 @@ $artesanoNombreSesion = $_SESSION['artesano_nombre'] ?? 'Artesano';
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script src="../js/control_tiempo_sesion.js?v=control-tiempo-v3"></script>
+    <script src="../js/control_tiempo_sesion.js?v=secure-session-v4"></script>
     <title>Panel de Productos - TourismEasy</title>
     <script>
         // Bloquea la flecha "atrás" del navegador mientras el artesano tiene sesión activa.
@@ -59,7 +59,7 @@ $artesanoNombreSesion = $_SESSION['artesano_nombre'] ?? 'Artesano';
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;500&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
-    <script src="../componentes/ui-feedback.js?v=ui-feedback-v3"></script>
+    <script src="../componentes/ui-feedback.js?v=ui-feedback-v4"></script>
 </head>
 
 <body>
@@ -324,11 +324,11 @@ $artesanoNombreSesion = $_SESSION['artesano_nombre'] ?? 'Artesano';
     <script src="../componentes/click-metrics-dashboard.js?v=click-metrics-v2"></script>
     <script src="../js/metricas_clics.js"></script>
     <script src="../componentes/paginacion.js"></script>
-    <script src="../js/admin.js?v=artisan-password-settings-v2"></script>
+    <script src="../js/admin.js?v=secure-session-v1"></script>
     <script src="../componentes/cambio-contrasena.js?v=password-change-v1"></script>
     <script src="../js/configuracion_artesano.js?v=artisan-settings-v1"></script>
     <script src="../js/santanderianidad.js"></script>
-    <script src="../componentes/agente-ia.js?v=tooltip-sue-v2"></script>
+    <script src="../componentes/agente-ia.js?v=private-chat-memory-v1"></script>
     <script src="../menu_accesibilidad/menu.js?v=a11y-v14"></script>
 </body>
 

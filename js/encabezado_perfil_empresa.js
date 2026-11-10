@@ -11,7 +11,7 @@
         return;
     }
 
-    if (!user || user.tipo !== "empresa" || !user.id) {
+    if (!user || user.tipo !== "empresa") {
         showUnavailable();
         return;
     }
@@ -29,10 +29,6 @@
                 throw new Error(data.error || "No se recibieron los datos de la empresa.");
             }
             var empresa = data.empresa;
-            if (String(empresa.nit) !== String(user.id)) {
-                throw new Error("La sesión del navegador no coincide con la empresa autenticada en el servidor.");
-            }
-
             var nombre = typeof empresa.nombre === "string" ? empresa.nombre.trim() : "";
             if (!nombre) throw new Error("El servidor no devolvió el nombre de la empresa.");
             var initials = nombre.split(/\s+/).map(function (word) {
@@ -58,11 +54,8 @@
                 panelLink.href = panelByService[serviceKey];
             }
 
-            user.nombre = nombre;
-            user.avatar = initials;
             user.tipoServicio = empresa.servicio || user.tipoServicio;
-            var sessionStore = localStorage.getItem("te_session") ? localStorage : sessionStorage;
-            sessionStore.setItem("te_session", JSON.stringify(user));
+            window.TourismSession.save(user);
         })
         .catch(function (error) {
             console.error("No se pudo cargar el perfil de la empresa:", error);

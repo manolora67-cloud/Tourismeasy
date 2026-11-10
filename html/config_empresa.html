@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script src="../js/control_tiempo_sesion.js?v=control-tiempo-v3"></script>
+    <script src="../js/control_tiempo_sesion.js?v=secure-session-v4"></script>
     <title>Configuración de Empresa - TourismEasy</title>
     <link rel="stylesheet" href="../css/index.css" />
     <link rel="stylesheet" href="../css/login.css?v=device-approval-v2" />
@@ -17,7 +17,7 @@
         rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
-    <script src="../componentes/ui-feedback.js?v=ui-feedback-v3"></script>
+    <script src="../componentes/ui-feedback.js?v=ui-feedback-v4"></script>
 </head>
 
 <body>
@@ -335,9 +335,6 @@
                         throw new Error(data.error || "No se recibieron los datos de la empresa.");
                     }
                     var empresa = data.empresa;
-                    if (String(empresa.nit) !== String(u.id)) {
-                        throw new Error("La sesión del navegador no coincide con la empresa autenticada en el servidor.");
-                    }
                     var errorElement = document.getElementById("empresaDatosError");
                     if (errorElement) errorElement.hidden = true;
 
@@ -345,9 +342,8 @@
                     var iniciales = nombre.trim().split(/\s+/).map(function (palabra) {
                         return palabra[0] || "";
                     }).join("").toUpperCase().slice(0, 2) || "EM";
-                    u.nombre = nombre;
                     u.tipoServicio = empresa.servicio || u.tipoServicio;
-                    localStorage.setItem("te_session", JSON.stringify(u));
+                    window.TourismSession.save(u);
 
                     if (av) av.textContent = iniciales;
                     if (nm) nm.textContent = nombre;
@@ -453,7 +449,7 @@
     </script>
     <script src="../js/company_monthly_report.js"></script>
     <script src="../componentes/cambio-contrasena.js?v=password-change-v1"></script>
-    <script src="../componentes/agente-ia.js?v=tooltip-sue-v1"></script>
+    <script src="../componentes/agente-ia.js?v=private-chat-memory-v1"></script>
     <script src="../menu_accesibilidad/menu.js?v=a11y-v16"></script>
 </body>
 

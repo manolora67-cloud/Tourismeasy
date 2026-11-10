@@ -549,11 +549,8 @@ function closeTutorialModal() {
     window.addEventListener('unload', function() {});
 
     function haySesionArtesano() {
-        var sess = null;
-        try {
-            sess = JSON.parse(localStorage.getItem('te_ecommerce_session') || sessionStorage.getItem('te_ecommerce_session') || 'null');
-        } catch (e) {}
-        return sess && sess.tipo === 'artesano' && sess.estado === 'ACTIVO';
+        var sess = window.TourismSession && window.TourismSession.get();
+        return sess && sess.tipo === 'artesano';
     }
 
     function redirigirSiHaySesion() {

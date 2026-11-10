@@ -348,8 +348,12 @@
             if (!response.ok || !result.ok) {
                 throw new Error(result.error || "No se pudo cerrar la sesión.");
             }
-            sessionStorage.removeItem("te_session");
-            localStorage.removeItem("te_session");
+            if (window.TourismSession) {
+                window.TourismSession.clear();
+            } else {
+                sessionStorage.removeItem("te_session");
+                localStorage.removeItem("te_session");
+            }
             window.location.assign(redirectUrl);
             return true;
         } catch (error) {

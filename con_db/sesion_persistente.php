@@ -2,10 +2,11 @@
 function iniciarSesionPersistente(): void
 {
     $duracion = 10 * 60;
-    $seguro = (!empty($_SERVER['HTTPS']) && strtolower((string) $_SERVER['HTTPS']) !== 'off')
-        || (string) ($_SERVER['SERVER_PORT'] ?? '') === '443';
+    $seguro = sesionPersistenteUsaHttps();
 
     ini_set('session.gc_maxlifetime', (string) $duracion);
+    ini_set('session.use_strict_mode', '1');
+    ini_set('session.use_only_cookies', '1');
     session_set_cookie_params([
         'lifetime' => $duracion,
         'path' => '/',
@@ -27,6 +28,16 @@ function iniciarSesionPersistente(): void
     }
 
     renovarCookieSesionPersistente();
+}
+
+function sesionPersistenteUsaHttps(): bool
+{
+    $https = strtolower(trim((string) ($_SERVER['HTTPS'] ?? '')));
+    $forwardedProto = strtolower(trim(explode(',', (string) ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? ''))[0]));
+
+    return in_array($https, ['on', '1', 'https'], true)
+        || (string) ($_SERVER['SERVER_PORT'] ?? '') === '443'
+        || $forwardedProto === 'https';
 }
 
 function sesionPersistenteTieneCuentaActiva(): bool
