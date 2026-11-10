@@ -59,6 +59,10 @@ TourismEasy es una plataforma web de turismo inclusivo enfocada en Santander, Co
 
 El servidor integrado de PHP es para desarrollo local, no para producción. Para desplegar, utiliza un servidor web compatible con PHP y configura la base de datos, HTTPS, permisos y credenciales fuera del código versionado.
 
+### Página 404
+
+La página personalizada está en [404.html](404.html). En Apache, `.htaccess` configura su uso y conserva el estado HTTP 404. La ruta configurada corresponde al despliegue actual bajo `/Tourismeasy/`; si cambia el nombre o la ubicación de esa carpeta, actualiza el prefijo de `ErrorDocument` y conserva las rutas relativas de recursos de la página. Apache debe permitir el uso de `.htaccess` para que la regla tenga efecto. Otros servidores web deben configurarse para servir `404.html` con estado HTTP 404. El servidor integrado de PHP documentado arriba no procesa `.htaccess`, así que en desarrollo local hay que abrir `/404.html` directamente para verla.
+
 ### Traducción al inglés
 
 El idioma inglés se aplica inmediatamente con un glosario local de palabras y frases conocidas; no hace solicitudes a MyMemory ni consume una cuota externa. También se procesa contenido dinámico cuando coincide con una frase del glosario. Los textos arbitrarios de backend (por ejemplo, nombres o descripciones ingresados por usuarios) requieren una traducción explícita en el glosario; no se traducen automáticamente.
