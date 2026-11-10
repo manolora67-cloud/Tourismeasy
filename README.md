@@ -5,6 +5,7 @@ TourismEasy es una plataforma web de turismo inclusivo enfocada en Santander, Co
 ## Funcionalidades
 
 - Exploración de destinos, planes turísticos, hospedajes y transporte.
+- Metaverso 3D de Santander con consentimiento explícito antes de cargar A-Frame desde su CDN, siete provincias explorables, mapa con límites y relieve, recorrido en primera persona con gravedad, detección del suelo, colisiones sencillas y controles de teclado o VR. El permiso se puede revocar desde la experiencia.
 - Acceso para administración y empresas, con solicitud de registro empresarial.
 - Carrusel de los 87 municipios de Santander en la portada, con ocho tarjetas por página y navegación con flechas. Los nombres se consultan de la tabla `CIUDADES`; cada municipio tiene una tarjeta descrita en [componentes/destinos.js](componentes/destinos.js) y una ficha de destino propia en `ARTICULOS` de [componentes/articulos.js](componentes/articulos.js). Desde el panel se pueden actualizar las imágenes y los videos.
 - Atención y contacto de viajeros por WhatsApp; no se crean cuentas de viajeros.
@@ -59,6 +60,7 @@ El servidor integrado de PHP es para desarrollo local, no para producción. Para
 | --- | --- |
 | [index.html](index.html) | Página principal. |
 | [html/](html/) | Páginas de acceso, perfiles, paneles y catálogos. |
+| [metaverso/](metaverso/) | Experiencia 3D, estilos y lógica del metaverso de Santander. |
 | [css/](css/) | Estilos de la interfaz. |
 | [js/](js/), [componentes/](componentes/) | Lógica del navegador y componentes reutilizables. |
 | [login/](login/), [recuperacion/](recuperacion/), [resenas/](resenas/) | Endpoints de cuentas, recuperación y reseñas. |

@@ -13,15 +13,17 @@
             { key: "hospedaje", label: "Hospedaje", file: "hospedaje.html" },
             { key: "planes", label: "Planes Turísticos", file: "planes_turisticos.html" },
             { key: "ecommerce", label: "E-Commerce", file: "e-commerce.html" },
+            { key: "metaverso", label: "Metaverso", file: "metaverso/index.php" },
         ];
 
-        const linkHref = (file) => `${pagesBase}${file}`;
+        const linkHref = (link) =>
+            link.key === "metaverso" ? `${rootBase}${link.file}` : `${pagesBase}${link.file}`;
 
         const linksHTML = () =>
             links
             .map(
                 (l) =>
-                `<a href="${linkHref(l.file)}" class="${active === l.key ? "active" : ""}">${l.label}</a>`
+                `<a href="${linkHref(l)}" class="${active === l.key ? "active" : ""}">${l.label}</a>`
             )
             .join("");
 
@@ -36,7 +38,7 @@
           ${links
             .map(
               (l) =>
-                `<li><a href="${linkHref(l.file)}" class="${active === l.key ? "active" : ""}">${l.label}</a></li>`
+                `<li><a href="${linkHref(l)}" class="${active === l.key ? "active" : ""}">${l.label}</a></li>`
             )
             .join("")}
         </ul>
