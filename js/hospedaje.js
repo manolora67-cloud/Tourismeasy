@@ -85,6 +85,8 @@ function actualizarBotonWhatsApp(btn) {
     var currentPage = 1;
     var pageSize = 6;
     var requestId = 0;
+    var defaultAdults = 1;
+    var defaultChildren = 0;
 
     function normalize(value) {
         return String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
@@ -163,10 +165,13 @@ function actualizarBotonWhatsApp(btn) {
             return;
         }
 
+        var isDefaultCapacity = adults === defaultAdults && children === defaultChildren;
         var params = new URLSearchParams();
         if (inputDestino.value) params.set("id_ciudad", inputDestino.value);
         if (inputAccesibilidad.value) params.set("accesibilidad", inputAccesibilidad.value);
-        params.set("capacidad", String(adults + children));
+        if (!isDefaultCapacity || inputDestino.value || inputAccesibilidad.value) {
+            params.set("capacidad", String(adults + children));
+        }
         pagination.hidden = true;
         noResults.style.display = "none";
         setSearchStatus("Buscando hospedajes…");
@@ -187,9 +192,8 @@ function actualizarBotonWhatsApp(btn) {
                 var matches = Array.from(grid.querySelectorAll(".card-item"));
                 currentPage = 1;
                 noResults.style.display = matches.length ? "none" : "block";
-                noResultsQuery.textContent = inputDestino.value
-                    ? inputDestino.selectedOptions[0].textContent
-                    : "los filtros seleccionados";
+                var queryText = inputDestino.value ? inputDestino.selectedOptions[0].textContent : "la búsqueda actual";
+                noResultsQuery.textContent = queryText;
                 renderPage(matches);
                 setSearchStatus(matches.length + (matches.length === 1 ? " hospedaje coincide." : " hospedajes coinciden."));
             })
