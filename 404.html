@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#f7f5ff">
     <meta name="robots" content="noindex, nofollow">
+    <script>
+        if (window.location.pathname.startsWith("/Tourismeasy/") &&
+            window.location.pathname !== "/Tourismeasy/404.html") {
+            const base = document.createElement("base");
+            base.href = "/Tourismeasy/";
+            document.head.append(base);
+        }
+    </script>
     <script src="js/control_tiempo_sesion.js?v=control-tiempo-v3"></script>
     <title>Destino no encontrado | TourismEasy</title>
     <link rel="icon" type="image/png" href="img/TURISMEASY.png">

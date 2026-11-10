@@ -1048,6 +1048,10 @@ ul {
     color: var(--gray-400);
 }
 
+.footer-authors {
+    margin: 6px 0 0;
+}
+
 
 /* ===========================
    BOTONES DE LOGIN SOCIAL (Google, Facebook)

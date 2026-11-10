@@ -42,7 +42,8 @@
           </div>
         </div>
         <div class="footer-bottom">
-          <p>&copy; 2026 TOURISMEASY. Todos los derechos reservados.</p>
+          <p>&copy; 2026 Javier Sanchez, Sergio Vasquez y David Ramirez. Código y logo originales.</p>
+          <p class="footer-authors">Autores: Javier Sanchez, Sergio Vasquez y David Ramirez.</p>
         </div>
       </div>
     </footer>

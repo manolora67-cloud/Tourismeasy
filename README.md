@@ -59,9 +59,13 @@ TourismEasy es una plataforma web de turismo inclusivo enfocada en Santander, Co
 
 El servidor integrado de PHP es para desarrollo local, no para producción. Para desplegar, utiliza un servidor web compatible con PHP y configura la base de datos, HTTPS, permisos y credenciales fuera del código versionado.
 
+### Autoría y derechos de autor
+
+El aviso del pie de página y [CREDITOS.md](CREDITOS.md) identifican a los autores del código y del logo originales, y describen el origen reportado de imágenes y videos del sitio. Revisen las condiciones de Google Flow y las licencias o autorizaciones de las imágenes descargadas desde Google. La atribución no es una licencia de software ni concede permisos específicos de reutilización; no se ha agregado una licencia al proyecto.
+
 ### Página 404
 
-La página personalizada está en [404.html](404.html). En Apache, `.htaccess` configura su uso y conserva el estado HTTP 404. La ruta configurada corresponde al despliegue actual bajo `/Tourismeasy/`; si cambia el nombre o la ubicación de esa carpeta, actualiza el prefijo de `ErrorDocument` y conserva las rutas relativas de recursos de la página. Apache debe permitir el uso de `.htaccess` para que la regla tenga efecto. Otros servidores web deben configurarse para servir `404.html` con estado HTTP 404. El servidor integrado de PHP documentado arriba no procesa `.htaccess`, así que en desarrollo local hay que abrir `/404.html` directamente para verla.
+La página personalizada está en [404.html](404.html). En Apache, `.htaccess` configura su uso y conserva el estado HTTP 404. La ruta configurada corresponde al despliegue actual bajo `/Tourismeasy/`; si cambia el nombre o la ubicación de esa carpeta, actualiza el prefijo de `ErrorDocument` y el de la etiqueta `base` de `404.html`. La etiqueta `base` permite que sus recursos y enlaces sigan apuntando a la raíz del sitio aunque el navegador conserve la URL inexistente. Apache debe permitir el uso de `.htaccess` para que la regla tenga efecto; asegúrate de subir tanto `.htaccess` (incluidos los archivos ocultos) como `404.html` y de que `AllowOverride` permita `FileInfo` o `All`. Si Apache muestra su página genérica, la regla no se está aplicando o no encuentra el documento personalizado. Otros servidores web deben configurarse para servir `404.html` con estado HTTP 404. El servidor integrado de PHP documentado arriba no procesa `.htaccess`, así que en desarrollo local hay que abrir `/404.html` directamente para verla.
 
 ### Traducción al inglés
 
