@@ -62,40 +62,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.head.appendChild(style);
             }
 
-            async function loadCategorias() {
-                const select = document.getElementById('category');
-                if (!select) return false;
-                const filter = document.getElementById('filterCategoria');
-                select.disabled = true;
-                select.replaceChildren(new Option('Cargando categorías…', ''));
-                try {
-                    const response = await fetch(CATEGORIAS_URL, {
-                        credentials: 'include',
-                        cache: 'no-store'
-                    });
-                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                    const result = await response.json();
-                    const categorias = result.data && result.data.categorias_artesania;
-                    if (!result.ok || !Array.isArray(categorias)) {
-                        throw new Error(result.error || 'La respuesta de categorías no es válida.');
-                    }
-                    select.replaceChildren(new Option('Selecciona una categoría', ''));
-                    if (filter) filter.replaceChildren(new Option('Todas las categorías', ''));
-                    categorias.forEach(categoria => {
-                        select.add(new Option(categoria.nombre, categoria.id));
-                        if (filter) filter.add(new Option(categoria.nombre, categoria.id));
-                    });
-                    select.disabled = categorias.length === 0;
-                    if (!categorias.length) select.replaceChildren(new Option('No hay categorías activas', ''));
-                    return true;
-                } catch (error) {
-                    console.error('Error cargando categorías:', error);
-                    select.replaceChildren(new Option('No se pudieron cargar las categorías', ''));
-                    if (filter) filter.replaceChildren(new Option('Categorías no disponibles', ''));
-                    return false;
-                }
-            }
-
             const overlay = document.createElement('div');
             overlay.className = 'te-confirm-overlay';
             overlay.innerHTML = `
@@ -229,6 +195,41 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('Error cargando ciudades:', error);
             select.replaceChildren(new Option('No se pudieron cargar las ciudades', ''));
+            return false;
+        }
+    }
+
+    // ── Cargar categorías en los selectores del panel ──
+    async function loadCategorias() {
+        const select = document.getElementById('category');
+        if (!select) return false;
+        const filter = document.getElementById('filterCategoria');
+        select.disabled = true;
+        select.replaceChildren(new Option('Cargando categorías…', ''));
+        try {
+            const response = await fetch(CATEGORIAS_URL, {
+                credentials: 'include',
+                cache: 'no-store'
+            });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const result = await response.json();
+            const categorias = result.data && result.data.categorias_artesania;
+            if (!result.ok || !Array.isArray(categorias)) {
+                throw new Error(result.error || 'La respuesta de categorías no es válida.');
+            }
+            select.replaceChildren(new Option('Selecciona una categoría', ''));
+            if (filter) filter.replaceChildren(new Option('Todas las categorías', ''));
+            categorias.forEach(categoria => {
+                select.add(new Option(categoria.nombre, categoria.id));
+                if (filter) filter.add(new Option(categoria.nombre, categoria.id));
+            });
+            select.disabled = categorias.length === 0;
+            if (!categorias.length) select.replaceChildren(new Option('No hay categorías activas', ''));
+            return true;
+        } catch (error) {
+            console.error('Error cargando categorías:', error);
+            select.replaceChildren(new Option('No se pudieron cargar las categorías', ''));
+            if (filter) filter.replaceChildren(new Option('Categorías no disponibles', ''));
             return false;
         }
     }

@@ -75,10 +75,22 @@ if (!preg_match('/^[0-9]{5,6}$/D', $origen)
     exit;
 }
 
-if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $fecha)) {
+if (!preg_match('/^\d{4}-\d{2}-\d{2}$/D', $fecha)) {
     echo json_encode([
         "ok" => false,
         "error" => "Formato de fecha inválido. Use YYYY-MM-DD."
+    ]);
+    exit;
+}
+
+$fechaValidada = DateTimeImmutable::createFromFormat('!Y-m-d', $fecha);
+$erroresFecha = DateTimeImmutable::getLastErrors();
+if ($fechaValidada === false
+    || ($erroresFecha !== false && ($erroresFecha['warning_count'] > 0 || $erroresFecha['error_count'] > 0))
+    || $fechaValidada->format('Y-m-d') !== $fecha) {
+    echo json_encode([
+        "ok" => false,
+        "error" => "La fecha de salida no es una fecha válida."
     ]);
     exit;
 }
@@ -97,6 +109,22 @@ if (!preg_match('/^\d{2}:\d{2}(:\d{2})?$/', $hora)) {
    ========================================================= */
 
 try {
+    $stmtFecha = $pdo->prepare('SELECT fn_validar_fecha_salida(CAST(:fecha AS DATE))');
+    $stmtFecha->execute([':fecha' => $fecha]);
+    $fechaPermitida = in_array(
+        strtolower((string)$stmtFecha->fetchColumn()),
+        ['1', 't', 'true', 'yes', 'on'],
+        true
+    );
+
+    if (!$fechaPermitida) {
+        http_response_code(400);
+        echo json_encode([
+            "ok" => false,
+            "error" => "La fecha de salida no puede ser anterior a hoy."
+        ]);
+        exit;
+    }
 
     /* =====================================================
        EDITAR
