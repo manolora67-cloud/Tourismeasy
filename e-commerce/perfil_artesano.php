@@ -60,16 +60,6 @@ if (!is_array($input) || !isset($input['email'], $input['telefono'])
 
 $email = trim($input['email']);
 $telefono = trim($input['telefono']);
-if (strlen($email) > 254 || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    http_response_code(400);
-    echo json_encode(["ok" => false, "error" => "El correo electrónico no es válido."]);
-    exit;
-}
-if (!preg_match('/^\+?[0-9]{7,15}$/', $telefono)) {
-    http_response_code(400);
-    echo json_encode(["ok" => false, "error" => "El teléfono debe tener entre 7 y 15 dígitos y puede iniciar con +."]);
-    exit;
-}
 
 try {
     $stmt = $pdo->prepare(

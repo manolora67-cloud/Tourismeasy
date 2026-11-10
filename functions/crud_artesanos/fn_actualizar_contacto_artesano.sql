@@ -34,13 +34,14 @@ BEGIN
         RETURN;
     END IF;
 
-    IF p_email IS NULL OR LENGTH(BTRIM(p_email)) > 254
-       OR BTRIM(p_email) !~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'
-       OR p_telefono IS NULL OR BTRIM(p_telefono) !~ '^\+?[0-9]{7,15}$' THEN
+    IF NOT fn_validar_correo(p_email) OR NOT fn_validar_celular(p_telefono) THEN
         RETURN QUERY SELECT FALSE, 'Revisa que el correo y el teléfono tengan un formato válido.'::TEXT,
             NULL::TEXT, NULL::TEXT;
         RETURN;
     END IF;
+
+    p_email := BTRIM(p_email);
+    p_telefono := BTRIM(p_telefono);
 
     IF v_email_actual IS NOT DISTINCT FROM BTRIM(p_email)
        AND v_telefono_actual IS NOT DISTINCT FROM BTRIM(p_telefono) THEN

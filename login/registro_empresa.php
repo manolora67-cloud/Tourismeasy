@@ -35,16 +35,6 @@ if (!$nit || !$nombre || !$email_inst || !$contacto || !$id_ciudad || !$email_lo
     exit;
 }
 
-if (strlen($nit) !== 10 || !ctype_digit($nit)) {
-    echo json_encode(["ok" => false, "error" => "El NIT debe tener exactamente 10 dígitos."]);
-    exit;
-}
-
-if (!filter_var($email_login, FILTER_VALIDATE_EMAIL) || !filter_var($email_inst, FILTER_VALIDATE_EMAIL)) {
-    echo json_encode(["ok" => false, "error" => "Correo electrónico inválido."]);
-    exit;
-}
-
 if (strlen($password) < 8) {
     echo json_encode(["ok" => false, "error" => "La contraseña debe tener al menos 8 caracteres."]);
     exit;

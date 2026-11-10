@@ -52,30 +52,6 @@ $emailAcceso = trim($input['email_acceso']);
 $contacto = trim($input['contacto']);
 $idCiudad = trim($input['id_ciudad']);
 
-if (!preg_match('/^.{2,50}$/us', $nombre)) {
-    http_response_code(400);
-    echo json_encode(["ok" => false, "error" => "La razón social debe tener entre 2 y 50 caracteres."]);
-    exit;
-}
-
-if (strlen($emailInstitucional) > 254 || !filter_var($emailInstitucional, FILTER_VALIDATE_EMAIL)) {
-    http_response_code(400);
-    echo json_encode(["ok" => false, "error" => "El correo institucional no es válido."]);
-    exit;
-}
-
-if (strlen($emailAcceso) > 254 || !filter_var($emailAcceso, FILTER_VALIDATE_EMAIL)) {
-    http_response_code(400);
-    echo json_encode(["ok" => false, "error" => "El correo de acceso no es válido."]);
-    exit;
-}
-
-if (!preg_match('/^\+?[0-9]{7,15}$/', $contacto)) {
-    http_response_code(400);
-    echo json_encode(["ok" => false, "error" => "El teléfono debe tener entre 7 y 15 dígitos y puede iniciar con +."]);
-    exit;
-}
-
 if (!preg_match('/^[0-9A-Za-z]{5,6}$/', $idCiudad)) {
     http_response_code(400);
     echo json_encode(["ok" => false, "error" => "Selecciona un municipio válido."]);

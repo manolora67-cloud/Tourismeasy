@@ -15,10 +15,10 @@ BEGIN
         RETURN JSONB_BUILD_OBJECT('ok', FALSE, 'status', 400, 'error', 'La solicitud de tema no es válida.');
     END IF;
 
-    IF COALESCE(p_paleta->>'primary', '') !~* '^#[0-9A-F]{6}$'
-       OR COALESCE(p_paleta->>'primaryLight', '') !~* '^#[0-9A-F]{6}$'
-       OR COALESCE(p_paleta->>'primaryDark', '') !~* '^#[0-9A-F]{6}$'
-       OR COALESCE(p_paleta->>'accent', '') !~* '^#[0-9A-F]{6}$' THEN
+    IF NOT fn_validar_color_hex(p_paleta->>'primary')
+       OR NOT fn_validar_color_hex(p_paleta->>'primaryLight')
+       OR NOT fn_validar_color_hex(p_paleta->>'primaryDark')
+       OR NOT fn_validar_color_hex(p_paleta->>'accent') THEN
         RETURN JSONB_BUILD_OBJECT('ok', FALSE, 'status', 422, 'error', 'La paleta contiene un color inválido.');
     END IF;
 

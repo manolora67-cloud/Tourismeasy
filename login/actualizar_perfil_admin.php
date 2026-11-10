@@ -50,26 +50,6 @@ $apellido = trim($input['apellido']);
 $email = trim($input['email']);
 $tel = trim($input['tel']);
 
-if (!preg_match('/^.{2,50}$/us', $nombre)
-    || !preg_match('/^.{2,50}$/us', $apellido)
-    || $email === '') {
-    http_response_code(400);
-    echo json_encode(["ok" => false, "error" => "El nombre y el apellido deben tener entre 2 y 50 caracteres, y el correo es obligatorio."]);
-    exit;
-}
-
-if (strlen($email) > 254 || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    http_response_code(400);
-    echo json_encode(["ok" => false, "error" => "Correo electrónico inválido."]);
-    exit;
-}
-
-if ($tel !== '' && !preg_match('/^\+?[0-9]{7,15}$/', $tel)) {
-    http_response_code(400);
-    echo json_encode(["ok" => false, "error" => "El teléfono debe tener entre 7 y 15 dígitos y puede iniciar con +."]);
-    exit;
-}
-
 try {
     $stmt = $pdo->prepare(
         'SELECT * FROM fn_actualizar_perfil_admin(:id, :nombre, :apellido, :celular, :email)'

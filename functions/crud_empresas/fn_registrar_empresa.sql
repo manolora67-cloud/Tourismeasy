@@ -14,6 +14,32 @@ RETURNS TABLE (
 ) AS
 $$
 BEGIN
+    IF NOT fn_validar_documento(p_nit, 10, 10) THEN
+        RETURN QUERY SELECT FALSE, 'El NIT debe tener exactamente 10 dígitos.'::TEXT;
+        RETURN;
+    END IF;
+
+    IF NOT fn_validar_nombre(p_nombre, 2, 50) THEN
+        RETURN QUERY SELECT FALSE, 'La razón social debe tener entre 2 y 50 caracteres.'::TEXT;
+        RETURN;
+    END IF;
+
+    IF NOT fn_validar_correo(p_email_inst) OR NOT fn_validar_correo(p_email_login) THEN
+        RETURN QUERY SELECT FALSE, 'Correo electrónico inválido.'::TEXT;
+        RETURN;
+    END IF;
+
+    IF NOT fn_validar_celular(p_contacto) THEN
+        RETURN QUERY SELECT FALSE, 'Número de contacto inválido.'::TEXT;
+        RETURN;
+    END IF;
+
+    p_nit := BTRIM(p_nit);
+    p_nombre := BTRIM(p_nombre);
+    p_email_inst := BTRIM(p_email_inst);
+    p_contacto := BTRIM(p_contacto);
+    p_email_login := BTRIM(p_email_login);
+
     IF EXISTS (SELECT 1 FROM EMPRESAS WHERE ID_EMPRESA = p_nit) THEN
         RETURN QUERY SELECT FALSE, 'Este NIT ya está registrado.'::TEXT;
         RETURN;

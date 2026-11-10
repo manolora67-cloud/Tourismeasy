@@ -44,15 +44,20 @@ BEGIN
         RETURN;
     END IF;
 
-    IF p_nombre IS NULL OR LENGTH(BTRIM(p_nombre)) < 2 OR LENGTH(p_nombre) > 50
-       OR p_email_inst IS NULL OR p_email_inst !~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'
-       OR p_email_login IS NULL OR p_email_login !~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'
-       OR p_contacto IS NULL OR p_contacto !~ '^\+?[0-9]{7,15}$'
+    IF NOT fn_validar_nombre(p_nombre, 2, 50)
+       OR NOT fn_validar_correo(p_email_inst)
+       OR NOT fn_validar_correo(p_email_login)
+       OR NOT fn_validar_celular(p_contacto)
        OR p_id_ciudad IS NULL
        OR NOT EXISTS (SELECT 1 FROM CIUDADES WHERE ID_CIUDAD = p_id_ciudad) THEN
         RETURN QUERY SELECT FALSE, 'Revisa el nombre, los correos, el teléfono y el municipio.'::TEXT, 'INVALID_DATA'::TEXT, NULL::TIMESTAMP, FALSE;
         RETURN;
     END IF;
+
+    p_nombre := BTRIM(p_nombre);
+    p_email_inst := BTRIM(p_email_inst);
+    p_contacto := BTRIM(p_contacto);
+    p_email_login := BTRIM(p_email_login);
 
     IF v_nombre_actual IS NOT DISTINCT FROM BTRIM(p_nombre)
        AND v_email_inst_actual IS NOT DISTINCT FROM BTRIM(p_email_inst)

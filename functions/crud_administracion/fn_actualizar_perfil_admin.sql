@@ -16,6 +16,19 @@ BEGIN
         RETURN;
     END IF;
 
+    IF NOT fn_validar_nombre(p_nombre, 2, 50)
+       OR NOT fn_validar_nombre(p_apellido, 2, 50)
+       OR NOT fn_validar_correo(p_email)
+       OR (NULLIF(BTRIM(p_celular), '') IS NOT NULL AND NOT fn_validar_celular(p_celular)) THEN
+        RETURN QUERY SELECT FALSE, 'Revisa el nombre, el apellido, el correo y el teléfono.'::TEXT;
+        RETURN;
+    END IF;
+
+    p_nombre := BTRIM(p_nombre);
+    p_apellido := BTRIM(p_apellido);
+    p_email := BTRIM(p_email);
+    p_celular := NULLIF(BTRIM(p_celular), '');
+
     IF EXISTS (SELECT 1 FROM USUARIOS WHERE EMAIL_LOGIN = p_email AND ID_PERSONA <> p_id) THEN
         RETURN QUERY SELECT FALSE, 'Ese correo ya está en uso por otra cuenta.'::TEXT;
         RETURN;

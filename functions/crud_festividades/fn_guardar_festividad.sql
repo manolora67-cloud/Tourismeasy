@@ -45,10 +45,10 @@ BEGIN
        OR v_frase IS NULL OR CHAR_LENGTH(v_frase) NOT BETWEEN 5 AND 200
        OR v_emoji IS NULL OR CHAR_LENGTH(v_emoji) NOT BETWEEN 1 AND 10
        OR v_tipo IS NULL OR v_tipo NOT IN ('REGIONAL', 'NACIONAL')
-       OR v_color_1 IS NULL OR v_color_1 !~ '^#[0-9A-F]{6}$'
-       OR v_color_2 IS NULL OR v_color_2 !~ '^#[0-9A-F]{6}$'
-       OR v_color_3 IS NULL OR v_color_3 !~ '^#[0-9A-F]{6}$'
-       OR v_bg_card IS NULL OR v_bg_card !~ '^#[0-9A-F]{6}$' THEN
+       OR NOT fn_validar_color_hex(v_color_1)
+       OR NOT fn_validar_color_hex(v_color_2)
+       OR NOT fn_validar_color_hex(v_color_3)
+       OR NOT fn_validar_color_hex(v_bg_card) THEN
         RETURN JSONB_BUILD_OBJECT('ok', FALSE, 'status', 422, 'error', 'Revisa los campos y límites de longitud de la festividad.');
     END IF;
 
