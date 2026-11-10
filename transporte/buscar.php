@@ -54,7 +54,7 @@ if (($origenEntrada !== null && !is_string($origenEntrada) && !is_int($origenEnt
 }
 
 foreach (['origen' => $origen, 'destino' => $destino] as $extremo => $idCiudad) {
-    if ($idCiudad !== null && !preg_match('/^[A-Za-z0-9]{5,6}$/D', $idCiudad)) {
+    if ($idCiudad !== null && !preg_match('/^[0-9]{5,6}$/D', $idCiudad)) {
         http_response_code(400);
         echo json_encode([
             "ok" => false,

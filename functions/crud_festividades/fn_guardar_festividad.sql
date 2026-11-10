@@ -62,8 +62,8 @@ BEGIN
     END;
 
     IF v_id_ciudad IS NOT NULL THEN
-        IF v_id_ciudad !~ '^[0-9]{5,6}$' OR NOT EXISTS (
-            SELECT 1 FROM CIUDADES c WHERE c.ID_CIUDAD = v_id_ciudad
+        IF NOT fn_validar_codigo_ciudad(v_id_ciudad) OR NOT EXISTS (
+            SELECT 1 FROM CIUDADES c WHERE c.ID_CIUDAD = BTRIM(v_id_ciudad)
         ) THEN
             RETURN JSONB_BUILD_OBJECT('ok', FALSE, 'status', 422, 'error', 'El código de ciudad no existe o no es válido.');
         END IF;

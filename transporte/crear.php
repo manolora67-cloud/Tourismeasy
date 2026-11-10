@@ -63,8 +63,8 @@ if (isset($input['id'])) {
    VALIDACIONES
    ========================================================= */
 
-if (!preg_match('/^[A-Za-z0-9]{5,6}$/D', $origen)
-    || !preg_match('/^[A-Za-z0-9]{5,6}$/D', $destino)
+if (!preg_match('/^[0-9]{5,6}$/D', $origen)
+    || !preg_match('/^[0-9]{5,6}$/D', $destino)
     || !$fecha || !$hora || $precio <= 0
     || !preg_match('/^[1-9][0-9]{0,9}$/D', $id_clase)) {
     http_response_code(400);

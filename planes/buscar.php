@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 }
 
 $idCiudad = trim((string)($_GET['id_ciudad'] ?? ''));
-if ($idCiudad !== '' && !preg_match('/^[A-Za-z0-9]{5,6}$/D', $idCiudad)) {
+if ($idCiudad !== '' && !preg_match('/^[0-9]{5,6}$/D', $idCiudad)) {
     responderBusquedaPlanes(400, ['ok' => false, 'error' => 'El municipio seleccionado no es válido.']);
 }
 

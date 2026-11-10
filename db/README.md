@@ -28,9 +28,9 @@ El esquema crea las tablas de la aplicación y carga datos iniciales, incluyendo
 
 Las funciones se cargan por separado después del esquema. Si únicamente necesitas reemplazar una función en una base que ya tiene la estructura compatible, ejecuta el archivo correspondiente de `functions/`; `CREATE OR REPLACE FUNCTION` reemplaza la definición. Esto no convierte `DB_TOURISMEASY.sql` en una actualización: nunca lo ejecutes sobre una base con datos.
 
-### Validadores compartidos de cuentas
+### Validadores SQL compartidos
 
-Las funciones SQL reutilizables para correo, celular, nombre, documento y color hexadecimal están en [`../functions/validaciones/`](../functions/validaciones/). Las funciones de registro, edición de perfiles, configuración del tema y guardado de festividades las invocan para mantener las reglas de formato en el servidor. Los rangos reflejan el esquema y los flujos actuales: nombres de 2 a 50 caracteres, celulares de 7 a 15 dígitos con `+` inicial opcional, documentos de 6 a 10 dígitos, NIT de empresa de exactamente 10 dígitos y colores RGB hexadecimales de siete caracteres (`#RRGGBB`). Los correos admiten hasta 254 caracteres y usan el patrón que ya tenían las restricciones SQL.
+Las funciones SQL reutilizables para correo, celular, nombre, documento, código de ciudad, fecha de salida y color hexadecimal están en [`../functions/validaciones/`](../functions/validaciones/). Las funciones de registro y edición de cuentas, empresas, planes, hospedajes, productos artesanales y transporte, así como la configuración del tema y las festividades, las invocan para mantener las reglas de formato en el servidor. Los rangos reflejan el esquema y los flujos actuales: nombres de 2 a 50 caracteres, celulares de 7 a 15 dígitos con `+` inicial opcional, documentos de 6 a 10 dígitos, NIT de empresa de exactamente 10 dígitos, códigos de ciudad numéricos de 5 o 6 dígitos, fechas de salida de transporte desde hoy en adelante y colores RGB hexadecimales de siete caracteres (`#RRGGBB`). Los correos admiten hasta 254 caracteres y usan el patrón que ya tenían las restricciones SQL.
 
 Al instalar o actualizar estas funciones en una base existente, carga primero los validadores y después las funciones que los usan. No es necesario alterar las tablas ni quitar sus restricciones `CHECK`:
 
@@ -40,14 +40,26 @@ psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\validaciones\f
 psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\validaciones\fn_validar_nombre.sql
 psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\validaciones\fn_validar_documento.sql
 psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\validaciones\fn_validar_color_hex.sql
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\validaciones\fn_validar_codigo_ciudad.sql
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\validaciones\fn_validar_fecha_salida.sql
 psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_empresas\fn_registrar_empresa.sql
 psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_empresas\fn_actualizar_perfil_empresa.sql
 psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_artesanos\fn_registrar_artesano.sql
 psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_artesanos\fn_actualizar_contacto_artesano.sql
 psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_administracion\fn_actualizar_perfil_admin.sql
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_administracion\fn_actualizar_tema_global.sql
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_festividades\fn_guardar_festividad.sql
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_planes\fn_agregar_plan.sql
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_planes\fn_editar_plan.sql
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_hospedaje\fn_agregar_hospedaje.sql
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_hospedaje\fn_editar_hospedaje.sql
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_productos\fn_agregar_producto.sql
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_productos\fn_editar_producto.sql
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_transporte\fn_agregar_transporte.sql
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_transporte\fn_editar_transporte.sql
 ```
 
-Si reemplazas solo las funciones de colores en una base existente, carga `fn_validar_color_hex.sql` antes de [`fn_actualizar_tema_global.sql`](../functions/crud_administracion/fn_actualizar_tema_global.sql) y [`fn_guardar_festividad.sql`](../functions/crud_festividades/fn_guardar_festividad.sql). Reemplazar las funciones SQL no actualiza el código PHP del servidor: despliega también los endpoints PHP correspondientes desde el repositorio.
+En una base existente, carga primero los validadores y después cada función SQL actualizada que los utilice. `fn_validar_color_hex.sql` debe preceder a [`fn_actualizar_tema_global.sql`](../functions/crud_administracion/fn_actualizar_tema_global.sql) y [`fn_guardar_festividad.sql`](../functions/crud_festividades/fn_guardar_festividad.sql); `fn_validar_codigo_ciudad.sql` debe preceder a las funciones actualizadas de empresas, planes, hospedajes, productos, transporte y festividades; `fn_validar_fecha_salida.sql` debe preceder a las funciones de agregar y editar transporte. Reemplazar las funciones SQL no actualiza el código PHP del servidor: despliega también los endpoints PHP correspondientes desde el repositorio.
 
 `SESIONES_ACTIVAS` mantiene una reserva por cuenta para admin, empresa y artesano. La sesión caduca después de 10 minutos sin actividad; las solicitudes válidas renuevan ese tiempo y la cookie HTTP. Cerrar la ventana no cierra inmediatamente la sesión: se puede volver a entrar mientras no hayan pasado 10 minutos. Si se intenta acceder desde otro dispositivo mientras la sesión sigue activa, se envía al correo una solicitud de confirmación. Solo al aprobarla se envía un código de seis dígitos; el dispositivo anterior se desconecta cuando el código se valida correctamente. Las solicitudes vencen en 10 minutos, el código en 5 minutos y se permiten hasta cinco intentos de código. La tabla `SOLICITUDES_INICIO_SESION` forma parte del esquema nuevo. Las reservas vencidas se liberan al intentar iniciar sesión. La duración se configura en [`../con_db/sesion_persistente.php`](../con_db/sesion_persistente.php). El token de dispositivo se conserva en una cookie `HttpOnly` por hasta 400 días, pero no mantiene activa una sesión vencida.
 

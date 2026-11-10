@@ -48,8 +48,8 @@ BEGIN
        OR NOT fn_validar_correo(p_email_inst)
        OR NOT fn_validar_correo(p_email_login)
        OR NOT fn_validar_celular(p_contacto)
-       OR p_id_ciudad IS NULL
-       OR NOT EXISTS (SELECT 1 FROM CIUDADES WHERE ID_CIUDAD = p_id_ciudad) THEN
+       OR NOT fn_validar_codigo_ciudad(p_id_ciudad)
+       OR NOT EXISTS (SELECT 1 FROM CIUDADES WHERE ID_CIUDAD = BTRIM(p_id_ciudad)) THEN
         RETURN QUERY SELECT FALSE, 'Revisa el nombre, los correos, el teléfono y el municipio.'::TEXT, 'INVALID_DATA'::TEXT, NULL::TIMESTAMP, FALSE;
         RETURN;
     END IF;
@@ -58,6 +58,7 @@ BEGIN
     p_email_inst := BTRIM(p_email_inst);
     p_contacto := BTRIM(p_contacto);
     p_email_login := BTRIM(p_email_login);
+    p_id_ciudad := BTRIM(p_id_ciudad);
 
     IF v_nombre_actual IS NOT DISTINCT FROM BTRIM(p_nombre)
        AND v_email_inst_actual IS NOT DISTINCT FROM BTRIM(p_email_inst)

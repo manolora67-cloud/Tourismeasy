@@ -52,11 +52,15 @@ BEGIN
         RETURN FALSE;
     END IF;
 
+    t_origen := BTRIM(t_origen);
     IF t_destino IS NULL OR LENGTH(TRIM(t_destino)) < 3 THEN
         RETURN FALSE;
     END IF;
 
+    t_destino := BTRIM(t_destino);
     IF t_origen = t_destino
+       OR NOT fn_validar_codigo_ciudad(t_origen)
+       OR NOT fn_validar_codigo_ciudad(t_destino)
        OR NOT EXISTS (SELECT 1 FROM CIUDADES WHERE ID_CIUDAD = t_origen)
        OR NOT EXISTS (SELECT 1 FROM CIUDADES WHERE ID_CIUDAD = t_destino) THEN
         RETURN FALSE;
@@ -66,7 +70,7 @@ BEGIN
     SELECT NOM_CIUDAD INTO v_destino FROM CIUDADES WHERE ID_CIUDAD = t_destino;
 
     -- La fecha no puede ser anterior a hoy
-    IF t_fecha_salida < CURRENT_DATE THEN
+    IF NOT fn_validar_fecha_salida(t_fecha_salida) THEN
         RETURN FALSE;
     END IF;
 

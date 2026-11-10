@@ -39,6 +39,12 @@ BEGIN
     p_email_inst := BTRIM(p_email_inst);
     p_contacto := BTRIM(p_contacto);
     p_email_login := BTRIM(p_email_login);
+    p_id_ciudad := BTRIM(p_id_ciudad);
+
+    IF NOT fn_validar_codigo_ciudad(p_id_ciudad) THEN
+        RETURN QUERY SELECT FALSE, 'Código de ciudad inválido.'::TEXT;
+        RETURN;
+    END IF;
 
     IF EXISTS (SELECT 1 FROM EMPRESAS WHERE ID_EMPRESA = p_nit) THEN
         RETURN QUERY SELECT FALSE, 'Este NIT ya está registrado.'::TEXT;
@@ -52,7 +58,7 @@ BEGIN
         RETURN;
     END IF;
 
-    IF NOT EXISTS (SELECT 1 FROM CIUDADES WHERE ID_CIUDAD = p_id_ciudad) THEN
+    IF NOT EXISTS (SELECT 1 FROM CIUDADES WHERE ID_CIUDAD = BTRIM(p_id_ciudad)) THEN
         RETURN QUERY SELECT FALSE, 'Ciudad no válida.'::TEXT;
         RETURN;
     END IF;

@@ -53,6 +53,11 @@ BEGIN
         RETURN NULL;
     END IF;
 
+    IF NOT fn_validar_codigo_ciudad(h_id_ciudad) THEN
+        RETURN NULL;
+    END IF;
+
+    h_id_ciudad := BTRIM(h_id_ciudad);
     IF NOT EXISTS (SELECT 1 FROM CIUDADES WHERE ID_CIUDAD = h_id_ciudad) THEN
         RETURN NULL;
     END IF;

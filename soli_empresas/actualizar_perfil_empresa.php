@@ -52,7 +52,7 @@ $emailAcceso = trim($input['email_acceso']);
 $contacto = trim($input['contacto']);
 $idCiudad = trim($input['id_ciudad']);
 
-if (!preg_match('/^[0-9A-Za-z]{5,6}$/', $idCiudad)) {
+if (!preg_match('/^[0-9]{5,6}$/', $idCiudad)) {
     http_response_code(400);
     echo json_encode(["ok" => false, "error" => "Selecciona un municipio válido."]);
     exit;
