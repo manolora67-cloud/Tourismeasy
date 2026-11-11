@@ -1,7 +1,7 @@
 (function () {
     // ⏱️ DURACIÓN DEL DESTELLO (en segundos) que resalta la tarjeta del destino relacionado con la festividad del día.
     // Cambia SOLO este número para ajustar cuánto dura el destello (afecta el CSS y el JS automáticamente).
-    const DURACION_DESTELLO_SEGUNDOS = 5;
+    const DURACION_DESTELLO_SEGUNDOS = 3;
     const API_FESTIVIDADES = new URL("../admin/festividades.php", document.currentScript.src).href;
 
     // 1. DICCIONARIO DE 48 FESTIVIDADES (4 POR MES) — MUNICIPALES DE SANTANDER Y NACIONALES DE COLOMBIA
@@ -464,247 +464,177 @@
         },
     };
 
-    function lanzarCelebracion() {
-        const hoy = new Date(); // Obtener fecha actual en formato MM-DD
-        const mes = String(hoy.getMonth() + 1).padStart(2, "0"); //getMonth() devuelve un valor entre 0 (enero) y 11 (diciembre), por eso sumamos 1 y padStart para asegurar formato de dos dígitos
-        const dia = String(hoy.getDate()).padStart(2, "0"); //getDate() devuelve el día del mes (1-31), padStart para formato de dos dígitos
+    function inicializarAgendaCultural() {
+        const mount = document.getElementById("santanderianidad");
+        if (!mount) return;
 
-        const fechaClave = `${mes}-${dia}`;
-        // const fechaClave = `09-04`;
+        const render = () => renderAgendaSantanderiana(mount);
+        if (window.TE_MUNICIPIOS_PROMISE) {
+            window.TE_MUNICIPIOS_PROMISE.then(render).catch((error) => {
+                console.error("No se pudieron cargar los municipios para la agenda cultural.", error);
+                render();
+            });
+        } else {
+            render();
+        }
+    }
 
-        // Si hoy no hay ninguna festividad registrada, detenemos el script
-        if (!FESTIVIDADES[fechaClave]) return;
+    function obtenerProximaFecha(fechaClave, hoy) {
+        const match = /^(\d{2})-(\d{2})$/.exec(fechaClave);
+        if (!match) return null;
 
-        const fiesta = FESTIVIDADES[fechaClave]; //aqui obtenemos el objeto de la festividad correspondiente a la fecha actual
+        const mes = Number(match[1]) - 1;
+        const dia = Number(match[2]);
+        const crearFecha = (anio) => new Date(anio, mes, dia);
+        let fecha = crearFecha(hoy.getFullYear());
 
-        const style = document.createElement("style");
-        style.innerHTML = `
-            @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@900&family=Open+Sans:wght@700&display=swap');
-            
-            .snt-wrapper { 
-                position: fixed !important; inset: 0 !important; 
-                width: 100vw !important; height: 100vh !important; 
-                background: rgba(10, 15, 25, 0.98) !important; 
-                display: flex !important; justify-content: center !important; 
-                align-items: center !important; z-index: 999999999 !important; 
-                transition: opacity 0.8s ease; padding: 15px !important;
-            }
+        if (fecha.getMonth() !== mes || fecha.getDate() !== dia) return null;
+        if (fecha < hoy) {
+            fecha = crearFecha(hoy.getFullYear() + 1);
+            if (fecha.getMonth() !== mes || fecha.getDate() !== dia) return null;
+        }
+        return fecha;
+    }
 
-            .snt-card { 
-                /* Cambiado a fondo dinámico por municipio y agregado box-shadow inteligente con su color */
-                background: ${fiesta.bgCard || "#1e293b"} !important; 
-                border: 4px solid ${fiesta.colores[1]} !important; 
-                padding: 40px 24px !important; border-radius: 25px !important; 
-                text-align: center !important; 
-                box-shadow: 0 0 60px ${fiesta.colores[1]}4D !important; 
-                animation: snt-pulse 1.5s ease-out;
-                width: 100% !important; max-width: 520px !important; box-sizing: border-box !important;
-                overflow: hidden !important; /* Evita desbordamiento visual */
-            }
+    function textoEditorial(valor) {
+        const texto = String(valor || "")
+            .replace(/<br\s*\/?>/gi, " ")
+            .replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0E}\u{FE0F}\u{200D}]/gu, "")
+            .replace(/\s+([,.;!?])/g, "$1")
+            .replace(/\s{2,}/g, " ")
+            .trim();
 
-            .snt-title { 
-                font-family: 'Montserrat', sans-serif !important; 
-                color: ${fiesta.colores[1]} !important; 
-                /* Ajustado clamp() y tracking para que quepan palabras ultra-largas en móviles */
-                font-size: clamp(1.3rem, 5.8vw, 2.3rem) !important; 
-                font-weight: 900 !important; margin: 0 !important; line-height: 1.2 !important; 
-                text-transform: uppercase !important; 
-                display: block !important;
-                white-space: normal !important;
-                letter-spacing: -0.5px !important;
-                text-shadow: 2px 2px 8px rgba(0,0,0,0.6) !important; /* Sombra para resaltar texto sobre fondos de color */
-            }
+        if (texto && texto === texto.toLocaleUpperCase("es")) {
+            return texto.charAt(0) + texto.slice(1).toLocaleLowerCase("es");
+        }
+        return texto;
+    }
 
-            .snt-bar { 
-                position: fixed !important; top: 0 !important; left: 0 !important; 
-                width: 100% !important; height: 8px !important; 
-                background: linear-gradient(90deg, ${fiesta.colores[0]} 33%, ${fiesta.colores[1]} 33% 66%, ${fiesta.colores[2]} 66%) !important; 
-                z-index: 1000000000 !important; 
-            }
+    function obtenerMunicipio(fiesta) {
+        const municipios = Array.isArray(window.TE_MUNICIPIOS) ? window.TE_MUNICIPIOS : [];
+        const municipio = municipios.find((item) =>
+            (fiesta.idCiudad && String(item.id) === String(fiesta.idCiudad))
+            || (fiesta.destino && item.key === fiesta.destino)
+        );
+        if (municipio) return municipio.titulo || municipio.nombre || "";
 
-            .snt-banderines { 
-                position: fixed; top: 8px; left: 0; width: 100%; 
-                display: flex; justify-content: space-around; 
-                pointer-events: none; z-index: 999999; overflow: hidden;
-            }
+        const destinos = Array.isArray(window.TE_DESTINOS) ? window.TE_DESTINOS : [];
+        const destino = destinos.find((item) => item.key === fiesta.destino);
+        return destino ? destino.titulo : "";
+    }
 
-            .banderin { 
-                width: 16px; height: 18px; 
-                clip-path: polygon(0 0, 100% 0, 50% 100%); 
-                animation: sway 3s infinite ease-in-out; transform-origin: top; 
-            }
+    function etiquetaTipo(fiesta) {
+        const tipo = String(fiesta.tipo || (fiesta.idCiudad || fiesta.destino ? "REGIONAL" : "NACIONAL"))
+            .toUpperCase();
+        return tipo === "NACIONAL" ? "Conmemoración nacional" : "Tradición regional";
+    }
 
-            @media (max-width: 480px) {
-                .snt-card { padding: 25px 15px !important; border-width: 3px !important; max-width: 95% !important; }
-                .snt-title { font-size: clamp(1.2rem, 5.5vw, 2rem) !important; }
-                .banderin:nth-child(even) { display: none; }
-                .banderin { width: 14px; height: 15px; }
-                .snt-ant { width: 50px; height: 50px; font-size: 25px; bottom: 15px; left: 15px; }
-            }
+    function fechaLegible(fecha, incluirAnio) {
+        const opciones = { day: "numeric", month: "short" };
+        if (incluirAnio) opciones.year = "numeric";
+        return new Intl.DateTimeFormat("es-CO", opciones).format(fecha);
+    }
 
-            @keyframes sway { 0%, 100% { transform: rotate(-10deg); } 50% { transform: rotate(10deg); } }
-            @keyframes snt-pulse { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+    function fechaISO(fecha) {
+        return [
+            fecha.getFullYear(),
+            String(fecha.getMonth() + 1).padStart(2, "0"),
+            String(fecha.getDate()).padStart(2, "0")
+        ].join("-");
+    }
 
-            /* Destello que resalta la tarjeta del destino relacionado con la festividad de hoy */
-            .snt-card-destello {
-                animation: snt-destello 1s ease-in-out ${DURACION_DESTELLO_SEGUNDOS} !important;
-                position: relative !important;
-                z-index: 5 !important;
-                border-radius: 16px !important;
-            }
-            @keyframes snt-destello {
-                0%, 100% { box-shadow: 0 0 0 0 ${fiesta.colores[1]}00; transform: scale(1); }
-                50% { box-shadow: 0 0 45px 12px ${fiesta.colores[1]}CC; transform: scale(1.035); }
-            }
-            
-            .snt-pregunta {
-                color: #ffffff !important; font-family: 'Open Sans', sans-serif !important;
-                font-weight: 700 !important; font-size: 1.05rem !important;
-                margin: 22px 0 0 !important; text-shadow: 1px 1px 4px rgba(0,0,0,0.7) !important;
-            }
+    function colorDeFiesta(fiesta, indice, respaldo) {
+        return colorValido(fiesta.colores && fiesta.colores[indice], respaldo);
+    }
 
-            .snt-btns {
-                display: flex !important; gap: 12px !important; justify-content: center !important;
-                margin-top: 26px !important; flex-wrap: wrap !important;
-            }
-            .snt-pregunta + .snt-btns { margin-top: 14px !important; }
+    function renderAgendaSantanderiana(mount) {
+        const hoy = new Date();
+        hoy.setHours(0, 0, 0, 0);
+        const fechaClaveHoy = `${String(hoy.getMonth() + 1).padStart(2, "0")}-${String(hoy.getDate()).padStart(2, "0")}`;
+        const eventoHoy = FESTIVIDADES[fechaClaveHoy] || null;
+        const proximos = Object.entries(FESTIVIDADES)
+            .filter(([fechaClave]) => fechaClave !== fechaClaveHoy)
+            .map(([fechaClave, fiesta]) => ({
+                fecha: obtenerProximaFecha(fechaClave, hoy),
+                fiesta
+            }))
+            .filter((item) => item.fecha)
+            .sort((a, b) => a.fecha - b.fecha)
+            .slice(0, 3);
 
-            .snt-btn {
-                font-family: 'Open Sans', sans-serif !important; font-weight: 700 !important;
-                font-size: 0.95rem !important; padding: 12px 26px !important; border-radius: 50px !important;
-                cursor: pointer !important; border: none !important; transition: transform 0.15s ease, box-shadow 0.15s ease !important;
-            }
-            .snt-btn:active { transform: scale(0.96) !important; }
-
-            .snt-btn-yes {
-                background: ${fiesta.colores[1]} !important; color: #ffffff !important;
-                box-shadow: 0 4px 16px ${fiesta.colores[1]}66 !important;
-            }
-            .snt-btn-yes:hover { transform: translateY(-2px) !important; }
-
-            .snt-btn-no, .snt-btn-continue {
-                background: rgba(255,255,255,0.08) !important; color: #ffffff !important;
-                border: 1.5px solid rgba(255,255,255,0.35) !important;
-            }
-            .snt-btn-no:hover, .snt-btn-continue:hover { background: rgba(255,255,255,0.16) !important; }
-
-            .snt-ant { 
-                position: fixed; bottom: 25px; left: 25px; 
-                width: 60px; height: 60px; background: ${fiesta.colores[1]}; 
-                border-radius: 50%; display: flex; justify-content: center; 
-                align-items: center; font-size: 30px; cursor: pointer; 
-                z-index: 1000000; border: 3px solid #fff; 
-                box-shadow: 0 5px 15px rgba(0,0,0,0.4); 
-            }
-        `;
-        document.head.appendChild(style);
-
-        const storageKey = `snt_visto_${fiesta.id}`; // Clave única para cada festividad, así se muestra una vez por festividad por usuario
-        const yaSeMostro = localStorage.getItem(storageKey); // Verificar si ya se mostró esta festividad en el pasado
-        const path = window.location.pathname; // Verificar si estamos en la página principal (index.html o raíz) para mostrar la celebración solo ahí
-        const esIndex =
-            path.endsWith("index.html") || path.endsWith("/") || path === ""; // Esto asegura que la celebración solo se muestre en la página principal y no en otras secciones del sitio
-
-        if (!yaSeMostro && esIndex) {
-            // Si la festividad tiene un destino asociado, preguntamos si el usuario quiere ir a verlo.
-            // Si no tiene destino, solo mostramos un botón para continuar.
-            const botonesHTML = (fiesta.idCiudad || fiesta.destino)
-                ? `<p class="snt-pregunta">¿Quieres visitar el destino?</p>
-                   <div class="snt-btns">
-                        <button class="snt-btn snt-btn-yes" id="snt-btn-si">Sí, quiero visitarlo</button>
-                        <button class="snt-btn snt-btn-no" id="snt-btn-no">No, gracias</button>
-                   </div>`
-                : `<div class="snt-btns">
-                        <button class="snt-btn snt-btn-continue" id="snt-btn-continuar">Continuar explorando</button>
-                   </div>`;
-
-            const wrapper = document.createElement("div");
-            wrapper.className = "snt-wrapper";
-            wrapper.innerHTML = `
-                <div class="snt-card">
-                    <p style="color:#fff;font-family:'Open Sans';letter-spacing:5px;margin-bottom:15px;font-weight:700;text-shadow: 1px 1px 4px rgba(0,0,0,0.7);">${escaparHTML(fiesta.subtitulo)}</p>
-                    <h1 class="snt-title">${escaparHTML(fiesta.titulo).replace(/&lt;br\s*\/?&gt;/gi, "<br>")}</h1>
-                    <p style="color:#ffffff;font-family:'Open Sans';margin-top:25px;font-size:1.2rem;text-shadow: 1px 1px 4px rgba(0,0,0,0.7);">${escaparHTML(fiesta.frase)}</p>
-                    ${botonesHTML}
-                </div>`;
-            document.body.appendChild(wrapper);
-
-            if (window.confetti) {
-                confetti({
-                    particleCount: 600,
-                    spread: 100,
-                    origin: { y: 0.6 },
-                    zIndex: 1000000001,
-                    colors: fiesta.colores,
-                });
-            }
-            localStorage.setItem(storageKey, "true");
-
-            // Cierra la tarjeta con una transición suave y ejecuta un callback opcional después
-            const cerrarTarjeta = (callback) => {
-                wrapper.style.opacity = "0";
-                setTimeout(() => {
-                    wrapper.remove();
-                    if (callback) callback();
-                }, 800);
-            };
-
-            // El cierre ahora depende SIEMPRE de la acción del usuario, nunca de un temporizador,
-            // así puede leer con calma el mensaje de la festividad.
-            const btnSi = wrapper.querySelector("#snt-btn-si");
-            const btnNo = wrapper.querySelector("#snt-btn-no");
-            const btnContinuar = wrapper.querySelector("#snt-btn-continuar");
-
-            if (btnSi) {
-                btnSi.onclick = () => cerrarTarjeta(() => visitarDestino(fiesta));
-            }
-            if (btnNo) {
-                btnNo.onclick = () => cerrarTarjeta();
-            }
-            if (btnContinuar) {
-                btnContinuar.onclick = () => cerrarTarjeta();
-            }
+        if (!eventoHoy && !proximos.length) {
+            mount.replaceChildren();
+            mount.hidden = true;
+            return;
         }
 
-        // 5. RENDERIZAR BANDERINES Y BOTÓN FLOTANTE CON COLORES REGIONALES
-        const bar = document.createElement("div");
-        bar.className = "snt-bar";
-        document.body.appendChild(bar);
+        mount.hidden = false;
+        const eventoDestacado = eventoHoy
+            ? `<article class="snt-feature"
+                style="--snt-color-1:${colorDeFiesta(eventoHoy, 0, "#009B3A")};--snt-color-2:${colorDeFiesta(eventoHoy, 1, "#FFCD00")};--snt-color-3:${colorDeFiesta(eventoHoy, 2, "#FFFFFF")}">
+                <div class="snt-feature__meta">
+                    <span class="snt-chip snt-chip--today">Hoy · ${escaparHTML(fechaLegible(hoy, false))}</span>
+                    <span class="snt-chip">${escaparHTML(etiquetaTipo(eventoHoy))}</span>
+                </div>
+                <p class="snt-feature__location">${escaparHTML(textoEditorial(eventoHoy.subtitulo))}</p>
+                <h3>${escaparHTML(textoEditorial(eventoHoy.titulo))}</h3>
+                <p class="snt-feature__copy">${escaparHTML(textoEditorial(eventoHoy.frase))}</p>
+                ${eventoHoy.idCiudad || eventoHoy.destino
+                    ? `<button class="snt-action" type="button" data-snt-visit="${escaparHTML(eventoHoy.id)}">Explorar ${escaparHTML(obtenerMunicipio(eventoHoy) || "el destino")}</button>`
+                    : ""}
+            </article>`
+            : "";
 
-        const banderinesCont = document.createElement("div");
-        banderinesCont.className = "snt-banderines";
-        for (let i = 0; i < 20; i++) {
-            const b = document.createElement("div");
-            b.className = "banderin";
-            b.style.backgroundColor = fiesta.colores[i % fiesta.colores.length];
-            b.style.animationDelay = i * 0.2 + "s";
-            banderinesCont.appendChild(b);
-        }
-        document.body.appendChild(banderinesCont);
+        const agendaMarkup = proximos.length
+            ? `<ol class="snt-agenda__list">
+                ${proximos.map(({ fecha, fiesta }) => {
+                    const municipio = obtenerMunicipio(fiesta);
+                    const visitar = Boolean(fiesta.idCiudad || fiesta.destino);
+                    return `<li class="snt-agenda__item">
+                        <time class="snt-agenda__date" datetime="${fechaISO(fecha)}">${escaparHTML(fechaLegible(fecha, fecha.getFullYear() !== hoy.getFullYear()))}</time>
+                        <div class="snt-agenda__details">
+                            <p>${escaparHTML(etiquetaTipo(fiesta))} · ${escaparHTML(municipio || "Santander")}</p>
+                            <h4>${escaparHTML(textoEditorial(fiesta.titulo))}</h4>
+                        </div>
+                        ${visitar
+                            ? `<button class="snt-agenda__link" type="button" data-snt-visit="${escaparHTML(fiesta.id)}" aria-label="Explorar ${escaparHTML(municipio || "el destino")}">Explorar</button>`
+                            : ""}
+                    </li>`;
+                }).join("")}
+            </ol>`
+            : `<p class="snt-agenda__empty">No hay otras celebraciones próximas registradas.</p>`;
 
-        const ant = document.createElement("div");
-        ant.className = "snt-ant";
-        ant.textContent = fiesta.emoji;
-        ant.onclick = () => {
-            if (window.confetti) {
-                confetti({
-                    particleCount: 500,
-                    spread: 70,
-                    origin: { x: 0.05, y: 0.9 },
-                    zIndex: 2000000000,
-                    colors: fiesta.colores,
-                });
-            }
-        };
-        document.body.appendChild(ant);
+        mount.innerHTML = `
+            <section class="snt-section" aria-labelledby="sntSectionTitle">
+                <div class="snt-container">
+                    <header class="snt-heading">
+                        <p class="snt-eyebrow">Agenda cultural</p>
+                        <h2 id="sntSectionTitle">Tradiciones que nos conectan</h2>
+                        <p>Fechas y celebraciones de Santander para descubrir durante todo el año.</p>
+                    </header>
+                    <div class="snt-layout${eventoHoy ? "" : " snt-layout--agenda-only"}">
+                        ${eventoDestacado}
+                        <section class="snt-agenda" aria-labelledby="sntAgendaTitle">
+                            <header class="snt-agenda__heading">
+                                <p class="snt-eyebrow">Calendario</p>
+                                <h3 id="sntAgendaTitle">Próximas fechas</h3>
+                            </header>
+                            ${agendaMarkup}
+                        </section>
+                    </div>
+                </div>
+            </section>`;
 
-        // 6. El scroll (destello) hacia la tarjeta del destino ya NO es automático.
-        // Ahora se dispara únicamente cuando el usuario da clic en "Sí, quiero visitarlo"
-        // dentro de la tarjeta de la festividad (ver botón #snt-btn-si más arriba).
+        mount.querySelectorAll("[data-snt-visit]").forEach((button) => {
+            const fiesta = Object.values(FESTIVIDADES).find(
+                (item) => String(item.id) === button.dataset.sntVisit
+            );
+            if (fiesta) button.addEventListener("click", () => visitarDestino(fiesta));
+        });
     }
 
     // Busca en el index la tarjeta cuyo data-article coincide con el destino de la festividad
-    // y hace scroll suave hacia ella, aplicándole una animación de destello con los colores de la fiesta
+    // y hace scroll suave hacia ella, resaltándola brevemente.
     function resaltarTarjetaDestino(fiesta) {
         if (!fiesta.destino) return; // Si la festividad no tiene un destino asociado a una tarjeta, no hacemos nada
 
@@ -714,8 +644,7 @@
         const tarjeta = enlace ? enlace.closest(".card") : null;
         if (!tarjeta) return; // No existe una tarjeta con ese destino en esta página
 
-        // Ya no hay espera artificial: esta función se llama justo después de que
-        // el usuario dio clic en "Sí, quiero visitarlo" y la tarjeta terminó de cerrarse.
+        // La navegación ocurre únicamente después de que el usuario pulsa "Explorar".
         tarjeta.scrollIntoView({ behavior: "smooth", block: "center" });
         tarjeta.classList.add("snt-card-destello");
         setTimeout(
@@ -788,6 +717,7 @@
                     emoji: row.emoji,
                     colores: [c1, c2, c3],
                     bgCard: colorValido(row.bg_card, "#1e293b"),
+                    tipo: row.tipo,
                     idCiudad: row.id_ciudad ? String(row.id_ciudad).trim() : null,
                     destino: original ? original.destino : undefined,
                 };
@@ -797,9 +727,9 @@
         }
 
         if (document.readyState === "complete") {
-            lanzarCelebracion();
+            inicializarAgendaCultural();
         } else {
-            window.addEventListener("load", lanzarCelebracion, { once: true });
+            window.addEventListener("load", inicializarAgendaCultural, { once: true });
         }
     }
 
