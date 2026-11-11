@@ -106,7 +106,7 @@
 .snt-layout {
     display: grid;
     grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
-    align-items: stretch;
+    align-items: start;
     gap: 20px;
 }
 
