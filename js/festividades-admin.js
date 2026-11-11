@@ -15,6 +15,9 @@
     var currentPageLabel = document.getElementById("festividadesPaginaActual");
     var previousPageButton = document.getElementById("festividadesAnterior");
     var nextPageButton = document.getElementById("festividadesSiguiente");
+    var ciudadSelect = form.elements.id_ciudad;
+    var ciudades = [];
+    var ciudadesPromise;
     var pageSize = 10;
     var currentPage = 1;
 
@@ -57,6 +60,39 @@
         return celda;
     }
 
+    async function cargarCiudades() {
+        var response = await fetch("../datos_referencia.php?tipo=ciudades", {
+            credentials: "include",
+            cache: "no-store"
+        });
+        var data = await respuestaJson(response);
+        if (!data.data || !Array.isArray(data.data.ciudades)) {
+            throw new Error("No se recibió la lista de municipios.");
+        }
+
+        ciudades = data.data.ciudades;
+        var municipiosSantander = ciudades.filter(function(ciudad) {
+            return String(ciudad.id).startsWith("68");
+        });
+        if (!municipiosSantander.length) {
+            throw new Error("No hay municipios de Santander disponibles.");
+        }
+        ciudadSelect.replaceChildren(new Option("Sin municipio asociado", ""));
+        municipiosSantander.forEach(function(ciudad) {
+            ciudadSelect.add(new Option(ciudad.nombre, String(ciudad.id).trim()));
+        });
+    }
+
+    function nombreCiudad(festividad) {
+        if (festividad.tipo === "NACIONAL") return "Nacional";
+        var idCiudad = String(festividad.id_ciudad || "").trim();
+        if (!idCiudad) return "Sin municipio asociado";
+        var ciudad = ciudades.find(function(item) {
+            return String(item.id).trim() === idCiudad;
+        });
+        return ciudad ? ciudad.nombre : "Municipio no disponible";
+    }
+
     function actualizarResumenSidebar(pageCount) {
         var nacionales = festividades.filter(function(festividad) {
             return festividad.tipo === "NACIONAL";
@@ -93,7 +129,7 @@
         if (!festividades.length) {
             var vacio = document.createElement("tr");
             var mensaje = crearCelda("Todavía no hay festividades registradas.", "festividades-empty");
-            mensaje.colSpan = 4;
+            mensaje.colSpan = 5;
             vacio.appendChild(mensaje);
             tableBody.appendChild(vacio);
             return;
@@ -114,6 +150,7 @@
             fila.appendChild(nombre);
 
             fila.appendChild(crearCelda(festividad.tipo === "NACIONAL" ? "Nacional" : "Regional"));
+            fila.appendChild(crearCelda(nombreCiudad(festividad)));
 
             var acciones = document.createElement("td");
             var grupo = document.createElement("div");
@@ -143,7 +180,12 @@
         });
     }
 
-    function abrirFormulario(festividad) {
+    async function abrirFormulario(festividad) {
+        var ciudadesCargadas = await ciudadesPromise;
+        if (!ciudadesCargadas) {
+            mostrarError("No se pueden editar festividades sin cargar la lista de municipios.");
+            return;
+        }
         limpiarError();
         form.reset();
         var existente = !!festividad;
@@ -161,7 +203,19 @@
         form.elements.color_2.value = existente ? festividad.color_2.trim() : "#FFCD00";
         form.elements.color_3.value = existente ? festividad.color_3.trim() : "#FFFFFF";
         form.elements.bg_card.value = existente ? festividad.bg_card.trim() : "#1e293b";
-        form.elements.id_ciudad.value = existente && festividad.id_ciudad ? festividad.id_ciudad : "";
+        var idCiudad = existente ? String(festividad.id_ciudad || "").trim() : "";
+        if (idCiudad && !Array.from(ciudadSelect.options).some(function(option) {
+            return option.value === idCiudad;
+        })) {
+            var ciudadExistente = ciudades.find(function(ciudad) {
+                return String(ciudad.id).trim() === idCiudad;
+            });
+            ciudadSelect.add(new Option(
+                ciudadExistente ? ciudadExistente.nombre : "Municipio asociado (" + idCiudad + ")",
+                idCiudad
+            ));
+        }
+        ciudadSelect.value = idCiudad;
         form.dataset.idActual = existente ? festividad.id_festividad : "";
         window.TEUI.markClean(form);
         dialog.showModal();
@@ -197,6 +251,7 @@
     }
 
     async function cargarFestividades() {
+        if (ciudadesPromise) await ciudadesPromise;
         var response = await fetch(endpoint + "?admin=1", { credentials: "include" });
         var data = await respuestaJson(response);
         csrfToken = data.csrf;
@@ -282,104 +337,22 @@
     document.body.classList.toggle("dark-mode", dark);
     darkModeButton.querySelector("i").className = dark ? "fa-solid fa-sun" : "fa-solid fa-moon";
 
-    (function configurarSesion() {
-        var storedSession = localStorage.getItem("te_session") || sessionStorage.getItem("te_session");
-        var session = JSON.parse(storedSession || "null");
-        if (!session || session.tipo !== "admin") {
-            window.location.href = "../index.html";
-            return;
-        }
-        document.getElementById("sidebarAvatar").textContent = session.avatar || "AD";
-        document.getElementById("sidebarNombre").textContent = session.nombre || "Administrador";
-
-        var slot = document.getElementById("sessionWidgetSlot");
-        var widget = document.createElement("div");
-        widget.className = "session-widget";
-        var trigger = document.createElement("button");
-        trigger.type = "button";
-        trigger.className = "session-trigger";
-        var avatar = document.createElement("div");
-        avatar.className = "session-avatar";
-        avatar.textContent = session.avatar || "AD";
-        var info = document.createElement("div");
-        info.className = "session-info";
-        var name = document.createElement("span");
-        name.className = "session-name";
-        name.textContent = session.nombre || "Administrador";
-        var role = document.createElement("span");
-        role.className = "session-tipo";
-        role.textContent = "Administrador";
-        info.append(name, role);
-        trigger.append(avatar, info);
-        var chevron = document.createElement("i");
-        chevron.className = "fa-solid fa-chevron-down session-chevron";
-        trigger.appendChild(chevron);
-        var dropdown = document.createElement("div");
-        dropdown.className = "session-dropdown";
-        [
-            ["../index.html", "🏠", "Ir al sitio"],
-            ["panel_admin.html", "🛡️", "Panel Admin"],
-            ["perfil_admin.html", "👤", "Mi Perfil"],
-            ["config_admin.html", "⚙️", "Configuración"],
-            ["festividades_admin.html", "📅", "Festividades"]
-        ].forEach(function(item) {
-            var link = document.createElement("a");
-            link.className = "session-menu-item";
-            link.href = item[0];
-            link.append(document.createTextNode(item[1] + " " + item[2]));
-            dropdown.appendChild(link);
-        });
-        var logoutLink = document.createElement("a");
-        logoutLink.className = "session-menu-item session-menu-danger";
-        logoutLink.href = "#";
-        logoutLink.append(document.createTextNode("🚪 Cerrar Sesión"));
-        dropdown.appendChild(logoutLink);
-        widget.append(trigger, dropdown);
-        slot.appendChild(widget);
-        trigger.addEventListener("click", function(event) {
-            event.stopPropagation();
-            var open = dropdown.classList.toggle("open");
-            chevron.style.transform = open ? "rotate(180deg)" : "rotate(0deg)";
-        });
-        document.addEventListener("click", function() {
-            dropdown.classList.remove("open");
-            chevron.style.transform = "rotate(0deg)";
-        });
-
-        logoutLink.addEventListener("click", cerrarSesion);
-        fetch("../login/get_perfil_admin.php", {
-            credentials: "include",
-            cache: "no-store"
-        })
-            .then(function(response) {
-                if (!response.ok) throw new Error("No se pudo cargar el perfil del administrador.");
-                return response.json();
-            })
-            .then(function(data) {
-                if (!data.ok || !data.admin) {
-                    throw new Error(data.error || "No se recibieron los datos del administrador.");
-                }
-                var fullName = [data.admin.nombre, data.admin.apellido].filter(Boolean).join(" ").trim();
-                if (!fullName) return;
-                var initials = fullName.split(/\s+/).map(function(part) {
-                    return part[0] || "";
-                }).join("").slice(0, 2).toUpperCase();
-                document.getElementById("sidebarAvatar").textContent = initials;
-                document.getElementById("sidebarNombre").textContent = fullName;
-                avatar.textContent = initials;
-                name.textContent = fullName;
-            })
-            .catch(function(error) {
-                console.warn("[TourismEasy] No se pudo mostrar el nombre del administrador.", error);
-            });
-    })();
-
     async function cerrarSesion(event) {
         event.preventDefault();
         await window.TEUI.logoutAdmin("../login/logout_admin.php", "../index.html");
     }
 
     document.getElementById("btnLogout").addEventListener("click", cerrarSesion);
+
+    ciudadesPromise = cargarCiudades().then(function() {
+        return true;
+    }).catch(function(error) {
+        ciudadSelect.replaceChildren(new Option("No se pudieron cargar municipios", ""));
+        ciudadSelect.disabled = true;
+        mostrarError("No se pudo cargar la lista de municipios.");
+        console.error("[TourismEasy] No se pudieron cargar los municipios para festividades.", error);
+        return false;
+    });
 
     cargarFestividades().catch(function(error) {
         mostrarError(error.message);

@@ -54,17 +54,20 @@
         var meta = etiquetas[control.control];
         if (!meta) return null;
 
-        var articulo = document.createElement("article");
+        var articulo = document.createElement("details");
         articulo.className = "security-settings__control";
         articulo.dataset.control = control.control;
 
-        var encabezado = document.createElement("div");
+        var encabezado = document.createElement("summary");
         encabezado.className = "security-settings__heading";
         var titulo = document.createElement("h4");
         titulo.textContent = meta.titulo;
         var descripcion = document.createElement("p");
         descripcion.textContent = meta.descripcion;
-        encabezado.append(titulo, descripcion);
+        var resumen = document.createElement("div");
+        resumen.className = "security-settings__heading-copy";
+        resumen.append(titulo, descripcion);
+        encabezado.appendChild(resumen);
 
         var formulario = document.createElement("form");
         formulario.className = "security-settings__form";
@@ -105,6 +108,12 @@
         formulario.addEventListener("submit", function (event) {
             event.preventDefault();
             guardarControl(articulo, formulario, guardar, estado);
+        });
+        articulo.addEventListener("toggle", function() {
+            if (!articulo.open) return;
+            contenedor.querySelectorAll(".security-settings__control[open]").forEach(function(otro) {
+                if (otro !== articulo) otro.open = false;
+            });
         });
 
         var actualizado = document.createElement("small");
@@ -178,9 +187,15 @@
             }
             csrf = resultado.csrf;
             contenedor.replaceChildren();
-            resultado.data.forEach(function (control) {
+            var orden = ["login", "password_change", "recovery_request", "recovery_link", "device_request", "device_code"];
+            resultado.data.sort(function(a, b) {
+                return orden.indexOf(a.control) - orden.indexOf(b.control);
+            }).forEach(function (control) {
                 var articulo = crearControl(control);
-                if (articulo) contenedor.appendChild(articulo);
+                if (articulo) {
+                    if (!contenedor.childElementCount) articulo.open = true;
+                    contenedor.appendChild(articulo);
+                }
             });
             if (!contenedor.childElementCount) {
                 throw new Error("No hay controles de seguridad configurados en la base de datos.");

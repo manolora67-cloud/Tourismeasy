@@ -5,24 +5,75 @@
 
 .security-settings__list {
     display: grid;
-    gap: 14px;
+    gap: 8px;
 }
 
 .security-settings__control {
     border: 1px solid var(--gray-200, #e2e8f0);
-    border-radius: 12px;
-    padding: 16px;
+    border-radius: 10px;
+    background: var(--white, #fff);
+    overflow: hidden;
+}
+
+.security-settings__control[open] {
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+}
+
+.security-settings__heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 13px 16px;
+    cursor: pointer;
+    list-style: none;
+}
+
+.security-settings__heading::-webkit-details-marker {
+    display: none;
+}
+
+.security-settings__heading-copy {
+    min-width: 0;
 }
 
 .security-settings__heading h4 {
     margin: 0;
     color: var(--gray-800, #1e293b);
+    font-size: 0.96rem;
 }
 
 .security-settings__heading p,
 .security-settings__note {
     color: var(--gray-600, #475569);
-    margin: 6px 0 14px;
+    margin: 4px 0 0;
+    font-size: 0.84rem;
+}
+
+.security-settings__heading::after {
+    content: "+";
+    flex: 0 0 auto;
+    color: var(--gray-500, #64748b);
+    font-size: 1.25rem;
+    font-weight: 400;
+}
+
+.security-settings__control[open] > .security-settings__heading::after {
+    content: "-";
+}
+
+.security-settings__control > .security-settings__form,
+.security-settings__control > .security-settings__updated {
+    margin: 0 16px;
+}
+
+.security-settings__control > .security-settings__form {
+    padding: 4px 0 12px;
+}
+
+.security-settings__control > .security-settings__updated {
+    display: block;
+    padding: 0 0 12px;
 }
 
 .security-settings__form {
@@ -82,12 +133,19 @@
 
 body.dark-mode .security-settings__control {
     border-color: #334155;
+    background: #1e293b;
 }
 
 body.dark-mode .security-settings__heading h4,
 body.dark-mode .security-settings__field,
 body.dark-mode .security-settings__field input {
     color: #f1f5f9;
+}
+
+body.dark-mode .security-settings__heading p,
+body.dark-mode .security-settings__note,
+body.dark-mode .security-settings__updated {
+    color: #94a3b8;
 }
 
 body.dark-mode .security-settings__field input {

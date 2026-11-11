@@ -608,7 +608,7 @@
         if (!yaSeMostro && esIndex) {
             // Si la festividad tiene un destino asociado, preguntamos si el usuario quiere ir a verlo.
             // Si no tiene destino, solo mostramos un botón para continuar.
-            const botonesHTML = fiesta.destino
+            const botonesHTML = (fiesta.idCiudad || fiesta.destino)
                 ? `<p class="snt-pregunta">¿Quieres visitar el destino?</p>
                    <div class="snt-btns">
                         <button class="snt-btn snt-btn-yes" id="snt-btn-si">Sí, quiero visitarlo</button>
@@ -656,7 +656,7 @@
             const btnContinuar = wrapper.querySelector("#snt-btn-continuar");
 
             if (btnSi) {
-                btnSi.onclick = () => cerrarTarjeta(() => resaltarTarjetaDestino(fiesta));
+                btnSi.onclick = () => cerrarTarjeta(() => visitarDestino(fiesta));
             }
             if (btnNo) {
                 btnNo.onclick = () => cerrarTarjeta();
@@ -724,6 +724,34 @@
         );
     }
 
+    function visitarDestino(fiesta) {
+        const resaltarMunicipio = () => {
+            const tarjeta = typeof window.TE_IR_A_MUNICIPIO === "function"
+                ? window.TE_IR_A_MUNICIPIO(fiesta.idCiudad)
+                : false;
+            if (!tarjeta) {
+                resaltarTarjetaDestino(fiesta);
+                return;
+            }
+
+            tarjeta.classList.add("snt-card-destello");
+            setTimeout(
+                () => tarjeta.classList.remove("snt-card-destello"),
+                DURACION_DESTELLO_SEGUNDOS * 1000
+            );
+        };
+
+        if (fiesta.idCiudad && typeof window.TE_IR_A_MUNICIPIO !== "function" && window.TE_MUNICIPIOS_PROMISE) {
+            window.TE_MUNICIPIOS_PROMISE.then(resaltarMunicipio).catch((error) => {
+                console.error("No se pudieron cargar los municipios para visitar el destino.", error);
+                resaltarTarjetaDestino(fiesta);
+            });
+            return;
+        }
+        if (fiesta.idCiudad) resaltarMunicipio();
+        else resaltarTarjetaDestino(fiesta);
+    }
+
     function escaparHTML(valor) {
         return String(valor)
             .replace(/&/g, "&amp;")
@@ -760,6 +788,7 @@
                     emoji: row.emoji,
                     colores: [c1, c2, c3],
                     bgCard: colorValido(row.bg_card, "#1e293b"),
+                    idCiudad: row.id_ciudad ? String(row.id_ciudad).trim() : null,
                     destino: original ? original.destino : undefined,
                 };
             });

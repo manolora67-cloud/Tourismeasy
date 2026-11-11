@@ -730,7 +730,7 @@
             ? window.TEImagenCloudinary.tarjeta(destination.img)
             : destination.img;
         return `
-    <article class="card">
+    <article class="card" data-ciudad-id="${escapeHtml(destination.id)}">
       <div class="card-img">
         <img data-src="${escapeHtml(imageUrl)}" alt="${escapeHtml(destination.alt)}" loading="lazy" decoding="async" />
         ${destination.badge ? `<span class="card-badge">${escapeHtml(destination.badge)}</span>` : ""}
@@ -831,6 +831,19 @@
         const update = () => {
             cargarImagenesPagina(track, pageIndex);
             updateCarousel(track, previous, next, pagination, pageIndex, pageSize, publicDestinations.length);
+        };
+        window.TE_IR_A_MUNICIPIO = (idCiudad) => {
+            const index = publicDestinations.findIndex((destination) => String(destination.id) === String(idCiudad));
+            if (index < 0) return false;
+
+            pageIndex = Math.floor(index / pageSize);
+            update();
+            const card = Array.from(track.querySelectorAll(".card[data-ciudad-id]"))
+                .find((element) => element.dataset.ciudadId === String(idCiudad));
+            if (!card) return false;
+
+            card.scrollIntoView({ behavior: "smooth", block: "center" });
+            return card;
         };
         const changePage = (direction) => {
             pageIndex = Math.max(0, Math.min(track.children.length - 1, pageIndex + direction));

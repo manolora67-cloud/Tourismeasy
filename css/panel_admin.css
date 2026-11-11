@@ -1563,6 +1563,11 @@ body.dark-mode .catalog-action:hover {
     text-align: center;
     font-size: 0.85rem;
     flex-shrink: 0;
+    color: var(--gray-500);
+}
+
+.pu-nav-item:hover i {
+    color: var(--purple);
 }
 
 .pu-nav-item:hover {
@@ -2593,9 +2598,17 @@ body.dark-mode .pu-nav-item {
     color: #94a3b8;
 }
 
+body.dark-mode .pu-nav-item i {
+    color: #94a3b8;
+}
+
 body.dark-mode .pu-nav-item:hover,
 body.dark-mode .pu-nav-item.active {
     background: #0f172a;
+    color: var(--theme-primary-light, #c4b5fd);
+}
+
+body.dark-mode .pu-nav-item:hover i {
     color: var(--theme-primary-light, #c4b5fd);
 }
 
