@@ -53,7 +53,7 @@ $artesanoNombreSesion = $_SESSION['artesano_nombre'] ?? 'Artesano';
     </script>
     <link rel="stylesheet" href="../css/e-comemerce.css" />
     <link rel="stylesheet" href="../css/admin.css" />
-    <link rel="stylesheet" href="../componentes/menu-sesion.css?v=session-menu-v1" />
+    <link rel="stylesheet" href="../componentes/menu-sesion.css?v=session-menu-v2" />
     <link rel="stylesheet" href="../componentes/cambio-contrasena.css?v=password-change-v1" />
     <link rel="stylesheet" href="../css/click_metrics.css" />
     <link rel="stylesheet" href="../css/agente-ia.css?v=mobile-layout-v2" />
@@ -319,7 +319,7 @@ $artesanoNombreSesion = $_SESSION['artesano_nombre'] ?? 'Artesano';
     <script src="../componentes/click-metrics-dashboard.js?v=click-metrics-v2"></script>
     <script src="../js/metricas_clics.js"></script>
     <script src="../componentes/paginacion.js"></script>
-    <script src="../componentes/menu-sesion.js?v=session-menu-v1"></script>
+    <script src="../componentes/menu-sesion.js?v=session-menu-v2"></script>
     <script>window.TESessionMenu.mount();</script>
     <script src="../js/admin.js?v=secure-session-v1"></script>
     <script src="../componentes/cambio-contrasena.js?v=password-change-v1"></script>

@@ -47,7 +47,7 @@
             var row = document.createElement("tr");
             columns.forEach(function (column) {
                 var value = item[column.key];
-                if (column.format) value = column.format(value);
+                if (column.format) value = column.format(value, item);
                 appendCell(row, value);
             });
             tbody.appendChild(row);
@@ -127,10 +127,15 @@
                 businessSection.querySelector("[data-clicks-business]"),
                 data.por_empresa,
                 [
-                    { key: "empresa" },
+                    {
+                        key: "empresa",
+                        format: function (value, item) {
+                            return (item.tipo ? item.tipo + " · " : "") + value;
+                        }
+                    },
                     { key: "cantidad", format: function (value) { return Number(value).toLocaleString("es-CO"); } },
                 ],
-                "Aún no hay clics asociados a empresas."
+                "Aún no hay clics asociados a empresas o artesanos."
             );
         }
 

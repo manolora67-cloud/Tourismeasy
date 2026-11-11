@@ -64,6 +64,40 @@
             .toLocaleUpperCase();
     }
 
+    function cargarNombrePerfil(rol, raiz, aplicarNombre) {
+        var endpoints = {
+            admin: "login/get_perfil_admin.php",
+            empresa: "soli_empresas/get_perfil_empresa.php",
+            artesano: "e-commerce/perfil_artesano.php"
+        };
+
+        fetch(raiz + endpoints[rol], {
+            credentials: "include",
+            cache: "no-store"
+        })
+            .then(function (response) {
+                if (!response.ok) throw new Error("HTTP " + response.status);
+                return response.json();
+            })
+            .then(function (data) {
+                var perfil = rol === "admin" ? data.admin
+                    : rol === "empresa" ? data.empresa
+                        : data.perfil;
+                if (!data.ok || !perfil) {
+                    throw new Error(data.error || "La respuesta del perfil no es válida.");
+                }
+
+                var nombre = rol === "empresa"
+                    ? String(perfil.nombre || "").trim()
+                    : [perfil.nombre, perfil.apellido].filter(Boolean).join(" ").trim();
+                if (!nombre) throw new Error("El servidor no devolvió el nombre de la cuenta.");
+                aplicarNombre(nombre);
+            })
+            .catch(function (error) {
+                console.error("No se pudo cargar el nombre de la cuenta.", error);
+            });
+    }
+
     function agregarIcono(enlace, icono) {
         if (!icono) return;
         var elemento = document.createElement("i");
@@ -113,6 +147,7 @@
         nombreElemento.className = "session-name";
         if (rol === "artesano") nombreElemento.id = "artesanoNombre";
         nombreElemento.textContent = nombre;
+        nombreElemento.title = nombre;
         var tipo = document.createElement("span");
         tipo.className = "session-tipo";
         tipo.textContent = configuracion.etiqueta;
@@ -167,6 +202,12 @@
 
         widget.append(boton, menu);
         slot.replaceChildren(widget);
+
+        cargarNombrePerfil(rol, raiz, function (nombrePerfil) {
+            nombreElemento.textContent = nombrePerfil;
+            nombreElemento.title = nombrePerfil;
+            avatar.textContent = iniciales(nombrePerfil, configuracion.avatar);
+        });
 
         function cerrarMenu() {
             menu.classList.remove("open");

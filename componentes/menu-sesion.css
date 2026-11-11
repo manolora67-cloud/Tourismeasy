@@ -36,7 +36,7 @@
 }
 
 .session-name {
-    max-width: 140px;
+    max-width: 200px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -134,6 +134,6 @@ body.dark-mode .session-menu-danger {
     }
 
     .session-name {
-        max-width: 90px;
+        max-width: 120px;
     }
 }

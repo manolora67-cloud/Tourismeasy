@@ -1366,6 +1366,7 @@ body.dark-mode .catalog-action:hover {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    min-width: 0;
 }
 
 .session-name {
@@ -1373,6 +1374,10 @@ body.dark-mode .catalog-action:hover {
     font-weight: 700;
     color: #1e293b;
     font-family: "Montserrat", sans-serif;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .session-tipo {
@@ -1480,6 +1485,10 @@ body.dark-mode .catalog-action:hover {
     align-items: start;
 }
 
+.pu-container--profile {
+    align-items: stretch;
+}
+
 
 /* Sidebar del admin: sticky para quedarse al scroll */
 
@@ -1492,6 +1501,17 @@ body.dark-mode .catalog-action:hover {
     position: sticky;
     top: 80px;
     text-align: center;
+}
+
+.pu-sidebar--profile {
+    display: flex;
+    flex-direction: column;
+    align-self: stretch;
+}
+
+.pu-sidebar-logout {
+    margin-top: auto;
+    padding-top: 16px;
 }
 
 
@@ -1876,6 +1896,7 @@ body.dark-mode .catalog-action:hover {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 20px;
+    align-items: stretch;
 }
 
 
@@ -2803,6 +2824,16 @@ body.dark-mode .btn-tbl-reject {
         text-align: left;
     }
 
+    .pu-sidebar--profile {
+        flex-direction: row;
+    }
+
+    .pu-sidebar-logout {
+        width: 100%;
+        margin-top: 0;
+        padding-top: 0;
+    }
+
     .pu-sidebar-avatar {
         margin: 0;
     }
@@ -2918,6 +2949,10 @@ body.dark-mode .btn-tbl-reject {
         align-items: center;
         text-align: center;
         padding: 20px 16px;
+    }
+
+    .pu-sidebar--profile {
+        flex-direction: column;
     }
 
     .pu-sidebar-avatar {

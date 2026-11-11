@@ -89,18 +89,35 @@ BEGIN
             JSONB_AGG(
                 JSONB_BUILD_OBJECT(
                     'empresa', datos.empresa,
+                    'tipo', datos.tipo,
                     'cantidad', datos.cantidad
                 )
-                ORDER BY datos.cantidad DESC, datos.empresa
+                ORDER BY datos.cantidad DESC, datos.tipo, datos.empresa
             ),
             '[]'::JSONB
         )
         INTO v_por_empresa
         FROM (
-            SELECT E.NOM_EMPRESA AS empresa, COUNT(*) AS cantidad
+            SELECT
+                'Empresa'::TEXT AS tipo,
+                E.NOM_EMPRESA::TEXT AS empresa,
+                COUNT(*) AS cantidad
             FROM LOGS_CLICS_WEB_EXTERNOS L
             JOIN EMPRESAS E ON E.ID_EMPRESA = L.ID_EMPRESA
             GROUP BY E.ID_EMPRESA, E.NOM_EMPRESA
+            UNION ALL
+            SELECT
+                'Artesano'::TEXT AS tipo,
+                COALESCE(
+                    NULLIF(BTRIM(CONCAT_WS(' ', PE.NOM_PERSONA_ECOMMERCE, PE.APE_PERSONA_ECOMMERCE)), ''),
+                    'Artesano sin nombre'
+                ) AS empresa,
+                COUNT(*) AS cantidad
+            FROM LOGS_CLICS_WEB_EXTERNOS L
+            LEFT JOIN PERSONAS_ECOMMERCE PE
+                ON PE.ID_PERSONA_ECOMMERCE = L.ID_PERSONA_ECOMMERCE
+            WHERE L.ID_PERSONA_ECOMMERCE IS NOT NULL
+            GROUP BY PE.ID_PERSONA_ECOMMERCE, PE.NOM_PERSONA_ECOMMERCE, PE.APE_PERSONA_ECOMMERCE
         ) datos;
     ELSE
         v_por_empresa := '[]'::JSONB;

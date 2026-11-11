@@ -722,7 +722,7 @@
                 municipio: true,
                 article: saved ? parseArticle(saved.article) : {}
             };
-        });
+        }).sort((a, b) => a.orden - b.orden || a.titulo.localeCompare(b.titulo, "es"));
     }
 
     function cardTemplate(destination) {
@@ -833,15 +833,16 @@
             updateCarousel(track, previous, next, pagination, pageIndex, pageSize, publicDestinations.length);
         };
         window.TE_IR_A_MUNICIPIO = (idCiudad) => {
-            const index = publicDestinations.findIndex((destination) => String(destination.id) === String(idCiudad));
-            if (index < 0) return false;
-
-            pageIndex = Math.floor(index / pageSize);
-            update();
             const card = Array.from(track.querySelectorAll(".card[data-ciudad-id]"))
                 .find((element) => element.dataset.ciudadId === String(idCiudad));
             if (!card) return false;
 
+            const page = card.closest(".destinos-page");
+            const targetPageIndex = Array.from(track.children).indexOf(page);
+            if (targetPageIndex < 0) return false;
+
+            pageIndex = targetPageIndex;
+            update();
             card.scrollIntoView({ behavior: "smooth", block: "center" });
             return card;
         };
