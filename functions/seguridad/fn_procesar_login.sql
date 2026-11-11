@@ -2,7 +2,7 @@ CREATE OR REPLACE FUNCTION fn_procesar_login(
     p_email USUARIOS.EMAIL_LOGIN%TYPE,
     p_hash  USUARIOS.CONTRASENA%TYPE,
     p_tipo  VARCHAR(10),
-    p_ip    INTENTOS_LOGIN.IP_ORIGEN%TYPE,
+    p_ip    INTENTOS_SEGURIDAD.IP_ORIGEN%TYPE,
     p_token_dispositivo_hash CHAR(64),
     p_id_sesion_hash CHAR(64),
     p_reemplazar_sesion BOOLEAN
@@ -47,7 +47,7 @@ BEGIN
 
     SELECT b.bloqueado, b.minutos_restantes
     INTO v_bloqueado, v_minutos_restantes
-    FROM fn_verificar_bloqueo_login(p_email, 3, 5) AS b;
+    FROM fn_verificar_bloqueo_seguridad('login', p_email) AS b;
 
     IF COALESCE(v_bloqueado, FALSE) THEN
         RETURN QUERY SELECT
@@ -84,7 +84,12 @@ BEGIN
         v_tipo_servicio := NULL;
     END IF;
 
-    v_intento_registrado := fn_registrar_intento_login(p_email, p_ip, v_ok);
+    v_intento_registrado := fn_registrar_intento_seguridad(
+        'login',
+        p_email,
+        p_ip,
+        COALESCE(v_ok, FALSE)
+    );
     IF NOT COALESCE(v_intento_registrado, FALSE) THEN
         RETURN QUERY SELECT
             'ERROR_INTENTO'::VARCHAR(20), FALSE,
@@ -106,6 +111,20 @@ BEGIN
             END,
             'advertencia'
         );
+
+        SELECT b.bloqueado, b.minutos_restantes
+        INTO v_bloqueado, v_minutos_restantes
+        FROM fn_verificar_bloqueo_seguridad('login', p_email) AS b;
+        IF COALESCE(v_bloqueado, FALSE) THEN
+            RETURN QUERY SELECT
+                'BLOQUEADO'::VARCHAR(20), FALSE,
+                ('Demasiados intentos fallidos. Intenta de nuevo en '
+                    || COALESCE(v_minutos_restantes, 0)::TEXT || ' minuto(s).')::TEXT,
+                TRUE, COALESCE(v_minutos_restantes, 0), NULL::VARCHAR(10),
+                NULL::VARCHAR, NULL::TEXT, NULL::TEXT, NULL::VARCHAR(10),
+                NULL::VARCHAR(20), NULL::VARCHAR(10);
+            RETURN;
+        END IF;
 
         RETURN QUERY SELECT
             'CREDENCIALES'::VARCHAR(20), FALSE, v_mensaje,

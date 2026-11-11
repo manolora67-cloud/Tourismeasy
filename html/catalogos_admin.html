@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
     <script src="../componentes/ui-feedback.js?v=ui-feedback-v4"></script>
+    <script src="../componentes/menu-sesion.js?v=session-menu-v1"></script>
 </head>
 
 <body>
@@ -26,7 +27,7 @@
             </a>
             <span class="panel-navbar-label"><i class="fa-solid fa-shield-halved"></i> Panel Administrador</span>
             <div class="nav-slot">
-                <div id="sessionWidgetSlot"></div>
+                <div id="sessionWidgetSlot" data-role="admin" data-root="../" data-active="catalogos"></div>
                 <button class="btn-dark-mode" id="darkModeToggle" type="button" aria-label="Cambiar modo oscuro/claro">
                     <i class="fa-solid fa-moon"></i>
                 </button>
@@ -169,42 +170,7 @@
                 return;
             }
 
-            var slot = document.getElementById("sessionWidgetSlot");
-            var widget = document.createElement("div");
-            widget.id = "sessionWidget";
-            widget.className = "session-widget";
-            widget.innerHTML =
-                '<button class="session-trigger" id="sessionTrigger" type="button">' +
-                '<div class="session-avatar">AD</div><div class="session-info">' +
-                '<span class="session-name">Cargando…</span><span class="session-tipo">Administrador</span>' +
-                '</div><i class="fa-solid fa-chevron-down session-chevron" id="sessionChevron"></i></button>' +
-                '<div class="session-dropdown" id="sessionDropdown">' +
-                '<a class="session-menu-item" href="../index.html">🏠 Ir al sitio</a>' +
-                '<a class="session-menu-item" href="panel_admin.html">🛡️ Panel Admin</a>' +
-                '<a class="session-menu-item" href="perfil_admin.html">👤 Mi Perfil</a>' +
-                '<a class="session-menu-item" href="config_admin.html">⚙️ Configuración</a>' +
-                '<a class="session-menu-item" href="festividades_admin.html">📅 Festividades</a>' +
-                '<a class="session-menu-item session-menu-highlight" href="catalogos_admin.html">📚 Catálogos</a>' +
-                '<a class="session-menu-item session-menu-danger" id="btnLogout" href="#">🚪 Cerrar Sesión</a></div>';
-            slot.appendChild(widget);
-
-            var trigger = widget.querySelector("#sessionTrigger");
-            var dropdown = widget.querySelector("#sessionDropdown");
-            var chevron = widget.querySelector("#sessionChevron");
-            trigger.addEventListener("click", function (event) {
-                event.stopPropagation();
-                var open = dropdown.classList.toggle("open");
-                chevron.style.transform = open ? "rotate(180deg)" : "rotate(0deg)";
-            });
-            document.addEventListener("click", function () {
-                dropdown.classList.remove("open");
-                chevron.style.transform = "rotate(0deg)";
-            });
-            widget.querySelector("#btnLogout").addEventListener("click", function (event) {
-                event.preventDefault();
-                event.stopPropagation();
-                window.TEUI.logoutAdmin("../login/logout_admin.php", "../index.html");
-            });
+            window.TESessionMenu.mount();
 
             var darkModeButton = document.getElementById("darkModeToggle");
             var darkModeIcon = darkModeButton.querySelector("i");

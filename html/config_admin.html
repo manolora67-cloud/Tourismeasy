@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="../css/login.css?v=device-approval-v2" />
     <link rel="stylesheet" href="../css/panel_admin.css?v=admin-footer-size-v2" />
     <link rel="stylesheet" href="../componentes/cambio-contrasena.css?v=password-change-v1" />
+    <link rel="stylesheet" href="../componentes/configuracion-seguridad.css?v=security-settings-v1" />
     <link rel="stylesheet" href="../css/agente-ia.css?v=mobile-layout-v2" />
     <link rel="stylesheet" href="../css/tema-global-admin.css?v=global-theme-v1" />
     <link
@@ -18,6 +19,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
     <script src="../componentes/ui-feedback.js?v=ui-feedback-v4"></script>
+    <script src="../componentes/menu-sesion.js?v=session-menu-v1"></script>
 </head>
 
 <body>
@@ -29,7 +31,7 @@
             </a>
             <span class="panel-navbar-label"><i class="fa-solid fa-shield-halved"></i> Panel Administrador</span>
             <div class="nav-slot">
-                <div id="sessionWidgetSlot"></div>
+                <div id="sessionWidgetSlot" data-role="admin" data-root="../" data-active="config"></div>
                 <button class="btn-dark-mode" id="darkModeToggle">
                     <i class="fa-solid fa-moon"></i>
                 </button>
@@ -141,6 +143,18 @@
                     </div>
                 </div>
 
+                <section class="pu-card security-settings" aria-labelledby="securitySettingsTitle">
+                    <h3 class="pu-card-title" id="securitySettingsTitle">
+                        <i class="fa-solid fa-shield-halved"></i> Límites de seguridad
+                    </h3>
+                    <p class="security-settings__intro">
+                        Configura intentos, ventanas y bloqueos de cada acción. Los cambios se validan en el servidor y quedan registrados en Auditoría.
+                    </p>
+                    <div id="securitySettingsList" class="security-settings__list" aria-live="polite">
+                        <p role="status">Cargando controles de seguridad…</p>
+                    </div>
+                </section>
+
                 <div class="pu-card pu-card--monthly-report">
                     <h3 class="pu-card-title">
                         <i class="fa-solid fa-file-pdf"></i> Informe mensual
@@ -242,6 +256,7 @@
     <!-- FOOTER -->
     <div id="site-footer"></div>
     <script src="../componentes/footer.js"></script>
+    <script src="../componentes/configuracion-seguridad.js?v=security-settings-v1"></script>
     <script>
         (function () {
             var sess = (localStorage.getItem("te_session") || sessionStorage.getItem("te_session"));
@@ -260,34 +275,7 @@
             if (nm) nm.textContent = "Cargando administrador…";
         })();
 
-        // SESSION WIDGET
-        (function () {
-            var user = JSON.parse((localStorage.getItem("te_session") || sessionStorage.getItem("te_session")) || "null");
-            var slot = document.getElementById("sessionWidgetSlot");
-            if (!user || !slot) return;
-            var w = document.createElement("div");
-            w.id = "sessionWidget";
-            w.className = "session-widget";
-            w.innerHTML = '<button class="session-trigger" id="sessionTrigger"><div class="session-avatar">AD</div><div class="session-info"><span class="session-name">Cargando…</span><span class="session-tipo">Administrador</span></div><i class="fa-solid fa-chevron-down session-chevron" id="sessionChevron"></i></button><div class="session-dropdown" id="sessionDropdown"><a class="session-menu-item" href="../index.html">🏠 Ir al sitio</a><a class="session-menu-item session-menu-highlight" href="panel_admin.html">🛡️ Panel Administrador</a><a class="session-menu-item" href="perfil_admin.html">👤 Mi Perfil</a><a class="session-menu-item" href="config_admin.html">⚙️ Configuración</a><a class="session-menu-item" href="festividades_admin.html">📅 Festividades</a><a class="session-menu-item" href="catalogos_admin.html">📚 Catálogos</a><a class="session-menu-item session-menu-danger" id="btnLogout" href="#">🚪 Cerrar Sesión</a></div>';
-            slot.appendChild(w);
-            var trig = w.querySelector("#sessionTrigger"),
-                drop = w.querySelector("#sessionDropdown"),
-                chev = w.querySelector("#sessionChevron");
-            trig.addEventListener("click", function (e) {
-                e.stopPropagation();
-                var o = drop.classList.toggle("open");
-                chev.style.transform = o ? "rotate(180deg)" : "rotate(0deg)";
-            });
-            document.addEventListener("click", function () {
-                drop.classList.remove("open");
-                chev.style.transform = "rotate(0deg)";
-            });
-            w.querySelector("#btnLogout").addEventListener("click", function (e) {
-                e.preventDefault();
-                e.stopPropagation();
-                window.TEUI.logoutAdmin("../login/logout_admin.php", "../index.html");
-            });
-        })();
+        window.TESessionMenu.mount();
 
         var darkModeBtn = document.getElementById("darkModeToggle");
         var darkModeIcon = darkModeBtn.querySelector("i");

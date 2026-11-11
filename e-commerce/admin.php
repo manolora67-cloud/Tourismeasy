@@ -53,6 +53,7 @@ $artesanoNombreSesion = $_SESSION['artesano_nombre'] ?? 'Artesano';
     </script>
     <link rel="stylesheet" href="../css/e-comemerce.css" />
     <link rel="stylesheet" href="../css/admin.css" />
+    <link rel="stylesheet" href="../componentes/menu-sesion.css?v=session-menu-v1" />
     <link rel="stylesheet" href="../componentes/cambio-contrasena.css?v=password-change-v1" />
     <link rel="stylesheet" href="../css/click_metrics.css" />
     <link rel="stylesheet" href="../css/agente-ia.css?v=mobile-layout-v2" />
@@ -72,13 +73,7 @@ $artesanoNombreSesion = $_SESSION['artesano_nombre'] ?? 'Artesano';
             </a>
             <span class="panel-navbar-label"><i class="fa-solid fa-palette"></i> Mi Panel de Productos</span>
             <div class="nav-slot">
-                <!-- Widget de sesión del artesano (nombre + cerrar sesión) -->
-                <div id="artesanoWidget" class="artesano-widget">
-                    <span id="artesanoNombre" class="artesano-nombre"></span>
-                    <button class="btn-logout-artesano" id="btnLogoutArtesano">
-                        <i class="fa-solid fa-right-from-bracket"></i> Salir
-                    </button>
-                </div>
+                <div id="sessionWidgetSlot" data-role="artesano" data-root="../" data-active="panel"></div>
                 <div id="dark-mode-toggle"></div>
             </div>
         </div>
@@ -310,7 +305,7 @@ $artesanoNombreSesion = $_SESSION['artesano_nombre'] ?? 'Artesano';
                     <div class="artisan-security-content">
                         <div>
                             <strong>Cambiar contraseña</strong>
-                            <p class="artisan-settings-card__description">Puedes cambiarla hasta 3 veces por mes. Los restablecimientos mediante el enlace del correo no consumen esos cambios.</p>
+                            <p class="artisan-settings-card__description">El administrador configura el límite mensual de cambios correctos. Los restablecimientos mediante el enlace del correo no consumen esos cambios.</p>
                         </div>
                         <button class="te-password-settings__trigger" type="button" data-password-change
                             data-password-endpoint="actualizar_contrasena_artesano.php">Cambiar contraseña</button>
@@ -324,6 +319,8 @@ $artesanoNombreSesion = $_SESSION['artesano_nombre'] ?? 'Artesano';
     <script src="../componentes/click-metrics-dashboard.js?v=click-metrics-v2"></script>
     <script src="../js/metricas_clics.js"></script>
     <script src="../componentes/paginacion.js"></script>
+    <script src="../componentes/menu-sesion.js?v=session-menu-v1"></script>
+    <script>window.TESessionMenu.mount();</script>
     <script src="../js/admin.js?v=secure-session-v1"></script>
     <script src="../componentes/cambio-contrasena.js?v=password-change-v1"></script>
     <script src="../js/configuracion_artesano.js?v=artisan-settings-v1"></script>

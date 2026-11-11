@@ -50,7 +50,11 @@ AS $$
     FROM SOLICITUDES_INICIO_SESION
     WHERE TIPO_CUENTA = p_tipo_cuenta
       AND ID_CUENTA = p_id_cuenta
-      AND FECHA_CREACION > NOW() - INTERVAL '15 minutes';
+      AND FECHA_CREACION > NOW() - MAKE_INTERVAL(mins => (
+          SELECT VENTANA_MINUTOS
+          FROM CONFIGURACION_SEGURIDAD
+          WHERE CONTROL = 'device_request'
+      ));
 $$;
 
 CREATE OR REPLACE FUNCTION fn_cancelar_solicitudes_dispositivo_previas(

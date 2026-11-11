@@ -17,6 +17,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
     <script src="../componentes/ui-feedback.js?v=ui-feedback-v4"></script>
+    <script src="../componentes/menu-sesion.js?v=session-menu-v1"></script>
     <script src="../componentes/modal.js"></script>
     <script src="../componentes/toast.js"></script>
     <script src="../componentes/boton-accion.js"></script>
@@ -37,6 +38,7 @@
                 <span class="logo-text">TOURISMEASY</span>
             </a>
             <span class="panel-navbar-label"><i class="fa-solid fa-shield-halved"></i> Panel Administrador</span>
+            <div id="sessionWidgetSlot" data-role="admin" data-root="../" data-active="panel"></div>
             <button class="btn-dark-mode" id="darkModeToggle" aria-label="Cambiar modo oscuro/claro">
                 <i class="fa-solid fa-moon"></i>
             </button>
@@ -530,55 +532,7 @@
             applyTheme(!document.body.classList.contains("dark-mode"));
         });
 
-        // SESSION WIDGET
-        (function() {
-            var user = JSON.parse((localStorage.getItem("te_session") || sessionStorage.getItem("te_session")) || "null");
-            if (!user) return;
-            var navContainer = document.querySelector(".nav-container");
-            var insertBefore = document.getElementById("darkModeToggle");
-            var widget = document.createElement("div");
-            widget.id = "sessionWidget";
-            widget.className = "session-widget";
-            widget.innerHTML =
-                '<button class="session-trigger" id="sessionTrigger">' +
-                '<div class="session-avatar">AD</div>' +
-                '<div class="session-info">' +
-                '<span class="session-name">Cargando…</span>' +
-                '<span class="session-tipo">Administrador</span>' +
-                "</div>" +
-                '<i class="fa-solid fa-chevron-down session-chevron" id="sessionChevron"></i>' +
-                "</button>" +
-                '<div class="session-dropdown" id="sessionDropdown">' +
-                '<a class="session-menu-item" href="../index.html">🏠 Ir al sitio</a>' +
-                '<a class="session-menu-item" href="panel_admin.html">🛡️ Panel Admin</a>' +
-                '<a class="session-menu-item" href="perfil_admin.html">👤 Mi Perfil</a>' +
-                '<a class="session-menu-item" href="config_admin.html">⚙️ Configuración</a>' +
-                '<a class="session-menu-item" href="festividades_admin.html">📅 Festividades</a>' +
-                '<a class="session-menu-item" href="catalogos_admin.html">📚 Catálogos</a>' +
-                '<a class="session-menu-item session-menu-danger" id="btnLogout" href="#">🚪 Cerrar Sesión</a>' +
-                "</div>";
-            if (navContainer && insertBefore)
-                navContainer.insertBefore(widget, insertBefore);
-            var trigger = widget.querySelector("#sessionTrigger");
-            var dropdown = widget.querySelector("#sessionDropdown");
-            var chevron = widget.querySelector("#sessionChevron");
-            trigger.addEventListener("click", function(e) {
-                e.stopPropagation();
-                var isOpen = dropdown.classList.toggle("open");
-                chevron.style.transform = isOpen ? "rotate(180deg)" : "rotate(0deg)";
-            });
-            document.addEventListener("click", function() {
-                dropdown.classList.remove("open");
-                chevron.style.transform = "rotate(0deg)";
-            });
-            widget
-                .querySelector("#btnLogout")
-                .addEventListener("click", async function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    await window.TEUI.logoutAdmin("../login/logout_admin.php", "../index.html");
-                });
-        })();
+        window.TESessionMenu.mount();
 
         (function() {
             var rawSession = localStorage.getItem("te_session") || sessionStorage.getItem("te_session");

@@ -24,7 +24,7 @@ $solicitudAprobacion = trim((string)($input['solicitud_aprobacion'] ?? ''));
 $codigoAprobacion = trim((string)($input['codigo_aprobacion'] ?? ''));
 $captchaToken = $input['captcha_token'] ?? '';
 
-if (!$email || !$password || !in_array($tipo, ['admin', 'empresa'], true)) {
+if (!$email || strlen($email) > 254 || !$password || !in_array($tipo, ['admin', 'empresa'], true)) {
     http_response_code(400);
     echo json_encode(["ok" => false, "error" => "Datos incompletos."]);
     exit;
@@ -80,7 +80,11 @@ try {
                 "ok" => false,
                 "error" => $validacionAprobacion['error'] === 'codigo_invalido'
                     ? "El código no es válido. Revisa el correo e intenta de nuevo."
-                    : "La aprobación venció o ya no es válida. Inicia sesión para solicitar otra.",
+                    : ($validacionAprobacion['error'] === 'limite_alcanzado'
+                        ? "Alcanzaste el máximo de intentos para este código. Espera "
+                            . max(1, (int)($validacionAprobacion['minutos_restantes'] ?? 0))
+                            . " minuto(s) antes de volver a intentarlo."
+                        : "La aprobación venció o ya no es válida. Inicia sesión para solicitar otra."),
             ]);
             exit;
         }

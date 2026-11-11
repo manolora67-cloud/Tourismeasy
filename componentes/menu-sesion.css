@@ -1,0 +1,139 @@
+.session-widget {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.session-trigger {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 1.5px solid rgba(124, 58, 237, 0.25);
+    border-radius: 50px;
+    padding: 5px 14px 5px 5px;
+    background: rgba(124, 58, 237, 0.08);
+    cursor: pointer;
+    color: inherit;
+}
+
+.session-avatar {
+    display: flex;
+    width: 34px;
+    height: 34px;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #7c3aed, #a855f7);
+    color: #fff;
+    font-weight: 800;
+}
+
+.session-info {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    text-align: left;
+}
+
+.session-name {
+    max-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 700;
+}
+
+.session-tipo {
+    color: #7c3aed;
+    font-size: 0.72rem;
+}
+
+.session-chevron {
+    transition: transform 0.2s ease;
+}
+
+.session-dropdown {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    z-index: 9998;
+    min-width: 210px;
+    padding: 8px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-6px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.session-dropdown.open {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+}
+
+.session-menu-item {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: #1e293b;
+    cursor: pointer;
+    font: inherit;
+    text-align: left;
+    text-decoration: none;
+}
+
+.session-menu-item i {
+    width: 16px;
+}
+
+.session-menu-item:hover,
+.session-menu-highlight {
+    background: #f1f5f9;
+    color: #6d28d9;
+}
+
+.session-menu-danger {
+    margin-top: 4px;
+    border-top: 1px solid #e2e8f0;
+    color: #dc2626;
+}
+
+body.dark-mode .session-trigger,
+body.dark-mode .session-dropdown {
+    border-color: #334155;
+    background-color: #1e293b;
+}
+
+body.dark-mode .session-menu-item {
+    color: #f1f5f9;
+}
+
+body.dark-mode .session-menu-item:hover,
+body.dark-mode .session-menu-highlight {
+    background: #0f172a;
+    color: #c4b5fd;
+}
+
+body.dark-mode .session-menu-danger {
+    border-top-color: #334155;
+}
+
+@media (max-width: 600px) {
+    .session-trigger {
+        gap: 6px;
+        padding-right: 8px;
+    }
+
+    .session-name {
+        max-width: 90px;
+    }
+}

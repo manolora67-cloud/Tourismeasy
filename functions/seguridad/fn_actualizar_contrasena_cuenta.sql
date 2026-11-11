@@ -13,6 +13,7 @@ RETURNS TABLE (
 $$
 DECLARE
     v_cambios_mes BIGINT;
+    v_limite_mensual SMALLINT;
 BEGIN
     IF p_tipo IS NULL OR p_tipo NOT IN ('admin', 'empresa', 'artesano') OR p_id IS NULL OR p_id = '' THEN
         RETURN QUERY SELECT FALSE, 'La cuenta no es válida.'::TEXT, 0, 'INVALID_ACCOUNT'::TEXT;
@@ -21,6 +22,11 @@ BEGIN
 
     PERFORM pg_advisory_xact_lock(HASHTEXT(p_tipo), HASHTEXT(p_id));
 
+    SELECT c.LIMITE_MENSUAL
+    INTO STRICT v_limite_mensual
+    FROM CONFIGURACION_SEGURIDAD c
+    WHERE c.CONTROL = 'password_change';
+
     SELECT COUNT(*) INTO v_cambios_mes
     FROM CAMBIOS_CONTRASENA_CUENTA c
     WHERE c.TIPO_CUENTA = p_tipo
@@ -28,9 +34,10 @@ BEGIN
       AND c.FECHA_CAMBIO >= DATE_TRUNC('month', CURRENT_TIMESTAMP)
       AND c.FECHA_CAMBIO < DATE_TRUNC('month', CURRENT_TIMESTAMP) + INTERVAL '1 month';
 
-    IF v_cambios_mes >= 3 THEN
+    IF v_cambios_mes >= v_limite_mensual THEN
         RETURN QUERY SELECT FALSE,
-            'Ya alcanzaste el máximo de 3 cambios de contraseña de este mes.'::TEXT,
+            ('Ya alcanzaste el máximo de ' || v_limite_mensual::TEXT
+                || ' cambios de contraseña de este mes.')::TEXT,
             0,
             'MONTHLY_LIMIT'::TEXT;
         RETURN;
@@ -59,7 +66,7 @@ BEGIN
     IF NOT FOUND THEN
         RETURN QUERY SELECT FALSE,
             'No se pudo validar la cuenta. Inicia sesión nuevamente.'::TEXT,
-            GREATEST(2 - v_cambios_mes, 0)::INTEGER,
+            GREATEST(v_limite_mensual - v_cambios_mes, 0)::INTEGER,
             'INVALID_CREDENTIALS'::TEXT;
         RETURN;
     END IF;
@@ -69,7 +76,7 @@ BEGIN
 
     RETURN QUERY SELECT TRUE,
         'Contraseña actualizada correctamente.'::TEXT,
-        GREATEST(1 - v_cambios_mes, 0)::INTEGER,
+        GREATEST(v_limite_mensual - v_cambios_mes - 1, 0)::INTEGER,
         'OK'::TEXT;
 EXCEPTION
     WHEN CHECK_VIOLATION THEN

@@ -16,6 +16,8 @@ TourismEasy es una plataforma web de turismo inclusivo enfocada en Santander, Co
 - Perfiles y preferencias de administración y empresas.
 - Menú de accesibilidad compartido: cambio de idioma, ajuste y restablecimiento del tamaño del texto, alto contraste y lectura en voz alta cuando el navegador lo admite. El pie de página incluye una declaración de accesibilidad emergente con herramientas disponibles, referencias normativas y datos de contacto; es informativa y no representa una certificación de conformidad.
 - CAPTCHA verificado en el servidor para los inicios de sesión, y recuperación de contraseña con enlace por correo.
+- Límites de seguridad configurables por administración para login, cambio de contraseña, recuperación y confirmación de dispositivos.
+- Menú de sesión compartido con opciones separadas por rol para administradores, empresas y artesanos.
 - Confirmaciones, notificaciones y avisos de cambios sin guardar reutilizados en los paneles que los integran.
 - Sesiones de administración, empresas y artesanos administradas por el servidor, con vencimiento tras 10 minutos de inactividad y cierre manual.
 - Recuperación de contraseña por correo electrónico para administración, empresas y artesanos del e-commerce.

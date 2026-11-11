@@ -70,7 +70,7 @@ if (!preg_match('/^.{8,}$/us', $contrasenaNueva) || strlen($contrasenaNueva) > 7
 
 try {
     $bloqueoStmt = $pdo->prepare(
-        'SELECT bloqueado, minutos_restantes FROM fn_verificar_bloqueo_login(:email, 3, 5)'
+        "SELECT bloqueado, minutos_restantes FROM fn_verificar_bloqueo_seguridad('password_change', :email)"
     );
     $bloqueoStmt->execute([':email' => $email]);
     $bloqueo = $bloqueoStmt->fetch();
@@ -78,20 +78,41 @@ try {
         http_response_code(429);
         echo json_encode([
             "ok" => false,
-            "error" => "Demasiados intentos. Espera " . (int) ($bloqueo['minutos_restantes'] ?? 5) . " minutos.",
+            "error" => "Demasiados intentos para cambiar la contraseña. Espera "
+                . (int) ($bloqueo['minutos_restantes'] ?? 1) . " minuto(s).",
         ]);
         exit;
     }
 
-    $hashActual = obtenerHashLoginVerificado($pdo, $email, $contrasenaActual, $tipo);
+    $hashActual = obtenerHashLoginVerificado(
+        $pdo,
+        $email,
+        $contrasenaActual,
+        $tipo,
+        'password_change'
+    );
     if ($hashActual === null) {
-        $intentoStmt = $pdo->prepare('SELECT fn_registrar_intento_login(:email, :ip, FALSE)');
+        $intentoStmt = $pdo->prepare(
+            "SELECT fn_registrar_intento_seguridad('password_change', :email, :ip, FALSE)"
+        );
         $intentoStmt->execute([
             ':email' => $email,
             ':ip' => obtenerIpCliente(),
         ]);
         if (!in_array($intentoStmt->fetchColumn(), [true, 't', 'true', '1', 1], true)) {
             throw new RuntimeException('No se pudo registrar el intento de cambio de contraseña.');
+        }
+
+        $bloqueoStmt->execute([':email' => $email]);
+        $bloqueo = $bloqueoStmt->fetch();
+        if (in_array($bloqueo['bloqueado'] ?? false, [true, 't', 'true', '1', 1], true)) {
+            http_response_code(429);
+            echo json_encode([
+                "ok" => false,
+                "error" => "Demasiados intentos para cambiar la contraseña. Espera "
+                    . (int) ($bloqueo['minutos_restantes'] ?? 1) . " minuto(s).",
+            ]);
+            exit;
         }
 
         http_response_code(401);
@@ -129,6 +150,17 @@ try {
             "cambios_restantes" => (int) ($result['cambios_restantes'] ?? 0),
         ]);
         exit;
+    }
+
+    $intentoExitosoStmt = $pdo->prepare(
+        "SELECT fn_registrar_intento_seguridad('password_change', :email, :ip, TRUE)"
+    );
+    $intentoExitosoStmt->execute([
+        ':email' => $email,
+        ':ip' => obtenerIpCliente(),
+    ]);
+    if (!in_array($intentoExitosoStmt->fetchColumn(), [true, 't', 'true', '1', 1], true)) {
+        throw new RuntimeException('No se pudo registrar el cambio de contraseña.');
     }
 
     echo json_encode([

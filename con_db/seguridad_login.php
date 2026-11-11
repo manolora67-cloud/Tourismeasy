@@ -3,8 +3,8 @@
  * con_db/seguridad_login.php
  *
  * Obtiene la IP del cliente desde las cabeceras del servidor. La persistencia
- * del intento y el cálculo del bloqueo viven en fn_registrar_intento_login()
- * y fn_verificar_bloqueo_login().
+ * del intento y el cálculo del bloqueo viven en las funciones centrales
+ * fn_registrar_intento_seguridad() y fn_verificar_bloqueo_seguridad().
  */
 
 /**
@@ -27,10 +27,18 @@ function obtenerIpCliente(): string
  * Verifica la contraseña y devuelve el hash almacenado para el coordinador SQL.
  * Los hashes SHA-256 existentes se actualizan al formato vigente al iniciar sesión.
  */
-function obtenerHashLoginVerificado($pdo, string $email, string $password, string $tipo): ?string
+function obtenerHashLoginVerificado(
+    $pdo,
+    string $email,
+    string $password,
+    string $tipo,
+    string $controlIntentos = 'login'
+): ?string
 {
-    $bloqueoStmt = $pdo->prepare('SELECT bloqueado FROM fn_verificar_bloqueo_login(:email, 3, 5)');
-    $bloqueoStmt->execute([':email' => $email]);
+    $bloqueoStmt = $pdo->prepare(
+        'SELECT bloqueado FROM fn_verificar_bloqueo_seguridad(:control, :sujeto)'
+    );
+    $bloqueoStmt->execute([':control' => $controlIntentos, ':sujeto' => $email]);
     $bloqueo = $bloqueoStmt->fetch();
     if (in_array($bloqueo['bloqueado'] ?? false, [true, 't', 'true', '1', 1], true)) {
         return null;

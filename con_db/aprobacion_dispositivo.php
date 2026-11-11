@@ -69,13 +69,18 @@ function crearSolicitudAprobacionDispositivo(
         );
         $limpiar->execute([':tipo' => $tipo, ':id' => $idCuenta]);
 
-        $etapa = 'contando_solicitudes_recientes';
+        $etapa = 'verificando_limite_solicitudes_dispositivo';
+        $sujetoDispositivo = $tipo . ':' . $idCuenta;
         $limite = $pdo->prepare(
-            'SELECT fn_contar_solicitudes_dispositivo_recientes(:tipo, :id)'
+            "SELECT bloqueado, minutos_restantes FROM fn_verificar_bloqueo_seguridad('device_request', :sujeto)"
         );
-        $limite->execute([':tipo' => $tipo, ':id' => $idCuenta]);
-        if ((int)$limite->fetchColumn() >= 3) {
-            throw new OverflowException('Hay demasiadas solicitudes recientes. Intenta de nuevo más tarde.');
+        $limite->execute([':sujeto' => $sujetoDispositivo]);
+        $bloqueo = $limite->fetch(PDO::FETCH_ASSOC);
+        if (in_array($bloqueo['bloqueado'] ?? false, [true, 't', 'true', '1', 1], true)) {
+            throw new OverflowException(
+                'Hay demasiadas solicitudes recientes. Intenta de nuevo en '
+                . (int)($bloqueo['minutos_restantes'] ?? 1) . ' minuto(s).'
+            );
         }
 
         $etapa = 'cancelando_solicitudes_previas';
@@ -96,6 +101,17 @@ function crearSolicitudAprobacionDispositivo(
             ':dispositivo' => $hashDispositivo,
         ]);
         $idSolicitud = (int)$insertar->fetchColumn();
+
+        $registrarLimite = $pdo->prepare(
+            "SELECT fn_registrar_intento_seguridad('device_request', :sujeto, :ip, TRUE)"
+        );
+        $registrarLimite->execute([
+            ':sujeto' => $sujetoDispositivo,
+            ':ip' => $ip,
+        ]);
+        if (!in_array($registrarLimite->fetchColumn(), [true, 't', 'true', '1', 1], true)) {
+            throw new RuntimeException('No se pudo registrar la solicitud de dispositivo.');
+        }
 
         $etapa = 'confirmando_transaccion';
         $pdo->commit();
@@ -221,6 +237,10 @@ function validarCodigoAprobacionDispositivo(
         );
         $buscar->execute([':token' => hash('sha256', $token)]);
         $solicitud = $buscar->fetch(PDO::FETCH_ASSOC);
+        if ($solicitud && $solicitud['estado'] === 'bloqueada') {
+            $pdo->commit();
+            return ['ok' => false, 'error' => 'limite_alcanzado'];
+        }
         if (!$solicitud || $solicitud['estado'] !== 'aprobada') {
             $pdo->commit();
             return ['ok' => false, 'error' => 'solicitud_invalida'];
@@ -236,24 +256,72 @@ function validarCodigoAprobacionDispositivo(
             return ['ok' => false, 'error' => 'solicitud_expirada'];
         }
 
-        if ((int)$solicitud['intentos_codigo'] >= 5) {
-            $pdo->commit();
-            return ['ok' => false, 'error' => 'limite_alcanzado'];
+        $sujetoCodigo = hash('sha256', $token);
+        $configCodigo = $pdo->query(
+            "SELECT max_intentos FROM fn_obtener_control_seguridad('device_code')"
+        )->fetchColumn();
+        if (!is_numeric($configCodigo) || (int)$configCodigo < 1 || (int)$configCodigo > 5) {
+            throw new RuntimeException('La configuración de intentos del código de dispositivo no es válida.');
         }
 
+        $limiteCodigo = $pdo->prepare(
+            "SELECT bloqueado, minutos_restantes FROM fn_verificar_bloqueo_seguridad('device_code', :sujeto)"
+        );
+        $limiteCodigo->execute([':sujeto' => $sujetoCodigo]);
+        $bloqueoCodigo = $limiteCodigo->fetch(PDO::FETCH_ASSOC);
+        if (in_array($bloqueoCodigo['bloqueado'] ?? false, [true, 't', 'true', '1', 1], true)) {
+            $pdo->commit();
+            return [
+                'ok' => false,
+                'error' => 'limite_alcanzado',
+                'minutos_restantes' => (int)($bloqueoCodigo['minutos_restantes'] ?? 0),
+            ];
+        }
         if (!is_string($solicitud['hash_codigo']) || !password_verify($codigo, $solicitud['hash_codigo'])) {
             $intentos = (int)$solicitud['intentos_codigo'] + 1;
-            $estado = $intentos >= 5 ? 'bloqueada' : 'aprobada';
             $actualizar = $pdo->prepare(
                 'SELECT fn_actualizar_intentos_codigo_dispositivo(:id, :intentos, :estado)'
             );
             $actualizar->execute([
-                ':intentos' => $intentos,
-                ':estado' => $estado,
+                ':intentos' => min($intentos, 5),
+                ':estado' => 'aprobada',
                 ':id' => $solicitud['id_solicitud'],
             ]);
+            $registrarIntento = $pdo->prepare(
+                "SELECT fn_registrar_intento_seguridad('device_code', :sujeto, :ip, FALSE)"
+            );
+            $registrarIntento->execute([
+                ':sujeto' => $sujetoCodigo,
+                ':ip' => $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0',
+            ]);
+            if (!in_array($registrarIntento->fetchColumn(), [true, 't', 'true', '1', 1], true)) {
+                throw new RuntimeException('No se pudo registrar el intento de código de dispositivo.');
+            }
+            $comprobarBloqueo = $pdo->prepare(
+                "SELECT bloqueado, minutos_restantes FROM fn_verificar_bloqueo_seguridad('device_code', :sujeto)"
+            );
+            $comprobarBloqueo->execute([':sujeto' => $sujetoCodigo]);
+            $bloqueoActual = $comprobarBloqueo->fetch(PDO::FETCH_ASSOC);
             $pdo->commit();
-            return ['ok' => false, 'error' => $estado === 'bloqueada' ? 'limite_alcanzado' : 'codigo_invalido'];
+            if (in_array($bloqueoActual['bloqueado'] ?? false, [true, 't', 'true', '1', 1], true)) {
+                return [
+                    'ok' => false,
+                    'error' => 'limite_alcanzado',
+                    'minutos_restantes' => (int)($bloqueoActual['minutos_restantes'] ?? 0),
+                ];
+            }
+            return ['ok' => false, 'error' => 'codigo_invalido'];
+        }
+
+        $registrarExito = $pdo->prepare(
+            "SELECT fn_registrar_intento_seguridad('device_code', :sujeto, :ip, TRUE)"
+        );
+        $registrarExito->execute([
+            ':sujeto' => $sujetoCodigo,
+            ':ip' => $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0',
+        ]);
+        if (!in_array($registrarExito->fetchColumn(), [true, 't', 'true', '1', 1], true)) {
+            throw new RuntimeException('No se pudo registrar el código de dispositivo.');
         }
 
         return [

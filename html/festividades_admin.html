@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
     <script src="../componentes/ui-feedback.js?v=ui-feedback-v4"></script>
+    <script src="../componentes/menu-sesion.js?v=session-menu-v1"></script>
 </head>
 
 <body>
@@ -26,7 +27,7 @@
             </a>
             <span class="panel-navbar-label"><i class="fa-solid fa-shield-halved"></i> Panel Administrador</span>
             <div class="nav-slot">
-                <div id="sessionWidgetSlot"></div>
+                <div id="sessionWidgetSlot" data-role="admin" data-root="../" data-active="festividades"></div>
                 <button class="btn-dark-mode" id="darkModeToggle" aria-label="Cambiar modo oscuro/claro">
                     <i class="fa-solid fa-moon"></i>
                 </button>
@@ -274,6 +275,7 @@
     <script src="../js/festividades-admin.js?v=secure-session-v1"></script>
     <script src="../componentes/agente-ia.js?v=private-chat-memory-v1"></script>
     <script src="../menu_accesibilidad/menu.js?v=a11y-v16"></script>
+    <script>window.TESessionMenu.mount();</script>
 </body>
 
 </html>
