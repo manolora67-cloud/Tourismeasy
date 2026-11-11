@@ -122,13 +122,21 @@
         const eventoDestacado = eventoHoy
             ? `<article class="snt-feature"
                 style="--snt-color-1:${colorDeFiesta(eventoHoy, 0, "#009B3A")};--snt-color-2:${colorDeFiesta(eventoHoy, 1, "#FFCD00")};--snt-color-3:${colorDeFiesta(eventoHoy, 2, "#FFFFFF")}">
-                <div class="snt-feature__meta">
-                    <span class="snt-chip snt-chip--today">Hoy · ${escaparHTML(fechaLegible(hoy, false))}</span>
-                    <span class="snt-chip">${escaparHTML(etiquetaTipo(eventoHoy))}</span>
+                <div class="snt-feature__top">
+                    <div class="snt-feature__meta">
+                        <span class="snt-chip snt-chip--today">Celebración de hoy</span>
+                        <span class="snt-chip">${escaparHTML(etiquetaTipo(eventoHoy))}</span>
+                    </div>
+                    <time class="snt-feature__date" datetime="${fechaISO(hoy)}" aria-label="Fecha: ${escaparHTML(fechaLegible(hoy, false))}">
+                        <span class="snt-feature__date-day">${String(hoy.getDate()).padStart(2, "0")}</span>
+                        <span class="snt-feature__date-month">${escaparHTML(new Intl.DateTimeFormat("es-CO", { month: "long" }).format(hoy))}</span>
+                    </time>
                 </div>
-                <p class="snt-feature__location">${escaparHTML(textoEditorial(eventoHoy.subtitulo))}</p>
-                <h3>${escaparHTML(textoEditorial(eventoHoy.titulo))}</h3>
-                <p class="snt-feature__copy">${escaparHTML(textoEditorial(eventoHoy.frase))}</p>
+                <div class="snt-feature__content">
+                    <p class="snt-feature__location"><span>Contexto cultural</span>${escaparHTML(textoEditorial(eventoHoy.subtitulo))}</p>
+                    <h3>${escaparHTML(textoEditorial(eventoHoy.titulo))}</h3>
+                    <p class="snt-feature__copy">${escaparHTML(textoEditorial(eventoHoy.frase))}</p>
+                </div>
                 ${eventoHoy.idCiudad || eventoHoy.destino
                     ? `<button class="snt-action" type="button" data-snt-visit="${escaparHTML(eventoHoy.id)}">Explorar ${escaparHTML(obtenerMunicipio(eventoHoy) || "el destino")}</button>`
                     : ""}
