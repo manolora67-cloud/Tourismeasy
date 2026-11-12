@@ -198,11 +198,7 @@
     function altImagenFiesta(fiesta) {
         return fiesta.imagenUrl
             ? `Fotografía de ${textoEditorial(fiesta.titulo)}`
-            : `Imagen ilustrativa de ${etiquetaCategoria(fiesta.categoria)}`;
-    }
-
-    function marcaImagenFiesta(fiesta) {
-        return fiesta.imagenUrl ? "" : '<span class="snt-image-note">Ilustrativa</span>';
+            : `Imagen de ${etiquetaCategoria(fiesta.categoria)}`;
     }
 
     function renderAgendaSantanderiana(mount) {
@@ -248,7 +244,6 @@
                 </div>
                 <div class="snt-feature__visual">
                     <img src="${escaparHTML(urlImagenFiesta(destacado.fiesta, "portada"))}" alt="${escaparHTML(altImagenFiesta(destacado.fiesta))}" loading="lazy" decoding="async">
-                    ${marcaImagenFiesta(destacado.fiesta)}
                     <time class="snt-feature__date" datetime="${fechaISO(destacado.fecha)}" aria-label="Fecha: ${escaparHTML(fechaLegible(destacado.fecha, destacado.fecha.getFullYear() !== hoy.getFullYear()))}">
                         <span class="snt-feature__date-day">${String(destacado.fecha.getDate()).padStart(2, "0")}</span>
                         <span class="snt-feature__date-month">${escaparHTML(new Intl.DateTimeFormat("es-CO", { month: "long" }).format(destacado.fecha))}</span>
@@ -331,7 +326,6 @@
                             </time>
                             <div class="snt-calendar__image-wrap">
                                 <img class="snt-calendar__image" src="${escaparHTML(urlImagenFiesta(fiesta, "tarjeta"))}" alt="${escaparHTML(altImagenFiesta(fiesta))}" loading="lazy" decoding="async">
-                                ${marcaImagenFiesta(fiesta)}
                             </div>
                             <div class="snt-calendar__details">
                                 <p class="snt-calendar__meta">
