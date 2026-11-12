@@ -36,6 +36,43 @@
         }
     }
 
+    function fechaClaveDeDia(fecha) {
+        return `${String(fecha.getMonth() + 1).padStart(2, "0")}-${String(fecha.getDate()).padStart(2, "0")}`;
+    }
+
+    function renderAvisoFestividadHoy(mount) {
+        const hoy = new Date();
+        const fiesta = festividades.find((item) => item.fechaClave === fechaClaveDeDia(hoy));
+        if (!fiesta) {
+            mount.hidden = true;
+            mount.innerHTML = "";
+            return;
+        }
+
+        const enlaceFestividades = new URL("html/festividades.html", SITE_ROOT).href;
+        const fechaTexto = new Intl.DateTimeFormat("es-CO", {
+            day: "numeric",
+            month: "long"
+        }).format(hoy);
+        mount.innerHTML = `
+            <aside class="snt-home-notice" role="status" aria-labelledby="sntHomeNoticeTitle"
+                style="--snt-notice-accent:${colorDeFiesta(fiesta, 0, "#009B3A")}">
+                <img class="snt-home-notice__image"
+                    src="${escaparHTML(urlImagenFiesta(fiesta, "tarjeta"))}"
+                    alt="${escaparHTML(altImagenFiesta(fiesta))}" loading="lazy" decoding="async">
+                <div class="snt-home-notice__body">
+                    <p class="snt-home-notice__eyebrow"><span>Hoy</span> · ${escaparHTML(fechaTexto)} · ${escaparHTML(etiquetaCategoria(fiesta.categoria))}</p>
+                    <h2 id="sntHomeNoticeTitle">${escaparHTML(textoEditorial(fiesta.titulo))}</h2>
+                    <p class="snt-home-notice__context">${escaparHTML(textoEditorial(fiesta.subtitulo))}</p>
+                    <p class="snt-home-notice__copy">${escaparHTML(textoEditorial(fiesta.frase))}</p>
+                </div>
+                <a class="snt-home-notice__link" href="${escaparHTML(enlaceFestividades)}">
+                    Ver Festividades <span aria-hidden="true">&rarr;</span>
+                </a>
+            </aside>`;
+        mount.hidden = false;
+    }
+
     function obtenerProximaFecha(fechaClave, hoy) {
         const match = /^(\d{2})-(\d{2})$/.exec(fechaClave);
         if (!match) return null;
@@ -204,7 +241,7 @@
     function renderAgendaSantanderiana(mount) {
         const hoy = new Date();
         hoy.setHours(0, 0, 0, 0);
-        const fechaClaveHoy = `${String(hoy.getMonth() + 1).padStart(2, "0")}-${String(hoy.getDate()).padStart(2, "0")}`;
+        const fechaClaveHoy = fechaClaveDeDia(hoy);
         const eventoHoy = festividades.find((fiesta) => fiesta.fechaClave === fechaClaveHoy) || null;
         const proximos = festividades
             .filter((fiesta) => fiesta.fechaClave !== fechaClaveHoy)
@@ -561,8 +598,9 @@
 
     async function cargarFestividadesAdministradas() {
         const mount = document.getElementById("santanderianidad");
+        const homeNotice = document.getElementById("aviso-festividad-hoy");
         const idFestividadSolicitada = new URLSearchParams(window.location.search).get("festividad");
-        if (!mount && !idFestividadSolicitada) return;
+        if (!mount && !homeNotice && !idFestividadSolicitada) return;
 
         try {
             const response = await fetch(API_FESTIVIDADES, { credentials: "include" });
@@ -591,9 +629,9 @@
             });
         } catch (error) {
             console.error("No se pudieron cargar las festividades administradas.", error);
-            if (!mount) return;
-            mount.hidden = false;
-            mount.innerHTML = `
+            if (mount) {
+                mount.hidden = false;
+                mount.innerHTML = `
                 <section class="snt-section" aria-labelledby="sntSectionTitle">
                     <div class="snt-container">
                         <header class="snt-heading">
@@ -603,10 +641,16 @@
                         <p class="snt-unavailable" role="status">La agenda cultural no está disponible en este momento. Intenta de nuevo más tarde.</p>
                     </div>
                 </section>`;
+            }
+            if (homeNotice) {
+                homeNotice.hidden = false;
+                homeNotice.innerHTML = '<p class="snt-home-notice-error" role="status">No se pudo consultar la festividad de hoy. Intenta de nuevo más tarde.</p>';
+            }
             return;
         }
 
         if (mount) inicializarAgendaCultural();
+        if (homeNotice) renderAvisoFestividadHoy(homeNotice);
         visitarFestividadSolicitada();
     }
 
