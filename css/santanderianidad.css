@@ -303,7 +303,7 @@
 
 .snt-agenda__item {
     display: grid;
-    grid-template-columns: 58px minmax(0, 1fr) auto;
+    grid-template-columns: 60px minmax(0, 1fr) auto;
     align-items: center;
     gap: 12px;
     padding: 15px 0;
@@ -479,6 +479,40 @@
     text-transform: capitalize;
 }
 
+.snt-date-badge {
+    width: 60px;
+    min-height: 58px;
+    flex-direction: column;
+    gap: 3px;
+    padding: 6px;
+    border: 1px solid #e2e8f0;
+    border-radius: 9px;
+    background: #f8fafc;
+    box-shadow: inset 3px 0 var(--theme-primary, #6d28d9);
+    color: #172033;
+    line-height: 1;
+    text-align: center;
+}
+
+.snt-date-badge__day {
+    font-family: var(--font-head, "Montserrat", sans-serif);
+    font-size: 1.05rem;
+    font-weight: 800;
+}
+
+.snt-date-badge__month,
+.snt-date-badge__year {
+    color: #64748b;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.snt-calendar__date.snt-date-badge {
+    justify-self: center;
+}
+
 .snt-calendar__details {
     min-width: 0;
 }
@@ -617,6 +651,17 @@ body.dark-mode .snt-calendar__date {
     color: #e2e8f0;
 }
 
+body.dark-mode .snt-date-badge {
+    border-color: #475569;
+    background: #0f172a;
+    color: #e2e8f0;
+}
+
+body.dark-mode .snt-date-badge__month,
+body.dark-mode .snt-date-badge__year {
+    color: #94a3b8;
+}
+
 body.dark-mode .snt-chip--today {
     border-color: rgba(196, 181, 253, 0.3);
     background: rgba(196, 181, 253, 0.12);
@@ -712,7 +757,7 @@ body.dark-mode .snt-calendar__pagination span {
     }
 
     .snt-agenda__item {
-        grid-template-columns: 50px minmax(0, 1fr);
+        grid-template-columns: 60px minmax(0, 1fr);
     }
 
     .snt-calendar__filters {

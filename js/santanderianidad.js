@@ -112,6 +112,17 @@
         return new Intl.DateTimeFormat("es-CO", opciones).format(fecha);
     }
 
+    function fechaFichaMarkup(fecha, hoy) {
+        const mes = new Intl.DateTimeFormat("es-CO", { month: "short" })
+            .format(fecha)
+            .replace(/\.$/, "");
+        const anio = fecha.getFullYear() !== hoy.getFullYear()
+            ? `<span class="snt-date-badge__year">${fecha.getFullYear()}</span>`
+            : "";
+        return `<span class="snt-date-badge__day">${String(fecha.getDate()).padStart(2, "0")}</span>
+            <span class="snt-date-badge__month">${escaparHTML(mes)}</span>${anio}`;
+    }
+
     function fechaISO(fecha) {
         return [
             fecha.getFullYear(),
@@ -185,7 +196,7 @@
                     const municipio = obtenerLugarCalendario(fiesta);
                     const visitar = Boolean(fiesta.idCiudad || fiesta.destino);
                     return `<li class="snt-agenda__item">
-                        <time class="snt-agenda__date" datetime="${fechaISO(fecha)}">${escaparHTML(fechaLegible(fecha, fecha.getFullYear() !== hoy.getFullYear()))}</time>
+                        <time class="snt-agenda__date snt-date-badge" datetime="${fechaISO(fecha)}">${fechaFichaMarkup(fecha, hoy)}</time>
                         <div class="snt-agenda__details">
                             <p>${escaparHTML(etiquetaTipo(fiesta))} · ${escaparHTML(obtenerContextoCalendario(fiesta))}</p>
                             <h4>${escaparHTML(textoEditorial(fiesta.titulo))}</h4>
@@ -251,8 +262,8 @@
                             data-month="${escaparHTML(fiesta.fechaClave.slice(0, 2))}"
                             data-type="${escaparHTML(claveTipo(fiesta))}"
                             data-place="${escaparHTML(lugar)}">
-                            <time class="snt-calendar__date" datetime="${fechaISO(fecha)}">
-                                <span>${escaparHTML(fechaLegible(fecha, fecha.getFullYear() !== hoy.getFullYear()))}</span>
+                            <time class="snt-calendar__date snt-date-badge" datetime="${fechaISO(fecha)}">
+                                ${fechaFichaMarkup(fecha, hoy)}
                             </time>
                             <div class="snt-calendar__details">
                                 <p>${escaparHTML(etiquetaTipo(fiesta))} · ${escaparHTML(obtenerContextoCalendario(fiesta))}</p>
