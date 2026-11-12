@@ -123,6 +123,15 @@
             <span class="snt-date-badge__month">${escaparHTML(mes)}</span>${anio}`;
     }
 
+    function etiquetaProximidad(fecha, hoy) {
+        const fechaUTC = Date.UTC(fecha.getFullYear(), fecha.getMonth(), fecha.getDate());
+        const hoyUTC = Date.UTC(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
+        const dias = Math.round((fechaUTC - hoyUTC) / 86400000);
+        if (dias <= 0) return "Hoy";
+        if (dias === 1) return "Mañana";
+        return `En ${dias} días`;
+    }
+
     function fechaISO(fecha) {
         return [
             fecha.getFullYear(),
@@ -147,8 +156,7 @@
                 fiesta
             }))
             .filter((item) => item.fecha)
-            .sort((a, b) => a.fecha - b.fecha)
-            .slice(0, 3);
+            .sort((a, b) => a.fecha - b.fecha);
 
         if (!festividades.length) {
             mount.hidden = false;
@@ -166,48 +174,32 @@
         }
 
         mount.hidden = false;
-        const eventoDestacado = eventoHoy
+        const destacado = eventoHoy
+            ? { fecha: hoy, fiesta: eventoHoy }
+            : proximos[0] || null;
+        const eventoDestacado = destacado
             ? `<article class="snt-feature"
-                style="--snt-color-1:${colorDeFiesta(eventoHoy, 0, "#009B3A")};--snt-color-2:${colorDeFiesta(eventoHoy, 1, "#FFCD00")};--snt-color-3:${colorDeFiesta(eventoHoy, 2, "#FFFFFF")}">
+                style="--snt-color-1:${colorDeFiesta(destacado.fiesta, 0, "#009B3A")};--snt-color-2:${colorDeFiesta(destacado.fiesta, 1, "#FFCD00")};--snt-color-3:${colorDeFiesta(destacado.fiesta, 2, "#FFFFFF")}">
                 <div class="snt-feature__top">
                     <div class="snt-feature__meta">
-                        <span class="snt-chip snt-chip--today">Celebración de hoy</span>
-                        <span class="snt-chip">${escaparHTML(etiquetaTipo(eventoHoy))}</span>
+                        <span class="snt-chip snt-chip--highlight">${escaparHTML(etiquetaProximidad(destacado.fecha, hoy))}</span>
+                        <span class="snt-chip">${escaparHTML(etiquetaTipo(destacado.fiesta))}</span>
                     </div>
-                    <time class="snt-feature__date" datetime="${fechaISO(hoy)}" aria-label="Fecha: ${escaparHTML(fechaLegible(hoy, false))}">
-                        <span class="snt-feature__date-day">${String(hoy.getDate()).padStart(2, "0")}</span>
-                        <span class="snt-feature__date-month">${escaparHTML(new Intl.DateTimeFormat("es-CO", { month: "long" }).format(hoy))}</span>
+                    <time class="snt-feature__date" datetime="${fechaISO(destacado.fecha)}" aria-label="Fecha: ${escaparHTML(fechaLegible(destacado.fecha, destacado.fecha.getFullYear() !== hoy.getFullYear()))}">
+                        <span class="snt-feature__date-day">${String(destacado.fecha.getDate()).padStart(2, "0")}</span>
+                        <span class="snt-feature__date-month">${escaparHTML(new Intl.DateTimeFormat("es-CO", { month: "long" }).format(destacado.fecha))}</span>
                     </time>
                 </div>
                 <div class="snt-feature__content">
-                    <p class="snt-feature__location"><span>Contexto cultural</span>${escaparHTML(textoEditorial(eventoHoy.subtitulo))}</p>
-                    <h3>${escaparHTML(textoEditorial(eventoHoy.titulo))}</h3>
-                    <p class="snt-feature__copy">${escaparHTML(textoEditorial(eventoHoy.frase))}</p>
+                    <p class="snt-feature__location"><span>Contexto cultural</span>${escaparHTML(textoEditorial(destacado.fiesta.subtitulo))}</p>
+                    <h3>${escaparHTML(textoEditorial(destacado.fiesta.titulo))}</h3>
+                    <p class="snt-feature__copy">${escaparHTML(textoEditorial(destacado.fiesta.frase))}</p>
                 </div>
-                ${eventoHoy.idCiudad || eventoHoy.destino
-                    ? `<button class="snt-action" type="button" data-snt-visit="${escaparHTML(eventoHoy.id)}">Explorar ${escaparHTML(obtenerMunicipio(eventoHoy) || "el destino")}</button>`
+                ${destacado.fiesta.idCiudad || destacado.fiesta.destino
+                    ? `<button class="snt-action" type="button" data-snt-visit="${escaparHTML(destacado.fiesta.id)}">Explorar ${escaparHTML(obtenerMunicipio(destacado.fiesta) || "el destino")}</button>`
                     : ""}
             </article>`
             : "";
-
-        const agendaMarkup = proximos.length
-            ? `<ol class="snt-agenda__list">
-                ${proximos.map(({ fecha, fiesta }) => {
-                    const municipio = obtenerLugarCalendario(fiesta);
-                    const visitar = Boolean(fiesta.idCiudad || fiesta.destino);
-                    return `<li class="snt-agenda__item">
-                        <time class="snt-agenda__date snt-date-badge" datetime="${fechaISO(fecha)}">${fechaFichaMarkup(fecha, hoy)}</time>
-                        <div class="snt-agenda__details">
-                            <p>${escaparHTML(etiquetaTipo(fiesta))} · ${escaparHTML(obtenerContextoCalendario(fiesta))}</p>
-                            <h4>${escaparHTML(textoEditorial(fiesta.titulo))}</h4>
-                        </div>
-                        ${visitar
-                            ? `<button class="snt-agenda__link" type="button" data-snt-visit="${escaparHTML(fiesta.id)}" aria-label="Explorar ${escaparHTML(municipio || "el destino")}">Explorar</button>`
-                            : ""}
-                    </li>`;
-                }).join("")}
-            </ol>`
-            : `<p class="snt-agenda__empty">No hay otras celebraciones próximas registradas.</p>`;
 
         const eventosCalendario = festividades
             .map((fiesta) => ({
@@ -266,12 +258,15 @@
                                 ${fechaFichaMarkup(fecha, hoy)}
                             </time>
                             <div class="snt-calendar__details">
-                                <p>${escaparHTML(etiquetaTipo(fiesta))} · ${escaparHTML(obtenerContextoCalendario(fiesta))}</p>
+                                <p class="snt-calendar__meta">
+                                    <span class="snt-calendar__relative">${escaparHTML(etiquetaProximidad(fecha, hoy))}</span>
+                                    <span>${escaparHTML(etiquetaTipo(fiesta))} · ${escaparHTML(obtenerContextoCalendario(fiesta))}</span>
+                                </p>
                                 <h4>${escaparHTML(textoEditorial(fiesta.titulo))}</h4>
                                 ${frase ? `<p class="snt-calendar__copy">${escaparHTML(frase)}</p>` : ""}
                             </div>
                             ${visitar
-                                ? `<button class="snt-agenda__link" type="button" data-snt-visit="${escaparHTML(fiesta.id)}" aria-label="Explorar ${escaparHTML(lugar)}">Explorar</button>`
+                                ? `<button class="snt-calendar__link" type="button" data-snt-visit="${escaparHTML(fiesta.id)}" aria-label="Explorar ${escaparHTML(lugar)}">Explorar</button>`
                                 : ""}
                         </li>`;
                     }).join("")}
@@ -313,15 +308,8 @@
                             </figure>
                         </div>
                     </div>
-                    <div class="snt-layout${eventoHoy ? "" : " snt-layout--agenda-only"}">
+                    <div class="snt-layout snt-layout--spotlight-only">
                         ${eventoDestacado}
-                        <section class="snt-agenda" aria-labelledby="sntAgendaTitle">
-                            <header class="snt-agenda__heading">
-                                <p class="snt-eyebrow">Calendario</p>
-                                <h3 id="sntAgendaTitle">Próximas fechas</h3>
-                            </header>
-                            ${agendaMarkup}
-                        </section>
                     </div>
                     ${calendarioMarkup}
                 </div>
