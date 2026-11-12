@@ -266,6 +266,11 @@
                     }).join("")}
                 </ol>
                 <p class="snt-calendar__empty" hidden>No hay festividades que coincidan con estos filtros.</p>
+                <nav class="snt-calendar__pagination" aria-label="Paginación de festividades">
+                    <button type="button" data-calendar-page="previous" aria-label="Página anterior">Anterior</button>
+                    <span data-calendar-page-summary aria-live="polite"></span>
+                    <button type="button" data-calendar-page="next" aria-label="Página siguiente">Siguiente</button>
+                </nav>
             </section>`
             : `<p class="snt-unavailable" role="status">No hay festividades con fechas válidas para mostrar.</p>`;
 
@@ -315,25 +320,55 @@
         const filasCalendario = Array.from(mount.querySelectorAll(".snt-calendar__item"));
         const estadoCalendario = mount.querySelector("[data-snt-calendar-count]");
         const mensajeCalendarioVacio = mount.querySelector(".snt-calendar__empty");
+        const paginacionCalendario = mount.querySelector(".snt-calendar__pagination");
+        const resumenPagina = mount.querySelector("[data-calendar-page-summary]");
+        const botonPaginaAnterior = mount.querySelector('[data-calendar-page="previous"]');
+        const botonPaginaSiguiente = mount.querySelector('[data-calendar-page="next"]');
+        const filasPorPagina = 10;
+        let paginaActual = 1;
         const actualizarCalendario = () => {
             const filtros = {
                 month: mount.querySelector('[data-snt-filter="month"]').value,
                 type: mount.querySelector('[data-snt-filter="type"]').value,
                 place: mount.querySelector('[data-snt-filter="place"]').value,
             };
-            let visibles = 0;
-            filasCalendario.forEach((fila) => {
-                const mostrar = Object.entries(filtros).every(([filtro, valor]) =>
+            const coincidentes = filasCalendario.filter((fila) =>
+                Object.entries(filtros).every(([filtro, valor]) =>
                     !valor || fila.dataset[filtro] === valor
-                );
-                fila.hidden = !mostrar;
-                if (mostrar) visibles += 1;
+                )
+            );
+            const totalPaginas = Math.max(1, Math.ceil(coincidentes.length / filasPorPagina));
+            paginaActual = Math.min(paginaActual, totalPaginas);
+            const inicio = (paginaActual - 1) * filasPorPagina;
+            const fin = Math.min(inicio + filasPorPagina, coincidentes.length);
+            const filasVisibles = new Set(coincidentes.slice(inicio, fin));
+            filasCalendario.forEach((fila) => {
+                fila.hidden = !filasVisibles.has(fila);
             });
-            estadoCalendario.textContent = `Mostrando ${visibles} de ${filasCalendario.length} festividades registradas.`;
-            mensajeCalendarioVacio.hidden = visibles !== 0;
+            estadoCalendario.textContent = `${coincidentes.length} ${coincidentes.length === 1 ? "festividad coincide" : "festividades coinciden"} con los filtros.`;
+            mensajeCalendarioVacio.hidden = coincidentes.length !== 0;
+            paginacionCalendario.hidden = totalPaginas <= 1;
+            resumenPagina.textContent = coincidentes.length
+                ? `Página ${paginaActual} · ${inicio + 1}–${fin} de ${coincidentes.length}`
+                : "Página 1 · 0 resultados";
+            botonPaginaAnterior.disabled = paginaActual <= 1;
+            botonPaginaSiguiente.disabled = paginaActual >= totalPaginas;
         };
-        filtrosCalendario.forEach((filtro) => filtro.addEventListener("change", actualizarCalendario));
-        if (estadoCalendario) actualizarCalendario();
+        filtrosCalendario.forEach((filtro) => filtro.addEventListener("change", () => {
+            paginaActual = 1;
+            actualizarCalendario();
+        }));
+        if (estadoCalendario) {
+            botonPaginaAnterior.addEventListener("click", () => {
+                paginaActual -= 1;
+                actualizarCalendario();
+            });
+            botonPaginaSiguiente.addEventListener("click", () => {
+                paginaActual += 1;
+                actualizarCalendario();
+            });
+            actualizarCalendario();
+        }
 
         mount.querySelectorAll("[data-snt-visit]").forEach((button) => {
             const fiesta = festividades.find(

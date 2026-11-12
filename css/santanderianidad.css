@@ -513,6 +513,55 @@
     font-size: 0.9rem;
 }
 
+.snt-calendar__pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    margin-top: 12px;
+    padding-top: 16px;
+    border-top: 1px solid #edf0f4;
+}
+
+.snt-calendar__pagination[hidden] {
+    display: none;
+}
+
+.snt-calendar__pagination button {
+    min-height: 38px;
+    padding: 7px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #334155;
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.snt-calendar__pagination button:hover:not(:disabled) {
+    border-color: var(--theme-primary, #6d28d9);
+    color: var(--theme-primary, #6d28d9);
+}
+
+.snt-calendar__pagination button:focus-visible {
+    outline: 3px solid rgba(109, 40, 217, 0.25);
+    outline-offset: 2px;
+}
+
+.snt-calendar__pagination button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.snt-calendar__pagination span {
+    color: #64748b;
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-align: center;
+}
+
 body.dark-mode #santanderianidad {
     background: #0f172a;
 }
@@ -591,6 +640,20 @@ body.dark-mode .snt-calendar__filters select {
     color: #e2e8f0;
 }
 
+body.dark-mode .snt-calendar__pagination {
+    border-top-color: #334155;
+}
+
+body.dark-mode .snt-calendar__pagination button {
+    border-color: #475569;
+    background: #0f172a;
+    color: #e2e8f0;
+}
+
+body.dark-mode .snt-calendar__pagination span {
+    color: #cbd5e1;
+}
+
 #site-destinos .card.snt-card-destello {
     position: relative;
     z-index: 5;
@@ -665,6 +728,15 @@ body.dark-mode .snt-calendar__filters select {
         grid-column: 2;
         justify-self: start;
         margin-top: -6px;
+    }
+
+    .snt-calendar__pagination {
+        gap: 8px;
+    }
+
+    .snt-calendar__pagination button,
+    .snt-calendar__pagination span {
+        font-size: 0.75rem;
     }
 
     .snt-agenda__link {

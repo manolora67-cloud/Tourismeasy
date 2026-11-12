@@ -170,7 +170,16 @@
                 return;
             }
 
-            window.TESessionMenu.mount();
+            var menuMontado = window.TESessionMenu.mount();
+            var widget = document.getElementById("sessionWidget");
+            if (!menuMontado || !widget) {
+                console.error("No se pudo inicializar el menú de sesión del administrador.");
+                document.getElementById("sidebarNombre").textContent = "No disponible";
+                document.getElementById("adminProfileStatus").textContent = "No se pudo cargar el perfil.";
+                return;
+            }
+            var sessionName = widget.querySelector(".session-name");
+            var sessionAvatar = widget.querySelector(".session-avatar");
 
             var darkModeButton = document.getElementById("darkModeToggle");
             var darkModeIcon = darkModeButton.querySelector("i");
@@ -206,14 +215,14 @@
                     document.getElementById("sidebarNombre").textContent = name;
                     document.getElementById("sidebarAvatar").textContent = initials;
                     document.getElementById("adminProfileStatus").textContent = "Administrador";
-                    widget.querySelector(".session-name").textContent = name;
-                    widget.querySelector(".session-avatar").textContent = initials;
+                    if (sessionName) sessionName.textContent = name;
+                    if (sessionAvatar) sessionAvatar.textContent = initials;
                 })
                 .catch(function (error) {
                     console.error("No se pudo cargar el perfil del administrador:", error);
                     document.getElementById("sidebarNombre").textContent = "No disponible";
                     document.getElementById("adminProfileStatus").textContent = "No se pudo cargar el perfil.";
-                    widget.querySelector(".session-name").textContent = "No disponible";
+                    if (sessionName) sessionName.textContent = "No disponible";
                 });
         })();
     </script>
