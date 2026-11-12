@@ -280,7 +280,7 @@ body {
     border-top: 1px solid var(--gray-200);
 }
 
-.nav-mobile a {
+.nav-mobile a:not(.btn-acceder) {
     font-family: var(--font-head);
     font-weight: 600;
     font-size: 1rem;

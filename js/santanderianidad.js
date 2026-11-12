@@ -13,6 +13,12 @@
         "batalla_palonegro": "bucaramanga",
         "parapente_lossantos": "lossantos",
     };
+    const CATEGORIAS_FESTIVIDADES = [
+        { id: "PAISAJES", nombre: "Paisajes", imagen: "img/festividades/web/canon.jpg" },
+        { id: "PATRIMONIO", nombre: "Patrimonio", imagen: "img/festividades/web/calle_colonial.jpg" },
+        { id: "MUSICA", nombre: "Música", imagen: "img/festividades/web/musicos.jpg" },
+        { id: "TRADICION", nombre: "Tradición", imagen: "img/festividades/web/artesano.jpg" },
+    ];
     let festividades = [];
 
     function inicializarAgendaCultural() {
@@ -144,6 +150,61 @@
         return colorValido(fiesta.colores && fiesta.colores[indice], respaldo);
     }
 
+    function categoriaValida(categoria) {
+        return CATEGORIAS_FESTIVIDADES.some((item) => item.id === categoria)
+            ? categoria
+            : "TRADICION";
+    }
+
+    function etiquetaCategoria(categoria) {
+        const categoriaEncontrada = CATEGORIAS_FESTIVIDADES.find(
+            (item) => item.id === categoriaValida(categoria)
+        );
+        return categoriaEncontrada.nombre;
+    }
+
+    function urlImagenFiesta(fiesta, variante) {
+        let url = fiesta.imagenUrl;
+        if (url) {
+            try {
+                const candidata = new URL(url);
+                if (
+                    candidata.protocol !== "https:"
+                    || candidata.hostname !== "res.cloudinary.com"
+                    || candidata.username
+                    || candidata.password
+                    || !candidata.pathname.includes("/image/upload/")
+                ) {
+                    url = "";
+                } else {
+                    url = candidata.href;
+                }
+            } catch (error) {
+                url = "";
+            }
+        }
+        if (!url) {
+            const categoria = CATEGORIAS_FESTIVIDADES.find(
+                (item) => item.id === categoriaValida(fiesta.categoria)
+            );
+            url = new URL(categoria.imagen, SITE_ROOT).href;
+        }
+        const cloudinary = window.TEImagenCloudinary;
+        return cloudinary && typeof cloudinary[variante] === "function"
+            ? cloudinary[variante](url)
+            : url;
+    }
+
+    function altImagenFiesta(fiesta) {
+        return fiesta.imagenUrl
+            ? `Fotografía de ${textoEditorial(fiesta.titulo)}`
+            : `Imagen ilustrativa de ${etiquetaCategoria(fiesta.categoria)}`;
+    }
+
+    function marcaImagenFiesta(fiesta) {
+        return fiesta.imagenUrl ? "" : '<span class="snt-image-note">Ilustrativa</span>';
+    }
+
     function renderAgendaSantanderiana(mount) {
         const hoy = new Date();
         hoy.setHours(0, 0, 0, 0);
@@ -180,11 +241,14 @@
         const eventoDestacado = destacado
             ? `<article class="snt-feature"
                 style="--snt-color-1:${colorDeFiesta(destacado.fiesta, 0, "#009B3A")};--snt-color-2:${colorDeFiesta(destacado.fiesta, 1, "#FFCD00")};--snt-color-3:${colorDeFiesta(destacado.fiesta, 2, "#FFFFFF")}">
-                <div class="snt-feature__top">
-                    <div class="snt-feature__meta">
-                        <span class="snt-chip snt-chip--highlight">${escaparHTML(etiquetaProximidad(destacado.fecha, hoy))}</span>
-                        <span class="snt-chip">${escaparHTML(etiquetaTipo(destacado.fiesta))}</span>
-                    </div>
+                <div class="snt-feature__meta">
+                    <span class="snt-chip snt-chip--highlight">${escaparHTML(etiquetaProximidad(destacado.fecha, hoy))}</span>
+                    <span class="snt-chip">${escaparHTML(etiquetaCategoria(destacado.fiesta.categoria))}</span>
+                    <span class="snt-chip">${escaparHTML(etiquetaTipo(destacado.fiesta))}</span>
+                </div>
+                <div class="snt-feature__visual">
+                    <img src="${escaparHTML(urlImagenFiesta(destacado.fiesta, "portada"))}" alt="${escaparHTML(altImagenFiesta(destacado.fiesta))}" loading="lazy" decoding="async">
+                    ${marcaImagenFiesta(destacado.fiesta)}
                     <time class="snt-feature__date" datetime="${fechaISO(destacado.fecha)}" aria-label="Fecha: ${escaparHTML(fechaLegible(destacado.fecha, destacado.fecha.getFullYear() !== hoy.getFullYear()))}">
                         <span class="snt-feature__date-day">${String(destacado.fecha.getDate()).padStart(2, "0")}</span>
                         <span class="snt-feature__date-month">${escaparHTML(new Intl.DateTimeFormat("es-CO", { month: "long" }).format(destacado.fecha))}</span>
@@ -230,6 +294,13 @@
                         </select>
                     </label>
                     <label>
+                        <span>Categoría</span>
+                        <select data-snt-filter="category" aria-label="Filtrar festividades por categoría">
+                            <option value="">Todas las categorías</option>
+                            ${CATEGORIAS_FESTIVIDADES.map((categoria) => `<option value="${categoria.id}">${escaparHTML(categoria.nombre)}</option>`).join("")}
+                        </select>
+                    </label>
+                    <label>
                         <span>Tipo</span>
                         <select data-snt-filter="type" aria-label="Filtrar festividades por tipo">
                             <option value="">Todos los tipos</option>
@@ -253,14 +324,19 @@
                         return `<li class="snt-calendar__item"
                             data-month="${escaparHTML(fiesta.fechaClave.slice(0, 2))}"
                             data-type="${escaparHTML(claveTipo(fiesta))}"
+                            data-category="${escaparHTML(categoriaValida(fiesta.categoria))}"
                             data-place="${escaparHTML(lugar)}">
                             <time class="snt-calendar__date snt-date-badge" datetime="${fechaISO(fecha)}">
                                 ${fechaFichaMarkup(fecha, hoy)}
                             </time>
+                            <div class="snt-calendar__image-wrap">
+                                <img class="snt-calendar__image" src="${escaparHTML(urlImagenFiesta(fiesta, "tarjeta"))}" alt="${escaparHTML(altImagenFiesta(fiesta))}" loading="lazy" decoding="async">
+                                ${marcaImagenFiesta(fiesta)}
+                            </div>
                             <div class="snt-calendar__details">
                                 <p class="snt-calendar__meta">
                                     <span class="snt-calendar__relative">${escaparHTML(etiquetaProximidad(fecha, hoy))}</span>
-                                    <span>${escaparHTML(etiquetaTipo(fiesta))} · ${escaparHTML(obtenerContextoCalendario(fiesta))}</span>
+                                    <span>${escaparHTML(etiquetaCategoria(fiesta.categoria))} · ${escaparHTML(etiquetaTipo(fiesta))} · ${escaparHTML(obtenerContextoCalendario(fiesta))}</span>
                                 </p>
                                 <h4>${escaparHTML(textoEditorial(fiesta.titulo))}</h4>
                                 ${frase ? `<p class="snt-calendar__copy">${escaparHTML(frase)}</p>` : ""}
@@ -290,22 +366,19 @@
                             <p>Fechas y celebraciones de Santander para descubrir durante todo el año.</p>
                         </header>
                         <div class="snt-gallery" aria-label="Paisajes y expresiones culturales de Santander">
-                            <figure class="snt-gallery__item">
-                                <img src="${new URL("img/festividades/web/canon.jpg", SITE_ROOT).href}" alt="Paisaje del cañón del Chicamocha" loading="lazy" decoding="async">
-                                <figcaption>Paisajes</figcaption>
-                            </figure>
-                            <figure class="snt-gallery__item">
-                                <img src="${new URL("img/festividades/web/calle_colonial.jpg", SITE_ROOT).href}" alt="Calle de arquitectura colonial santandereana" loading="lazy" decoding="async">
-                                <figcaption>Patrimonio</figcaption>
-                            </figure>
-                            <figure class="snt-gallery__item">
-                                <img src="${new URL("img/festividades/web/musicos.jpg", SITE_ROOT).href}" alt="Músicos interpretando instrumentos tradicionales" loading="lazy" decoding="async">
-                                <figcaption>Música</figcaption>
-                            </figure>
-                            <figure class="snt-gallery__item">
-                                <img src="${new URL("img/festividades/web/artesano.jpg", SITE_ROOT).href}" alt="Artesano preparando un producto tradicional" loading="lazy" decoding="async">
-                                <figcaption>Tradición</figcaption>
-                            </figure>
+                            ${CATEGORIAS_FESTIVIDADES.map((categoria) => {
+                                const cantidad = festividades.filter(
+                                    (fiesta) => categoriaValida(fiesta.categoria) === categoria.id
+                                ).length;
+                                const imagen = new URL(categoria.imagen, SITE_ROOT).href;
+                                return `<button class="snt-gallery__item" type="button" data-snt-category="${categoria.id}" aria-pressed="false" aria-label="Filtrar por ${categoria.nombre}, ${cantidad} ${cantidad === 1 ? "festividad" : "festividades"}">
+                                    <img src="${imagen}" alt="" loading="lazy" decoding="async">
+                                    <span class="snt-gallery__caption">
+                                        <span>${escaparHTML(categoria.nombre)}</span>
+                                        <small>${cantidad} ${cantidad === 1 ? "festividad" : "festividades"}</small>
+                                    </span>
+                                </button>`;
+                            }).join("")}
                         </div>
                     </div>
                     <div class="snt-layout snt-layout--spotlight-only">
@@ -329,6 +402,7 @@
             const filtros = {
                 month: mount.querySelector('[data-snt-filter="month"]').value,
                 type: mount.querySelector('[data-snt-filter="type"]').value,
+                category: mount.querySelector('[data-snt-filter="category"]').value,
                 place: mount.querySelector('[data-snt-filter="place"]').value,
             };
             const coincidentes = filasCalendario.filter((fila) =>
@@ -352,6 +426,11 @@
                 : "Página 1 · 0 resultados";
             botonPaginaAnterior.disabled = paginaActual <= 1;
             botonPaginaSiguiente.disabled = paginaActual >= totalPaginas;
+            mount.querySelectorAll("[data-snt-category]").forEach((boton) => {
+                const activo = boton.dataset.sntCategory === filtros.category;
+                boton.classList.toggle("is-active", activo);
+                boton.setAttribute("aria-pressed", String(activo));
+            });
         };
         filtrosCalendario.forEach((filtro) => filtro.addEventListener("change", () => {
             paginaActual = 1;
@@ -368,6 +447,22 @@
             });
             actualizarCalendario();
         }
+
+        mount.querySelectorAll("[data-snt-category]").forEach((boton) => {
+            boton.addEventListener("click", () => {
+                const filtroCategoria = mount.querySelector('[data-snt-filter="category"]');
+                const calendario = mount.querySelector(".snt-calendar");
+                if (!filtroCategoria || !calendario) return;
+                filtroCategoria.value = filtroCategoria.value === boton.dataset.sntCategory
+                    ? ""
+                    : boton.dataset.sntCategory;
+                filtroCategoria.dispatchEvent(new Event("change", { bubbles: true }));
+                calendario.scrollIntoView({
+                    behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+                    block: "start"
+                });
+            });
+        });
 
         mount.querySelectorAll("[data-snt-visit]").forEach((button) => {
             const fiesta = festividades.find(
@@ -494,6 +589,8 @@
                     frase: row.frase,
                     colores: [c1, c2, c3],
                     tipo: row.tipo,
+                    categoria: categoriaValida(String(row.categoria || "").toUpperCase()),
+                    imagenUrl: row.img_url ? String(row.img_url).trim() : "",
                     idCiudad: row.id_ciudad ? String(row.id_ciudad).trim() : null,
                     destino: DESTINOS_POR_FESTIVIDAD[id] || null,
                 };

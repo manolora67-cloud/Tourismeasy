@@ -26,7 +26,9 @@ El usuario `postgres` del ejemplo es el usuario local de PostgreSQL; reemplázal
 
 El esquema crea las tablas de la aplicación y carga datos iniciales, incluyendo el departamento de Santander, sus municipios y registros de ejemplo. `USUARIOS` guarda directamente el perfil y las credenciales de administración; no existe una tabla genérica `PERSONAS` ni cuentas para viajeros. Las reseñas son públicas y se guardan con el nombre proporcionado por quien las publica; los likes se identifican por visitante. `TIPOS_DOCUMENTOS` se conserva porque las cuentas de artesanos/e-commerce todavía la utilizan. `CONTENIDO_PORTADA` y `ESTADO_INICIAL_PORTADA` almacenan las tarjetas administrables y el estado de carga inicial.
 
-Las funciones se cargan por separado después del esquema. Si únicamente necesitas reemplazar una función en una base que ya tiene la estructura compatible, ejecuta el archivo correspondiente de `functions/`; `CREATE OR REPLACE FUNCTION` reemplaza la definición. Esto no convierte `DB_TOURISMEASY.sql` en una actualización: nunca lo ejecutes sobre una base con datos.
+`FESTIVIDADES_SANTANDER` guarda también la categoría temática y `IMG_URL` para cada festividad. La columna de imagen sigue la misma longitud mínima que las demás columnas `IMG_URL`; las cargas desde el apartado **Festividades** del panel se alojan en Cloudinary. Las 48 festividades iniciales tienen una categoría asignada y, si no se ha cargado una imagen, el sitio muestra una imagen ilustrativa.
+
+Las funciones se cargan por separado después del esquema. Si únicamente necesitas reemplazar una función en una base que ya tiene la estructura compatible, ejecuta el archivo correspondiente de `functions/`; `CREATE OR REPLACE FUNCTION` reemplaza la definición cuando la firma de retorno es compatible. `fn_listar_festividades()` ahora devuelve también categoría e imagen, por lo que PostgreSQL no permite ampliar directamente los parámetros `OUT` de la versión anterior. En una base que ya tiene esa versión, elimina manualmente la función anterior antes de ejecutar el archivo actualizado; el archivo SQL no contiene `DROP`. Esto no convierte `DB_TOURISMEASY.sql` en una actualización: nunca lo ejecutes sobre una base con datos.
 
 ### Validadores SQL compartidos
 
@@ -48,7 +50,9 @@ psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_artesanos
 psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_artesanos\fn_actualizar_contacto_artesano.sql
 psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_administracion\fn_actualizar_perfil_admin.sql
 psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_administracion\fn_actualizar_tema_global.sql
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_festividades\fn_listar_festividades.sql
 psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_festividades\fn_guardar_festividad.sql
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_festividades\fn_eliminar_festividad.sql
 psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_planes\fn_agregar_plan.sql
 psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_planes\fn_editar_plan.sql
 psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_hospedaje\fn_agregar_hospedaje.sql
@@ -60,6 +64,8 @@ psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_transport
 ```
 
 En una base existente, carga primero los validadores y después cada función SQL actualizada que los utilice. `fn_validar_color_hex.sql` debe preceder a [`fn_actualizar_tema_global.sql`](../functions/crud_administracion/fn_actualizar_tema_global.sql) y [`fn_guardar_festividad.sql`](../functions/crud_festividades/fn_guardar_festividad.sql); `fn_validar_codigo_ciudad.sql` debe preceder a las funciones actualizadas de empresas, planes, hospedajes, productos, transporte y festividades; `fn_validar_fecha_salida.sql` debe preceder a las funciones de agregar y editar transporte. Reemplazar las funciones SQL no actualiza el código PHP del servidor: despliega también los endpoints PHP correspondientes desde el repositorio.
+
+El esquema de Festividades de este archivo es para una instalación nueva: la tabla contiene directamente los campos de categoría e imagen, y sus funciones SQL los consultan y guardan. No incluye una migración ni instrucciones `ALTER` para bases existentes; no ejecutes el esquema completo sobre una base con datos. Las imágenes se suben desde el apartado **Festividades** del panel de administración a Cloudinary y quedan asociadas al guardar el registro.
 
 `SESIONES_ACTIVAS` mantiene una reserva por cuenta para admin, empresa y artesano. La sesión caduca después de 10 minutos sin actividad; las solicitudes válidas renuevan ese tiempo y la cookie HTTP. Cerrar la ventana no cierra inmediatamente la sesión: se puede volver a entrar mientras no hayan pasado 10 minutos. Si se intenta acceder desde otro dispositivo mientras la sesión sigue activa, se envía al correo una solicitud de confirmación. Solo al aprobarla se envía un código de seis dígitos; el dispositivo anterior se desconecta cuando el código se valida correctamente. Las solicitudes vencen en 10 minutos y el código en 5 minutos; sus límites de intentos se administran desde la configuración de seguridad. La tabla `SOLICITUDES_INICIO_SESION` forma parte del esquema nuevo. Las reservas vencidas se liberan al intentar iniciar sesión. La duración de sesión se configura en [`../con_db/sesion_persistente.php`](../con_db/sesion_persistente.php). El token de dispositivo se conserva en una cookie `HttpOnly` por hasta 400 días, pero no mantiene activa una sesión vencida.
 

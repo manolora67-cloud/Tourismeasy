@@ -19,6 +19,8 @@ DECLARE
     v_bg_card FESTIVIDADES_SANTANDER.BG_CARD%TYPE;
     v_tipo FESTIVIDADES_SANTANDER.TIPO%TYPE;
     v_id_ciudad FESTIVIDADES_SANTANDER.ID_CIUDAD%TYPE;
+    v_categoria FESTIVIDADES_SANTANDER.CATEGORIA%TYPE;
+    v_img_url TEXT;
 BEGIN
     IF p_accion IS NULL OR p_accion NOT IN ('create', 'update')
        OR p_festividad IS NULL OR JSONB_TYPEOF(p_festividad) <> 'object' THEN
@@ -37,6 +39,8 @@ BEGIN
     v_bg_card := UPPER(BTRIM(p_festividad->>'bg_card'));
     v_tipo := UPPER(BTRIM(p_festividad->>'tipo'));
     v_id_ciudad := NULLIF(BTRIM(p_festividad->>'id_ciudad'), '');
+    v_categoria := COALESCE(NULLIF(UPPER(BTRIM(p_festividad->>'categoria')), ''), 'TRADICION');
+    v_img_url := NULLIF(BTRIM(p_festividad->>'img_url'), '');
 
      IF v_id IS NULL OR v_id !~ '^[a-z0-9]+(_[a-z0-9]+)*$'
          OR CHAR_LENGTH(v_id) NOT BETWEEN 3 AND 40
@@ -45,11 +49,16 @@ BEGIN
        OR v_frase IS NULL OR CHAR_LENGTH(v_frase) NOT BETWEEN 5 AND 200
        OR v_emoji IS NULL OR CHAR_LENGTH(v_emoji) NOT BETWEEN 1 AND 10
        OR v_tipo IS NULL OR v_tipo NOT IN ('REGIONAL', 'NACIONAL')
+       OR v_categoria NOT IN ('PAISAJES', 'PATRIMONIO', 'MUSICA', 'TRADICION')
        OR NOT fn_validar_color_hex(v_color_1)
        OR NOT fn_validar_color_hex(v_color_2)
        OR NOT fn_validar_color_hex(v_color_3)
        OR NOT fn_validar_color_hex(v_bg_card) THEN
         RETURN JSONB_BUILD_OBJECT('ok', FALSE, 'status', 422, 'error', 'Revisa los campos y límites de longitud de la festividad.');
+    END IF;
+
+    IF v_img_url IS NOT NULL AND CHAR_LENGTH(v_img_url) NOT BETWEEN 5 AND 255 THEN
+        RETURN JSONB_BUILD_OBJECT('ok', FALSE, 'status', 422, 'error', 'La dirección de la imagen no es válida.');
     END IF;
 
     IF v_fecha IS NULL OR v_fecha !~ '^(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$' THEN
@@ -91,17 +100,19 @@ BEGIN
     IF p_accion = 'create' THEN
         INSERT INTO FESTIVIDADES_SANTANDER (
             ID_FESTIVIDAD, FECHA_CLAVE, SUBTITULO, TITULO, FRASE, EMOJI,
-            COLOR_1, COLOR_2, COLOR_3, BG_CARD, TIPO, ID_CIUDAD
+            COLOR_1, COLOR_2, COLOR_3, BG_CARD, TIPO, ID_CIUDAD, CATEGORIA, IMG_URL
         ) VALUES (
             v_id, v_fecha, v_subtitulo, v_titulo, v_frase, v_emoji,
-            v_color_1, v_color_2, v_color_3, v_bg_card, v_tipo, v_id_ciudad
+            v_color_1, v_color_2, v_color_3, v_bg_card, v_tipo, v_id_ciudad,
+            v_categoria, v_img_url
         );
     ELSE
         UPDATE FESTIVIDADES_SANTANDER
         SET FECHA_CLAVE = v_fecha, SUBTITULO = v_subtitulo, TITULO = v_titulo,
             FRASE = v_frase, EMOJI = v_emoji, COLOR_1 = v_color_1,
             COLOR_2 = v_color_2, COLOR_3 = v_color_3, BG_CARD = v_bg_card,
-            TIPO = v_tipo, ID_CIUDAD = v_id_ciudad
+            TIPO = v_tipo, ID_CIUDAD = v_id_ciudad, CATEGORIA = v_categoria,
+            IMG_URL = v_img_url
         WHERE ID_FESTIVIDAD = p_id_actual;
     END IF;
 

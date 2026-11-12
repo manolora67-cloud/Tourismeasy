@@ -15,9 +15,20 @@
     var currentPageLabel = document.getElementById("festividadesPaginaActual");
     var previousPageButton = document.getElementById("festividadesAnterior");
     var nextPageButton = document.getElementById("festividadesSiguiente");
+    var imageFileInput = document.getElementById("festividadImagenArchivo");
+    var imagePreview = document.getElementById("festividadImagenVistaPrevia");
+    var imageStatus = document.getElementById("festividadImagenEstado");
+    var removeImageButton = document.getElementById("festividadImagenQuitar");
     var ciudadSelect = form.elements.id_ciudad;
     var ciudades = [];
     var ciudadesPromise;
+    var imagenSubiendo = false;
+    var categorias = {
+        PAISAJES: "Paisajes",
+        PATRIMONIO: "Patrimonio",
+        MUSICA: "Música",
+        TRADICION: "Tradición"
+    };
     var pageSize = 10;
     var currentPage = 1;
 
@@ -32,6 +43,17 @@
         errorBox.hidden = true;
         formErrorBox.textContent = "";
         formErrorBox.hidden = true;
+    }
+
+    function actualizarVistaPreviaImagen(url) {
+        imagePreview.hidden = !url;
+        if (url) {
+            imagePreview.src = url;
+            removeImageButton.hidden = false;
+        } else {
+            imagePreview.removeAttribute("src");
+            removeImageButton.hidden = true;
+        }
     }
 
     function cerrarDialogo(notify) {
@@ -129,7 +151,7 @@
         if (!festividades.length) {
             var vacio = document.createElement("tr");
             var mensaje = crearCelda("Todavía no hay festividades registradas.", "festividades-empty");
-            mensaje.colSpan = 5;
+            mensaje.colSpan = 6;
             vacio.appendChild(mensaje);
             tableBody.appendChild(vacio);
             return;
@@ -150,6 +172,7 @@
             fila.appendChild(nombre);
 
             fila.appendChild(crearCelda(festividad.tipo === "NACIONAL" ? "Nacional" : "Regional"));
+            fila.appendChild(crearCelda(categorias[festividad.categoria] || "Tradición"));
             fila.appendChild(crearCelda(nombreCiudad(festividad)));
 
             var acciones = document.createElement("td");
@@ -199,6 +222,8 @@
         form.elements.frase.value = existente ? festividad.frase : "";
         form.elements.emoji.value = existente ? festividad.emoji : "";
         form.elements.tipo.value = existente ? festividad.tipo : "REGIONAL";
+        form.elements.categoria.value = existente ? (festividad.categoria || "TRADICION") : "TRADICION";
+        form.elements.img_url.value = existente ? String(festividad.img_url || "").trim() : "";
         form.elements.color_1.value = existente ? festividad.color_1.trim() : "#009B3A";
         form.elements.color_2.value = existente ? festividad.color_2.trim() : "#FFCD00";
         form.elements.color_3.value = existente ? festividad.color_3.trim() : "#FFFFFF";
@@ -216,6 +241,9 @@
             ));
         }
         ciudadSelect.value = idCiudad;
+        imageFileInput.value = "";
+        imageStatus.textContent = "";
+        actualizarVistaPreviaImagen(form.elements.img_url.value);
         form.dataset.idActual = existente ? festividad.id_festividad : "";
         window.TEUI.markClean(form);
         dialog.showModal();
@@ -259,9 +287,55 @@
         renderizarFestividades();
     }
 
+    async function subirImagenFestividad(event) {
+        var file = event.target.files && event.target.files[0];
+        if (!file) return;
+        if (file.size > 5 * 1024 * 1024) {
+            imageStatus.textContent = "La imagen no puede superar 5 MB.";
+            imageFileInput.value = "";
+            return;
+        }
+
+        imagenSubiendo = true;
+        saveButton.disabled = true;
+        imageFileInput.disabled = true;
+        removeImageButton.disabled = true;
+        imageStatus.textContent = "Subiendo imagen a Cloudinary…";
+        try {
+            var body = new FormData();
+            body.append("imagen", file);
+            var response = await fetch("../subir_imagen.php", {
+                method: "POST",
+                credentials: "include",
+                headers: {
+                    "X-CSRF-Token": csrfToken,
+                    "X-Upload-Type": "festividad"
+                },
+                body: body
+            });
+            var result = await respuestaJson(response);
+            form.elements.img_url.value = result.url;
+            form.elements.img_url.dispatchEvent(new Event("input", { bubbles: true }));
+            actualizarVistaPreviaImagen(result.url);
+            imageStatus.textContent = "Imagen cargada. Guarda la festividad para asociarla.";
+        } catch (error) {
+            imageStatus.textContent = error.message;
+        } finally {
+            imagenSubiendo = false;
+            saveButton.disabled = false;
+            imageFileInput.disabled = false;
+            removeImageButton.disabled = false;
+            imageFileInput.value = "";
+        }
+    }
+
     form.addEventListener("submit", async function(event) {
         event.preventDefault();
         limpiarError();
+        if (imagenSubiendo) {
+            mostrarError("Espera a que termine la carga de la imagen.");
+            return;
+        }
         if (!form.reportValidity()) return;
         saveButton.disabled = true;
         var editing = !!form.dataset.idActual;
@@ -274,6 +348,8 @@
             frase: values.get("frase").trim(),
             emoji: values.get("emoji").trim(),
             tipo: values.get("tipo"),
+            categoria: values.get("categoria"),
+            img_url: values.get("img_url").trim(),
             color_1: values.get("color_1"),
             color_2: values.get("color_2"),
             color_3: values.get("color_3"),
@@ -299,6 +375,14 @@
 
     document.getElementById("btnAgregarFestividad").addEventListener("click", function() {
         abrirFormulario(null);
+    });
+    imageFileInput.addEventListener("change", subirImagenFestividad);
+    removeImageButton.addEventListener("click", function() {
+        form.elements.img_url.value = "";
+        form.elements.img_url.dispatchEvent(new Event("input", { bubbles: true }));
+        imageFileInput.value = "";
+        actualizarVistaPreviaImagen("");
+        imageStatus.textContent = "La imagen se quitará al guardar.";
     });
     document.getElementById("agregarFestividadSidebar").addEventListener("click", function(event) {
         event.preventDefault();

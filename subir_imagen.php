@@ -25,15 +25,25 @@ require_once __DIR__ . '/api/cloudinary_config.php';
 $tipoSesion = $_SESSION['tipo'] ?? '';
 $esEmpresa = $tipoSesion === 'empresa' && !empty($_SESSION['id_empresa']);
 $esAdmin = $tipoSesion === 'admin' && !empty($_SESSION['id_persona']);
+$tipoCarga = strtolower($_SERVER['HTTP_X_UPLOAD_TYPE'] ?? '');
 if (!$esEmpresa && !$esAdmin) {
     http_response_code(401);
     echo json_encode(["ok" => false, "error" => "No autorizado."]);
     exit;
 }
 
+if ($tipoCarga === 'festividad' && !$esAdmin) {
+    http_response_code(403);
+    echo json_encode(["ok" => false, "error" => "Solo administración puede subir imágenes de festividades."]);
+    exit;
+}
+
 if ($esAdmin) {
     $csrf = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
-    if (empty($_SESSION['csrf_portada']) || !hash_equals($_SESSION['csrf_portada'], $csrf)) {
+    $csrfEsperado = $tipoCarga === 'festividad'
+        ? ($_SESSION['csrf_festividades'] ?? '')
+        : ($_SESSION['csrf_portada'] ?? '');
+    if ($csrfEsperado === '' || !hash_equals($csrfEsperado, $csrf)) {
         http_response_code(403);
         echo json_encode(["ok" => false, "error" => "La sesión de edición expiró. Recarga el panel e intenta de nuevo."]);
         exit;
@@ -49,7 +59,6 @@ function bytesDesdeConfiguracionPHP($valor)
     return (int)$coincidencias[1] * $unidades[strtoupper($coincidencias[2])];
 }
 
-$tipoCarga = strtolower($_SERVER['HTTP_X_UPLOAD_TYPE'] ?? '');
 $esVideo = $tipoCarga === 'video' || !empty($_FILES['video']);
 if ($esVideo && !$esAdmin) {
     http_response_code(403);
@@ -148,7 +157,9 @@ $publicId = $identificador . '_' . time() . '_' . bin2hex(random_bytes(4));
 $timestamp = time();
 $folder = $esVideo
     ? CLOUDINARY_FOLDER_PORTADA_VIDEOS
-    : ($esAdmin ? CLOUDINARY_FOLDER_PORTADA_IMAGENES : CLOUDINARY_FOLDER);
+    : ($tipoCarga === 'festividad'
+        ? rtrim(CLOUDINARY_FOLDER_PORTADA_IMAGENES, '/') . '/festividades'
+        : ($esAdmin ? CLOUDINARY_FOLDER_PORTADA_IMAGENES : CLOUDINARY_FOLDER));
 
 // Los parámetros que se firman deben ir en orden alfabético, separados por &,
 // sin incluir archivo, api_key, ni la propia firma.
