@@ -11,8 +11,9 @@
         const links = [
             { key: "transporte", label: "Transporte", file: "transporte.html" },
             { key: "hospedaje", label: "Hospedaje", file: "hospedaje.html" },
-            { key: "planes", label: "Planes Turísticos", file: "planes_turisticos.html" },
+            { key: "planes", label: "Planes", file: "planes_turisticos.html" },
             { key: "ecommerce", label: "E-Commerce", file: "e-commerce.html" },
+            { key: "festividades", label: "Festividades", file: "festividades.html" },
             { key: "metaverso", label: "Metaverso", file: "metaverso/index.php" },
         ];
 

@@ -2,7 +2,9 @@
     // ⏱️ DURACIÓN DEL DESTELLO (en segundos) que resalta la tarjeta del destino relacionado con la festividad del día.
     // Cambia SOLO este número para ajustar cuánto dura el destello (afecta el CSS y el JS automáticamente).
     const DURACION_DESTELLO_SEGUNDOS = 3;
-    const API_FESTIVIDADES = new URL("../admin/festividades.php", document.currentScript.src).href;
+    const SCRIPT_URL = document.currentScript.src;
+    const API_FESTIVIDADES = new URL("../admin/festividades.php", SCRIPT_URL).href;
+    const SITE_ROOT = new URL("../", SCRIPT_URL);
 
     // La tabla no incluye la clave de la tarjeta para estos eventos sin ciudad asociada.
     const DESTINOS_POR_FESTIVIDAD = {
@@ -73,10 +75,35 @@
         return destino ? destino.titulo : "";
     }
 
-    function etiquetaTipo(fiesta) {
-        const tipo = String(fiesta.tipo || (fiesta.idCiudad || fiesta.destino ? "REGIONAL" : "NACIONAL"))
+    function claveTipo(fiesta) {
+        return String(fiesta.tipo || (fiesta.idCiudad || fiesta.destino ? "REGIONAL" : "NACIONAL"))
             .toUpperCase();
+    }
+
+    function etiquetaTipo(fiesta) {
+        const tipo = claveTipo(fiesta);
         return tipo === "NACIONAL" ? "Conmemoración nacional" : "Tradición regional";
+    }
+
+    function obtenerLugarCalendario(fiesta) {
+        const municipio = obtenerMunicipio(fiesta);
+        if (municipio) return textoEditorial(municipio);
+
+        const contexto = textoEditorial(fiesta.subtitulo);
+        return contexto.split(/\s+[•·]\s+/)[0] || contexto || "Santander";
+    }
+
+    function obtenerContextoCalendario(fiesta) {
+        return textoEditorial(fiesta.subtitulo) || obtenerLugarCalendario(fiesta);
+    }
+
+    function etiquetaMes(fechaClave) {
+        const match = /^(\d{2})-(\d{2})$/.exec(fechaClave);
+        if (!match) return "";
+
+        const nombre = new Intl.DateTimeFormat("es-CO", { month: "long" })
+            .format(new Date(2000, Number(match[1]) - 1, 1));
+        return nombre.charAt(0).toLocaleUpperCase("es") + nombre.slice(1);
     }
 
     function fechaLegible(fecha, incluirAnio) {
@@ -112,9 +139,18 @@
             .sort((a, b) => a.fecha - b.fecha)
             .slice(0, 3);
 
-        if (!eventoHoy && !proximos.length) {
-            mount.replaceChildren();
-            mount.hidden = true;
+        if (!festividades.length) {
+            mount.hidden = false;
+            mount.innerHTML = `
+                <section class="snt-section" aria-labelledby="sntSectionTitle">
+                    <div class="snt-container">
+                        <header class="snt-heading">
+                            <p class="snt-eyebrow">Agenda cultural</p>
+                            <h2 id="sntSectionTitle">Tradiciones que nos conectan</h2>
+                        </header>
+                        <p class="snt-unavailable" role="status">Aún no hay festividades registradas para mostrar.</p>
+                    </div>
+                </section>`;
             return;
         }
 
@@ -146,12 +182,12 @@
         const agendaMarkup = proximos.length
             ? `<ol class="snt-agenda__list">
                 ${proximos.map(({ fecha, fiesta }) => {
-                    const municipio = obtenerMunicipio(fiesta);
+                    const municipio = obtenerLugarCalendario(fiesta);
                     const visitar = Boolean(fiesta.idCiudad || fiesta.destino);
                     return `<li class="snt-agenda__item">
                         <time class="snt-agenda__date" datetime="${fechaISO(fecha)}">${escaparHTML(fechaLegible(fecha, fecha.getFullYear() !== hoy.getFullYear()))}</time>
                         <div class="snt-agenda__details">
-                            <p>${escaparHTML(etiquetaTipo(fiesta))} · ${escaparHTML(municipio || "Santander")}</p>
+                            <p>${escaparHTML(etiquetaTipo(fiesta))} · ${escaparHTML(obtenerContextoCalendario(fiesta))}</p>
                             <h4>${escaparHTML(textoEditorial(fiesta.titulo))}</h4>
                         </div>
                         ${visitar
@@ -161,6 +197,77 @@
                 }).join("")}
             </ol>`
             : `<p class="snt-agenda__empty">No hay otras celebraciones próximas registradas.</p>`;
+
+        const eventosCalendario = festividades
+            .map((fiesta) => ({
+                fiesta,
+                fecha: obtenerProximaFecha(fiesta.fechaClave, hoy),
+            }))
+            .filter((item) => item.fecha)
+            .sort((a, b) => a.fecha - b.fecha);
+        const meses = [...new Set(eventosCalendario.map(({ fiesta }) => fiesta.fechaClave.slice(0, 2)))]
+            .sort();
+        const tipos = [...new Set(eventosCalendario.map(({ fiesta }) => claveTipo(fiesta)))].sort();
+        const lugares = [...new Set(eventosCalendario.map(({ fiesta }) => obtenerLugarCalendario(fiesta)))]
+            .sort((a, b) => a.localeCompare(b, "es"));
+
+        const calendarioMarkup = eventosCalendario.length
+            ? `<section class="snt-calendar" aria-labelledby="sntCalendarTitle">
+                <header class="snt-calendar__heading">
+                    <p class="snt-eyebrow">Todas las fechas</p>
+                    <h3 id="sntCalendarTitle">Calendario de festividades</h3>
+                    <p>Consulta las celebraciones registradas durante el año.</p>
+                </header>
+                <div class="snt-calendar__filters">
+                    <label>
+                        <span>Mes</span>
+                        <select data-snt-filter="month" aria-label="Filtrar festividades por mes">
+                            <option value="">Todos los meses</option>
+                            ${meses.map((mes) => `<option value="${escaparHTML(mes)}">${escaparHTML(etiquetaMes(`${mes}-01`))}</option>`).join("")}
+                        </select>
+                    </label>
+                    <label>
+                        <span>Tipo</span>
+                        <select data-snt-filter="type" aria-label="Filtrar festividades por tipo">
+                            <option value="">Todos los tipos</option>
+                            ${tipos.map((tipo) => `<option value="${escaparHTML(tipo)}">${escaparHTML(tipo === "NACIONAL" ? "Conmemoración nacional" : "Tradición regional")}</option>`).join("")}
+                        </select>
+                    </label>
+                    <label>
+                        <span>Lugar o región</span>
+                        <select data-snt-filter="place" aria-label="Filtrar festividades por lugar o región">
+                            <option value="">Todos los lugares</option>
+                            ${lugares.map((lugar) => `<option value="${escaparHTML(lugar)}">${escaparHTML(lugar)}</option>`).join("")}
+                        </select>
+                    </label>
+                </div>
+                <p class="snt-calendar__count" data-snt-calendar-count role="status" aria-live="polite"></p>
+                <ol class="snt-calendar__list">
+                    ${eventosCalendario.map(({ fecha, fiesta }) => {
+                        const lugar = obtenerLugarCalendario(fiesta);
+                        const visitar = Boolean(fiesta.idCiudad || fiesta.destino);
+                        const frase = textoEditorial(fiesta.frase);
+                        return `<li class="snt-calendar__item"
+                            data-month="${escaparHTML(fiesta.fechaClave.slice(0, 2))}"
+                            data-type="${escaparHTML(claveTipo(fiesta))}"
+                            data-place="${escaparHTML(lugar)}">
+                            <time class="snt-calendar__date" datetime="${fechaISO(fecha)}">
+                                <span>${escaparHTML(fechaLegible(fecha, fecha.getFullYear() !== hoy.getFullYear()))}</span>
+                            </time>
+                            <div class="snt-calendar__details">
+                                <p>${escaparHTML(etiquetaTipo(fiesta))} · ${escaparHTML(obtenerContextoCalendario(fiesta))}</p>
+                                <h4>${escaparHTML(textoEditorial(fiesta.titulo))}</h4>
+                                ${frase ? `<p class="snt-calendar__copy">${escaparHTML(frase)}</p>` : ""}
+                            </div>
+                            ${visitar
+                                ? `<button class="snt-agenda__link" type="button" data-snt-visit="${escaparHTML(fiesta.id)}" aria-label="Explorar ${escaparHTML(lugar)}">Explorar</button>`
+                                : ""}
+                        </li>`;
+                    }).join("")}
+                </ol>
+                <p class="snt-calendar__empty" hidden>No hay festividades que coincidan con estos filtros.</p>
+            </section>`
+            : `<p class="snt-unavailable" role="status">No hay festividades con fechas válidas para mostrar.</p>`;
 
         mount.innerHTML = `
             <section class="snt-section" aria-labelledby="sntSectionTitle">
@@ -173,19 +280,19 @@
                         </header>
                         <div class="snt-gallery" aria-label="Paisajes y expresiones culturales de Santander">
                             <figure class="snt-gallery__item">
-                                <img src="img/festividades/web/canon.jpg" alt="Paisaje del cañón del Chicamocha" loading="lazy" decoding="async">
+                                <img src="${new URL("img/festividades/web/canon.jpg", SITE_ROOT).href}" alt="Paisaje del cañón del Chicamocha" loading="lazy" decoding="async">
                                 <figcaption>Paisajes</figcaption>
                             </figure>
                             <figure class="snt-gallery__item">
-                                <img src="img/festividades/web/calle_colonial.jpg" alt="Calle de arquitectura colonial santandereana" loading="lazy" decoding="async">
+                                <img src="${new URL("img/festividades/web/calle_colonial.jpg", SITE_ROOT).href}" alt="Calle de arquitectura colonial santandereana" loading="lazy" decoding="async">
                                 <figcaption>Patrimonio</figcaption>
                             </figure>
                             <figure class="snt-gallery__item">
-                                <img src="img/festividades/web/musicos.jpg" alt="Músicos interpretando instrumentos tradicionales" loading="lazy" decoding="async">
+                                <img src="${new URL("img/festividades/web/musicos.jpg", SITE_ROOT).href}" alt="Músicos interpretando instrumentos tradicionales" loading="lazy" decoding="async">
                                 <figcaption>Música</figcaption>
                             </figure>
                             <figure class="snt-gallery__item">
-                                <img src="img/festividades/web/artesano.jpg" alt="Artesano preparando un producto tradicional" loading="lazy" decoding="async">
+                                <img src="${new URL("img/festividades/web/artesano.jpg", SITE_ROOT).href}" alt="Artesano preparando un producto tradicional" loading="lazy" decoding="async">
                                 <figcaption>Tradición</figcaption>
                             </figure>
                         </div>
@@ -200,8 +307,33 @@
                             ${agendaMarkup}
                         </section>
                     </div>
+                    ${calendarioMarkup}
                 </div>
             </section>`;
+
+        const filtrosCalendario = mount.querySelectorAll("[data-snt-filter]");
+        const filasCalendario = Array.from(mount.querySelectorAll(".snt-calendar__item"));
+        const estadoCalendario = mount.querySelector("[data-snt-calendar-count]");
+        const mensajeCalendarioVacio = mount.querySelector(".snt-calendar__empty");
+        const actualizarCalendario = () => {
+            const filtros = {
+                month: mount.querySelector('[data-snt-filter="month"]').value,
+                type: mount.querySelector('[data-snt-filter="type"]').value,
+                place: mount.querySelector('[data-snt-filter="place"]').value,
+            };
+            let visibles = 0;
+            filasCalendario.forEach((fila) => {
+                const mostrar = Object.entries(filtros).every(([filtro, valor]) =>
+                    !valor || fila.dataset[filtro] === valor
+                );
+                fila.hidden = !mostrar;
+                if (mostrar) visibles += 1;
+            });
+            estadoCalendario.textContent = `Mostrando ${visibles} de ${filasCalendario.length} festividades registradas.`;
+            mensajeCalendarioVacio.hidden = visibles !== 0;
+        };
+        filtrosCalendario.forEach((filtro) => filtro.addEventListener("change", actualizarCalendario));
+        if (estadoCalendario) actualizarCalendario();
 
         mount.querySelectorAll("[data-snt-visit]").forEach((button) => {
             const fiesta = festividades.find(
@@ -236,6 +368,13 @@
     }
 
     function visitarDestino(fiesta) {
+        if (!document.getElementById("site-destinos")) {
+            const home = new URL("index.html", SITE_ROOT);
+            home.searchParams.set("festividad", fiesta.id);
+            window.location.assign(home.href);
+            return;
+        }
+
         const resaltarMunicipio = () => {
             const tarjeta = typeof window.TE_IR_A_MUNICIPIO === "function"
                 ? window.TE_IR_A_MUNICIPIO(fiesta.idCiudad)
@@ -263,6 +402,27 @@
         else resaltarTarjetaDestino(fiesta);
     }
 
+    function visitarFestividadSolicitada() {
+        const url = new URL(window.location.href);
+        const idFestividad = url.searchParams.get("festividad");
+        if (!idFestividad) return;
+
+        url.searchParams.delete("festividad");
+        window.history.replaceState(null, "", url);
+        const fiesta = festividades.find((item) => item.id === idFestividad);
+        if (!fiesta) return;
+
+        const visitar = () => visitarDestino(fiesta);
+        if (window.TE_MUNICIPIOS_PROMISE) {
+            window.TE_MUNICIPIOS_PROMISE.then(visitar).catch((error) => {
+                console.error("No se pudieron cargar los municipios para visitar la festividad.", error);
+                visitar();
+            });
+        } else {
+            visitar();
+        }
+    }
+
     function escaparHTML(valor) {
         return String(valor)
             .replace(/&/g, "&amp;")
@@ -278,7 +438,8 @@
 
     async function cargarFestividadesAdministradas() {
         const mount = document.getElementById("santanderianidad");
-        if (!mount) return;
+        const idFestividadSolicitada = new URLSearchParams(window.location.search).get("festividad");
+        if (!mount && !idFestividadSolicitada) return;
 
         try {
             const response = await fetch(API_FESTIVIDADES, { credentials: "include" });
@@ -305,6 +466,7 @@
             });
         } catch (error) {
             console.error("No se pudieron cargar las festividades administradas.", error);
+            if (!mount) return;
             mount.hidden = false;
             mount.innerHTML = `
                 <section class="snt-section" aria-labelledby="sntSectionTitle">
@@ -319,7 +481,8 @@
             return;
         }
 
-        inicializarAgendaCultural();
+        if (mount) inicializarAgendaCultural();
+        visitarFestividadSolicitada();
     }
 
     cargarFestividadesAdministradas();

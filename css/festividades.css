@@ -1,0 +1,46 @@
+.festividades-page {
+    background: #f8fafc;
+}
+
+.festividades-hero {
+    background:
+        linear-gradient(rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.3)),
+        url("../img/festividades/web/ban_festividades.jpg");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    padding: 130px 20px 70px;
+    color: #ffffff;
+    text-align: center;
+}
+
+.festividades-hero .module-title {
+    margin-bottom: 10px;
+    font-family: var(--font-head, "Montserrat", sans-serif);
+    font-size: clamp(1.8rem, 5vw, 3.5rem);
+    font-weight: 800;
+}
+
+.festividades-hero .module-subtitle {
+    max-width: 600px;
+    margin: 0 auto;
+    color: rgba(255, 255, 255, 0.85);
+    font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+    line-height: 1.6;
+}
+
+body.dark-mode .festividades-page {
+    background: #0f172a;
+}
+
+@media (max-width: 1023px) {
+    .festividades-hero {
+        padding: 100px 24px 56px;
+    }
+}
+
+@media (max-width: 767px) {
+    .festividades-hero {
+        padding: 88px 20px 48px;
+    }
+}
