@@ -1,35 +1,61 @@
-.snt-home-notice-wrap {
-    max-width: 1228px;
-    margin: 14px auto 0;
-    padding: 0 24px;
-}
-
-.snt-home-notice-wrap[hidden] {
-    display: none;
-}
-
-.snt-home-notice {
-    display: grid;
-    grid-template-columns: 100px minmax(0, 1fr) auto;
-    align-items: center;
-    gap: 18px;
-    padding: 14px 18px 14px 14px;
+.snt-home-notice-dialog {
+    position: fixed;
+    inset: 0;
+    box-sizing: border-box;
+    width: min(520px, calc(100vw - 32px));
+    max-width: none;
+    max-height: min(620px, calc(100dvh - 32px));
+    margin: auto;
+    padding: 0;
+    overflow: auto;
     border: 1px solid #e2e8f0;
-    border-left: 4px solid var(--snt-notice-accent, #009B3A);
-    border-radius: 12px;
+    border-top: 5px solid var(--snt-notice-accent, #009B3A);
+    border-radius: 18px;
+    color: #172033;
     background: #ffffff;
-    box-shadow: 0 5px 18px rgba(15, 23, 42, 0.06);
+    box-shadow: 0 24px 80px rgba(15, 23, 42, 0.28);
+}
+
+.snt-home-notice-dialog[open] {
+    display: block;
+}
+
+.snt-home-notice-dialog::backdrop {
+    background: rgba(15, 23, 42, 0.68);
+    backdrop-filter: blur(3px);
 }
 
 .snt-home-notice__image {
-    width: 100px;
-    height: 82px;
-    border-radius: 8px;
+    display: block;
+    width: 100%;
+    height: 232px;
     object-fit: cover;
 }
 
+.snt-home-notice__close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    display: grid;
+    width: 38px;
+    height: 38px;
+    place-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    border-radius: 50%;
+    color: #ffffff;
+    background: rgba(15, 23, 42, 0.68);
+    cursor: pointer;
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+.snt-home-notice__close:focus-visible {
+    outline: 3px solid #ffffff;
+    outline-offset: 3px;
+}
+
 .snt-home-notice__body {
-    min-width: 0;
+    padding: 24px 28px 28px;
 }
 
 .snt-home-notice__eyebrow {
@@ -48,16 +74,16 @@
 .snt-home-notice__body h2 {
     color: #172033;
     font-family: var(--font-head, "Montserrat", sans-serif);
-    font-size: 1.12rem;
-    line-height: 1.35;
+    font-size: clamp(1.35rem, 3vw, 1.8rem);
+    line-height: 1.25;
 }
 
 .snt-home-notice__context,
 .snt-home-notice__copy {
     margin-top: 3px;
     color: #596579;
-    font-size: 0.82rem;
-    line-height: 1.45;
+    font-size: 0.92rem;
+    line-height: 1.6;
 }
 
 .snt-home-notice__context {
@@ -68,8 +94,9 @@
     display: inline-flex;
     align-items: center;
     gap: 7px;
+    margin-top: 18px;
     color: var(--theme-primary, #6d28d9);
-    font-size: 0.82rem;
+    font-size: 0.9rem;
     font-weight: 700;
     text-decoration: none;
     white-space: nowrap;
@@ -84,15 +111,6 @@
     border-radius: 4px;
     outline: 3px solid rgba(109, 40, 217, 0.25);
     outline-offset: 3px;
-}
-
-.snt-home-notice-error {
-    padding: 12px 16px;
-    border: 1px solid #e2e8f0;
-    border-radius: 10px;
-    background: #ffffff;
-    color: #475569;
-    font-size: 0.88rem;
 }
 
 #santanderianidad {
@@ -720,15 +738,14 @@ body.dark-mode #santanderianidad {
     background: #0f172a;
 }
 
-body.dark-mode .snt-home-notice {
+body.dark-mode .snt-home-notice-dialog {
     border-color: #334155;
-    border-left-color: var(--snt-notice-accent, #009B3A);
+    border-top-color: var(--snt-notice-accent, #009B3A);
     background: #1e293b;
 }
 
-body.dark-mode .snt-home-notice-error {
-    border-color: #334155;
-    background: #1e293b;
+body.dark-mode .snt-home-notice-dialog::backdrop {
+    background: rgba(2, 6, 23, 0.78);
 }
 
 body.dark-mode .snt-home-notice__body h2 {
@@ -737,8 +754,7 @@ body.dark-mode .snt-home-notice__body h2 {
 
 body.dark-mode .snt-home-notice__eyebrow,
 body.dark-mode .snt-home-notice__context,
-body.dark-mode .snt-home-notice__copy,
-body.dark-mode .snt-home-notice-error {
+body.dark-mode .snt-home-notice__copy {
     color: #cbd5e1;
 }
 
@@ -873,33 +889,16 @@ body.dark-mode .snt-calendar__pagination span {
 }
 
 @media (max-width: 560px) {
-    .snt-home-notice-wrap {
-        margin-top: 10px;
-        padding: 0 16px;
-    }
-
-    .snt-home-notice {
-        grid-template-columns: 72px minmax(0, 1fr);
-        gap: 12px;
-        padding: 12px;
-    }
-
     .snt-home-notice__image {
-        width: 72px;
-        height: 72px;
+        height: 190px;
+    }
+
+    .snt-home-notice__body {
+        padding: 22px 22px 24px;
     }
 
     .snt-home-notice__body h2 {
-        font-size: 0.98rem;
-    }
-
-    .snt-home-notice__copy {
-        display: none;
-    }
-
-    .snt-home-notice__link {
-        grid-column: 2;
-        font-size: 0.78rem;
+        font-size: 1.4rem;
     }
 
     #santanderianidad {

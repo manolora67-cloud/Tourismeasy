@@ -40,11 +40,32 @@
         return `${String(fecha.getMonth() + 1).padStart(2, "0")}-${String(fecha.getDate()).padStart(2, "0")}`;
     }
 
+    function abrirAvisoFestividad(mount) {
+        const welcomeScreen = document.getElementById("welcomeScreen");
+        const abrir = () => {
+            if (mount.open) return;
+            mount.showModal();
+            const closeButton = mount.querySelector("[data-snt-notice-close]");
+            if (closeButton) closeButton.focus();
+        };
+        if (!welcomeScreen || welcomeScreen.hidden) {
+            abrir();
+            return;
+        }
+
+        const observer = new MutationObserver(() => {
+            if (!welcomeScreen.hidden) return;
+            observer.disconnect();
+            abrir();
+        });
+        observer.observe(welcomeScreen, { attributes: true, attributeFilter: ["hidden"] });
+    }
+
     function renderAvisoFestividadHoy(mount) {
         const hoy = new Date();
         const fiesta = festividades.find((item) => item.fechaClave === fechaClaveDeDia(hoy));
         if (!fiesta) {
-            mount.hidden = true;
+            if (mount.open) mount.close();
             mount.innerHTML = "";
             return;
         }
@@ -55,22 +76,29 @@
             month: "long"
         }).format(hoy);
         mount.innerHTML = `
-            <aside class="snt-home-notice" role="status" aria-labelledby="sntHomeNoticeTitle"
-                style="--snt-notice-accent:${colorDeFiesta(fiesta, 0, "#009B3A")}">
-                <img class="snt-home-notice__image"
-                    src="${escaparHTML(urlImagenFiesta(fiesta, "tarjeta"))}"
-                    alt="${escaparHTML(altImagenFiesta(fiesta))}" loading="lazy" decoding="async">
-                <div class="snt-home-notice__body">
-                    <p class="snt-home-notice__eyebrow"><span>Hoy</span> · ${escaparHTML(fechaTexto)} · ${escaparHTML(etiquetaCategoria(fiesta.categoria))}</p>
-                    <h2 id="sntHomeNoticeTitle">${escaparHTML(textoEditorial(fiesta.titulo))}</h2>
-                    <p class="snt-home-notice__context">${escaparHTML(textoEditorial(fiesta.subtitulo))}</p>
-                    <p class="snt-home-notice__copy">${escaparHTML(textoEditorial(fiesta.frase))}</p>
-                </div>
+            <button class="snt-home-notice__close" type="button" data-snt-notice-close aria-label="Cerrar aviso">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <img class="snt-home-notice__image"
+                src="${escaparHTML(urlImagenFiesta(fiesta, "tarjeta"))}"
+                alt="${escaparHTML(altImagenFiesta(fiesta))}" loading="lazy" decoding="async">
+            <div class="snt-home-notice__body">
+                <p class="snt-home-notice__eyebrow"><span>Hoy</span> · ${escaparHTML(fechaTexto)} · ${escaparHTML(etiquetaCategoria(fiesta.categoria))}</p>
+                <h2 id="sntHomeNoticeTitle">${escaparHTML(textoEditorial(fiesta.titulo))}</h2>
+                <p id="sntHomeNoticeDescription" class="snt-home-notice__context">${escaparHTML(textoEditorial(fiesta.subtitulo))}</p>
+                <p class="snt-home-notice__copy">${escaparHTML(textoEditorial(fiesta.frase))}</p>
                 <a class="snt-home-notice__link" href="${escaparHTML(enlaceFestividades)}">
                     Ver Festividades <span aria-hidden="true">&rarr;</span>
                 </a>
-            </aside>`;
-        mount.hidden = false;
+            </div>`;
+        mount.setAttribute("aria-labelledby", "sntHomeNoticeTitle");
+        mount.setAttribute("aria-describedby", "sntHomeNoticeDescription");
+        mount.style.setProperty("--snt-notice-accent", colorDeFiesta(fiesta, 0, "#009B3A"));
+        mount.querySelector("[data-snt-notice-close]").addEventListener("click", () => mount.close());
+        mount.addEventListener("click", (event) => {
+            if (event.target === mount) mount.close();
+        });
+        abrirAvisoFestividad(mount);
     }
 
     function obtenerProximaFecha(fechaClave, hoy) {
@@ -641,10 +669,6 @@
                         <p class="snt-unavailable" role="status">La agenda cultural no está disponible en este momento. Intenta de nuevo más tarde.</p>
                     </div>
                 </section>`;
-            }
-            if (homeNotice) {
-                homeNotice.hidden = false;
-                homeNotice.innerHTML = '<p class="snt-home-notice-error" role="status">No se pudo consultar la festividad de hoy. Intenta de nuevo más tarde.</p>';
             }
             return;
         }
