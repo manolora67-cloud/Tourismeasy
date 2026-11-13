@@ -770,6 +770,7 @@
         if (!page) return;
 
         page.querySelectorAll("img[data-src]").forEach((image) => {
+            image.loading = "eager";
             image.src = image.dataset.src;
             image.removeAttribute("data-src");
         });
@@ -825,12 +826,12 @@
                 </div>
               `).join("");
             pageIndex = Math.min(Math.floor(firstMunicipality / pageSize), pages.length - 1);
-            cargarImagenesPagina(track, pageIndex);
             updateCarousel(track, previous, next, pagination, pageIndex, pageSize, publicDestinations.length);
+            cargarImagenesPagina(track, pageIndex);
         };
         const update = () => {
-            cargarImagenesPagina(track, pageIndex);
             updateCarousel(track, previous, next, pagination, pageIndex, pageSize, publicDestinations.length);
+            cargarImagenesPagina(track, pageIndex);
         };
         window.TE_IR_A_MUNICIPIO = (idCiudad) => {
             const card = Array.from(track.querySelectorAll(".card[data-ciudad-id]"))
