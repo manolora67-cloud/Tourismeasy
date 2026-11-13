@@ -100,6 +100,7 @@
             day: "numeric",
             month: "long"
         }).format(hoy);
+        const tieneDestino = Boolean(fiesta.idCiudad);
         mount.innerHTML = `
             <button class="snt-home-notice__close" type="button" data-snt-notice-close aria-label="Cerrar aviso">
                 <span aria-hidden="true">&times;</span>
@@ -121,14 +122,29 @@
                 <h2 id="sntHomeNoticeTitle">${escaparHTML(textoEditorial(fiesta.titulo))}</h2>
                 <p id="sntHomeNoticeDescription" class="snt-home-notice__context">${escaparHTML(textoEditorial(fiesta.subtitulo))}</p>
                 <p class="snt-home-notice__copy">${escaparHTML(textoEditorial(fiesta.frase))}</p>
-                <a class="snt-home-notice__link" href="${escaparHTML(enlaceFestividades)}">
-                    Ver agenda de festividades <span aria-hidden="true">&rarr;</span>
-                </a>
+                <div class="snt-home-notice__actions">
+                    ${tieneDestino
+                        ? `<button class="snt-home-notice__link" type="button" data-snt-notice-explore>
+                            Explorar municipio <span aria-hidden="true">&rarr;</span>
+                        </button>`
+                        : ""}
+                    <a class="${tieneDestino ? "snt-home-notice__secondary-link" : "snt-home-notice__link"}"
+                        href="${escaparHTML(enlaceFestividades)}#sntCalendarTitle">
+                        Ver agenda de festividades <span aria-hidden="true">&rarr;</span>
+                    </a>
+                </div>
             </div>`;
         mount.setAttribute("aria-labelledby", "sntHomeNoticeTitle");
         mount.setAttribute("aria-describedby", "sntHomeNoticeDescription");
         mount.style.setProperty("--snt-notice-accent", colorDeFiesta(fiesta, 0, "#009B3A"));
         mount.querySelector("[data-snt-notice-close]").addEventListener("click", () => mount.close());
+        const exploreButton = mount.querySelector("[data-snt-notice-explore]");
+        if (exploreButton) {
+            exploreButton.addEventListener("click", () => {
+                mount.close();
+                visitarDestino(fiesta);
+            });
+        }
         mount.onclick = (event) => {
             if (event.target === mount) mount.close();
         };
@@ -300,6 +316,66 @@
             : `Imagen de ${etiquetaCategoria(fiesta.categoria)}`;
     }
 
+    function abrirDetalleFestividad(dialogo, fiesta) {
+        const hoy = new Date();
+        hoy.setHours(0, 0, 0, 0);
+        const fecha = obtenerProximaFecha(fiesta.fechaClave, hoy);
+        if (!fecha) return;
+
+        const titulo = textoEditorial(fiesta.titulo);
+        const contexto = obtenerContextoCalendario(fiesta);
+        const frase = textoEditorial(fiesta.frase);
+        const tieneDestino = Boolean(fiesta.idCiudad || fiesta.destino);
+        const incluirAnio = fecha.getFullYear() !== hoy.getFullYear();
+
+        dialogo.innerHTML = `
+            <button class="snt-home-notice__close" type="button" data-snt-detail-close aria-label="Cerrar detalles de ${escaparHTML(titulo)}">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <div class="snt-home-notice__media">
+                <img class="snt-home-notice__image"
+                    src="${escaparHTML(urlImagenFiesta(fiesta, "portada"))}"
+                    alt="${escaparHTML(altImagenFiesta(fiesta))}" loading="eager" decoding="async">
+                <span class="snt-home-notice__badge">${escaparHTML(etiquetaProximidad(fecha, hoy))}</span>
+            </div>
+            <div class="snt-home-notice__body">
+                <p class="snt-home-notice__eyebrow">
+                    <span>${escaparHTML(fechaLegible(fecha, incluirAnio))}</span>
+                    <span class="snt-home-notice__separator" aria-hidden="true">·</span>
+                    ${escaparHTML(etiquetaCategoria(fiesta.categoria))}
+                    <span class="snt-home-notice__separator" aria-hidden="true">·</span>
+                    ${escaparHTML(etiquetaTipo(fiesta))}
+                </p>
+                <h2 id="sntDetailTitle">${escaparHTML(titulo)}</h2>
+                <p id="sntDetailContext" class="snt-home-notice__context">${escaparHTML(contexto)}</p>
+                ${frase ? `<p class="snt-home-notice__copy">${escaparHTML(frase)}</p>` : ""}
+                ${tieneDestino
+                    ? `<div class="snt-home-notice__actions">
+                        <button class="snt-home-notice__link" type="button" data-snt-detail-explore>
+                            ${fiesta.idCiudad ? "Explorar municipio" : "Explorar el destino"}
+                            <span aria-hidden="true">&rarr;</span>
+                        </button>
+                    </div>`
+                    : ""}
+            </div>`;
+        dialogo.setAttribute("aria-labelledby", "sntDetailTitle");
+        dialogo.setAttribute("aria-describedby", "sntDetailContext");
+        dialogo.style.setProperty("--snt-notice-accent", colorDeFiesta(fiesta, 0, "#009B3A"));
+        dialogo.querySelector("[data-snt-detail-close]").addEventListener("click", () => dialogo.close());
+        const botonExplorar = dialogo.querySelector("[data-snt-detail-explore]");
+        if (botonExplorar) {
+            botonExplorar.addEventListener("click", () => {
+                dialogo.close();
+                visitarDestino(fiesta);
+            });
+        }
+        dialogo.onclick = (event) => {
+            if (event.target === dialogo) dialogo.close();
+        };
+        dialogo.showModal();
+        dialogo.querySelector("[data-snt-detail-close]").focus();
+    }
+
     function renderAgendaSantanderiana(mount) {
         const hoy = new Date();
         hoy.setHours(0, 0, 0, 0);
@@ -333,6 +409,9 @@
         const destacado = eventoHoy
             ? { fecha: hoy, fiesta: eventoHoy }
             : proximos[0] || null;
+        const tieneDestinoDestacado = Boolean(
+            destacado && (destacado.fiesta.idCiudad || destacado.fiesta.destino)
+        );
         const eventoDestacado = destacado
             ? `<article class="snt-feature"
                 style="--snt-color-1:${colorDeFiesta(destacado.fiesta, 0, "#009B3A")};--snt-color-2:${colorDeFiesta(destacado.fiesta, 1, "#FFCD00")};--snt-color-3:${colorDeFiesta(destacado.fiesta, 2, "#FFFFFF")}">
@@ -342,7 +421,7 @@
                     <span class="snt-chip">${escaparHTML(etiquetaTipo(destacado.fiesta))}</span>
                 </div>
                 <div class="snt-feature__visual">
-                    <img src="${escaparHTML(urlImagenFiesta(destacado.fiesta, "portada"))}" alt="${escaparHTML(altImagenFiesta(destacado.fiesta))}" loading="lazy" decoding="async">
+                    <img src="${escaparHTML(urlImagenFiesta(destacado.fiesta, "portada"))}" alt="${escaparHTML(altImagenFiesta(destacado.fiesta))}" loading="eager" decoding="async" fetchpriority="high">
                     <time class="snt-feature__date" datetime="${fechaISO(destacado.fecha)}" aria-label="Fecha: ${escaparHTML(fechaLegible(destacado.fecha, destacado.fecha.getFullYear() !== hoy.getFullYear()))}">
                         <span class="snt-feature__date-day">${String(destacado.fecha.getDate()).padStart(2, "0")}</span>
                         <span class="snt-feature__date-month">${escaparHTML(new Intl.DateTimeFormat("es-CO", { month: "long" }).format(destacado.fecha))}</span>
@@ -353,8 +432,13 @@
                     <h3>${escaparHTML(textoEditorial(destacado.fiesta.titulo))}</h3>
                     <p class="snt-feature__copy">${escaparHTML(textoEditorial(destacado.fiesta.frase))}</p>
                 </div>
-                ${destacado.fiesta.idCiudad || destacado.fiesta.destino
-                    ? `<button class="snt-action" type="button" data-snt-visit="${escaparHTML(destacado.fiesta.id)}">Explorar ${escaparHTML(obtenerMunicipio(destacado.fiesta) || "el destino")}</button>`
+                ${tieneDestinoDestacado
+                    ? `<div class="snt-feature__actions">
+                        <button class="snt-action" type="button" data-snt-visit="${escaparHTML(destacado.fiesta.id)}">
+                            ${destacado.fiesta.idCiudad ? "Explorar municipio" : "Explorar el destino"}
+                            <span aria-hidden="true">&rarr;</span>
+                        </button>
+                    </div>`
                     : ""}
             </article>`
             : "";
@@ -415,6 +499,7 @@
                         const lugar = obtenerLugarCalendario(fiesta);
                         const visitar = Boolean(fiesta.idCiudad || fiesta.destino);
                         const frase = textoEditorial(fiesta.frase);
+                        const titulo = textoEditorial(fiesta.titulo);
                         return `<li class="snt-calendar__item"
                             data-month="${escaparHTML(fiesta.fechaClave.slice(0, 2))}"
                             data-type="${escaparHTML(claveTipo(fiesta))}"
@@ -431,12 +516,15 @@
                                     <span class="snt-calendar__relative">${escaparHTML(etiquetaProximidad(fecha, hoy))}</span>
                                     <span>${escaparHTML(etiquetaCategoria(fiesta.categoria))} · ${escaparHTML(etiquetaTipo(fiesta))} · ${escaparHTML(obtenerContextoCalendario(fiesta))}</span>
                                 </p>
-                                <h4>${escaparHTML(textoEditorial(fiesta.titulo))}</h4>
+                                <h4>${escaparHTML(titulo)}</h4>
                                 ${frase ? `<p class="snt-calendar__copy">${escaparHTML(frase)}</p>` : ""}
                             </div>
-                            ${visitar
-                                ? `<button class="snt-calendar__link" type="button" data-snt-visit="${escaparHTML(fiesta.id)}" aria-label="Explorar ${escaparHTML(lugar)}">Explorar</button>`
-                                : ""}
+                            <div class="snt-calendar__actions">
+                                <button class="snt-calendar__detail" type="button" data-snt-detail="${escaparHTML(fiesta.id)}" aria-haspopup="dialog" aria-controls="sntDetailDialog" aria-label="Ver detalles de ${escaparHTML(titulo)}">Ver detalles</button>
+                                ${visitar
+                                    ? `<button class="snt-calendar__link" type="button" data-snt-visit="${escaparHTML(fiesta.id)}" aria-label="Explorar ${escaparHTML(lugar)}">Explorar</button>`
+                                    : ""}
+                            </div>
                         </li>`;
                     }).join("")}
                 </ol>
@@ -478,6 +566,7 @@
                         ${eventoDestacado}
                     </div>
                     ${calendarioMarkup}
+                    <dialog id="sntDetailDialog" class="snt-home-notice-dialog snt-event-detail-dialog" data-snt-detail-dialog></dialog>
                 </div>
             </section>`;
 
@@ -562,6 +651,15 @@
                 (item) => String(item.id) === button.dataset.sntVisit
             );
             if (fiesta) button.addEventListener("click", () => visitarDestino(fiesta));
+        });
+        const dialogoDetalle = mount.querySelector("[data-snt-detail-dialog]");
+        mount.querySelectorAll("[data-snt-detail]").forEach((button) => {
+            const fiesta = festividades.find(
+                (item) => String(item.id) === button.dataset.sntDetail
+            );
+            if (fiesta && dialogoDetalle) {
+                button.addEventListener("click", () => abrirDetalleFestividad(dialogoDetalle, fiesta));
+            }
         });
     }
 
