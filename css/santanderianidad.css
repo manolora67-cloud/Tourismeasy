@@ -864,12 +864,21 @@ body.dark-mode .snt-calendar__pagination span {
     z-index: 5;
     outline: 3px solid var(--theme-primary, #6d28d9);
     outline-offset: 3px;
-    animation: snt-destello 1s ease-in-out 3;
+    animation: snt-destello 0.8s ease-in-out 5;
 }
 
 @keyframes snt-destello {
+    0%,
+    100% {
+        transform: translateY(0) scale(1);
+        box-shadow: 0 0 0 0 rgba(var(--theme-primary-rgb, 109, 40, 217), 0);
+    }
+
     50% {
-        box-shadow: 0 0 0 8px rgba(109, 40, 217, 0.12);
+        transform: translateY(-4px) scale(1.025);
+        box-shadow:
+            0 0 0 10px rgba(var(--theme-primary-rgb, 109, 40, 217), 0.24),
+            0 12px 30px rgba(var(--theme-primary-rgb, 109, 40, 217), 0.38);
     }
 }
 

@@ -1,7 +1,7 @@
 (function () {
     // ⏱️ DURACIÓN DEL DESTELLO (en segundos) que resalta la tarjeta del destino relacionado con la festividad del día.
     // Cambia SOLO este número para ajustar cuánto dura el destello (afecta el CSS y el JS automáticamente).
-    const DURACION_DESTELLO_SEGUNDOS = 3;
+    const DURACION_DESTELLO_SEGUNDOS = 4;
     const SCRIPT_URL = document.currentScript.src;
     const API_FESTIVIDADES = new URL("../admin/festividades.php", SCRIPT_URL).href;
     const SITE_ROOT = new URL("../", SCRIPT_URL);
