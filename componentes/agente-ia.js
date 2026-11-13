@@ -67,7 +67,7 @@
         <div class="te-chat-header">
           <div class="te-avatar">
             <!-- Si la imagen no carga, muestra un emoji como fallback -->
-            <img src="${TE_CONFIG.avatarImg}" alt="Sue, asistente de TourismEasy"
+            <img data-src="${TE_CONFIG.avatarImg}" alt="Sue, asistente de TourismEasy" decoding="async"
                  onerror="this.style.display='none'; this.parentElement.innerHTML='👩🏼&zwj;🦰';">
           </div>
           <div class="te-header-info">
@@ -499,6 +499,11 @@
             bubble.classList.add("hidden"); // ocultar la burbuja al abrir el chat
 
             if (abierto) {
+                const avatar = panel.querySelector(".te-avatar img");
+                if (avatar && avatar.dataset.src) {
+                    avatar.src = avatar.dataset.src;
+                    delete avatar.dataset.src;
+                }
                 setTimeout(() => input.focus(), 300);
                 msgs.scrollTop = msgs.scrollHeight; // el scroll se mantiene al último mensaje al abrir el chat
             }

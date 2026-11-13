@@ -782,7 +782,6 @@
                 image.alt = "";
             };
             image.addEventListener("error", usarImagenRespaldo);
-            image.loading = "eager";
             image.src = new URL(image.dataset.src, document.baseURI).href;
             image.removeAttribute("data-src");
         });
