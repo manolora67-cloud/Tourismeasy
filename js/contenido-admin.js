@@ -49,6 +49,7 @@
         article: parseArticle(row.article),
         publicado: row.publicado === true || ['1', 't', 'true'].includes(String(row.publicado).toLowerCase())
     }));
+    const compareByTitle = (a, b) => a.titulo.localeCompare(b.titulo, 'es', { sensitivity: 'base' });
 
     function showStatus(message, error = false) {
         status.textContent = message;
@@ -109,7 +110,7 @@
                     persistido: Boolean(guardado),
                     municipio: true
                 };
-            }).sort((a, b) => a.titulo.localeCompare(b.titulo, 'es'));
+            }).sort(compareByTitle);
             newButton.hidden = true;
             render();
             showStatus(`${destinos.length} municipios. Puedes editar el contenido, previsualizarlo y eliminarlo de la portada.`);
@@ -490,7 +491,7 @@
             const index = destinos.findIndex((destination) => destination.key === record.key);
             if (index < 0) destinos.push(result.data);
             else destinos[index] = { ...result.data, municipio: original.municipio, persistido: true };
-            destinos.sort((a, b) => a.orden - b.orden || a.titulo.localeCompare(b.titulo));
+            destinos.sort(compareByTitle);
             if (index < 0) {
                 const savedIndex = destinos.findIndex((destination) => destination.key === record.key);
                 currentPage = Math.floor(savedIndex / pageSize) + 1;

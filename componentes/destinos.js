@@ -790,7 +790,9 @@
 
     function renderDestinos(destinations) {
         if (!mount) return;
-        const publicDestinations = destinations.filter((destination) => destination.publicado);
+        const publicDestinations = destinations
+            .filter((destination) => destination.publicado)
+            .sort((a, b) => a.titulo.localeCompare(b.titulo, "es", { sensitivity: "base" }));
         if (!publicDestinations.length) {
             mount.innerHTML = '<section class="destinos" id="destinos"><div class="section-container"><p class="destinos-error">Próximamente encontrarás nuevos destinos de Santander.</p></div></section>';
             return;

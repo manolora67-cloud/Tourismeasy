@@ -414,8 +414,8 @@
                     <div class="mapa-orden">
                         <label for="mapa-orden-select">Ordenar por</label>
                         <select id="mapa-orden-select" class="mapa-orden-select">
+                            <option value="az" selected>A–Z</option>
                             <option value="relevantes">Más relevantes</option>
-                            <option value="az">A–Z</option>
                             <option value="za">Z–A</option>
                         </select>
                     </div>

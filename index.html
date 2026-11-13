@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script src="js/control_tiempo_sesion.js?v=secure-session-v4"></script>
+    <script defer src="js/control_tiempo_sesion.js?v=secure-session-v4"></script>
     <title>TourismEasy -Ojos, oidos y pasos libres</title>
     <script>
         let welcomeAlreadySeen = false;
@@ -29,7 +29,7 @@
     <link rel="stylesheet" href="css/agente-ia.css?v=mobile-layout-v2" />
     <link rel="stylesheet" href="css/resenas_likes.css" />
     <link rel="icon" type="image/png" href="img/TURISMEASY.png">
-    <script src="componentes/ui-feedback.js?v=ui-feedback-v4"></script>
+    <script defer src="componentes/ui-feedback.js?v=ui-feedback-v4"></script>
 </head>
 
 <body class="welcome-active">
@@ -139,13 +139,13 @@
     <div id="site-footer"></div>
     </div>
 
-    <script src="home/entrada.js?v=session-welcome-v1"></script>
-    <script src="componentes/navbar.js"></script>
-    <script src="componentes/btn-acceder.js"></script>
-    <script src="componentes/dark-mode-toggle.js"></script>
-    <script src="js/catalog-cache.js?v=catalog-cache-v1"></script>
-    <script src="js/imagen-cloudinary.js?v=cloudinary-delivery-v1"></script>
-    <script src="componentes/destinos.js?v=municipios-paginados-v14"></script>
+    <script defer src="home/entrada.js?v=session-welcome-v1"></script>
+    <script defer src="componentes/navbar.js"></script>
+    <script defer src="componentes/btn-acceder.js"></script>
+    <script defer src="componentes/dark-mode-toggle.js"></script>
+    <script defer src="js/catalog-cache.js?v=catalog-cache-v1"></script>
+    <script defer src="js/imagen-cloudinary.js?v=cloudinary-delivery-v1"></script>
+    <script defer src="componentes/destinos.js?v=municipios-paginados-v15"></script>
     <script>
         (function () {
             const mount = document.getElementById("site-destinos");
@@ -182,10 +182,10 @@
                 try {
                     await Promise.all([
                         loadStyle("https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"),
-                        loadStyle("mapa_interactuable/mapa.css?v=mapa-mobile-perf-v2")
+                        loadStyle("mapa_interactuable/mapa.css?v=mapa-mobile-perf-v2"),
+                        loadScript("https://unpkg.com/leaflet@1.9.4/dist/leaflet.js")
                     ]);
-                    await loadScript("https://unpkg.com/leaflet@1.9.4/dist/leaflet.js");
-                    await loadScript("mapa_interactuable/mapa.js?v=mapa-mobile-perf-v2");
+                    await loadScript("mapa_interactuable/mapa.js?v=mapa-mobile-perf-v3");
                 } catch (error) {
                     console.error("[TourismEasy] No se pudo iniciar el mapa.", error);
                     const notice = document.createElement("p");
@@ -205,20 +205,20 @@
                 if (!entries.some(function (entry) { return entry.isIntersecting; })) return;
                 observer.disconnect();
                 loadMap();
-            }, { rootMargin: "-80px 0px" });
+            }, { rootMargin: "700px 0px" });
             observer.observe(mount);
         })();
     </script>
-    <script src="componentes/articulos.js?v=municipios-info-v3"></script>
-    <script src="componentes/control-sonido-video.js?v=video-sound-v3"></script>
-    <script src="componentes/footer.js"></script>
-    <script src="js/captcha.js"></script>
-    <script src="js/cookies.js"></script>
-    <script src="js/auth.js?v=secure-client-session-v2"></script>
-    <script src="js/resenas.js"></script>
-    <script src="componentes/agente-ia.js?v=private-chat-memory-v1"></script>
-    <script src="js/santanderianidad.js?v=editorial-agenda-db-v25"></script>
-    <script src="menu_accesibilidad/menu.js?v=a11y-v14"></script>
+    <script defer src="componentes/articulos.js?v=municipios-info-v3"></script>
+    <script defer src="componentes/control-sonido-video.js?v=video-sound-v3"></script>
+    <script defer src="componentes/footer.js"></script>
+    <script defer src="js/captcha.js"></script>
+    <script defer src="js/cookies.js"></script>
+    <script defer src="js/auth.js?v=secure-client-session-v2"></script>
+    <script defer src="js/resenas.js"></script>
+    <script defer src="componentes/agente-ia.js?v=private-chat-memory-v1"></script>
+    <script defer src="js/santanderianidad.js?v=editorial-agenda-db-v25"></script>
+    <script defer src="menu_accesibilidad/menu.js?v=a11y-v14"></script>
 </body>
 
 </html>
