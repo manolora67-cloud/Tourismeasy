@@ -104,16 +104,25 @@
             <button class="snt-home-notice__close" type="button" data-snt-notice-close aria-label="Cerrar aviso">
                 <span aria-hidden="true">&times;</span>
             </button>
-            <img class="snt-home-notice__image"
-                src="${escaparHTML(urlImagenFiesta(fiesta, "tarjeta"))}"
-                alt="${escaparHTML(altImagenFiesta(fiesta))}" loading="lazy" decoding="async">
+            <div class="snt-home-notice__media">
+                <img class="snt-home-notice__image"
+                    src="${escaparHTML(urlImagenFiesta(fiesta, "tarjeta"))}"
+                    alt="${escaparHTML(altImagenFiesta(fiesta))}" loading="lazy" decoding="async">
+                <span class="snt-home-notice__badge">Festividad de hoy</span>
+            </div>
             <div class="snt-home-notice__body">
-                <p class="snt-home-notice__eyebrow"><span>Hoy</span> · ${escaparHTML(fechaTexto)} · ${escaparHTML(etiquetaCategoria(fiesta.categoria))}</p>
+                <p class="snt-home-notice__eyebrow">
+                    <span>Hoy</span>
+                    <span class="snt-home-notice__separator" aria-hidden="true">·</span>
+                    ${escaparHTML(fechaTexto)}
+                    <span class="snt-home-notice__separator" aria-hidden="true">·</span>
+                    ${escaparHTML(etiquetaCategoria(fiesta.categoria))}
+                </p>
                 <h2 id="sntHomeNoticeTitle">${escaparHTML(textoEditorial(fiesta.titulo))}</h2>
                 <p id="sntHomeNoticeDescription" class="snt-home-notice__context">${escaparHTML(textoEditorial(fiesta.subtitulo))}</p>
                 <p class="snt-home-notice__copy">${escaparHTML(textoEditorial(fiesta.frase))}</p>
                 <a class="snt-home-notice__link" href="${escaparHTML(enlaceFestividades)}">
-                    Ver Festividades <span aria-hidden="true">&rarr;</span>
+                    Ver agenda de festividades <span aria-hidden="true">&rarr;</span>
                 </a>
             </div>`;
         mount.setAttribute("aria-labelledby", "sntHomeNoticeTitle");
