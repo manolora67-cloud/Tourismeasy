@@ -20,6 +20,7 @@
         { id: "TRADICION", nombre: "Tradición", imagen: "img/festividades/web/artesano.jpg" },
     ];
     let festividades = [];
+    let avisoFestividadMostrado = false;
 
     function inicializarAgendaCultural() {
         const mount = document.getElementById("santanderianidad");
@@ -41,6 +42,9 @@
     }
 
     function abrirAvisoFestividad(mount) {
+        if (avisoFestividadMostrado) return;
+        avisoFestividadMostrado = true;
+
         const welcomeScreen = document.getElementById("welcomeScreen");
         const abrir = () => {
             if (mount.open) return;
@@ -95,9 +99,9 @@
         mount.setAttribute("aria-describedby", "sntHomeNoticeDescription");
         mount.style.setProperty("--snt-notice-accent", colorDeFiesta(fiesta, 0, "#009B3A"));
         mount.querySelector("[data-snt-notice-close]").addEventListener("click", () => mount.close());
-        mount.addEventListener("click", (event) => {
+        mount.onclick = (event) => {
             if (event.target === mount) mount.close();
-        });
+        };
         abrirAvisoFestividad(mount);
     }
 
@@ -677,6 +681,15 @@
         if (homeNotice) renderAvisoFestividadHoy(homeNotice);
         visitarFestividadSolicitada();
     }
+
+    window.addEventListener("pagehide", () => {
+        avisoFestividadMostrado = false;
+    });
+    window.addEventListener("pageshow", (event) => {
+        if (!event.persisted || !festividades.length) return;
+        const homeNotice = document.getElementById("aviso-festividad-hoy");
+        if (homeNotice) renderAvisoFestividadHoy(homeNotice);
+    });
 
     cargarFestividadesAdministradas();
 })();
