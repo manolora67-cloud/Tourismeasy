@@ -770,8 +770,20 @@
         if (!page) return;
 
         page.querySelectorAll("img[data-src]").forEach((image) => {
+            const fallbackUrl = new URL(DEFAULT_IMAGE, document.baseURI).href;
+            const usarImagenRespaldo = () => {
+                if (image.dataset.fallbackApplied !== "true" && image.src !== fallbackUrl) {
+                    image.dataset.fallbackApplied = "true";
+                    image.src = fallbackUrl;
+                    return;
+                }
+                image.removeEventListener("error", usarImagenRespaldo);
+                image.removeAttribute("src");
+                image.alt = "";
+            };
+            image.addEventListener("error", usarImagenRespaldo);
             image.loading = "eager";
-            image.src = image.dataset.src;
+            image.src = new URL(image.dataset.src, document.baseURI).href;
             image.removeAttribute("data-src");
         });
     }
@@ -844,7 +856,11 @@
 
             pageIndex = targetPageIndex;
             update();
-            card.scrollIntoView({ behavior: "smooth", block: "center" });
+            const cardBounds = card.getBoundingClientRect();
+            window.scrollTo({
+                top: Math.max(0, window.scrollY + cardBounds.top - (window.innerHeight - cardBounds.height) / 2),
+                behavior: "smooth"
+            });
             return card;
         };
         const changePage = (direction) => {
@@ -860,21 +876,28 @@
 
     const citiesPromise = fetchMunicipalitiesCached(`${basePath}datos_referencia.php?tipo=ciudades`);
 
-    const contentPromise = fetch(`${basePath}admin/contenido_portada.php`)
-        .then((response) => {
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            return response.json();
-        })
-        .then((result) => {
-            if (!result.ok || !Array.isArray(result.data)) {
-                throw new Error(result.error || "La respuesta de contenido no tiene el formato esperado.");
+    async function cargarContenidoPortada(url) {
+        let ultimoError;
+        for (let intento = 0; intento < 3; intento += 1) {
+            try {
+                const response = await fetch(url, { cache: "no-store" });
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const result = await response.json();
+                if (!result.ok || !Array.isArray(result.data)) {
+                    throw new Error(result.error || "La respuesta de contenido no tiene el formato esperado.");
+                }
+                return { data: result.data, initialized: result.initialized === true };
+            } catch (error) {
+                ultimoError = error;
+                if (intento < 2) {
+                    await new Promise((resolve) => window.setTimeout(resolve, 300 * (intento + 1)));
+                }
             }
-            return { data: result.data, initialized: result.initialized === true };
-        })
-        .catch((error) => {
-            console.warn("[TourismEasy] No se pudo cargar la personalización de destinos.", error);
-            return { data: [], initialized: false };
-        });
+        }
+        throw ultimoError;
+    }
+
+    const contentPromise = cargarContenidoPortada(`${basePath}admin/contenido_portada.php`);
 
     window.TE_DESTINOS = DESTINOS;
     window.TE_MUNICIPIOS_PROMISE = Promise.all([citiesPromise, contentPromise])
