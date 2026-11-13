@@ -5,6 +5,7 @@
     const SCRIPT_URL = document.currentScript.src;
     const API_FESTIVIDADES = new URL("../admin/festividades.php", SCRIPT_URL).href;
     const SITE_ROOT = new URL("../", SCRIPT_URL);
+    const AVISO_FESTIVIDAD_SEEN_KEY = "tourismeasy_aviso_festividad_seen";
 
     // La tabla no incluye la clave de la tarjeta para estos eventos sin ciudad asociada.
     const DESTINOS_POR_FESTIVIDAD = {
@@ -19,8 +20,26 @@
         { id: "MUSICA", nombre: "Música", imagen: "img/festividades/web/musicos.jpg" },
         { id: "TRADICION", nombre: "Tradición", imagen: "img/festividades/web/artesano.jpg" },
     ];
+    function yaSeMostroAvisoFestividad() {
+        try {
+            return window.sessionStorage.getItem(AVISO_FESTIVIDAD_SEEN_KEY) === "1";
+        } catch (error) {
+            console.error("[TourismEasy] No se pudo leer el estado del aviso de festividad:", error);
+            return false;
+        }
+    }
+
+    function guardarAvisoFestividadMostrado() {
+        try {
+            window.sessionStorage.setItem(AVISO_FESTIVIDAD_SEEN_KEY, "1");
+        } catch (error) {
+            console.error("[TourismEasy] No se pudo guardar el estado del aviso de festividad:", error);
+        }
+    }
+
     let festividades = [];
-    let avisoFestividadMostrado = false;
+    let avisoFestividadMostrado = yaSeMostroAvisoFestividad();
+    let avisoFestividadProgramado = false;
 
     function inicializarAgendaCultural() {
         const mount = document.getElementById("santanderianidad");
@@ -42,13 +61,15 @@
     }
 
     function abrirAvisoFestividad(mount) {
-        if (avisoFestividadMostrado) return;
-        avisoFestividadMostrado = true;
+        if (avisoFestividadMostrado || avisoFestividadProgramado) return;
+        avisoFestividadProgramado = true;
 
         const welcomeScreen = document.getElementById("welcomeScreen");
         const abrir = () => {
             if (mount.open) return;
             mount.showModal();
+            avisoFestividadMostrado = true;
+            guardarAvisoFestividadMostrado();
             const closeButton = mount.querySelector("[data-snt-notice-close]");
             if (closeButton) closeButton.focus();
         };
@@ -681,15 +702,6 @@
         if (homeNotice) renderAvisoFestividadHoy(homeNotice);
         visitarFestividadSolicitada();
     }
-
-    window.addEventListener("pagehide", () => {
-        avisoFestividadMostrado = false;
-    });
-    window.addEventListener("pageshow", (event) => {
-        if (!event.persisted || !festividades.length) return;
-        const homeNotice = document.getElementById("aviso-festividad-hoy");
-        if (homeNotice) renderAvisoFestividadHoy(homeNotice);
-    });
 
     cargarFestividadesAdministradas();
 })();
