@@ -27,7 +27,7 @@
 
 .module-hero {
     /* Gradiente oscuro para que el texto sea legible sobre el banner local. */
-    background: linear-gradient(rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.3)), url('../img/ban_hospedaje.jpg');
+    background: linear-gradient(rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.3)), url('../img/web/ban_hospedaje.jpg?v=hero-assets-v1');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
