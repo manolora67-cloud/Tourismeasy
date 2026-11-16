@@ -113,18 +113,14 @@ try {
             }
         }
 
-        if ($municipio !== null) {
-            $pdo->beginTransaction();
-        }
+        $pdo->beginTransaction();
         $stmt = $pdo->prepare('SELECT fn_guardar_contenido_portada(CAST(:destino AS JSONB), :admin, TRUE)::TEXT');
         $stmt->execute([
             ':destino' => json_encode($destino, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR),
             ':admin' => $_SESSION['id_persona'],
         ]);
         if (!filter_var($stmt->fetchColumn(), FILTER_VALIDATE_BOOLEAN)) {
-            if ($pdo->inTransaction()) {
-                $pdo->rollBack();
-            }
+            $pdo->rollBack();
             responderPortada(422, ['ok' => false, 'error' => 'No se pudo guardar el destino; revisa los campos y las rutas de imagen/video.']);
         }
         if ($municipio !== null) {
@@ -141,9 +137,41 @@ try {
                 $pdo->rollBack();
                 responderPortada(422, ['ok' => false, 'error' => 'No se pudo guardar la ubicación del municipio. Revisa el punto en el mapa e intenta de nuevo.']);
             }
-            $pdo->commit();
         }
-        responderPortada(200, ['ok' => true, 'data' => $destino]);
+
+        $consultaGuardado = $pdo->prepare(
+            'SELECT * FROM fn_listar_contenido_portada(FALSE) WHERE "key" = :clave'
+        );
+        $consultaGuardado->execute([':clave' => strtolower(trim((string)($destino['key'] ?? '')))]);
+        $guardado = $consultaGuardado->fetch(PDO::FETCH_ASSOC);
+        if (!$guardado) {
+            $pdo->rollBack();
+            responderPortada(500, ['ok' => false, 'error' => 'El destino no aparece después de guardarlo. Verifica las funciones SQL de contenido de portada instaladas.']);
+        }
+
+        if (is_string($guardado['article'] ?? null)) {
+            $guardado['article'] = json_decode($guardado['article'], true, 512, JSON_THROW_ON_ERROR);
+        }
+        $mapaSolicitado = $destino['article']['mapa'] ?? null;
+        if (is_array($mapaSolicitado) && ($mapaSolicitado['destacado'] ?? false) === true) {
+            $mapaGuardado = $guardado['article']['mapa'] ?? null;
+            $coordenadasGuardadas = is_array($mapaGuardado)
+                && ($mapaGuardado['destacado'] ?? false) === true
+                && is_numeric($mapaGuardado['latitud'] ?? null)
+                && is_numeric($mapaGuardado['longitud'] ?? null)
+                && abs((float)$mapaGuardado['latitud'] - (float)$mapaSolicitado['latitud']) < 0.0000001
+                && abs((float)$mapaGuardado['longitud'] - (float)$mapaSolicitado['longitud']) < 0.0000001;
+            if (!$coordenadasGuardadas) {
+                $pdo->rollBack();
+                responderPortada(500, [
+                    'ok' => false,
+                    'error' => 'La ubicación no quedó guardada. Actualiza fn_guardar_contenido_portada.sql en la base de datos e inténtalo de nuevo.',
+                ]);
+            }
+        }
+
+        $pdo->commit();
+        responderPortada(200, ['ok' => true, 'data' => $guardado]);
     }
 
     if (($input['action'] ?? '') === 'delete') {

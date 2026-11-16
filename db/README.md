@@ -36,6 +36,14 @@ Las coordenadas de los municipios pertenecen a `CIUDADES`, porque describen ubic
 
 Los corregimientos y otros destinos se crean desde el panel y sus coordenadas se guardan en el campo `ARTICULO` de `CONTENIDO_PORTADA`, bajo `mapa`. Así pueden aparecer en el carrusel y en el mapa sin agregarlos a `CIUDADES`. En el formulario se puede elegir una sugerencia de ubicación, ajustar el marcador y decidir si el lugar aparece en el mapa.
 
+Si un destino adicional se guarda pero al volver a editarlo no aparecen sus coordenadas, reemplaza la función de guardado en la base existente ejecutando desde la raíz del proyecto:
+
+```powershell
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_portada\fn_guardar_contenido_portada.sql
+```
+
+Esto solo actualiza la definición de la función (`CREATE OR REPLACE FUNCTION`); no es una migración ni altera tablas o elimina datos. El endpoint ahora verifica que las coordenadas queden realmente guardadas y muestra un error si la función SQL instalada no las conserva.
+
 No hay migración ni instrucciones `ALTER TABLE` para bases ya creadas. Para usar esta versión, crea una base nueva e importa `DB_TOURISMEASY.sql`; no ejecutes ese archivo sobre una base con datos. Después instala, en el procedimiento habitual, las funciones SQL de auditoría y datos de referencia. La función `fn_actualizar_coordenadas_municipio` depende de `fn_registrar_auditoria`, por lo que instala primero esa función de auditoría y luego la función de actualización de coordenadas.
 
 ### Validadores SQL compartidos

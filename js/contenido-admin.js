@@ -101,6 +101,7 @@
                 const guardado = guardados.find((item) =>
                     aliases.includes(item.key) || slugify(item.titulo) === slugify(municipio.titulo)
                 );
+                const mapaGuardado = guardado && guardado.article && guardado.article.mapa || {};
                 return {
                     ...municipio,
                     ...(guardado || {}),
@@ -109,7 +110,10 @@
                     img: (guardado && guardado.img) || municipio.img,
                     publicado: guardado ? guardado.publicado : !portadaInicializada,
                     persistido: Boolean(guardado),
-                    municipio: true
+                    municipio: true,
+                    mapaDestacado: mapaGuardado.destacado === undefined
+                        ? municipio.mapaDestacado !== false
+                        : mapaGuardado.destacado === true
                 };
             }).sort(compareByTitle);
             const clavesMunicipales = new Set(destinosMunicipales.map((destino) => destino.key));
@@ -131,7 +135,7 @@
             render();
             showStatus(
                 municipios.length
-                    ? `${destinos.length} destinos. Puedes crear lugares, editar sus tarjetas y elegir cuáles aparecen en el mapa.`
+                    ? `${destinos.length} destinos; ${destinos.filter((destino) => estadoMapaDestino(destino) === 'En mapa').length} configurados para el mapa.`
                     : `${destinos.length} destinos guardados. No se pudo cargar la lista de municipios; puedes seguir administrando los destinos existentes.`,
                 !municipios.length
             );
@@ -165,6 +169,7 @@
                 <img src="${escapeHtml(adminAsset(destino.img))}" alt="${escapeHtml(destino.alt)}" loading="lazy">
                 <div class="portada-card-body">
                     <span class="portada-label ${destino.publicado ? '' : 'off'}">${destino.publicado ? 'Publicado' : destino.persistido ? 'Oculto' : 'Eliminado de portada'}</span>
+                    <span class="portada-label ${estadoMapaDestino(destino) === 'En mapa' ? 'map-on' : 'off'}">${escapeHtml(estadoMapaDestino(destino))}</span>
                     <h3>${escapeHtml(destino.titulo)}</h3>
                     <p>${escapeHtml(destino.desc)}</p>
                     <div class="portada-card-actions">
@@ -174,6 +179,19 @@
                     </div>
                 </div>
             </article>`).join('');
+    }
+
+    function estadoMapaDestino(destino) {
+        if (!destino.publicado) return 'No publicado';
+        const mapa = destino.article && destino.article.mapa || {};
+        const destacado = mapa.destacado === undefined
+            ? destino.mapaDestacado !== false
+            : mapa.destacado === true;
+        if (!destacado) return 'Mapa desactivado';
+        const latitud = Number(destino.latitud);
+        const longitud = Number(destino.longitud);
+        if (!coordenadasSantanderValidas(latitud, longitud)) return 'Sin coordenadas';
+        return 'En mapa';
     }
 
     function closePreview() {
