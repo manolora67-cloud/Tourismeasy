@@ -221,6 +221,7 @@
         modalTrigger = document.activeElement;
         modalTitle.textContent = data.title;
         modalContent.innerHTML = data.content;
+        modalBox.classList.toggle("modal-box--cookie-preferences", key === "preferencias-cookies");
         if (key === "preferencias-cookies") initializeCookiePreferences();
         overlay.inert = false;
         overlay.setAttribute("aria-hidden", "false");
@@ -232,6 +233,7 @@
         overlay.classList.remove("active");
         overlay.inert = true;
         overlay.setAttribute("aria-hidden", "true");
+        modalBox.classList.remove("modal-box--cookie-preferences");
         if (modalTrigger instanceof HTMLElement) modalTrigger.focus();
     }
 

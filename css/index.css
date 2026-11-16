@@ -1363,6 +1363,10 @@ body.dark-mode .footer-action-toast {
     box-shadow: 0 24px 80px rgba(0, 0, 0, 0.25);
 }
 
+.modal-box.modal-box--cookie-preferences {
+    padding-bottom: 20px;
+}
+
 .modal-overlay.active .modal-box {
     transform: translateY(0);
 }
@@ -1497,7 +1501,7 @@ body.dark-mode .footer-action-toast {
 }
 
 .footer-cookie-status {
-    min-height: 1.5em;
+    min-height: 0;
     margin: 0 !important;
 }
 
