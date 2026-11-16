@@ -807,12 +807,20 @@
                 body: JSON.stringify({ action: 'save', destino: record, municipio })
             });
             const index = destinos.findIndex((destination) => destination.key === record.key);
+            const mapaGuardado = result.data.article && result.data.article.mapa || {};
             const savedDestination = {
                 ...result.data,
                 municipio: original.municipio,
                 persistido: true,
-                latitud: municipio ? latitud : original.latitud,
-                longitud: municipio ? longitud : original.longitud
+                latitud: municipio
+                    ? latitud
+                    : mapaGuardado.destacado === true ? Number(mapaGuardado.latitud) : null,
+                longitud: municipio
+                    ? longitud
+                    : mapaGuardado.destacado === true ? Number(mapaGuardado.longitud) : null,
+                mapaDestacado: mapaGuardado.destacado === undefined
+                    ? original.mapaDestacado !== false
+                    : mapaGuardado.destacado === true
             };
             if (index < 0) destinos.push(savedDestination);
             else destinos[index] = savedDestination;

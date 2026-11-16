@@ -112,6 +112,33 @@
         "Municipio de Santander": "Destination in Santander",
         "Destino de Santander": "Destination in Santander",
         "Descubre los destinos": "Discover destinations",
+        "Límites de seguridad": "Security limits",
+        "Configura intentos, ventanas y bloqueos de cada acción. Los cambios se validan en el servidor y quedan registrados en Auditoría.": "Configure attempt limits, time windows, and lockouts for each action. Changes are validated on the server and recorded in the audit log.",
+        "Inicio de sesión": "Sign-in",
+        "Fallos de autenticación por correo, compartidos entre admin, empresa y artesano.": "Email authentication failures shared by admins, businesses, and artisans.",
+        "Comprobación de contraseña actual": "Current password check",
+        "Fallos al cambiar la contraseña. Es un contador separado del inicio de sesión.": "Failures when changing the password. This counter is separate from sign-in.",
+        "Solicitudes de recuperación": "Password recovery requests",
+        "Solicitudes de enlace por correo. Se cuentan todas, exista o no una cuenta con ese correo.": "Email link requests. All requests are counted, whether or not an account exists for that address.",
+        "Validación de enlace de recuperación": "Recovery link validation",
+        "Enlaces inválidos por dirección IP. Los enlaces válidos usan un token aleatorio de un solo uso.": "Invalid links per IP address. Valid links use a random, single-use token.",
+        "Confirmación de dispositivo nuevo": "New device confirmation",
+        "Solicitudes de aprobación de dispositivo por cuenta.": "Device approval requests per account.",
+        "Código de dispositivo": "Device code",
+        "Códigos incorrectos para una solicitud de dispositivo aprobada.": "Incorrect codes for an approved device request.",
+        "Cantidad de intentos (fallos o solicitudes)": "Number of attempts (failures or requests)",
+        "Ventana de conteo (minutos)": "Counting window (minutes)",
+        "Duración del bloqueo (minutos)": "Lockout duration (minutes)",
+        "Cambios exitosos permitidos (por mes calendario)": "Successful changes allowed (per calendar month)",
+        "Los restablecimientos mediante enlace de correo no cuentan en este límite.": "Password resets using an email link do not count toward this limit.",
+        "Guardar límites": "Save limits",
+        "Usa números enteros válidos para cada límite.": "Enter valid whole numbers for each limit.",
+        "Guardando…": "Saving…",
+        "Límites guardados y registrados en Auditoría.": "Limits saved and recorded in the audit log.",
+        "Configuración inicial": "Initial configuration",
+        "Cargando controles de seguridad…": "Loading security controls…",
+        "No se pudieron cargar los controles de seguridad.": "Could not load security controls.",
+        "No hay controles de seguridad configurados en la base de datos.": "No security controls are configured in the database.",
         "Conoce sus destinos y planea tu próxima visita.": "Get to know its destinations and plan your next visit.",
         "Próximamente encontrarás nuevos destinos de Santander.": "Soon you will find new destinations in Santander.",
         "Explora la riqueza cultural y los productos de nuestros artesanos locales.": "Explore the cultural heritage and products of our local artisans.",
@@ -1634,7 +1661,10 @@
             return translations[normalizedSource];
         }
 
-        let match = source.match(/^Página (\d+) · Municipios (\d+)–(\d+) de (\d+)$/);
+        let match = normalizedSource.match(/^Última actualización:\s*(.+)$/);
+        if (match) return `Last updated: ${match[1]}`;
+
+        match = source.match(/^Página (\d+) · Municipios (\d+)–(\d+) de (\d+)$/);
         if (match) return `Page ${match[1]} · Towns ${match[2]}–${match[3]} of ${match[4]}`;
 
         match = source.match(/^Mostrando (\d+)–(\d+) de (\d+) rutas · Página (\d+) de (\d+)$/);

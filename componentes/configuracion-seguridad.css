@@ -1,6 +1,8 @@
 .security-settings__intro {
     color: var(--gray-600, #475569);
     margin: -4px 0 18px;
+    font-family: var(--font-body, "Open Sans", sans-serif);
+    line-height: 1.6;
 }
 
 .security-settings__list {
@@ -40,6 +42,7 @@
 .security-settings__heading h4 {
     margin: 0;
     color: var(--gray-800, #1e293b);
+    font-family: var(--font-head, "Montserrat", sans-serif);
     font-size: 0.96rem;
 }
 
@@ -47,6 +50,7 @@
 .security-settings__note {
     color: var(--gray-600, #475569);
     margin: 4px 0 0;
+    font-family: var(--font-body, "Open Sans", sans-serif);
     font-size: 0.84rem;
 }
 
@@ -85,6 +89,7 @@
 .security-settings__field {
     display: grid;
     gap: 6px;
+    font-family: var(--font-body, "Open Sans", sans-serif);
     font-weight: 600;
     font-size: 0.88rem;
 }
@@ -96,12 +101,14 @@
     border-radius: 8px;
     background: var(--white, #fff);
     color: var(--gray-800, #1e293b);
+    font: inherit;
 }
 
 .security-settings__note,
 .security-settings__updated {
     grid-column: 1 / -1;
     margin: 0;
+    font-family: var(--font-body, "Open Sans", sans-serif);
     font-size: 0.85rem;
 }
 
@@ -115,6 +122,8 @@
 
 .security-settings__status {
     margin: 0;
+    font-family: var(--font-body, "Open Sans", sans-serif);
+    font-size: 0.88rem;
 }
 
 .security-settings__status[data-estado="error"] {
