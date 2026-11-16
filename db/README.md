@@ -28,6 +28,8 @@ El esquema crea las tablas de la aplicación y carga datos iniciales, incluyendo
 
 `FESTIVIDADES_SANTANDER` guarda también la categoría temática y `IMG_URL` para cada festividad. La columna de imagen sigue la misma longitud mínima que las demás columnas `IMG_URL`; las cargas desde el apartado **Festividades** del panel se alojan en Cloudinary. Las 48 festividades iniciales tienen una categoría asignada y, cuando no se ha cargado una imagen propia, el sitio usa una imagen temática de esa categoría.
 
+Las preferencias del aviso de cookies no se almacenan en PostgreSQL: el navegador las conserva localmente y el usuario puede cambiarlas desde **Preferencias de cookies** en el pie de página. No requieren tablas, cambios de esquema ni migraciones.
+
 Las funciones se cargan por separado después del esquema. Si únicamente necesitas reemplazar una función en una base que ya tiene la estructura compatible, ejecuta el archivo correspondiente de `functions/`; `CREATE OR REPLACE FUNCTION` reemplaza la definición cuando la firma de retorno es compatible. `fn_listar_festividades()` ahora devuelve también categoría e imagen, por lo que PostgreSQL no permite ampliar directamente los parámetros `OUT` de la versión anterior. En una base que ya tiene esa versión, elimina manualmente la función anterior antes de ejecutar el archivo actualizado; el archivo SQL no contiene `DROP`. Esto no convierte `DB_TOURISMEASY.sql` en una actualización: nunca lo ejecutes sobre una base con datos.
 
 ### Ubicaciones de destinos en el mapa

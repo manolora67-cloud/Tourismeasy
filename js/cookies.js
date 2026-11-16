@@ -2,8 +2,6 @@
 
     // Clave para guardar el consentimiento del usuario en localStorage
     var STORAGE_KEY = 'tourismeasy_cookie_consent';
-    // Clave para recordar si ya se mostró el banner en esta sesión
-    var SESSION_KEY = 'tourismeasy_cookie_shown';
     // Guarda el overflow original del body para restaurarlo al cerrar
     var savedBodyOverflow = '';
 
@@ -35,16 +33,13 @@
                             </div>
                             <div class="ck-text-block">
                                 <p class="ck-step-label">Tu privacidad importa</p>
-                                <p class="ck-title">Usamos cookies en TourismEasy</p>
+                                <p class="ck-title">Cookies y preferencias en TourismEasy</p>
                             </div>
                         </div>
-                        <p class="ck-desc">Antes de continuar, queremos ser transparentes sobre cómo usamos tus datos para darte la mejor experiencia explorando Santander.</p>
+                        <p class="ck-desc">Usamos almacenamiento esencial para mantener tu sesión y proteger el sitio. Puedes guardar tus preferencias para análisis y marketing; en esta versión no activan servicios externos.</p>
                         <div class="ck-actions">
-                            <!-- Acepta todo: acción principal, más destacada -->
-                            <button class="ck-btn ck-btn-main" onclick="ckAcceptAll()">Aceptar todo</button>
-                            <!-- Solo esenciales: acción secundaria -->
-                            <button class="ck-btn ck-btn-outline" onclick="ckRejectAll()">Rechazar todo</button>
-                            <!-- Personalizar: acción terciaria, va al paso 2 -->
+                            <button class="ck-btn ck-btn-main" onclick="ckAcceptAll()">Aceptar todas</button>
+                            <button class="ck-btn ck-btn-outline" onclick="ckRejectAll()">Solo necesarias</button>
                             <button class="ck-btn ck-btn-text" onclick="ckGoStep(2)">Personalizar preferencias</button>
                         </div>
                     </div>
@@ -52,26 +47,26 @@
                     <!-- ══════════ PASO 2: Configurar preferencias ══════════ -->
                     <div class="ck-step" id="ck-step-2">
                         <p class="ck-step-label">Configurar</p>
-                        <p class="ck-title">¿Qué nos permites usar?</p>
-                        <p class="ck-desc">Elige qué cookies activar. Las esenciales siempre están activas para que el sitio funcione.</p>
+                        <p class="ck-title">Elige tus preferencias</p>
+                        <p class="ck-desc">Las cookies esenciales siempre están activas. Las preferencias de análisis y marketing se guardan, pero actualmente no hay servicios externos conectados a esas categorías. Puedes cambiar tu elección cuando quieras desde el pie de página.</p>
 
                         <!-- Cookies esenciales: siempre activas, no se pueden desactivar -->
                         <div class="ck-toggle-row">
                             <div class="ck-toggle-info">
                                 <p class="ck-toggle-name">Esenciales</p>
-                                <p class="ck-toggle-desc">Login, sesión activa y seguridad del sitio</p>
+                                <p class="ck-toggle-desc">Mantienen la sesión y ayudan a proteger el sitio.</p>
                             </div>
                             <span class="ck-badge">Siempre activas</span>
                         </div>
 
-                        <!-- Cookies de análisis: toggle ON/OFF (por defecto activadas) -->
+                        <!-- Las cookies opcionales comienzan desactivadas -->
                         <div class="ck-toggle-row">
                             <div class="ck-toggle-info">
                                 <p class="ck-toggle-name">Análisis</p>
-                                <p class="ck-toggle-desc">Cómo usas el sitio y qué mejoramos</p>
+                                <p class="ck-toggle-desc">Ayudan a entender el uso del sitio y detectar mejoras.</p>
                             </div>
                             <label class="ck-switch" aria-label="Activar cookies de análisis">
-                                <input type="checkbox" id="ck-analytics" checked>
+                                <input type="checkbox" id="ck-analytics">
                                 <span class="ck-track"></span>
                                 <span class="ck-knob"></span>
                             </label>
@@ -81,7 +76,7 @@
                         <div class="ck-toggle-row">
                             <div class="ck-toggle-info">
                                 <p class="ck-toggle-name">Marketing</p>
-                                <p class="ck-toggle-desc">Destinos y planes turísticos personalizados</p>
+                                <p class="ck-toggle-desc">Permiten personalizar publicidad y contenido promocional.</p>
                             </div>
                             <label class="ck-switch" aria-label="Activar cookies de marketing">
                                 <input type="checkbox" id="ck-marketing">
@@ -92,8 +87,9 @@
 
                         <div class="ck-actions-row">
                             <button class="ck-btn ck-btn-outline" onclick="ckGoStep(1)">← Volver</button>
-                            <button class="ck-btn ck-btn-main" onclick="ckSaveCustom()">Guardar</button>
+                            <button class="ck-btn ck-btn-main" onclick="ckSaveCustom()">Guardar preferencias</button>
                         </div>
+                        <p class="ck-legal"><a href="#" onclick="ckOpenInfo('cookies'); return false;">Lee la Política de Cookies</a></p>
                     </div>
 
                     <!-- Pie legal con enlaces a las políticas -->
@@ -132,13 +128,29 @@
     document.addEventListener('DOMContentLoaded', function () {
         injectModalHTML();
 
-        var alreadyShown = localStorage.getItem(SESSION_KEY);
         var saved = localStorage.getItem(STORAGE_KEY);
+        var settingsRequested = new URLSearchParams(window.location.search).get('cookie-settings') === '1';
 
-        if (!alreadyShown) {
+        if (saved) {
+            try {
+                var consent = JSON.parse(saved);
+                applyConsent(consent);
+                setPreferenceControls(consent);
+            } catch (error) {
+                console.error('[TourismEasy] No se pudieron leer las preferencias de cookies guardadas:', error);
+                localStorage.removeItem(STORAGE_KEY);
+                saved = null;
+            }
+        }
+
+        if (settingsRequested) {
             showBanner();
-        } else if (saved) {
-            try { applyConsent(JSON.parse(saved)); } catch (e) { }
+            ckGoStep(2);
+            var cleanUrl = new URL(window.location.href);
+            cleanUrl.searchParams.delete('cookie-settings');
+            window.history.replaceState(null, '', cleanUrl.pathname + cleanUrl.search + cleanUrl.hash);
+        } else if (!saved) {
+            showBanner();
         }
     });
 
@@ -158,7 +170,6 @@
         var wrap = document.getElementById('cookie-modal-wrap');
         var overlay = document.getElementById('cookie-overlay');
         if (!wrap) return;
-        localStorage.setItem(SESSION_KEY, '1');
         wrap.classList.add('visible');
         if (overlay) overlay.classList.add('visible');
         wrap.removeAttribute('aria-hidden');
@@ -186,7 +197,24 @@
         });
         var activeStep = document.getElementById('ck-step-' + n);
         if (activeStep) activeStep.classList.add('active');
+        if (n === 2) {
+            var saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                try {
+                    setPreferenceControls(JSON.parse(saved));
+                } catch (error) {
+                    console.error('[TourismEasy] No se pudieron cargar las preferencias de cookies:', error);
+                }
+            }
+        }
     };
+
+    function setPreferenceControls(consent) {
+        var analytics = document.getElementById('ck-analytics');
+        var marketing = document.getElementById('ck-marketing');
+        if (analytics) analytics.checked = Boolean(consent && consent.analytics);
+        if (marketing) marketing.checked = Boolean(consent && consent.marketing);
+    }
 
     /* ── El usuario hace clic en "Aceptar todo" ── */
     window.ckAcceptAll = function () {
@@ -216,7 +244,6 @@
     function saveConsent(consent) {
         consent.date = new Date().toISOString();
         localStorage.setItem(STORAGE_KEY, JSON.stringify(consent));
-        localStorage.setItem(SESSION_KEY, '1');
         applyConsent(consent);
     }
 
@@ -248,13 +275,13 @@
             title: 'Política de Cookies',
             html: '<p class="ck-info-fecha">Vigente desde abril de 2026 · Ley 1581 de 2012</p>' +
                 '<h3>1. ¿Qué son las cookies?</h3>' +
-                '<p>Las cookies son pequeños archivos que se almacenan en tu dispositivo cuando visitas un sitio web. Nos permiten recordar tus preferencias y mejorar tu experiencia.</p>' +
-                '<h3>2. Tipos de cookies que usamos</h3>' +
-                '<p><strong>Esenciales:</strong> necesarias para el funcionamiento del sitio (inicio de sesión, sesión activa, seguridad). No pueden desactivarse.</p>' +
-                '<p><strong>Análisis:</strong> nos ayudan a entender cómo usas la plataforma para mejorarla. Puedes desactivarlas desde el modal de preferencias.</p>' +
-                '<p><strong>Marketing:</strong> permiten mostrarte planes y destinos personalizados según tus intereses. Puedes desactivarlas en cualquier momento.</p>' +
+                '<p>Las cookies son pequeños archivos que un sitio web puede guardar en tu dispositivo. TourismEasy también puede usar el almacenamiento local del navegador para recordar preferencias.</p>' +
+                '<h3>2. Tipos de cookies y preferencias</h3>' +
+                '<p><strong>Esenciales:</strong> necesarias para funciones básicas como mantener la sesión y proteger el sitio. Siempre están activas.</p>' +
+                '<p><strong>Análisis:</strong> esta preferencia podría autorizar herramientas para entender cómo se usa la plataforma. Actualmente no hay servicios externos conectados a esta categoría.</p>' +
+                '<p><strong>Marketing:</strong> esta preferencia podría autorizar herramientas de personalización promocional. Actualmente no hay servicios externos conectados a esta categoría.</p>' +
                 '<h3>3. Control de cookies</h3>' +
-                '<p>Puedes cambiar tus preferencias de cookies en cualquier momento desde el pie de página. También puedes configurarlas desde tu navegador, aunque esto puede afectar el funcionamiento del sitio.</p>' +
+                '<p>Puedes guardar o cambiar tus preferencias desde el enlace «Preferencias de cookies» del pie de página. Las opciones no esenciales no activan servicios externos en la versión actual. También puedes administrar cookies desde tu navegador; bloquear las esenciales puede afectar algunas funciones.</p>' +
                 '<h3>4. Contacto</h3>' +
                 '<p>Para más información escríbenos a <strong>tourismeasyadso@gmail.com</strong>.</p>'
         }

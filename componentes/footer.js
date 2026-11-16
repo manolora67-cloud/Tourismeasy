@@ -1,6 +1,8 @@
 (function() {
     const mount = document.getElementById("site-footer");
     if (!mount) return;
+    const footerScriptUrl = document.currentScript ? document.currentScript.src : window.location.href;
+    const cookieSettingsUrl = new URL("../index.html?cookie-settings=1", footerScriptUrl).href;
 
     mount.innerHTML = `
     <footer class="footer">
@@ -21,6 +23,7 @@
               <li><a href="#" data-modal="contacto">Contacto</a></li>
               <li><a href="#" data-modal="faq">Preguntas Frecuentes</a></li>
               <li><a href="#" data-modal="ayuda">Centro de Ayuda</a></li>
+              <li><a href="mailto:tourismeasyadso@gmail.com?subject=Reportar%20un%20problema">Reportar un problema</a></li>
             </ul>
           </div>
           <div class="footer-col">
@@ -29,6 +32,7 @@
               <li><a href="#" data-modal="privacidad">Política de Privacidad</a></li>
               <li><a href="#" data-modal="terminos">Términos de Servicio</a></li>
               <li><a href="#" data-modal="accesibilidad">Declaración de Accesibilidad</a></li>
+              <li><a href="${cookieSettingsUrl}">Preferencias de cookies</a></li>
             </ul>
           </div>
           <div class="footer-col">
@@ -39,6 +43,7 @@
               <a href="https://www.tiktok.com/@d4ividd?_r=1&_t=ZS-95d2BgEYsez" class="social-icon"><i class="fab fa-tiktok"></i></a>
               <a href="https://wa.me/573174613395" class="social-icon"><i class="fab fa-whatsapp"></i></a>
             </div>
+            <p class="footer-social-note">Descubre destinos y experiencias para tu próxima visita a Santander.</p>
           </div>
         </div>
         <div class="footer-bottom">
