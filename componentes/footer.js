@@ -1,8 +1,6 @@
 (function() {
     const mount = document.getElementById("site-footer");
     if (!mount) return;
-    const footerScriptUrl = document.currentScript ? document.currentScript.src : window.location.href;
-    const cookieSettingsUrl = new URL("../index.html?cookie-settings=1", footerScriptUrl).href;
 
     mount.innerHTML = `
     <footer class="footer">
@@ -23,7 +21,7 @@
               <li><a href="#" data-modal="contacto">Contacto</a></li>
               <li><a href="#" data-modal="faq">Preguntas Frecuentes</a></li>
               <li><a href="#" data-modal="ayuda">Centro de Ayuda</a></li>
-              <li><a href="mailto:tourismeasyadso@gmail.com?subject=Reportar%20un%20problema">Reportar un problema</a></li>
+              <li><a href="#" data-modal="reportar-problema">Reportar un problema</a></li>
             </ul>
           </div>
           <div class="footer-col">
@@ -32,7 +30,7 @@
               <li><a href="#" data-modal="privacidad">Política de Privacidad</a></li>
               <li><a href="#" data-modal="terminos">Términos de Servicio</a></li>
               <li><a href="#" data-modal="accesibilidad">Declaración de Accesibilidad</a></li>
-              <li><a href="${cookieSettingsUrl}">Preferencias de cookies</a></li>
+              <li><a href="#" data-modal="preferencias-cookies">Preferencias de cookies</a></li>
             </ul>
           </div>
           <div class="footer-col">
@@ -123,6 +121,35 @@
         </ul>
         <p>Horario de atención: Lunes a Viernes 8:00am – 8:00pm</p>`,
         },
+        "reportar-problema": {
+            title: "Reportar un problema",
+            content: `<p>Cuéntanos qué ocurrió, en qué página y qué pasos seguiste. Puedes comunicarte por cualquiera de estos medios:</p>
+        <ul class="footer-contact-options">
+          <li><a href="tel:+573174613395">Llamar al +57 317 461 3395</a></li>
+          <li><a href="https://wa.me/573174613395?text=Hola%2C%20quiero%20reportar%20un%20problema%20en%20TourismEasy." target="_blank" rel="noopener noreferrer">Escribir por WhatsApp</a></li>
+          <li><a href="mailto:tourismeasyadso@gmail.com?subject=Reportar%20un%20problema%20en%20TourismEasy&body=Describe%20el%20problema%2C%20la%20p%C3%A1gina%20y%20los%20pasos%20para%20reproducirlo.">Enviar un correo</a></li>
+        </ul>`,
+        },
+        "preferencias-cookies": {
+            title: "Preferencias de cookies",
+            content: `<p>Las cookies esenciales siempre están activas. Las preferencias de análisis y marketing se guardan, pero actualmente no hay servicios externos conectados a esas categorías.</p>
+        <form class="footer-cookie-preferences" id="footerCookiePreferences">
+          <label class="footer-cookie-option">
+            <span><strong>Esenciales</strong><small>Mantienen la sesión y ayudan a proteger el sitio.</small></span>
+            <input type="checkbox" checked disabled aria-label="Cookies esenciales siempre activas">
+          </label>
+          <label class="footer-cookie-option">
+            <span><strong>Análisis</strong><small>Ayudan a entender el uso del sitio y detectar mejoras.</small></span>
+            <input type="checkbox" name="analytics">
+          </label>
+          <label class="footer-cookie-option">
+            <span><strong>Marketing</strong><small>Permiten personalizar publicidad y contenido promocional.</small></span>
+            <input type="checkbox" name="marketing">
+          </label>
+          <button class="footer-cookie-save" type="submit">Guardar preferencias</button>
+          <p class="footer-cookie-status" id="footerCookieStatus" role="status" aria-live="polite"></p>
+        </form>`,
+        },
         faq: {
             title: "Preguntas Frecuentes",
             content: `<details><summary>¿Tourismeasy es una agencia de viajes?</summary><p>No. Somos una plataforma que conecta empresas turísticas de Santander con viajeros interesados en el departamento. No vendemos paquetes directamente.</p></details>
@@ -191,6 +218,7 @@
         modalTrigger = document.activeElement;
         modalTitle.textContent = data.title;
         modalContent.innerHTML = data.content;
+        if (key === "preferencias-cookies") initializeCookiePreferences();
         overlay.inert = false;
         overlay.setAttribute("aria-hidden", "false");
         overlay.classList.add("active");
@@ -202,6 +230,45 @@
         overlay.inert = true;
         overlay.setAttribute("aria-hidden", "true");
         if (modalTrigger instanceof HTMLElement) modalTrigger.focus();
+    }
+
+    function initializeCookiePreferences() {
+        const form = modalContent.querySelector("#footerCookiePreferences");
+        if (!form) return;
+        const status = form.querySelector("#footerCookieStatus");
+        const analyticsInput = form.querySelector('[name="analytics"]');
+        const marketingInput = form.querySelector('[name="marketing"]');
+        try {
+            const saved = localStorage.getItem("tourismeasy_cookie_consent");
+            const consent = saved ? JSON.parse(saved) : null;
+            analyticsInput.checked = Boolean(consent && consent.analytics);
+            marketingInput.checked = Boolean(consent && consent.marketing);
+        } catch (error) {
+            console.error("[TourismEasy] No se pudieron cargar las preferencias de cookies:", error);
+            status.textContent = "No se pudieron cargar las preferencias guardadas.";
+            status.classList.add("is-error");
+        }
+
+        form.addEventListener("submit", (event) => {
+            event.preventDefault();
+            const consent = {
+                essential: true,
+                analytics: analyticsInput.checked,
+                marketing: marketingInput.checked,
+                date: new Date().toISOString()
+            };
+            try {
+                localStorage.setItem("tourismeasy_cookie_consent", JSON.stringify(consent));
+                window.cookieConsent = consent;
+                document.dispatchEvent(new CustomEvent("cookieConsentUpdated", { detail: consent }));
+                status.textContent = "Tus preferencias se guardaron.";
+                status.classList.remove("is-error");
+            } catch (error) {
+                console.error("[TourismEasy] No se pudieron guardar las preferencias de cookies:", error);
+                status.textContent = "No se pudieron guardar tus preferencias. Inténtalo de nuevo.";
+                status.classList.add("is-error");
+            }
+        });
     }
 
     // Delegación de eventos: funciona con cualquier link [data-modal] presente

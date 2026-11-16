@@ -1398,6 +1398,69 @@ ul {
     font-weight: 600;
 }
 
+.footer-cookie-preferences {
+    display: grid;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.footer-cookie-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 12px 14px;
+    border: 1px solid var(--gray-200);
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.footer-cookie-option span {
+    display: grid;
+    gap: 4px;
+}
+
+.footer-cookie-option strong {
+    color: var(--gray-800);
+}
+
+.footer-cookie-option small {
+    color: var(--gray-600);
+    line-height: 1.5;
+}
+
+.footer-cookie-option input {
+    width: 18px;
+    height: 18px;
+    flex: none;
+    accent-color: var(--purple);
+}
+
+.footer-cookie-save {
+    justify-self: start;
+    border: 0;
+    border-radius: 8px;
+    padding: 11px 16px;
+    background: var(--purple);
+    color: #ffffff;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.footer-cookie-save:hover {
+    background: var(--purple-dark);
+}
+
+.footer-cookie-status {
+    min-height: 1.5em;
+    margin: 0 !important;
+}
+
+.footer-cookie-status.is-error {
+    color: #b91c1c !important;
+}
+
 
 /* ===========================
    BOTÓN MODO OSCURO (luna/sol)
@@ -1520,6 +1583,19 @@ body.dark-mode #modalContent details {
 
 body.dark-mode #modalContent summary {
     color: #f1f5f9;
+}
+
+body.dark-mode .footer-cookie-option {
+    border-color: #475569;
+    background: #0f172a;
+}
+
+body.dark-mode .footer-cookie-option strong {
+    color: #f1f5f9;
+}
+
+body.dark-mode .footer-cookie-option small {
+    color: #cbd5e1;
 }
 
 body.dark-mode .dot {

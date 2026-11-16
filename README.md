@@ -15,8 +15,8 @@ TourismEasy es una plataforma web para descubrir Santander, Colombia. Conecta a 
 - Reseñas y reacciones de viajeros.
 - Perfiles y preferencias de administración y empresas.
 - Menú de accesibilidad compartido: cambio de idioma, ajuste y restablecimiento del tamaño del texto, alto contraste y lectura en voz alta cuando el navegador lo admite. El pie de página incluye una declaración de accesibilidad emergente con herramientas disponibles, referencias normativas y datos de contacto; es informativa y no representa una certificación de conformidad.
-- Pie de página compartido con cuatro enlaces en Plataforma, Soporte y Legal, redes sociales y acceso a las preferencias de cookies. El copyright existente se conserva sin duplicarlo.
-- Aviso de privacidad en la primera visita para aceptar todas las preferencias, guardar solo las necesarias o personalizar opciones. La elección se conserva en el navegador; se puede revisar o cambiar desde **Preferencias de cookies** en el pie de página. Las opciones de análisis y marketing se guardan, pero actualmente no habilitan servicios externos.
+- Pie de página compartido con cuatro enlaces en Plataforma, Soporte y Legal, redes sociales y acceso a las preferencias de cookies sin recargar la página. Incluye una ventana de reporte de problemas con teléfono, WhatsApp y correo; el copyright existente se conserva sin duplicarlo.
+- Aviso de privacidad en la primera visita para aceptar todas las preferencias, guardar solo las necesarias o personalizar opciones. La elección se conserva en el navegador; se puede revisar o cambiar desde la ventana **Preferencias de cookies** del pie de página, sin recargar la página. Las opciones de análisis y marketing se guardan, pero actualmente no habilitan servicios externos.
 - CAPTCHA verificado en el servidor para los inicios de sesión, y recuperación de contraseña con enlace por correo.
 - Límites de seguridad configurables por administración para login, cambio de contraseña, recuperación y confirmación de dispositivos.
 - Menú de sesión compartido con opciones separadas por rol para administradores, empresas y artesanos.

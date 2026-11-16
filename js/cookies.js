@@ -129,7 +129,6 @@
         injectModalHTML();
 
         var saved = localStorage.getItem(STORAGE_KEY);
-        var settingsRequested = new URLSearchParams(window.location.search).get('cookie-settings') === '1';
 
         if (saved) {
             try {
@@ -143,13 +142,7 @@
             }
         }
 
-        if (settingsRequested) {
-            showBanner();
-            ckGoStep(2);
-            var cleanUrl = new URL(window.location.href);
-            cleanUrl.searchParams.delete('cookie-settings');
-            window.history.replaceState(null, '', cleanUrl.pathname + cleanUrl.search + cleanUrl.hash);
-        } else if (!saved) {
+        if (!saved) {
             showBanner();
         }
     });
@@ -253,6 +246,10 @@
         window.cookieConsent = consent;
         document.dispatchEvent(new CustomEvent('cookieConsentUpdated', { detail: consent }));
     }
+
+    document.addEventListener('cookieConsentUpdated', function (event) {
+        window.cookieConsent = event.detail;
+    });
 
     /* ── Textos de las políticas de privacidad y cookies ──
        Se muestran en el modal cuando el usuario hace clic en los enlaces del pie legal */
