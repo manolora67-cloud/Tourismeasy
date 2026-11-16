@@ -281,38 +281,6 @@
     background: #e9eef0;
 }
 
-#mapa-turistico .mapa-marcador-wrapper {
-    border: 0;
-    background: transparent;
-}
-
-#mapa-turistico .mapa-marcador {
-    position: relative;
-    display: grid;
-    width: 28px;
-    height: 28px;
-    place-items: center;
-    border: 2px solid #fff;
-    border-radius: 50% 50% 50% 8px;
-    background: var(--theme-primary, #7c3aed);
-    box-shadow: 0 3px 9px rgba(15, 23, 42, 0.28);
-    color: #fff;
-    font-size: 0.72rem;
-    transform: rotate(-45deg);
-    transition: transform 0.18s ease, box-shadow 0.18s ease;
-}
-
-#mapa-turistico .mapa-marcador i {
-    transform: rotate(45deg);
-}
-
-#mapa-turistico .leaflet-marker-icon:hover .mapa-marcador,
-#mapa-turistico .leaflet-marker-icon:focus .mapa-marcador,
-#mapa-turistico .mapa-marcador.is-selected {
-    transform: rotate(-45deg) scale(1.12);
-    box-shadow: 0 6px 16px rgba(15, 23, 42, 0.4);
-}
-
 #mapa-turistico .leaflet-popup-content-wrapper {
     overflow: hidden;
     padding: 0;
@@ -441,21 +409,6 @@ body.dark-mode .mapa-titulo {
 }
 
 @media (max-width: 767px) {
-    #mapa-turistico .mapa-marcador {
-        width: 24px;
-        height: 24px;
-        border-width: 2px;
-        font-size: 0.62rem;
-        box-shadow: none;
-        transition: none;
-    }
-
-    #mapa-turistico .leaflet-marker-icon:hover .mapa-marcador,
-    #mapa-turistico .leaflet-marker-icon:focus .mapa-marcador,
-    #mapa-turistico .mapa-marcador.is-selected {
-        box-shadow: none;
-    }
-
     .destinos-mapa {
         margin-bottom: 32px;
     }
@@ -564,8 +517,7 @@ body.dark-mode .mapa-titulo {
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .mapa-destino-item,
-    #mapa-turistico .mapa-marcador {
+    .mapa-destino-item {
         transition: none;
     }
 }

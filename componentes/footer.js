@@ -47,10 +47,11 @@
         <div class="footer-bottom">
           <p>&copy; 2026 Javier Sanchez, Sergio Vasquez y David Ramirez. Código y logo originales.</p>
           <p class="footer-authors">Autores: Javier Sanchez, Sergio Vasquez y David Ramirez.</p>
-          <p class="footer-action-status" id="footerActionStatus" role="status" aria-live="polite" hidden></p>
         </div>
       </div>
     </footer>
+
+    <div class="footer-action-toast" id="footerActionStatus" role="status" aria-live="polite" hidden></div>
 
     <div class="modal-overlay" id="modalOverlay" aria-hidden="true" inert>
       <section class="modal-box" id="modalBox" role="dialog" aria-modal="true" aria-labelledby="modalTitle" tabindex="-1">
@@ -240,10 +241,14 @@
         window.clearTimeout(footerStatusTimer);
         status.textContent = message;
         status.hidden = false;
+        window.requestAnimationFrame(() => status.classList.add("is-visible"));
         footerStatusTimer = window.setTimeout(() => {
-            status.hidden = true;
-            status.textContent = "";
-        }, 5000);
+            status.classList.remove("is-visible");
+            footerStatusTimer = window.setTimeout(() => {
+                status.hidden = true;
+                status.textContent = "";
+            }, 250);
+        }, 4500);
     }
 
     function initializeCookiePreferences() {

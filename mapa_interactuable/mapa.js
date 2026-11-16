@@ -82,51 +82,27 @@
         delete imagen.dataset.src;
     }
 
-    function crearMarcador(destino, coordenadas, renderizadorMovil) {
-        if (renderizadorMovil) {
-            const marcador = window.L.circleMarker(coordenadas, {
-                renderer: renderizadorMovil,
-                radius: 7,
-                color: "#ffffff",
-                weight: 2,
-                fillColor: colorPrincipal,
-                fillOpacity: 1,
-                title: destino.titulo,
-            }).bindPopup(crearContenidoPopup(destino), {
-                maxWidth: 280,
-                minWidth: 240,
-                className: "destino-popup",
-            });
-
-            marcador.on("popupopen", () => {
-                marcador.setStyle({ radius: 9, fillColor: colorPrincipalOscuro });
-            });
-            marcador.on("popupclose", () => {
-                marcador.setStyle({ radius: 7, fillColor: colorPrincipal });
-            });
-            marcador.on("popupopen", () => cargarImagenPopup(marcador));
-
-            return marcador;
-        }
-
-        const icono = window.L.divIcon({
-            className: "mapa-marcador-wrapper",
-            html: '<span class="mapa-marcador" aria-hidden="true"><i class="fa-solid fa-location-dot"></i></span>',
-            iconSize: [30, 34],
-            iconAnchor: [15, 31],
-            popupAnchor: [0, -28],
-        });
-
-        const marcador = window.L.marker(coordenadas, {
-            icon: icono,
+    function crearMarcador(destino, coordenadas, renderizador) {
+        const marcador = window.L.circleMarker(coordenadas, {
+            renderer: renderizador,
+            radius: 7,
+            color: "#ffffff",
+            weight: 2,
+            fillColor: colorPrincipal,
+            fillOpacity: 1,
             title: destino.titulo,
-            alt: `Ver ${destino.titulo} en el mapa`,
         }).bindPopup(crearContenidoPopup(destino), {
             maxWidth: 280,
             minWidth: 240,
             className: "destino-popup",
         });
 
+        marcador.on("popupopen", () => {
+            marcador.setStyle({ radius: 9, fillColor: colorPrincipalOscuro });
+        });
+        marcador.on("popupclose", () => {
+            marcador.setStyle({ radius: 7, fillColor: colorPrincipal });
+        });
         marcador.on("popupopen", () => cargarImagenPopup(marcador));
 
         return marcador;
@@ -162,17 +138,10 @@
         boton.addEventListener("click", () => {
             const ubicacion = marcador.getLatLng();
             const zoom = Math.max(mapa.getZoom(), 10);
-            if (typeof marcador.setStyle === "function") {
-                mapa.setView(ubicacion, zoom, { animate: false });
-            } else {
-                mapa.flyTo(ubicacion, zoom, { duration: 0.6 });
-            }
+            mapa.setView(ubicacion, zoom, { animate: false });
             marcador.openPopup();
         });
         marcador.on("popupopen", () => {
-            const elementoMarcador = marcador.getElement();
-            const iconoMarcador = elementoMarcador && elementoMarcador.querySelector(".mapa-marcador");
-            if (iconoMarcador) iconoMarcador.classList.add("is-selected");
             lista.querySelectorAll(".mapa-destino-item").forEach((item) => {
                 const seleccionado = item === boton;
                 item.classList.toggle("is-selected", seleccionado);
@@ -184,9 +153,6 @@
             });
         });
         marcador.on("popupclose", () => {
-            const elementoMarcador = marcador.getElement();
-            const iconoMarcador = elementoMarcador && elementoMarcador.querySelector(".mapa-marcador");
-            if (iconoMarcador) iconoMarcador.classList.remove("is-selected");
             boton.classList.remove("is-selected");
             boton.removeAttribute("aria-current");
         });
@@ -199,8 +165,7 @@
         const lista = bloque.querySelector(".mapa-destinos-lista");
         const contador = bloque.querySelector(".mapa-contador-numero");
         const selectorOrden = bloque.querySelector(".mapa-orden-select");
-        const esMovil = window.matchMedia("(max-width: 767px)").matches;
-        const renderizadorMovil = esMovil ? window.L.canvas({ padding: 0.5 }) : null;
+        const renderizador = window.L.canvas({ padding: 0.5 });
         estado.textContent = "Cargando destinos…";
         try {
             const destinos = await window.TE_MUNICIPIOS_PROMISE;
@@ -227,11 +192,7 @@
 
             const entradasLista = ubicados.map((destino) => {
                 const coordenadas = [Number(destino.latitud), Number(destino.longitud)];
-                const marcador = crearMarcador(
-                    destino,
-                    coordenadas,
-                    renderizadorMovil
-                );
+                const marcador = crearMarcador(destino, coordenadas, renderizador);
                 const boton = agregarDestinoAlPanel(destino, marcador, lista, mapa);
                 return { destino, boton, marcador };
             });
