@@ -1363,6 +1363,18 @@ body.dark-mode .footer-action-toast {
     box-shadow: 0 24px 80px rgba(0, 0, 0, 0.25);
 }
 
+.modal-box.modal-box--cookie-preferences {
+    display: flex;
+    flex-direction: column;
+    height: min(560px, 78vh);
+}
+
+#modalContent.modal-content--cookie-preferences {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+}
+
 .modal-overlay.active .modal-box {
     transform: translateY(0);
 }
@@ -1442,7 +1454,9 @@ body.dark-mode .footer-action-toast {
 }
 
 .footer-cookie-preferences {
-    display: grid;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
     gap: 10px;
     margin-top: 20px;
 }
@@ -1480,7 +1494,9 @@ body.dark-mode .footer-action-toast {
 }
 
 .footer-cookie-save {
-    justify-self: start;
+    width: 100%;
+    min-height: 48px;
+    margin-top: auto;
     border: 0;
     border-radius: 8px;
     padding: 11px 16px;
@@ -1496,7 +1512,7 @@ body.dark-mode .footer-action-toast {
 }
 
 .footer-cookie-status {
-    min-height: 1.5em;
+    min-height: 0;
     margin: 0 !important;
 }
 
