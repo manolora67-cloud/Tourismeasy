@@ -148,8 +148,8 @@
             <span><strong>Marketing</strong><small>Permiten personalizar publicidad y contenido promocional.</small></span>
             <input type="checkbox" name="marketing">
           </label>
-          <p class="footer-cookie-status" id="footerCookieStatus" role="status" aria-live="polite"></p>
           <button class="footer-cookie-save" type="submit">Guardar preferencias</button>
+          <p class="footer-cookie-status" id="footerCookieStatus" role="status" aria-live="polite"></p>
         </form>`,
         },
         faq: {
@@ -221,8 +221,6 @@
         modalTrigger = document.activeElement;
         modalTitle.textContent = data.title;
         modalContent.innerHTML = data.content;
-        modalBox.classList.toggle("modal-box--cookie-preferences", key === "preferencias-cookies");
-        modalContent.classList.toggle("modal-content--cookie-preferences", key === "preferencias-cookies");
         if (key === "preferencias-cookies") initializeCookiePreferences();
         overlay.inert = false;
         overlay.setAttribute("aria-hidden", "false");
@@ -234,8 +232,6 @@
         overlay.classList.remove("active");
         overlay.inert = true;
         overlay.setAttribute("aria-hidden", "true");
-        modalBox.classList.remove("modal-box--cookie-preferences");
-        modalContent.classList.remove("modal-content--cookie-preferences");
         if (modalTrigger instanceof HTMLElement) modalTrigger.focus();
     }
 
