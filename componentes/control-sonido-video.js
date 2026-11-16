@@ -34,6 +34,7 @@
 
             cargarFuente();
             video.play().catch(function (error) {
+                if (error && error.name === "AbortError") return;
                 console.warn("[TourismEasy] No se pudo reproducir el video principal:", error);
             });
         }

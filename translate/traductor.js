@@ -92,7 +92,6 @@
         "Incluye": "Includes",
         "Capacidad": "Capacity",
         "Servicios": "Services",
-        "Escribir por WhatsApp": "Message on WhatsApp",
         "Experiencias diseñadas para todos en Santander.": "Experiences designed for everyone in Santander.",
         "Lugar": "Destination",
         "Tipo de Plan": "Tour type",

@@ -47,6 +47,7 @@
         <div class="footer-bottom">
           <p>&copy; 2026 Javier Sanchez, Sergio Vasquez y David Ramirez. Código y logo originales.</p>
           <p class="footer-authors">Autores: Javier Sanchez, Sergio Vasquez y David Ramirez.</p>
+          <p class="footer-action-status" id="footerActionStatus" role="status" aria-live="polite" hidden></p>
         </div>
       </div>
     </footer>
@@ -211,6 +212,7 @@
     const modalClose = document.getElementById("modalClose");
     const modalBox = document.getElementById("modalBox");
     let modalTrigger = null;
+    let footerStatusTimer = null;
 
     function openModal(key) {
         const data = modalData[key];
@@ -230,6 +232,18 @@
         overlay.inert = true;
         overlay.setAttribute("aria-hidden", "true");
         if (modalTrigger instanceof HTMLElement) modalTrigger.focus();
+    }
+
+    function showFooterStatus(message) {
+        const status = document.getElementById("footerActionStatus");
+        if (!status) return;
+        window.clearTimeout(footerStatusTimer);
+        status.textContent = message;
+        status.hidden = false;
+        footerStatusTimer = window.setTimeout(() => {
+            status.hidden = true;
+            status.textContent = "";
+        }, 5000);
     }
 
     function initializeCookiePreferences() {
@@ -261,8 +275,8 @@
                 localStorage.setItem("tourismeasy_cookie_consent", JSON.stringify(consent));
                 window.cookieConsent = consent;
                 document.dispatchEvent(new CustomEvent("cookieConsentUpdated", { detail: consent }));
-                status.textContent = "Tus preferencias se guardaron.";
-                status.classList.remove("is-error");
+                closeModal();
+                showFooterStatus("Tus preferencias se guardaron.");
             } catch (error) {
                 console.error("[TourismEasy] No se pudieron guardar las preferencias de cookies:", error);
                 status.textContent = "No se pudieron guardar tus preferencias. Inténtalo de nuevo.";

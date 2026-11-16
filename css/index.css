@@ -1060,6 +1060,12 @@ ul {
     margin: 6px 0 0;
 }
 
+.footer-action-status {
+    margin: 14px 0 0;
+    color: #bbf7d0;
+    font-weight: 700;
+}
+
 
 /* ===========================
    BOTONES DE LOGIN SOCIAL (Google, Facebook)
