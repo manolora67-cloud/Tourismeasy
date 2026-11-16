@@ -30,5 +30,5 @@ try {
 } catch (PDOException $e) {
     error_log('[TourismEasy] get_estadisticas_admin.php - ' . $e->getMessage());
     http_response_code(500);
-    echo json_encode(["ok" => false, "error" => $e->getMessage()]);
+    echo json_encode(["ok" => false, "error" => "No se pudieron cargar las estadísticas. Intenta de nuevo más tarde."]);
 }

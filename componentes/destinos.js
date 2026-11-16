@@ -655,24 +655,7 @@
         return {};
     }
 
-    function fetchMunicipalitiesCached(url) {
-        const cacheKey = "tourismeasy_public_cities_v1";
-        const cacheDuration = 30 * 60 * 1000;
-
-        try {
-            const cached = JSON.parse(window.sessionStorage.getItem(cacheKey) || "null");
-            if (
-                cached
-                && cached.expiresAt > Date.now()
-                && Array.isArray(cached.data)
-            ) {
-                return Promise.resolve(cached.data);
-            }
-            if (cached) window.sessionStorage.removeItem(cacheKey);
-        } catch (error) {
-            console.warn("[TourismEasy] No se pudo leer la caché de municipios; se consultará el servidor.", error);
-        }
-
+    function fetchMunicipalities(url) {
         return fetch(url)
             .then((response) => {
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -682,16 +665,7 @@
                 if (!result.ok || !result.data || !Array.isArray(result.data.ciudades)) {
                     throw new Error(result.error || "La lista de municipios no tiene el formato esperado.");
                 }
-                const cities = result.data.ciudades.filter((city) => String(city.id).startsWith("68"));
-                try {
-                    window.sessionStorage.setItem(cacheKey, JSON.stringify({
-                        expiresAt: Date.now() + cacheDuration,
-                        data: cities,
-                    }));
-                } catch (error) {
-                    console.warn("[TourismEasy] No se pudo guardar la caché de municipios.", error);
-                }
-                return cities;
+                return result.data.ciudades.filter((city) => String(city.id).startsWith("68"));
             });
     }
 
@@ -720,6 +694,9 @@
                     ? saved.publicado === true || ["1", "t", "true"].includes(String(saved.publicado).toLowerCase())
                     : !initialized,
                 municipio: true,
+                nombreMunicipio: nombre,
+                latitud: city.latitud === null || city.latitud === undefined ? null : Number(city.latitud),
+                longitud: city.longitud === null || city.longitud === undefined ? null : Number(city.longitud),
                 article: saved ? parseArticle(saved.article) : {}
             };
         }).sort((a, b) => a.orden - b.orden || a.titulo.localeCompare(b.titulo, "es"));
@@ -875,7 +852,7 @@
         mobileLayout.addEventListener("change", () => renderCarousel(pageIndex * pageSize));
     }
 
-    const citiesPromise = fetchMunicipalitiesCached(`${basePath}datos_referencia.php?tipo=ciudades`);
+    const citiesPromise = fetchMunicipalities(`${basePath}datos_referencia.php?tipo=ciudades`);
 
     async function cargarContenidoPortada(url) {
         let ultimoError;

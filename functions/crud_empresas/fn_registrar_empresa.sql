@@ -105,7 +105,7 @@ EXCEPTION
         RETURN QUERY SELECT FALSE, 'El registro está siendo procesado, intenta de nuevo.'::TEXT;
     WHEN OTHERS THEN
         RAISE NOTICE 'fn_registrar_empresa: %', SQLERRM;
-        RETURN QUERY SELECT FALSE, ('Error al registrar la empresa: ' || SQLERRM)::TEXT;
+        RETURN QUERY SELECT FALSE, 'No se pudo completar el registro de la empresa. Intenta de nuevo más tarde.'::TEXT;
 END;
 $$
 LANGUAGE plpgsql;

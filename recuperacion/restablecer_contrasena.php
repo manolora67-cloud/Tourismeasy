@@ -93,8 +93,11 @@ try {
 
     echo json_encode(['success' => true, 'message' => $row['mensaje']]);
 
-} catch (Exception $e) {
+} catch (Throwable $e) {
     error_log('[TourismEasy] restablecer_contrasena - Error: ' . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Error interno del servidor.']);
+    echo json_encode([
+        'success' => false,
+        'message' => 'No se pudo actualizar la contraseña. Intenta de nuevo más tarde.',
+    ]);
 }

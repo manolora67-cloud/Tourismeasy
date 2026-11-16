@@ -4,95 +4,6 @@
     const coloresTema = getComputedStyle(document.documentElement);
     const colorPrincipal = coloresTema.getPropertyValue("--theme-primary").trim() || "#7c3aed";
     const colorPrincipalOscuro = coloresTema.getPropertyValue("--theme-primary-dark").trim() || "#5b21b6";
-    const coordenadasMunicipios = {
-        "68001": [7.127459, -73.119130],
-        "68013": [6.162366, -73.521569],
-        "68020": [5.758765, -73.915162],
-        "68051": [6.694573, -73.018703],
-        "68077": [5.932603, -73.612437],
-        "68079": [6.635716, -73.223442],
-        "68081": [7.067331, -73.852563],
-        "68092": [6.900640, -73.283559],
-        "68101": [5.989980, -73.770548],
-        "68121": [6.593352, -73.246398],
-        "68132": [7.348091, -72.945929],
-        "68147": [6.529180, -72.698262],
-        "68152": [6.627352, -72.626097],
-        "68160": [6.753059, -72.973394],
-        "68162": [6.843599, -72.693963],
-        "68167": [6.288174, -73.148289],
-        "68169": [7.280799, -72.968226],
-        "68176": [6.344397, -73.372743],
-        "68179": [6.062477, -73.637253],
-        "68190": [6.314541, -73.949681],
-        "68207": [6.768293, -72.694484],
-        "68209": [6.355975, -73.240963],
-        "68211": [6.290737, -73.474556],
-        "68217": [6.295630, -73.040706],
-        "68229": [6.606703, -73.069209],
-        "68235": [6.698692, -73.511569],
-        "68245": [6.245266, -73.497561],
-        "68250": [6.055759, -73.814993],
-        "68255": [7.470891, -73.203309],
-        "68264": [6.137825, -73.098837],
-        "68266": [6.668207, -72.699343],
-        "68271": [5.802419, -73.970934],
-        "68276": [7.062580, -73.085885],
-        "68296": [6.637910, -73.287453],
-        "68298": [5.945857, -73.345350],
-        "68307": [7.069069, -73.170028],
-        "68318": [6.876076, -72.855764],
-        "68320": [6.246817, -73.418182],
-        "68322": [6.308298, -73.321224],
-        "68324": [5.954265, -73.699788],
-        "68327": [6.025402, -73.572506],
-        "68344": [6.542627, -73.307787],
-        "68368": [5.876558, -73.782777],
-        "68370": [6.732705, -73.096113],
-        "68377": [5.858840, -73.965829],
-        "68385": [6.220533, -73.811375],
-        "68397": [6.178593, -73.589584],
-        "68406": [7.113842, -73.217406],
-        "68418": [6.755903, -73.101821],
-        "68425": [6.506171, -72.592896],
-        "68432": [6.699661, -72.732456],
-        "68444": [7.323081, -73.015568],
-        "68464": [6.476121, -72.970620],
-        "68468": [6.673729, -72.809114],
-        "68498": [6.340720, -73.122026],
-        "68500": [6.264200, -73.298780],
-        "68502": [6.343897, -72.816606],
-        "68522": [6.538635, -73.291693],
-        "68524": [6.406625, -73.287918],
-        "68533": [6.416541, -73.169399],
-        "68547": [6.987481, -73.050413],
-        "68549": [6.532250, -73.173230],
-        "68572": [5.877096, -73.679106],
-        "68573": [6.651506, -74.056449],
-        "68575": [7.348018, -73.897978],
-        "68615": [7.264631, -73.150280],
-        "68655": [7.393942, -73.499886],
-        "68669": [6.810067, -72.850635],
-        "68673": [6.125328, -73.509729],
-        "68679": [6.555286, -73.131235],
-        "68682": [6.427589, -72.867653],
-        "68684": [6.658387, -72.733489],
-        "68686": [6.575929, -72.645549],
-        "68689": [6.881139, -73.410626],
-        "68705": [6.989766, -72.907512],
-        "68720": [6.338798, -73.616366],
-        "68745": [6.443509, -73.337420],
-        "68755": [6.470518, -73.262319],
-        "68770": [6.103265, -73.440173],
-        "68773": [5.918810, -73.791256],
-        "68780": [7.366493, -72.984736],
-        "68820": [7.202063, -72.966373],
-        "68842": [6.448015, -73.144301],
-        "68855": [6.012363, -73.672960],
-        "68861": [7.309264, -72.871808],
-        "68867": [6.671239, -73.175398],
-        "68872": [6.816660, -73.268653],
-    };
     const ordenMunicipiosRelevantes = [
         "barichara",
         "velez",
@@ -296,27 +207,27 @@
             if (!Array.isArray(destinos)) {
                 throw new Error("La lista de municipios no está disponible.");
             }
-            if (destinos.length !== Object.keys(coordenadasMunicipios).length) {
-                throw new Error(`Se esperaban ${Object.keys(coordenadasMunicipios).length} municipios y se recibieron ${destinos.length}.`);
-            }
-            const sinCoordenadas = destinos.filter((destino) => !coordenadasMunicipios[String(destino.id)]);
-            if (sinCoordenadas.length) {
-                throw new Error(`Faltan coordenadas para: ${sinCoordenadas.map((destino) => destino.titulo).join(", ")}`);
-            }
+            const ubicados = destinos.filter((destino) => {
+                if (destino.latitud === null || destino.longitud === null) return false;
+                const latitud = Number(destino.latitud);
+                const longitud = Number(destino.longitud);
+                return Number.isFinite(latitud) && latitud >= -90 && latitud <= 90
+                    && Number.isFinite(longitud) && longitud >= -180 && longitud <= 180;
+            });
+            contador.textContent = ubicados.length;
 
-            contador.textContent = destinos.length;
-
-            if (!destinos.length) {
-                estado.textContent = "No hay municipios disponibles para mostrar.";
+            if (!ubicados.length) {
+                estado.textContent = "Las ubicaciones de los municipios aún no están configuradas.";
                 lista.innerHTML = '<p class="mapa-lista-vacia">No hay municipios disponibles.</p>';
                 mapa.setView([6.7, -73.2], 8);
                 return;
             }
 
-            const entradasLista = destinos.map((destino) => {
+            const entradasLista = ubicados.map((destino) => {
+                const coordenadas = [Number(destino.latitud), Number(destino.longitud)];
                 const marcador = crearMarcador(
                     destino,
-                    coordenadasMunicipios[String(destino.id)],
+                    coordenadas,
                     renderizadorMovil
                 );
                 const boton = agregarDestinoAlPanel(destino, marcador, lista, mapa);
@@ -332,8 +243,11 @@
             selectorOrden.addEventListener("change", actualizarOrden);
             actualizarOrden();
 
-            estado.textContent = "";
-            estado.hidden = true;
+            const sinUbicacion = destinos.length - ubicados.length;
+            estado.textContent = sinUbicacion
+                ? `Hay ${sinUbicacion} municipio(s) sin ubicación configurada.`
+                : "";
+            estado.hidden = sinUbicacion === 0;
             mapa.fitBounds(grupoMarcadores.getBounds(), {
                 padding: [28, 28],
                 maxZoom: 9,

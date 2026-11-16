@@ -76,7 +76,7 @@ EXCEPTION
         RETURN QUERY SELECT FALSE, 'El registro está siendo procesado, intenta de nuevo.'::TEXT;
     WHEN OTHERS THEN
         RAISE NOTICE 'fn_registrar_artesano: %', SQLERRM;
-        RETURN QUERY SELECT FALSE, ('Error al registrar: ' || SQLERRM)::TEXT;
+        RETURN QUERY SELECT FALSE, 'No se pudo completar el registro. Intenta de nuevo más tarde.'::TEXT;
 END;
 $$
 LANGUAGE plpgsql;

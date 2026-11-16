@@ -33,7 +33,7 @@ EXCEPTION
         RETURN QUERY SELECT FALSE, 'La reseña está siendo modificada, intenta de nuevo.'::TEXT, NULL::INTEGER;
     WHEN OTHERS THEN
         RAISE NOTICE 'fn_unlike_resena: %', SQLERRM;
-        RETURN QUERY SELECT FALSE, ('Error: ' || SQLERRM)::TEXT, NULL::INTEGER;
+        RETURN QUERY SELECT FALSE, 'No se pudo actualizar la reacción. Intenta de nuevo más tarde.'::TEXT, NULL::INTEGER;
 END;
 $$
 LANGUAGE plpgsql;

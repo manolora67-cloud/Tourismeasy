@@ -69,7 +69,7 @@ EXCEPTION
             NULL::VARCHAR(20);
     WHEN OTHERS THEN
         RAISE NOTICE 'fn_login_empresa: %', SQLERRM;
-        RETURN QUERY SELECT FALSE, ('Error interno: ' || SQLERRM)::TEXT,
+        RETURN QUERY SELECT FALSE, 'No fue posible iniciar sesión. Intenta de nuevo más tarde.'::TEXT,
             NULL::VARCHAR(10),
             NULL::VARCHAR(254),
             NULL::VARCHAR(50),

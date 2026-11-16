@@ -17,6 +17,20 @@ header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
 require_once __DIR__ . '/../cors.php';
 
 $input = json_decode(file_get_contents('php://input'), true);
+if (
+    !is_array($input)
+    || !is_string($input['email'] ?? null)
+    || !is_string($input['password'] ?? null)
+    || !is_string($input['tipo'] ?? null)
+    || !is_string($input['solicitud_aprobacion'] ?? '')
+    || !is_string($input['codigo_aprobacion'] ?? '')
+    || !is_string($input['captcha_token'] ?? '')
+) {
+    http_response_code(400);
+    echo json_encode(["ok" => false, "error" => "La solicitud no tiene un formato válido."]);
+    exit;
+}
+
 $email = trim($input['email'] ?? '');
 $password = trim($input['password'] ?? '');
 $tipo = trim($input['tipo'] ?? '');
@@ -115,11 +129,8 @@ try {
         http_response_code(500);
         echo json_encode([
             "ok" => false,
-            "error" => "Error interno del servidor.",
-            "diagnostico" => [
-                "referencia" => $referenciaDiagnostico,
-                "etapa" => 'procesando_login_sin_resultado',
-            ],
+            "error" => "No fue posible iniciar sesión. Intenta de nuevo más tarde.",
+            "referencia" => $referenciaDiagnostico,
         ]);
         exit;
     }
@@ -247,13 +258,7 @@ try {
     http_response_code(500);
     echo json_encode([
         "ok" => false,
-        "error" => "Error interno del servidor.",
-        "diagnostico" => [
-            "referencia" => $referenciaDiagnostico,
-            "etapa" => $etapaDiagnostico,
-            "causa" => $e instanceof ErrorAprobacionDispositivo
-                ? $e->obtenerCausa()
-                : "error_interno",
-        ],
+        "error" => "No fue posible iniciar sesión. Intenta de nuevo más tarde.",
+        "referencia" => $referenciaDiagnostico,
     ]);
 }

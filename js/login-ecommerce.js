@@ -162,7 +162,10 @@
                 });
             })
             .catch(function(error) {
-                showMsg('loginMsg', error.message || 'No se pudo conectar para solicitar la recuperación.', 'error');
+                var message = error instanceof TypeError || error instanceof SyntaxError
+                    ? 'No se pudo conectar con el servidor. Intenta de nuevo más tarde.'
+                    : (error.message || 'No se pudo solicitar la recuperación.');
+                showMsg('loginMsg', message, 'error');
             })
             .finally(function() {
                 recoveryRequestPending = false;

@@ -55,7 +55,7 @@ EXCEPTION
         RETURN QUERY SELECT FALSE, 'El perfil está siendo modificado, intenta de nuevo.'::TEXT;
     WHEN OTHERS THEN
         RAISE NOTICE 'fn_actualizar_perfil_admin: %', SQLERRM;
-        RETURN QUERY SELECT FALSE, ('No se pudo actualizar el perfil: ' || SQLERRM)::TEXT;
+        RETURN QUERY SELECT FALSE, 'No se pudo actualizar el perfil. Intenta de nuevo más tarde.'::TEXT;
 END;
 $$
 LANGUAGE plpgsql;

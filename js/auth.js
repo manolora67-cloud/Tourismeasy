@@ -200,7 +200,9 @@
                     tone: "success"
                 });
             } catch (error) {
-                loginStatus.textContent = error.message || "No se pudo conectar para solicitar la recuperación.";
+                loginStatus.textContent = error instanceof TypeError || error instanceof SyntaxError
+                    ? "No se pudo conectar con el servidor. Intenta de nuevo más tarde."
+                    : (error.message || "No se pudo solicitar la recuperación.");
                 loginStatus.classList.add("error");
             } finally {
                 recoveryRequestPending = false;
@@ -313,7 +315,9 @@
                 window._loginSuccess = true;
                 window.location.href = destino;
             } catch (error) {
-                loginStatus.textContent = error.message;
+                loginStatus.textContent = error instanceof TypeError || error instanceof SyntaxError
+                    ? "No se pudo comunicar con el servidor. Intenta de nuevo más tarde."
+                    : (error.message || "No se pudo iniciar sesión.");
                 loginStatus.classList.add("error");
                 if (!solicitudAprobacion && window.TeCaptcha) window.TeCaptcha.invalidateOnFailedLogin();
             } finally {

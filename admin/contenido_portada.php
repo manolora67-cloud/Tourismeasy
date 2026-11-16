@@ -89,13 +89,59 @@ try {
         if (!is_array($destino)) {
             responderPortada(422, ['ok' => false, 'error' => 'El destino enviado no es válido.']);
         }
+        $municipio = $input['municipio'] ?? null;
+        if ($municipio !== null) {
+            if (!is_array($municipio)) {
+                responderPortada(422, ['ok' => false, 'error' => 'Los datos de ubicación del municipio no son válidos.']);
+            }
+            $idCiudad = $municipio['id'] ?? null;
+            $latitud = $municipio['latitud'] ?? null;
+            $longitud = $municipio['longitud'] ?? null;
+            if (
+                !(is_string($idCiudad) || is_int($idCiudad))
+                || !preg_match('/^68[0-9]{3,4}$/D', (string)$idCiudad)
+                || !(is_int($latitud) || is_float($latitud))
+                || !(is_int($longitud) || is_float($longitud))
+                || !is_finite((float)$latitud)
+                || !is_finite((float)$longitud)
+                || (float)$latitud < 5.5
+                || (float)$latitud > 8.5
+                || (float)$longitud < -74.5
+                || (float)$longitud > -72
+            ) {
+                responderPortada(422, ['ok' => false, 'error' => 'Selecciona una ubicación válida para el municipio.']);
+            }
+        }
+
+        if ($municipio !== null) {
+            $pdo->beginTransaction();
+        }
         $stmt = $pdo->prepare('SELECT fn_guardar_contenido_portada(CAST(:destino AS JSONB), :admin, TRUE)::TEXT');
         $stmt->execute([
             ':destino' => json_encode($destino, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR),
             ':admin' => $_SESSION['id_persona'],
         ]);
         if (!filter_var($stmt->fetchColumn(), FILTER_VALIDATE_BOOLEAN)) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
             responderPortada(422, ['ok' => false, 'error' => 'No se pudo guardar el destino; revisa los campos y las rutas de imagen/video.']);
+        }
+        if ($municipio !== null) {
+            $ubicacion = $pdo->prepare(
+                'SELECT fn_actualizar_coordenadas_municipio(:id, :latitud, :longitud, :admin)::TEXT'
+            );
+            $ubicacion->execute([
+                ':id' => (string)$idCiudad,
+                ':latitud' => (float)$latitud,
+                ':longitud' => (float)$longitud,
+                ':admin' => $_SESSION['id_persona'],
+            ]);
+            if (!filter_var($ubicacion->fetchColumn(), FILTER_VALIDATE_BOOLEAN)) {
+                $pdo->rollBack();
+                responderPortada(422, ['ok' => false, 'error' => 'No se pudo guardar la ubicación del municipio. Revisa el punto en el mapa e intenta de nuevo.']);
+            }
+            $pdo->commit();
         }
         responderPortada(200, ['ok' => true, 'data' => $destino]);
     }

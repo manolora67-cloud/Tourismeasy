@@ -101,7 +101,9 @@
                 window.location.href = loginHref;
             }, 2500);
         } catch (error) {
-            messageText.textContent = error.message || "Error de conexión. Intenta de nuevo.";
+            messageText.textContent = error instanceof TypeError || error instanceof SyntaxError
+                ? "No se pudo conectar con el servidor. Intenta de nuevo más tarde."
+                : (error.message || "No se pudo restablecer la contraseña.");
             message.querySelector("i").className = "fa-solid fa-circle-exclamation";
             message.classList.add("show", "error");
         } finally {

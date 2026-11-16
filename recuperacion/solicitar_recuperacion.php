@@ -77,5 +77,8 @@ try {
 } catch (Exception $e) {
     error_log('[TourismEasy] solicitar_recuperacion - Error: ' . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Error interno del servidor.']);
+    echo json_encode([
+        'success' => false,
+        'message' => 'No se pudo procesar la solicitud. Intenta de nuevo más tarde.',
+    ]);
 }

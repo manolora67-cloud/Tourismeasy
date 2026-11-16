@@ -53,7 +53,7 @@ EXCEPTION
         RETURN QUERY SELECT FALSE, 'La solicitud está siendo procesada por otra operación, intenta de nuevo.'::TEXT;
     WHEN OTHERS THEN
         RAISE NOTICE 'fn_actualizar_solicitud_empresa - Error inesperado: %', SQLERRM;
-        RETURN QUERY SELECT FALSE, ('Error al procesar la solicitud: ' || SQLERRM)::TEXT;
+        RETURN QUERY SELECT FALSE, 'No se pudo procesar la solicitud. Intenta de nuevo más tarde.'::TEXT;
 END;
 $$
 LANGUAGE plpgsql;

@@ -22,6 +22,10 @@
     let uploadsEnCurso = 0;
     let portadaInicializada = false;
     let previewPendiente = null;
+    let editorMap = null;
+    let editorMarker = null;
+    let geocodeController = null;
+    let ultimoGeocode = 0;
 
     const escapeHtml = (value) => String(value == null ? '' : value).replace(/[&<>"']/g, (char) => ({
         '&': '&amp;',
@@ -170,6 +174,146 @@
         if (notify) window.TEUI.notifyClosed("Formulario");
     }
 
+    function quitarMapaEditor() {
+        if (geocodeController) {
+            geocodeController.abort();
+            geocodeController = null;
+        }
+        if (editorMap) {
+            editorMap.remove();
+            editorMap = null;
+            editorMarker = null;
+        }
+    }
+
+    function coordenadasValidas(latitud, longitud) {
+        return Number.isFinite(latitud) && latitud >= -90 && latitud <= 90
+            && Number.isFinite(longitud) && longitud >= -180 && longitud <= 180;
+    }
+
+    function coordenadasSantanderValidas(latitud, longitud) {
+        return coordenadasValidas(latitud, longitud)
+            && latitud >= 5.5 && latitud <= 8.5
+            && longitud >= -74.5 && longitud <= -72;
+    }
+
+    function actualizarMarcadorEditor(latitud, longitud, centrar = false) {
+        if (!coordenadasValidas(latitud, longitud)) return;
+        const punto = [latitud, longitud];
+        if (!editorMap) return;
+        if (!editorMarker) {
+            editorMarker = window.L.marker(punto, { draggable: true }).addTo(editorMap);
+            editorMarker.on('dragend', () => {
+                const ubicacion = editorMarker.getLatLng();
+                if (!coordenadasSantanderValidas(ubicacion.lat, ubicacion.lng)) {
+                    editorMarker.setLatLng([
+                        Number(document.getElementById('pdLatitude').value),
+                        Number(document.getElementById('pdLongitude').value)
+                    ]);
+                    document.getElementById('pdLocationStatus').textContent = 'El marcador debe permanecer dentro de Santander.';
+                    return;
+                }
+                actualizarCoordenadasEditor(ubicacion.lat, ubicacion.lng);
+            });
+        } else {
+            editorMarker.setLatLng(punto);
+        }
+        if (centrar) editorMap.setView(punto, 13);
+    }
+
+    function actualizarCoordenadasEditor(latitud, longitud) {
+        document.getElementById('pdLatitude').value = latitud.toFixed(7);
+        document.getElementById('pdLongitude').value = longitud.toFixed(7);
+    }
+
+    async function buscarUbicacionMunicipio(item) {
+        const estadoUbicacion = document.getElementById('pdLocationStatus');
+        const botonBuscar = document.getElementById('pdLocate');
+        const nombre = item.nombreMunicipio || document.getElementById('pdTitle').value.trim();
+        if (!nombre) {
+            estadoUbicacion.textContent = 'Escribe el nombre del municipio antes de buscarlo.';
+            return;
+        }
+        if (geocodeController) geocodeController.abort();
+        const controller = new AbortController();
+        geocodeController = controller;
+        botonBuscar.disabled = true;
+        estadoUbicacion.textContent = 'Buscando en el mapa…';
+        try {
+            const espera = Math.max(0, 1100 - (Date.now() - ultimoGeocode));
+            if (espera) await new Promise((resolve) => window.setTimeout(resolve, espera));
+            const url = new URL('https://nominatim.openstreetmap.org/search');
+            url.searchParams.set('format', 'jsonv2');
+            url.searchParams.set('limit', '1');
+            url.searchParams.set('countrycodes', 'co');
+            url.searchParams.set('viewbox', '-74.5,8.5,-72,5.5');
+            url.searchParams.set('bounded', '1');
+            url.searchParams.set('q', `${nombre}, Santander, Colombia`);
+            ultimoGeocode = Date.now();
+            const response = await fetch(url, {
+                signal: controller.signal,
+                headers: { 'Accept-Language': 'es' }
+            });
+            if (!response.ok) throw new Error('No se pudo consultar el servicio de mapas.');
+            const resultados = await response.json();
+            const resultado = Array.isArray(resultados) ? resultados[0] : null;
+            const latitud = resultado ? Number(resultado.lat) : NaN;
+            const longitud = resultado ? Number(resultado.lon) : NaN;
+            if (!coordenadasSantanderValidas(latitud, longitud)) {
+                throw new Error('No encontramos ese municipio dentro de Santander. Ubícalo haciendo clic en el mapa.');
+            }
+            actualizarCoordenadasEditor(latitud, longitud);
+            actualizarMarcadorEditor(latitud, longitud, true);
+            estadoUbicacion.textContent = `Ubicación encontrada: ${resultado.display_name || nombre}. Ajusta el marcador si es necesario.`;
+        } catch (error) {
+            if (error.name !== 'AbortError') {
+                estadoUbicacion.textContent = error.message || 'No se pudo buscar el municipio. Puedes ubicarlo manualmente en el mapa.';
+            }
+        } finally {
+            if (geocodeController === controller) {
+                botonBuscar.disabled = false;
+                geocodeController = null;
+            }
+        }
+    }
+
+    function iniciarMapaEditor(item) {
+        const mapaElemento = document.getElementById('pdLocationMap');
+        const estadoUbicacion = document.getElementById('pdLocationStatus');
+        if (!window.L) {
+            mapaElemento.hidden = true;
+            estadoUbicacion.textContent = 'No se pudo cargar el mini mapa. Puedes buscar el municipio o ingresar sus coordenadas manualmente.';
+            return;
+        }
+
+        mapaElemento.hidden = false;
+        const latitudInicial = Number(item.latitud);
+        const longitudInicial = Number(item.longitud);
+        const tieneUbicacion = item.latitud !== null && item.latitud !== undefined
+            && item.longitud !== null && item.longitud !== undefined
+            && coordenadasValidas(latitudInicial, longitudInicial);
+        estadoUbicacion.textContent = tieneUbicacion
+            ? 'Ubicación actual. Haz clic en otro punto o arrastra el marcador para ajustarla.'
+            : 'Busca el municipio o haz clic en el mapa para seleccionar su ubicación.';
+        const centro = tieneUbicacion ? [latitudInicial, longitudInicial] : [6.8, -73.2];
+        editorMap = window.L.map(mapaElemento, { scrollWheelZoom: false }).setView(centro, tieneUbicacion ? 13 : 8);
+        window.L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(editorMap);
+        if (tieneUbicacion) actualizarMarcadorEditor(latitudInicial, longitudInicial);
+        editorMap.on('click', (event) => {
+            if (!coordenadasSantanderValidas(event.latlng.lat, event.latlng.lng)) {
+                estadoUbicacion.textContent = 'Selecciona un punto dentro de Santander.';
+                return;
+            }
+            actualizarCoordenadasEditor(event.latlng.lat, event.latlng.lng);
+            actualizarMarcadorEditor(event.latlng.lat, event.latlng.lng);
+            estadoUbicacion.textContent = 'Punto seleccionado. Puedes arrastrar el marcador para ajustarlo.';
+        });
+        window.requestAnimationFrame(() => editorMap && editorMap.invalidateSize());
+    }
+
     function openPreview(key) {
         const destination = destinos.find((item) => item.key === key);
         if (!destination) return;
@@ -235,6 +379,20 @@
                     <div class="portada-field"><label for="pdAlt">Texto alternativo de la foto</label><input id="pdAlt" required maxlength="200"></div>
                     <div class="portada-field full"><label for="pdFile">Foto de la tarjeta</label><input id="pdImage" type="hidden"><input id="pdFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif"><small>Selecciona una imagen JPG, PNG, WEBP o GIF (máximo 5 MB). Se subirá a Cloudinary.</small></div>
                     <div class="portada-field full"><div class="portada-image-preview"><img id="pdPreview" alt="Vista previa"><span id="pdUploadStatus"></span></div></div>
+                    <section class="portada-field full portada-location-field" id="pdLocationField" aria-labelledby="pdLocationTitle" hidden>
+                        <h4 id="pdLocationTitle">Ubicación del municipio en el mapa</h4>
+                        <p class="portada-help">Busca el municipio y ajusta el punto haciendo clic en el mapa o arrastrando el marcador. También puedes ingresar las coordenadas manualmente.</p>
+                        <div class="portada-location-search">
+                            <button type="button" class="portada-location-button" id="pdLocate"><i class="fa-solid fa-magnifying-glass-location" aria-hidden="true"></i> Buscar ubicación</button>
+                        </div>
+                        <div id="pdLocationMap" class="portada-location-map" role="application" aria-label="Mini mapa para ubicar el municipio" hidden></div>
+                        <div class="portada-location-coordinates">
+                            <div class="portada-field"><label for="pdLatitude">Latitud</label><input id="pdLatitude" type="number" step="any" min="-90" max="90" required></div>
+                            <div class="portada-field"><label for="pdLongitude">Longitud</label><input id="pdLongitude" type="number" step="any" min="-180" max="180" required></div>
+                        </div>
+                        <p id="pdLocationStatus" class="portada-location-status" role="status" aria-live="polite"></p>
+                        <small>El servicio de búsqueda y los mapas requieren conexión a internet. Si no están disponibles, usa los campos de latitud y longitud.</small>
+                    </section>
                     <div class="portada-field"><label for="pdOrder">Orden en la portada</label><input id="pdOrder" type="text" inputmode="numeric" readonly required aria-describedby="pdOrderHelp"><small id="pdOrderHelp">Asignado automáticamente. No se puede editar.</small></div>
                     <label class="portada-check"><input id="pdPublished" type="checkbox"> Publicado en la portada</label>
                     <div class="portada-field"><label for="paTitle">Título del artículo</label><input id="paTitle" maxlength="150"></div>
@@ -284,6 +442,7 @@
     }
 
     function openEditor(destination) {
+        quitarMapaEditor();
         const isNew = !destination.key;
         const item = destination;
         const article = item.article || {};
@@ -314,6 +473,14 @@
         Object.entries(values).forEach(([id, value]) => { document.getElementById(id).value = value == null ? '' : value; });
         document.getElementById('pdKey').readOnly = !isNew || item.municipio;
         document.getElementById('pdPublished').checked = item.publicado !== false;
+        const locationField = document.getElementById('pdLocationField');
+        locationField.hidden = !item.municipio;
+        const latitudeField = document.getElementById('pdLatitude');
+        const longitudeField = document.getElementById('pdLongitude');
+        latitudeField.required = Boolean(item.municipio);
+        longitudeField.required = Boolean(item.municipio);
+        latitudeField.value = item.latitud == null ? '' : item.latitud;
+        longitudeField.value = item.longitud == null ? '' : item.longitud;
         const preview = document.getElementById('pdPreview');
         preview.src = item.img ? adminAsset(item.img) : '';
         const videoPreview = document.getElementById('paVideoPreview');
@@ -336,6 +503,20 @@
         });
         document.getElementById('pdFile').addEventListener('change', uploadImage);
         document.getElementById('paVideoFile').addEventListener('change', uploadVideo);
+        document.getElementById('pdLocate').addEventListener('click', () => buscarUbicacionMunicipio(item));
+        [latitudeField, longitudeField].forEach((field) => {
+            field.addEventListener('change', () => {
+                const latitud = Number(latitudeField.value);
+                const longitud = Number(longitudeField.value);
+                if (!latitudeField.value || !longitudeField.value) return;
+                if (!coordenadasSantanderValidas(latitud, longitud)) {
+                    document.getElementById('pdLocationStatus').textContent = 'Ingresa coordenadas dentro de Santander (latitud 5.5–8.5 y longitud -74.5–-72).';
+                    return;
+                }
+                actualizarMarcadorEditor(latitud, longitud, true);
+                document.getElementById('pdLocationStatus').textContent = 'Coordenadas actualizadas.';
+            });
+        });
         videoRemove.addEventListener('click', () => {
             document.getElementById('paVideo').value = '';
             document.getElementById('paVideoFile').value = '';
@@ -347,6 +528,7 @@
         });
         form.addEventListener('submit', (event) => save(event, item));
         if (!editorDialog.open) editorDialog.showModal();
+        if (item.municipio) iniciarMapaEditor(item);
         document.getElementById('pdTitle').focus();
     }
 
@@ -452,6 +634,16 @@
             showStatus('Selecciona una foto de la tarjeta y espera a que termine la subida.', true);
             return;
         }
+        let municipio = null;
+        if (original.municipio) {
+            const latitud = Number(document.getElementById('pdLatitude').value);
+            const longitud = Number(document.getElementById('pdLongitude').value);
+            if (!original.id || !coordenadasSantanderValidas(latitud, longitud)) {
+                showStatus('Selecciona una ubicación válida para el municipio antes de guardar.', true);
+                return;
+            }
+            municipio = { id: original.id, latitud, longitud };
+        }
         button.disabled = true;
         showStatus('Guardando destino…');
         const value = (id) => document.getElementById(id).value.trim();
@@ -486,11 +678,17 @@
             const result = await request(API, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
-                body: JSON.stringify({ action: 'save', destino: record })
+                body: JSON.stringify({ action: 'save', destino: record, municipio })
             });
             const index = destinos.findIndex((destination) => destination.key === record.key);
-            if (index < 0) destinos.push(result.data);
-            else destinos[index] = { ...result.data, municipio: original.municipio, persistido: true };
+            const savedDestination = {
+                ...result.data,
+                municipio: original.municipio,
+                persistido: true,
+                ...(municipio ? { latitud: municipio.latitud, longitud: municipio.longitud } : {})
+            };
+            if (index < 0) destinos.push(savedDestination);
+            else destinos[index] = savedDestination;
             destinos.sort(compareByTitle);
             if (index < 0) {
                 const savedIndex = destinos.findIndex((destination) => destination.key === record.key);
@@ -583,6 +781,7 @@
         }
     });
     editorDialog.addEventListener('close', () => {
+        quitarMapaEditor();
         editor.hidden = true;
     });
     document.addEventListener('keydown', (event) => {

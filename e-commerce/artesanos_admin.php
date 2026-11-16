@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     } catch (PDOException $e) {
         error_log('[TourismEasy] artesanos_admin.php GET - ' . $e->getMessage());
         http_response_code(500);
-        echo json_encode(["ok" => false, "error" => $e->getMessage()]);
+        echo json_encode(["ok" => false, "error" => "No se pudo cargar la lista de artesanos. Intenta de nuevo más tarde."]);
     }
     exit;
 }
@@ -71,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } catch (PDOException $e) {
         error_log('[TourismEasy] artesanos_admin.php POST - ' . $e->getMessage());
         http_response_code(500);
-        echo json_encode(["ok" => false, "error" => $e->getMessage()]);
+        echo json_encode(["ok" => false, "error" => "No se pudo actualizar el estado del artesano. Intenta de nuevo más tarde."]);
     }
     exit;
 }

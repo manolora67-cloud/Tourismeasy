@@ -145,7 +145,7 @@
     <script defer src="componentes/dark-mode-toggle.js"></script>
     <script defer src="js/catalog-cache.js?v=catalog-cache-v1"></script>
     <script defer src="js/imagen-cloudinary.js?v=cloudinary-delivery-v1"></script>
-    <script defer src="componentes/destinos.js?v=municipios-paginados-v16"></script>
+    <script defer src="componentes/destinos.js?v=municipios-paginados-v17"></script>
     <script>
         (function () {
             const mount = document.getElementById("site-destinos");
@@ -185,7 +185,7 @@
                         loadStyle("mapa_interactuable/mapa.css?v=mapa-mobile-perf-v2"),
                         loadScript("https://unpkg.com/leaflet@1.9.4/dist/leaflet.js")
                     ]);
-                    await loadScript("mapa_interactuable/mapa.js?v=mapa-mobile-perf-v3");
+                    await loadScript("mapa_interactuable/mapa.js?v=mapa-coordenadas-bd-v4");
                 } catch (error) {
                     console.error("[TourismEasy] No se pudo iniciar el mapa.", error);
                     const notice = document.createElement("p");

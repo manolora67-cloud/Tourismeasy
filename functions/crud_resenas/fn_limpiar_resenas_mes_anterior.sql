@@ -55,7 +55,7 @@ EXCEPTION
         RETURN QUERY SELECT FALSE, 0, 'La tabla está siendo usada, intenta de nuevo.'::TEXT;
     WHEN OTHERS THEN
         RAISE NOTICE 'fn_limpiar_resenas_mes_anterior: %', SQLERRM;
-        RETURN QUERY SELECT FALSE, 0, ('Error al limpiar reseñas: ' || SQLERRM)::TEXT;
+        RETURN QUERY SELECT FALSE, 0, 'No se pudieron limpiar las reseñas. Intenta de nuevo más tarde.'::TEXT;
 END;
 $$
 LANGUAGE plpgsql;

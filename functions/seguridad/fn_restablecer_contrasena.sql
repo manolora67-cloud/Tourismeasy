@@ -39,7 +39,7 @@ BEGIN
 EXCEPTION
     WHEN FOREIGN_KEY_VIOLATION THEN
         RAISE NOTICE 'fn_restablecer_contrasena - FK inválida: %', SQLERRM;
-        RETURN QUERY SELECT FALSE, 'Error interno: usuario no válido.'::TEXT;
+        RETURN QUERY SELECT FALSE, 'No se pudo actualizar la contraseña. Intenta de nuevo más tarde.'::TEXT;
     WHEN CHECK_VIOLATION THEN
         RAISE NOTICE 'fn_restablecer_contrasena - Hash inválido: %', SQLERRM;
         RETURN QUERY SELECT FALSE, 'La contraseña recibida no tiene un formato válido.'::TEXT;
@@ -48,7 +48,7 @@ EXCEPTION
         RETURN QUERY SELECT FALSE, 'La solicitud ya está siendo procesada, intenta de nuevo.'::TEXT;
     WHEN OTHERS THEN
         RAISE NOTICE 'fn_restablecer_contrasena: %', SQLERRM;
-        RETURN QUERY SELECT FALSE, ('Error interno: ' || SQLERRM)::TEXT;
+        RETURN QUERY SELECT FALSE, 'No se pudo actualizar la contraseña. Intenta de nuevo más tarde.'::TEXT;
 END;
 $$
 LANGUAGE plpgsql;

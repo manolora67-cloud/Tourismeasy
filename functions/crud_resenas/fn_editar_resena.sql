@@ -46,7 +46,7 @@ EXCEPTION
         RETURN QUERY SELECT FALSE, 'La reseña está siendo modificada, intenta de nuevo.'::TEXT;
     WHEN OTHERS THEN
         RAISE NOTICE 'fn_editar_resena: %', SQLERRM;
-        RETURN QUERY SELECT FALSE, ('Error: ' || SQLERRM)::TEXT;
+        RETURN QUERY SELECT FALSE, 'No se pudo actualizar la reseña. Intenta de nuevo más tarde.'::TEXT;
 END;
 $$
 LANGUAGE plpgsql;

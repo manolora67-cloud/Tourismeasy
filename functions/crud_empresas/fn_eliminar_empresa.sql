@@ -58,7 +58,7 @@ EXCEPTION
         RETURN QUERY SELECT FALSE, 'La empresa está siendo modificada, intenta de nuevo.'::TEXT;
     WHEN OTHERS THEN
         RAISE NOTICE 'fn_eliminar_empresa - Error inesperado: %', SQLERRM;
-        RETURN QUERY SELECT FALSE, ('Error al eliminar: ' || SQLERRM)::TEXT;
+        RETURN QUERY SELECT FALSE, 'No se pudo eliminar la empresa. Intenta de nuevo más tarde.'::TEXT;
 END;
 $$
 LANGUAGE plpgsql;

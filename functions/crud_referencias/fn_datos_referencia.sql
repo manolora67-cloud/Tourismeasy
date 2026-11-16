@@ -5,7 +5,12 @@ DECLARE
     v_respuesta JSONB := '{}'::JSONB;
 BEGIN
     IF p_tipo IN ('ciudades', 'todos') THEN
-        SELECT v_respuesta || JSONB_BUILD_OBJECT('ciudades', COALESCE(JSONB_AGG(JSONB_BUILD_OBJECT('id', c.ID_CIUDAD, 'nombre', c.NOM_CIUDAD) ORDER BY c.NOM_CIUDAD), '[]'::JSONB))
+        SELECT v_respuesta || JSONB_BUILD_OBJECT('ciudades', COALESCE(JSONB_AGG(JSONB_BUILD_OBJECT(
+            'id', c.ID_CIUDAD,
+            'nombre', c.NOM_CIUDAD,
+            'latitud', c.LATITUD,
+            'longitud', c.LONGITUD
+        ) ORDER BY c.NOM_CIUDAD), '[]'::JSONB))
         INTO v_respuesta FROM CIUDADES c;
     END IF;
     IF p_tipo IN ('tipos_plan', 'todos') THEN

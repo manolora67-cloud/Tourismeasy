@@ -53,5 +53,5 @@ try {
 } catch (PDOException $e) {
     error_log('[TourismEasy] get_perfil_empresa.php - ' . $e->getMessage());
     http_response_code(500);
-    echo json_encode(["ok" => false, "error" => $e->getMessage()]);
+    echo json_encode(["ok" => false, "error" => "No se pudo cargar el perfil de la empresa. Intenta de nuevo más tarde."]);
 }

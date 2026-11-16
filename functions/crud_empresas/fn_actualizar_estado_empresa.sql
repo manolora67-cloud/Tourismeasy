@@ -55,7 +55,7 @@ EXCEPTION
         RETURN QUERY SELECT FALSE, 'La empresa está siendo modificada, intenta de nuevo.'::TEXT, NULL::USUARIOS_EMPRESA.ESTADO%TYPE;
     WHEN OTHERS THEN
         RAISE NOTICE 'fn_actualizar_estado_empresa - Error inesperado: %', SQLERRM;
-        RETURN QUERY SELECT FALSE, ('Error: ' || SQLERRM)::TEXT, NULL::USUARIOS_EMPRESA.ESTADO%TYPE;
+        RETURN QUERY SELECT FALSE, 'No se pudo actualizar el estado de la empresa. Intenta de nuevo más tarde.'::TEXT, NULL::USUARIOS_EMPRESA.ESTADO%TYPE;
 END;
 $$
 LANGUAGE plpgsql;
