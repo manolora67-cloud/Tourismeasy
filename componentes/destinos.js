@@ -670,7 +670,7 @@
     }
 
     function createMunicipalities(cities, content, initialized) {
-        return cities.map((city, index) => {
+        const destinosMunicipales = cities.map((city, index) => {
             const slug = slugify(city.nombre);
             const nombre = titleCase(city.nombre);
             const base = DESTINOS.find((item) => item.key === slug || slugify(item.titulo) === slug) || {
@@ -681,6 +681,8 @@
                 desc: `Explora ${nombre}, un municipio de Santander lleno de cultura, paisajes y experiencias locales.`
             };
             const saved = content.find((item) => [slug, base.key].includes(String(item.key || "").toLowerCase()));
+            const article = saved ? parseArticle(saved.article) : {};
+            const mapa = article.mapa || {};
             return {
                 id: String(city.id),
                 key: saved ? saved.key : base.key,
@@ -697,9 +699,37 @@
                 nombreMunicipio: nombre,
                 latitud: city.latitud === null || city.latitud === undefined ? null : Number(city.latitud),
                 longitud: city.longitud === null || city.longitud === undefined ? null : Number(city.longitud),
-                article: saved ? parseArticle(saved.article) : {}
+                article,
+                mapaDestacado: mapa.destacado === undefined
+                    ? true
+                    : mapa.destacado === true
             };
-        }).sort((a, b) => a.orden - b.orden || a.titulo.localeCompare(b.titulo, "es"));
+        });
+        const clavesMunicipales = new Set(destinosMunicipales.flatMap((destino) => [
+            destino.key,
+            slugify(destino.titulo)
+        ]));
+        const destinosAdicionales = content
+            .filter((destino) => !clavesMunicipales.has(String(destino.key || "").toLowerCase())
+                && !clavesMunicipales.has(slugify(destino.titulo)))
+            .map((destino, index) => {
+                const article = parseArticle(destino.article);
+                const mapa = article.mapa || {};
+                const destacado = mapa.destacado === true;
+                return {
+                    ...destino,
+                    id: null,
+                    municipio: false,
+                    nombreMunicipio: destino.titulo,
+                    latitud: destacado ? Number(mapa.latitud) : null,
+                    longitud: destacado ? Number(mapa.longitud) : null,
+                    mapaDestacado: destacado,
+                    orden: Number(destino.orden) || destinosMunicipales.length + index + 1,
+                    article
+                };
+            });
+        return [...destinosMunicipales, ...destinosAdicionales]
+            .sort((a, b) => a.orden - b.orden || a.titulo.localeCompare(b.titulo, "es"));
     }
 
     function cardTemplate(destination) {
@@ -707,7 +737,7 @@
             ? window.TEImagenCloudinary.tarjeta(destination.img)
             : destination.img;
         return `
-    <article class="card" data-ciudad-id="${escapeHtml(destination.id)}">
+    <article class="card" ${destination.id ? `data-ciudad-id="${escapeHtml(destination.id)}"` : ""} data-destino-key="${escapeHtml(destination.key)}">
       <div class="card-img">
         <img data-src="${escapeHtml(imageUrl)}" alt="${escapeHtml(destination.alt)}" loading="lazy" decoding="async" />
         ${destination.badge ? `<span class="card-badge">${escapeHtml(destination.badge)}</span>` : ""}
@@ -737,9 +767,9 @@
         });
         previous.disabled = pageIndex === 0;
         next.disabled = pageIndex >= pageCount - 1;
-        const firstMunicipality = pageIndex * pageSize + 1;
-        const lastMunicipality = Math.min((pageIndex + 1) * pageSize, total);
-        pagination.textContent = `Página ${pageIndex + 1} · Municipios ${firstMunicipality}–${lastMunicipality} de ${total}`;
+        const firstDestination = pageIndex * pageSize + 1;
+        const lastDestination = Math.min((pageIndex + 1) * pageSize, total);
+        pagination.textContent = `Página ${pageIndex + 1} · Destinos ${firstDestination}–${lastDestination} de ${total}`;
     }
 
     function cargarImagenesPagina(track, pageIndex) {
@@ -778,21 +808,21 @@
       <div class="section-container">
         <div class="section-header">
           <div>
-            <h2 class="section-title">Descubre los municipios</h2>
+            <h2 class="section-title">Descubre los destinos</h2>
             <p class="section-desc">
-              Conoce sus destinos y planea tu próxima visita.
+              Explora los municipios, corregimientos y otros lugares de Santander.
             </p>
           </div>
         </div>
         <div class="destinos-carousel">
-          <button class="destinos-arrow destinos-arrow-prev" type="button" aria-label="Ver municipios anteriores">
+          <button class="destinos-arrow destinos-arrow-prev" type="button" aria-label="Ver destinos anteriores">
             <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
           </button>
-          <div class="destinos-viewport" aria-label="Carrusel de municipios">
+          <div class="destinos-viewport" aria-label="Carrusel de destinos">
             <div class="destinos-track">
             </div>
           </div>
-          <button class="destinos-arrow destinos-arrow-next" type="button" aria-label="Ver municipios siguientes">
+          <button class="destinos-arrow destinos-arrow-next" type="button" aria-label="Ver destinos siguientes">
             <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
           </button>
         </div>
@@ -811,7 +841,7 @@
             pageSize = mobileLayout.matches ? 4 : 8;
             const pages = renderPages(publicDestinations, pageSize);
             track.innerHTML = pages.map((page, index) => `
-                <div class="destinos-page" role="group" aria-label="Municipios ${index * pageSize + 1} a ${Math.min((index + 1) * pageSize, publicDestinations.length)}">
+                <div class="destinos-page" role="group" aria-label="Destinos ${index * pageSize + 1} a ${Math.min((index + 1) * pageSize, publicDestinations.length)}">
                   ${page.map(cardTemplate).join("")}
                 </div>
               `).join("");
@@ -886,9 +916,9 @@
             return municipalities;
         })
         .catch((error) => {
-            console.error("[TourismEasy] No se pudieron cargar todos los municipios de Santander.", error);
+            console.error("[TourismEasy] No se pudieron cargar los destinos de Santander.", error);
             if (mount) {
-                mount.innerHTML = '<section class="destinos" id="destinos"><div class="section-container"><p class="destinos-error" role="alert">No se pudo cargar el listado completo de municipios. Recarga la página o inténtalo más tarde.</p></div></section>';
+                mount.innerHTML = '<section class="destinos" id="destinos"><div class="section-container"><p class="destinos-error" role="alert">No se pudo cargar la lista de destinos. Recarga la página o inténtalo más tarde.</p></div></section>';
             }
             return [];
         });

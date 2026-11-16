@@ -1930,10 +1930,16 @@
         if (!Array.isArray(municipios) || !municipios.length) return;
         const articulosBase = new Map(ARTICULOS.map((article) => [article.key, article]));
         const articulos = municipios.map((municipio) => {
-            const base = articulosBase.get(municipio.key);
-            if (!base) {
-                throw new Error(`Falta una ficha en ARTICULOS para el municipio ${municipio.titulo} (${municipio.key}).`);
-            }
+            const base = articulosBase.get(municipio.key) || {
+                key: municipio.key,
+                badge: municipio.badge || "Destino de Santander",
+                titulo: municipio.titulo,
+                subtitulo: `Descubre ${municipio.titulo} y planea tu próxima visita.`,
+                datos: [],
+                intro: municipio.desc || "",
+                secciones: [],
+                ctaTexto: `¿Listo para explorar ${municipio.titulo}?`
+            };
             const custom = municipio.article || {};
             return {
                 ...base,

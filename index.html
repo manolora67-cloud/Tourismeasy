@@ -88,7 +88,7 @@
         </div>
     </section>
 
-    <!-- CARRUSEL: se rellena con todos los municipios de Santander -->
+    <!-- Carrusel dinámico de destinos de Santander -->
     <div id="site-destinos"></div>
 
     <!-- TESTIMONIOS (esta ya la maneja tu resenas.js, se deja igual) -->
@@ -145,7 +145,7 @@
     <script defer src="componentes/dark-mode-toggle.js"></script>
     <script defer src="js/catalog-cache.js?v=catalog-cache-v1"></script>
     <script defer src="js/imagen-cloudinary.js?v=cloudinary-delivery-v1"></script>
-    <script defer src="componentes/destinos.js?v=municipios-paginados-v17"></script>
+    <script defer src="componentes/destinos.js?v=destinos-paginados-v19"></script>
     <script>
         (function () {
             const mount = document.getElementById("site-destinos");
@@ -185,13 +185,13 @@
                         loadStyle("mapa_interactuable/mapa.css?v=mapa-mobile-perf-v2"),
                         loadScript("https://unpkg.com/leaflet@1.9.4/dist/leaflet.js")
                     ]);
-                    await loadScript("mapa_interactuable/mapa.js?v=mapa-coordenadas-bd-v4");
+                    await loadScript("mapa_interactuable/mapa.js?v=mapa-destinos-v7");
                 } catch (error) {
                     console.error("[TourismEasy] No se pudo iniciar el mapa.", error);
                     const notice = document.createElement("p");
                     notice.className = "destinos-error";
                     notice.setAttribute("role", "alert");
-                    notice.textContent = "No se pudo cargar el mapa. Puedes explorar los municipios en las tarjetas.";
+                    notice.textContent = "No se pudo cargar el mapa. Puedes explorar los destinos en las tarjetas.";
                     mount.appendChild(notice);
                 }
             };
@@ -209,7 +209,7 @@
             observer.observe(mount);
         })();
     </script>
-    <script defer src="componentes/articulos.js?v=municipios-info-v3"></script>
+    <script defer src="componentes/articulos.js?v=destinos-info-v5"></script>
     <script defer src="componentes/control-sonido-video.js?v=video-sound-v3"></script>
     <script defer src="componentes/footer.js"></script>
     <script defer src="js/captcha.js"></script>

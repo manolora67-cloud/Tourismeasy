@@ -30,9 +30,11 @@ El esquema crea las tablas de la aplicación y carga datos iniciales, incluyendo
 
 Las funciones se cargan por separado después del esquema. Si únicamente necesitas reemplazar una función en una base que ya tiene la estructura compatible, ejecuta el archivo correspondiente de `functions/`; `CREATE OR REPLACE FUNCTION` reemplaza la definición cuando la firma de retorno es compatible. `fn_listar_festividades()` ahora devuelve también categoría e imagen, por lo que PostgreSQL no permite ampliar directamente los parámetros `OUT` de la versión anterior. En una base que ya tiene esa versión, elimina manualmente la función anterior antes de ejecutar el archivo actualizado; el archivo SQL no contiene `DROP`. Esto no convierte `DB_TOURISMEASY.sql` en una actualización: nunca lo ejecutes sobre una base con datos.
 
-### Coordenadas de municipios en el mapa
+### Ubicaciones de destinos en el mapa
 
-Las coordenadas son parte de `CIUDADES`, porque describen la ubicación del municipio y deben seguir disponibles aunque se elimine su tarjeta de portada. La definición de la tabla y las coordenadas iniciales de los 87 municipios de Santander están incluidas directamente en `DB_TOURISMEASY.sql`. El administrador puede buscar y ajustar la ubicación desde el formulario de cada municipio; esos cambios se guardan en `CIUDADES`. El mapa público muestra los municipios con coordenadas configuradas y omite los que no tengan ubicación.
+Las coordenadas de los municipios pertenecen a `CIUDADES`, porque describen ubicaciones del catálogo y deben seguir disponibles aunque se elimine su tarjeta de portada. La definición de la tabla y las coordenadas iniciales vienen en `DB_TOURISMEASY.sql`; el administrador puede buscarlas y ajustarlas en el formulario de cada municipio.
+
+Los corregimientos y otros destinos se crean desde el panel y sus coordenadas se guardan en el campo `ARTICULO` de `CONTENIDO_PORTADA`, bajo `mapa`. Así pueden aparecer en el carrusel y en el mapa sin agregarlos a `CIUDADES`. En el formulario se puede elegir una sugerencia de ubicación, ajustar el marcador y decidir si el lugar aparece en el mapa.
 
 No hay migración ni instrucciones `ALTER TABLE` para bases ya creadas. Para usar esta versión, crea una base nueva e importa `DB_TOURISMEASY.sql`; no ejecutes ese archivo sobre una base con datos. Después instala, en el procedimiento habitual, las funciones SQL de auditoría y datos de referencia. La función `fn_actualizar_coordenadas_municipio` depende de `fn_registrar_auditoria`, por lo que instala primero esa función de auditoría y luego la función de actualización de coordenadas.
 
@@ -141,9 +143,9 @@ Sustituye el usuario y el nombre de la base de datos por los de tu instalación.
 
 ### Contenido administrable de la portada
 
-El esquema base incluye las tablas necesarias para guardar contenido de portada y la lista de municipios de Santander. Los nombres y coordenadas iniciales se consultan desde `CIUDADES`; las descripciones de las tarjetas están en `componentes/destinos.js` y cada ficha de municipio tiene una entrada propia en `ARTICULOS` de `componentes/articulos.js`. Las imágenes, videos y demás contenido editable de las tarjetas se guardan en `CONTENIDO_PORTADA`. El carrusel muestra ocho municipios por página. El panel permite actualizar el contenido y los medios de las tarjetas, así como la ubicación de cada municipio.
+El esquema base incluye las tablas necesarias para guardar contenido de portada y el catálogo de municipios de Santander. Los nombres y coordenadas iniciales de los municipios se consultan desde `CIUDADES`; los destinos adicionales se administran en `CONTENIDO_PORTADA`, donde también se guardan sus artículos y ubicaciones. El carrusel muestra hasta ocho destinos por página. El panel permite crear y editar destinos, sus medios y su ubicación en el mapa.
 
-En el editor de una tarjeta municipal, el administrador puede buscar su ubicación en el mapa, mover el marcador o escribir latitud y longitud. La búsqueda usa Nominatim/OpenStreetMap; si el servicio externo no está disponible, los campos numéricos permiten configurar el punto manualmente. Las coordenadas se guardan en `CIUDADES`, no en el JSONB de `CONTENIDO_PORTADA`, así que siguen disponibles aunque se elimine el contenido de la tarjeta. El mapa público recibe las ubicaciones junto con los datos de referencia de las ciudades.
+En el editor de un destino, el administrador puede buscar su ubicación, elegir una sugerencia, mover el marcador o escribir latitud y longitud. La búsqueda usa Nominatim/OpenStreetMap; si el servicio externo no está disponible, los campos numéricos permiten configurar el punto manualmente. Las coordenadas de los municipios se guardan en `CIUDADES`; las de los nuevos destinos se guardan en el JSONB de `CONTENIDO_PORTADA`.
 
 Para una instalación nueva, las coordenadas iniciales vienen con `DB_TOURISMEASY.sql`. Instala la función de auditoría antes de la función de actualización de coordenadas y carga también la función actualizada de datos de referencia. No hay migración para una base existente; no ejecutes `DB_TOURISMEASY.sql` sobre una base con datos.
 
@@ -153,7 +155,7 @@ psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_referenci
 psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\crud_referencias\fn_datos_referencia.sql
 ```
 
-Reemplaza `postgres` y `tourismeasy` por los valores de tu instalación. El administrador puede editar las ubicaciones iniciales cuando lo necesite desde el panel. Las funciones de contenido de portada siguen siendo necesarias para administrar las tarjetas, pero no almacenan las coordenadas del mapa.
+Reemplaza `postgres` y `tourismeasy` por los valores de tu instalación. El administrador puede editar las ubicaciones iniciales cuando lo necesite desde el panel. Las funciones de contenido de portada administran las tarjetas y guardan las ubicaciones de destinos adicionales; las coordenadas municipales se mantienen en `CIUDADES`.
 
 ### Auditoría del panel administrador
 

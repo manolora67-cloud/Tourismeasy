@@ -91,7 +91,7 @@ BEGIN
 
         v_latitud := (v_mapa_entrada->>'latitud')::NUMERIC;
         v_longitud := (v_mapa_entrada->>'longitud')::NUMERIC;
-        IF v_latitud NOT BETWEEN -90 AND 90 OR v_longitud NOT BETWEEN -180 AND 180 THEN
+        IF v_latitud NOT BETWEEN 5.5 AND 8.5 OR v_longitud NOT BETWEEN -74.5 AND -72 THEN
             RETURN FALSE;
         END IF;
 

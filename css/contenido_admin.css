@@ -312,11 +312,29 @@
 }
 
 .portada-location-field {
-    gap: 10px;
-    padding: 16px;
-    border: 1px solid var(--gray-200);
+    gap: 14px;
+    padding: 20px;
+    border: 1px solid #ddd6fe;
+    border-radius: 16px;
+    background: linear-gradient(145deg, #faf8ff, #f8fafc)
+}
+
+.portada-location-heading {
+    display: flex;
+    align-items: center;
+    gap: 12px
+}
+
+.portada-location-icon {
+    display: grid;
+    width: 42px;
+    height: 42px;
+    flex: 0 0 auto;
+    place-items: center;
     border-radius: 12px;
-    background: var(--gray-50, #f8fafc)
+    background: #ede9fe;
+    color: var(--purple);
+    font-size: 1.1rem
 }
 
 .portada-location-field h4 {
@@ -325,13 +343,60 @@
     font: 700 1rem var(--font-head)
 }
 
+.portada-location-heading p {
+    margin: 4px 0 0;
+    color: var(--gray-600);
+    font-size: .82rem;
+    line-height: 1.45
+}
+
 .portada-location-field .portada-help {
     margin: 0
 }
 
+.portada-map-toggle {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    padding: 13px 15px;
+    border: 1px solid var(--gray-200);
+    border-radius: 11px;
+    background: #fff;
+    color: var(--gray-800);
+    cursor: pointer
+}
+
+.portada-map-toggle input {
+    width: 18px;
+    height: 18px;
+    flex: 0 0 auto;
+    margin: 2px 0 0;
+    accent-color: var(--purple)
+}
+
+.portada-map-toggle span {
+    display: grid;
+    gap: 3px
+}
+
+.portada-map-toggle strong {
+    font-size: .86rem
+}
+
+.portada-map-toggle small {
+    color: var(--gray-500);
+    font-size: .76rem;
+    line-height: 1.4
+}
+
 .portada-location-search {
     display: flex;
-    justify-content: flex-start
+    align-items: flex-end;
+    gap: 10px
+}
+
+.portada-location-search .portada-field {
+    flex: 1 1 auto
 }
 
 .portada-location-button {
@@ -340,7 +405,9 @@
     gap: 8px;
     border: 0;
     border-radius: 8px;
-    padding: 10px 13px;
+    min-height: 42px;
+    flex: 0 0 auto;
+    padding: 10px 16px;
     background: var(--purple);
     color: #fff;
     font: 700 .85rem var(--font-head);
@@ -352,11 +419,39 @@
     cursor: wait
 }
 
+.portada-location-results {
+    display: grid;
+    gap: 7px
+}
+
+.portada-location-results:empty {
+    display: none
+}
+
+.portada-location-result {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--gray-200);
+    border-radius: 9px;
+    background: #fff;
+    color: var(--gray-700);
+    font: 500 .82rem/1.45 var(--font-body);
+    text-align: left;
+    cursor: pointer
+}
+
+.portada-location-result:hover,
+.portada-location-result:focus-visible {
+    border-color: #a78bfa;
+    background: #f5f3ff;
+    outline: none
+}
+
 .portada-location-map {
     width: 100%;
-    height: 300px;
+    height: 320px;
     border: 1px solid var(--gray-300);
-    border-radius: 10px;
+    border-radius: 12px;
     background: #e2e8f0;
     z-index: 0
 }
@@ -515,13 +610,31 @@ body.dark-mode .portada-field input[readonly] {
 }
 
 body.dark-mode .portada-location-field {
-    border-color: #475569;
-    background: #1e293b
+    border-color: #4c3b75;
+    background: linear-gradient(145deg, #201a32, #1e293b)
 }
 
 body.dark-mode .portada-location-field h4,
+body.dark-mode .portada-location-heading p,
 body.dark-mode .portada-location-status {
     color: #e2e8f0
+}
+
+body.dark-mode .portada-map-toggle,
+body.dark-mode .portada-location-result {
+    border-color: #475569;
+    background: #0f172a;
+    color: #e2e8f0
+}
+
+body.dark-mode .portada-map-toggle small {
+    color: #cbd5e1
+}
+
+body.dark-mode .portada-location-result:hover,
+body.dark-mode .portada-location-result:focus-visible {
+    border-color: #8b5cf6;
+    background: #312e4b
 }
 
 body.dark-mode .portada-location-map {
@@ -552,6 +665,16 @@ body.dark-mode .portada-cancel:hover {
     }
     .portada-location-coordinates {
         grid-template-columns: 1fr
+    }
+    .portada-location-field {
+        padding: 14px
+    }
+    .portada-location-search {
+        align-items: stretch;
+        flex-direction: column
+    }
+    .portada-location-button {
+        justify-content: center
     }
     .portada-editor {
         padding: 16px

@@ -150,7 +150,7 @@
         const titulo = document.createElement("strong");
         titulo.textContent = destino.titulo;
         const tipo = document.createElement("span");
-        tipo.textContent = "Municipio de Santander";
+        tipo.textContent = "Destino de Santander";
         informacion.append(titulo, tipo);
         boton.appendChild(informacion);
 
@@ -201,13 +201,15 @@
         const selectorOrden = bloque.querySelector(".mapa-orden-select");
         const esMovil = window.matchMedia("(max-width: 767px)").matches;
         const renderizadorMovil = esMovil ? window.L.canvas({ padding: 0.5 }) : null;
-        estado.textContent = "Cargando municipios…";
+        estado.textContent = "Cargando destinos…";
         try {
             const destinos = await window.TE_MUNICIPIOS_PROMISE;
             if (!Array.isArray(destinos)) {
-                throw new Error("La lista de municipios no está disponible.");
+                throw new Error("La lista de destinos no está disponible.");
             }
             const ubicados = destinos.filter((destino) => {
+                if (!destino.publicado) return false;
+                if (destino.mapaDestacado === false) return false;
                 if (destino.latitud === null || destino.longitud === null) return false;
                 const latitud = Number(destino.latitud);
                 const longitud = Number(destino.longitud);
@@ -217,8 +219,8 @@
             contador.textContent = ubicados.length;
 
             if (!ubicados.length) {
-                estado.textContent = "Las ubicaciones de los municipios aún no están configuradas.";
-                lista.innerHTML = '<p class="mapa-lista-vacia">No hay municipios disponibles.</p>';
+                estado.textContent = "Aún no hay destinos seleccionados para el mapa.";
+                lista.innerHTML = '<p class="mapa-lista-vacia">No hay destinos disponibles.</p>';
                 mapa.setView([6.7, -73.2], 8);
                 return;
             }
@@ -243,11 +245,8 @@
             selectorOrden.addEventListener("change", actualizarOrden);
             actualizarOrden();
 
-            const sinUbicacion = destinos.length - ubicados.length;
-            estado.textContent = sinUbicacion
-                ? `Hay ${sinUbicacion} municipio(s) sin ubicación configurada.`
-                : "";
-            estado.hidden = sinUbicacion === 0;
+            estado.textContent = `${ubicados.length} ${ubicados.length === 1 ? "destino" : "destinos"} en el mapa.`;
+            estado.hidden = false;
             mapa.fitBounds(grupoMarcadores.getBounds(), {
                 padding: [28, 28],
                 maxZoom: 9,
@@ -261,7 +260,7 @@
     function crearMapa(contenedor) {
         if (contenedor.dataset.mapaInicializado === "true") return;
         if (!window.L) {
-            contenedor.textContent = "No se pudo cargar el mapa. Puedes explorar los municipios en las tarjetas de abajo.";
+            contenedor.textContent = "No se pudo cargar el mapa. Puedes explorar los destinos en las tarjetas de abajo.";
             contenedor.setAttribute("role", "status");
             return;
         }
@@ -307,20 +306,20 @@
                 <div class="mapa-encabezado-icono" aria-hidden="true"><i class="fa-solid fa-compass"></i></div>
                 <div class="mapa-encabezado-texto">
                     <span class="mapa-eyebrow">Descubre Santander</span>
-                    <h2 class="mapa-titulo">Santander, municipio a municipio</h2>
-                    <p>Explora el territorio, ubica cada municipio y elige tu próxima aventura.</p>
+                    <h2 class="mapa-titulo">Santander, lugar a lugar</h2>
+                    <p>Explora municipios, corregimientos y otros destinos para planear tu próxima aventura.</p>
                 </div>
                 <div class="mapa-contador" aria-live="polite">
                     <strong class="mapa-contador-numero">0</strong>
-                    <span>municipios<br>de Santander</span>
+                    <span>destinos<br>en el mapa</span>
                 </div>
             </header>
             <p class="mapa-estado" role="status" aria-live="polite"></p>
             <div class="mapa-explorador">
-                <aside class="mapa-panel-lateral" aria-label="Municipios de Santander">
+                <aside class="mapa-panel-lateral" aria-label="Destinos de Santander">
                     <div class="mapa-panel-cabecera">
                         <div>
-                            <h3>Ubica un municipio</h3>
+                            <h3>Explora los destinos</h3>
                             <p>Selecciona uno para verlo en el mapa</p>
                         </div>
                         <i class="fa-solid fa-map-location-dot" aria-hidden="true"></i>
@@ -335,7 +334,7 @@
                     </div>
                     <div class="mapa-destinos-lista"></div>
                 </aside>
-                <div id="mapa-turistico" role="application" aria-label="Mapa interactivo de los municipios de Santander"></div>
+                <div id="mapa-turistico" role="application" aria-label="Mapa interactivo de los destinos de Santander"></div>
             </div>
         `;
         seccion.insertBefore(bloque, puntoInsercion);

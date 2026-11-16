@@ -95,11 +95,8 @@
                 }
             }
             const municipios = await (window.TE_MUNICIPIOS_PROMISE || Promise.resolve([]));
-            if (!municipios.length) {
-                throw new Error('No se pudo obtener la lista de municipios de Santander.');
-            }
             const guardados = destinos;
-            destinos = municipios.map((municipio) => {
+            const destinosMunicipales = municipios.map((municipio) => {
                 const aliases = [municipio.key, slugify(municipio.titulo)];
                 const guardado = guardados.find((item) =>
                     aliases.includes(item.key) || slugify(item.titulo) === slugify(municipio.titulo)
@@ -115,9 +112,29 @@
                     municipio: true
                 };
             }).sort(compareByTitle);
-            newButton.hidden = true;
+            const clavesMunicipales = new Set(destinosMunicipales.map((destino) => destino.key));
+            const destinosAdicionales = guardados
+                .filter((guardado) => !clavesMunicipales.has(guardado.key))
+                .map((guardado) => {
+                    const mapa = guardado.article && guardado.article.mapa || {};
+                    return {
+                        ...guardado,
+                        municipio: false,
+                        nombreMunicipio: guardado.titulo,
+                        latitud: mapa.destacado === true ? Number(mapa.latitud) : null,
+                        longitud: mapa.destacado === true ? Number(mapa.longitud) : null,
+                        persistido: true
+                    };
+                });
+            destinos = [...destinosMunicipales, ...destinosAdicionales].sort(compareByTitle);
+            newButton.hidden = false;
             render();
-            showStatus(`${destinos.length} municipios. Puedes editar el contenido, previsualizarlo y eliminarlo de la portada.`);
+            showStatus(
+                municipios.length
+                    ? `${destinos.length} destinos. Puedes crear lugares, editar sus tarjetas y elegir cuáles aparecen en el mapa.`
+                    : `${destinos.length} destinos guardados. No se pudo cargar la lista de municipios; puedes seguir administrando los destinos existentes.`,
+                !municipios.length
+            );
         } catch (error) {
             showStatus(error.message + ' Verifica que importaste las funciones de contenido de portada indicadas en db/README.md.', true);
             list.innerHTML = '';
@@ -226,25 +243,25 @@
         document.getElementById('pdLongitude').value = longitud.toFixed(7);
     }
 
-    async function buscarUbicacionMunicipio(item) {
+    async function buscarUbicacionDestino() {
         const estadoUbicacion = document.getElementById('pdLocationStatus');
         const botonBuscar = document.getElementById('pdLocate');
-        const nombre = item.nombreMunicipio || document.getElementById('pdTitle').value.trim();
+        const nombre = document.getElementById('pdLocationQuery').value.trim();
         if (!nombre) {
-            estadoUbicacion.textContent = 'Escribe el nombre del municipio antes de buscarlo.';
+            estadoUbicacion.textContent = 'Escribe el nombre del lugar que quieres ubicar.';
             return;
         }
         if (geocodeController) geocodeController.abort();
         const controller = new AbortController();
         geocodeController = controller;
         botonBuscar.disabled = true;
-        estadoUbicacion.textContent = 'Buscando en el mapa…';
+        estadoUbicacion.textContent = 'Buscando opciones de ubicación…';
         try {
             const espera = Math.max(0, 1100 - (Date.now() - ultimoGeocode));
             if (espera) await new Promise((resolve) => window.setTimeout(resolve, espera));
             const url = new URL('https://nominatim.openstreetmap.org/search');
             url.searchParams.set('format', 'jsonv2');
-            url.searchParams.set('limit', '1');
+            url.searchParams.set('limit', '5');
             url.searchParams.set('countrycodes', 'co');
             url.searchParams.set('viewbox', '-74.5,8.5,-72,5.5');
             url.searchParams.set('bounded', '1');
@@ -256,18 +273,37 @@
             });
             if (!response.ok) throw new Error('No se pudo consultar el servicio de mapas.');
             const resultados = await response.json();
-            const resultado = Array.isArray(resultados) ? resultados[0] : null;
-            const latitud = resultado ? Number(resultado.lat) : NaN;
-            const longitud = resultado ? Number(resultado.lon) : NaN;
-            if (!coordenadasSantanderValidas(latitud, longitud)) {
-                throw new Error('No encontramos ese municipio dentro de Santander. Ubícalo haciendo clic en el mapa.');
+            const opciones = Array.isArray(resultados)
+                ? resultados.filter((resultado) => coordenadasSantanderValidas(Number(resultado.lat), Number(resultado.lon)))
+                : [];
+            const lista = document.getElementById('pdLocationResults');
+            lista.replaceChildren();
+            if (!opciones.length) {
+                estadoUbicacion.textContent = 'No encontramos opciones dentro de Santander. Prueba otro nombre o ubícalo manualmente en el mapa.';
+                return;
             }
-            actualizarCoordenadasEditor(latitud, longitud);
-            actualizarMarcadorEditor(latitud, longitud, true);
-            estadoUbicacion.textContent = `Ubicación encontrada: ${resultado.display_name || nombre}. Ajusta el marcador si es necesario.`;
+            opciones.forEach((opcion) => {
+                const boton = document.createElement('button');
+                boton.type = 'button';
+                boton.className = 'portada-location-result';
+                boton.setAttribute('role', 'option');
+                boton.textContent = opcion.display_name || nombre;
+                boton.addEventListener('click', () => {
+                    const latitud = Number(opcion.lat);
+                    const longitud = Number(opcion.lon);
+                    document.getElementById('pdLocationQuery').value = opcion.display_name || nombre;
+                    document.getElementById('pdLocationQuery').dataset.userEdited = 'true';
+                    actualizarCoordenadasEditor(latitud, longitud);
+                    actualizarMarcadorEditor(latitud, longitud, true);
+                    lista.replaceChildren();
+                    estadoUbicacion.textContent = 'Ubicación seleccionada. Puedes ajustar el marcador en el mapa.';
+                });
+                lista.appendChild(boton);
+            });
+            estadoUbicacion.textContent = `Encontramos ${opciones.length} opciones. Selecciona la ubicación correcta.`;
         } catch (error) {
             if (error.name !== 'AbortError') {
-                estadoUbicacion.textContent = error.message || 'No se pudo buscar el municipio. Puedes ubicarlo manualmente en el mapa.';
+                estadoUbicacion.textContent = error.message || 'No se pudo buscar el lugar. Puedes ubicarlo manualmente en el mapa.';
             }
         } finally {
             if (geocodeController === controller) {
@@ -282,19 +318,19 @@
         const estadoUbicacion = document.getElementById('pdLocationStatus');
         if (!window.L) {
             mapaElemento.hidden = true;
-            estadoUbicacion.textContent = 'No se pudo cargar el mini mapa. Puedes buscar el municipio o ingresar sus coordenadas manualmente.';
+            estadoUbicacion.textContent = 'No se pudo cargar el mini mapa. Puedes buscar el lugar o ingresar sus coordenadas manualmente.';
             return;
         }
 
         mapaElemento.hidden = false;
-        const latitudInicial = Number(item.latitud);
-        const longitudInicial = Number(item.longitud);
-        const tieneUbicacion = item.latitud !== null && item.latitud !== undefined
-            && item.longitud !== null && item.longitud !== undefined
+        const mapaGuardado = item.article && item.article.mapa || {};
+        const latitudInicial = Number(item.latitud != null ? item.latitud : mapaGuardado.latitud);
+        const longitudInicial = Number(item.longitud != null ? item.longitud : mapaGuardado.longitud);
+        const tieneUbicacion = Number.isFinite(latitudInicial) && Number.isFinite(longitudInicial)
             && coordenadasValidas(latitudInicial, longitudInicial);
         estadoUbicacion.textContent = tieneUbicacion
             ? 'Ubicación actual. Haz clic en otro punto o arrastra el marcador para ajustarla.'
-            : 'Busca el municipio o haz clic en el mapa para seleccionar su ubicación.';
+            : 'Busca el lugar o haz clic en el mapa para elegir su ubicación.';
         const centro = tieneUbicacion ? [latitudInicial, longitudInicial] : [6.8, -73.2];
         editorMap = window.L.map(mapaElemento, { scrollWheelZoom: false }).setView(centro, tieneUbicacion ? 13 : 8);
         window.L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -317,7 +353,15 @@
     function openPreview(key) {
         const destination = destinos.find((item) => item.key === key);
         if (!destination) return;
-        const baseArticle = (window.TE_ARTICULOS || []).find((item) => item.key === destination.key) || {};
+        const baseArticle = (window.TE_ARTICULOS || []).find((item) => item.key === destination.key) || {
+            key: destination.key,
+            titulo: destination.titulo,
+            subtitulo: `Descubre ${destination.titulo} y planea tu próxima visita.`,
+            datos: [],
+            intro: destination.desc,
+            secciones: [],
+            ctaTexto: `¿Listo para explorar ${destination.titulo}?`
+        };
         const customArticle = destination.article || {};
         const article = {
             ...baseArticle,
@@ -357,7 +401,18 @@
         desc: '',
         orden: destinos.reduce((maximum, destino) => Math.max(maximum, Number(destino.orden) || 0), 0) + 1,
         publicado: true,
-        article: { video: '', badge: '', titulo: '', subtitulo: '', datos: [], intro: '', secciones: [], ctaTexto: '' }
+        municipio: false,
+        article: {
+            video: '',
+            badge: '',
+            titulo: '',
+            subtitulo: '',
+            datos: [],
+            intro: '',
+            secciones: [],
+            ctaTexto: '',
+            mapa: { destacado: true }
+        }
     });
 
     function editorMarkup() {
@@ -379,19 +434,33 @@
                     <div class="portada-field"><label for="pdAlt">Texto alternativo de la foto</label><input id="pdAlt" required maxlength="200"></div>
                     <div class="portada-field full"><label for="pdFile">Foto de la tarjeta</label><input id="pdImage" type="hidden"><input id="pdFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif"><small>Selecciona una imagen JPG, PNG, WEBP o GIF (máximo 5 MB). Se subirá a Cloudinary.</small></div>
                     <div class="portada-field full"><div class="portada-image-preview"><img id="pdPreview" alt="Vista previa"><span id="pdUploadStatus"></span></div></div>
-                    <section class="portada-field full portada-location-field" id="pdLocationField" aria-labelledby="pdLocationTitle" hidden>
-                        <h4 id="pdLocationTitle">Ubicación del municipio en el mapa</h4>
-                        <p class="portada-help">Busca el municipio y ajusta el punto haciendo clic en el mapa o arrastrando el marcador. También puedes ingresar las coordenadas manualmente.</p>
-                        <div class="portada-location-search">
-                            <button type="button" class="portada-location-button" id="pdLocate"><i class="fa-solid fa-magnifying-glass-location" aria-hidden="true"></i> Buscar ubicación</button>
+                    <section class="portada-field full portada-location-field" id="pdLocationField" aria-labelledby="pdLocationTitle">
+                        <div class="portada-location-heading">
+                            <span class="portada-location-icon" aria-hidden="true"><i class="fa-solid fa-map-location-dot"></i></span>
+                            <div>
+                                <h4 id="pdLocationTitle">Ubicación y mapa</h4>
+                                <p>Agrega este destino al mapa público y selecciona su ubicación.</p>
+                            </div>
                         </div>
-                        <div id="pdLocationMap" class="portada-location-map" role="application" aria-label="Mini mapa para ubicar el municipio" hidden></div>
+                        <label class="portada-map-toggle" for="pdShowOnMap">
+                            <input id="pdShowOnMap" type="checkbox">
+                            <span><strong>Mostrar este destino en el mapa</strong><small>El destino también debe estar publicado en la portada para aparecer en el mapa.</small></span>
+                        </label>
+                        <div class="portada-location-search">
+                            <div class="portada-field">
+                                <label for="pdLocationQuery">Buscar lugar o referencia</label>
+                                <input id="pdLocationQuery" type="search" maxlength="150" placeholder="Ej. Pangote, Molagavita">
+                            </div>
+                            <button type="button" class="portada-location-button" id="pdLocate"><i class="fa-solid fa-magnifying-glass-location" aria-hidden="true"></i> Buscar</button>
+                        </div>
+                        <div id="pdLocationResults" class="portada-location-results" role="listbox" aria-label="Opciones de ubicación"></div>
+                        <div id="pdLocationMap" class="portada-location-map" role="application" aria-label="Mini mapa para ubicar el destino" hidden></div>
                         <div class="portada-location-coordinates">
-                            <div class="portada-field"><label for="pdLatitude">Latitud</label><input id="pdLatitude" type="number" step="any" min="-90" max="90" required></div>
-                            <div class="portada-field"><label for="pdLongitude">Longitud</label><input id="pdLongitude" type="number" step="any" min="-180" max="180" required></div>
+                            <div class="portada-field"><label for="pdLatitude">Latitud</label><input id="pdLatitude" type="number" step="any" min="5.5" max="8.5"></div>
+                            <div class="portada-field"><label for="pdLongitude">Longitud</label><input id="pdLongitude" type="number" step="any" min="-74.5" max="-72"></div>
                         </div>
                         <p id="pdLocationStatus" class="portada-location-status" role="status" aria-live="polite"></p>
-                        <small>El servicio de búsqueda y los mapas requieren conexión a internet. Si no están disponibles, usa los campos de latitud y longitud.</small>
+                        <small>El buscador y el mini mapa requieren conexión a internet. Si no están disponibles, puedes ingresar las coordenadas manualmente.</small>
                     </section>
                     <div class="portada-field"><label for="pdOrder">Orden en la portada</label><input id="pdOrder" type="text" inputmode="numeric" readonly required aria-describedby="pdOrderHelp"><small id="pdOrderHelp">Asignado automáticamente. No se puede editar.</small></div>
                     <label class="portada-check"><input id="pdPublished" type="checkbox"> Publicado en la portada</label>
@@ -450,9 +519,9 @@
         editor.hidden = false;
         const form = document.getElementById('portadaForm');
         document.getElementById('portadaFormTitle').textContent = isNew ? 'Crear destino' : `Editar ${item.titulo}`;
-        editor.querySelector('.portada-editor-intro').textContent = item.municipio
-            ? 'Edita la tarjeta de portada y todos los campos del artículo. La clave y el orden se mantienen fijos.'
-            : 'Completa la tarjeta de la portada y el artículo asociado. Para los datos y secciones usa una entrada por línea con el formato indicado.';
+        editor.querySelector('.portada-editor-intro').textContent = item.persistido
+            ? 'Edita la tarjeta, su artículo y, si quieres, su ubicación en el mapa.'
+            : 'Crea un destino de Santander para la portada y el mapa. Puede ser un municipio, corregimiento u otro lugar.';
         const values = {
             pdKey: item.key,
             pdTitle: item.titulo,
@@ -473,14 +542,21 @@
         Object.entries(values).forEach(([id, value]) => { document.getElementById(id).value = value == null ? '' : value; });
         document.getElementById('pdKey').readOnly = !isNew || item.municipio;
         document.getElementById('pdPublished').checked = item.publicado !== false;
-        const locationField = document.getElementById('pdLocationField');
-        locationField.hidden = !item.municipio;
         const latitudeField = document.getElementById('pdLatitude');
         const longitudeField = document.getElementById('pdLongitude');
-        latitudeField.required = Boolean(item.municipio);
-        longitudeField.required = Boolean(item.municipio);
-        latitudeField.value = item.latitud == null ? '' : item.latitud;
-        longitudeField.value = item.longitud == null ? '' : item.longitud;
+        const savedMap = article.mapa || {};
+        const initialLatitude = item.latitud != null ? item.latitud : savedMap.latitud;
+        const initialLongitude = item.longitud != null ? item.longitud : savedMap.longitud;
+        latitudeField.value = initialLatitude == null ? '' : initialLatitude;
+        longitudeField.value = initialLongitude == null ? '' : initialLongitude;
+        const showOnMap = document.getElementById('pdShowOnMap');
+        showOnMap.checked = savedMap.destacado === true
+            || (savedMap.destacado === undefined && coordenadasValidas(Number(initialLatitude), Number(initialLongitude)));
+        latitudeField.required = showOnMap.checked;
+        longitudeField.required = showOnMap.checked;
+        const locationQuery = document.getElementById('pdLocationQuery');
+        locationQuery.value = savedMap.busqueda || item.nombreMunicipio || item.titulo || '';
+        locationQuery.dataset.userEdited = savedMap.busqueda ? 'true' : 'false';
         const preview = document.getElementById('pdPreview');
         preview.src = item.img ? adminAsset(item.img) : '';
         const videoPreview = document.getElementById('paVideoPreview');
@@ -503,7 +579,24 @@
         });
         document.getElementById('pdFile').addEventListener('change', uploadImage);
         document.getElementById('paVideoFile').addEventListener('change', uploadVideo);
-        document.getElementById('pdLocate').addEventListener('click', () => buscarUbicacionMunicipio(item));
+        document.getElementById('pdLocate').addEventListener('click', buscarUbicacionDestino);
+        locationQuery.addEventListener('input', () => {
+            locationQuery.dataset.userEdited = 'true';
+        });
+        showOnMap.addEventListener('change', () => {
+            latitudeField.required = showOnMap.checked;
+            longitudeField.required = showOnMap.checked;
+            document.getElementById('pdLocationStatus').textContent = showOnMap.checked
+                ? 'Este destino aparecerá en el mapa cuando guardes los cambios.'
+                : 'Este destino no aparecerá en el mapa; su tarjeta puede seguir publicada.';
+        });
+        if (isNew) {
+            document.getElementById('pdTitle').addEventListener('input', (event) => {
+                const keyField = document.getElementById('pdKey');
+                if (!keyField.readOnly) keyField.value = slugify(event.target.value);
+                if (locationQuery.dataset.userEdited !== 'true') locationQuery.value = event.target.value;
+            });
+        }
         [latitudeField, longitudeField].forEach((field) => {
             field.addEventListener('change', () => {
                 const latitud = Number(latitudeField.value);
@@ -528,7 +621,7 @@
         });
         form.addEventListener('submit', (event) => save(event, item));
         if (!editorDialog.open) editorDialog.showModal();
-        if (item.municipio) iniciarMapaEditor(item);
+        iniciarMapaEditor(item);
         document.getElementById('pdTitle').focus();
     }
 
@@ -634,18 +727,19 @@
             showStatus('Selecciona una foto de la tarjeta y espera a que termine la subida.', true);
             return;
         }
-        let municipio = null;
-        if (original.municipio) {
-            const latitud = Number(document.getElementById('pdLatitude').value);
-            const longitud = Number(document.getElementById('pdLongitude').value);
-            if (!original.id || !coordenadasSantanderValidas(latitud, longitud)) {
-                showStatus('Selecciona una ubicación válida para el municipio antes de guardar.', true);
-                return;
-            }
-            municipio = { id: original.id, latitud, longitud };
+        const mostrarEnMapa = document.getElementById('pdShowOnMap').checked;
+        const latitudValor = document.getElementById('pdLatitude').value;
+        const longitudValor = document.getElementById('pdLongitude').value;
+        const latitud = Number(latitudValor);
+        const longitud = Number(longitudValor);
+        if (mostrarEnMapa && (!latitudValor || !longitudValor || !coordenadasSantanderValidas(latitud, longitud))) {
+            showStatus('Selecciona una ubicación válida dentro de Santander para mostrar el destino en el mapa.', true);
+            return;
         }
-        button.disabled = true;
-        showStatus('Guardando destino…');
+        const municipio = original.municipio && original.id && latitudValor && longitudValor
+            && coordenadasSantanderValidas(latitud, longitud)
+            ? { id: original.id, latitud, longitud }
+            : null;
         const value = (id) => document.getElementById(id).value.trim();
         const record = {
             ...original,
@@ -666,14 +760,28 @@
                 datos: parseFacts(value('paFacts')),
                 intro: value('paIntro'),
                 secciones: parseLines(value('paSections'), 'titulo', 'texto'),
-                ctaTexto: value('paCta')
+                ctaTexto: value('paCta'),
+                mapa: mostrarEnMapa ? {
+                    destacado: true,
+                    latitud,
+                    longitud,
+                    etiquetas: [String(value('pdLocationQuery') || value('pdTitle')).slice(0, 40)]
+                } : { destacado: false }
             }
         };
         if (original.key && original.key !== record.key) {
             showStatus('La clave de un destino existente no se puede cambiar.', true);
-            button.disabled = false;
             return;
         }
+        const duplicate = destinos.find((destination) => destination.key !== original.key
+            && (destination.key.toLowerCase() === record.key.toLowerCase()
+                || slugify(destination.titulo) === slugify(record.titulo)));
+        if (duplicate) {
+            showStatus(`Ya existe un destino llamado “${duplicate.titulo}”.`, true);
+            return;
+        }
+        button.disabled = true;
+        showStatus('Guardando destino…');
         try {
             const result = await request(API, {
                 method: 'POST',
@@ -685,7 +793,8 @@
                 ...result.data,
                 municipio: original.municipio,
                 persistido: true,
-                ...(municipio ? { latitud: municipio.latitud, longitud: municipio.longitud } : {})
+                latitud: municipio ? latitud : original.latitud,
+                longitud: municipio ? longitud : original.longitud
             };
             if (index < 0) destinos.push(savedDestination);
             else destinos[index] = savedDestination;
@@ -710,7 +819,7 @@
         const item = destinos.find((destination) => destination.key === key);
         if (!item || !item.persistido || !await window.TEUI.confirm({
             title: 'Eliminar contenido de portada',
-            message: `¿Eliminar definitivamente el contenido de “${item.titulo}” de la portada? El municipio seguirá en la base de datos y podrás volver a crear su contenido editándolo.`,
+            message: `¿Eliminar definitivamente “${item.titulo}” de la portada y del mapa?${item.municipio ? ' El municipio permanecerá en el catálogo y podrás volver a agregar su tarjeta editándolo.' : ''}`,
             confirmText: 'Sí, eliminar'
         })) return;
         try {
@@ -723,8 +832,10 @@
                 ? { ...destination, persistido: false, publicado: false }
                 : destination);
             render();
-            showStatus('Contenido del municipio eliminado de la portada. El municipio permanece en el catálogo y puedes volver a publicarlo editándolo.');
-            window.TEUI.toast('Contenido eliminado de la portada correctamente.');
+            showStatus(item.municipio
+                ? 'Contenido eliminado de la portada. El municipio sigue en el catálogo y puedes volver a editarlo.'
+                : 'Destino eliminado de la portada y del mapa.');
+            window.TEUI.toast('Destino eliminado correctamente.');
         } catch (error) {
             showStatus(error.message, true);
         }

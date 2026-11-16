@@ -11,7 +11,8 @@ BEGIN
     RETURN QUERY
     SELECT c.CLAVE, c.IMAGEN, c.TEXTO_ALT, c.TITULO, c.ARTICULO->'mapa'
     FROM CONTENIDO_PORTADA c
-    WHERE c.ARTICULO #> '{mapa,destacado}' = 'true'::JSONB
+    WHERE c.PUBLICADO = TRUE
+      AND c.ARTICULO #> '{mapa,destacado}' = 'true'::JSONB
     ORDER BY c.TITULO;
 END;
 $$
