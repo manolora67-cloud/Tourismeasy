@@ -183,8 +183,8 @@ BEGIN
         WHERE (p_id_persona_ecommerce IS NULL OR L.ID_PERSONA_ECOMMERCE = p_id_persona_ecommerce)
           AND (p_id_persona_ecommerce IS NOT NULL OR p_id_empresa IS NULL OR L.ID_EMPRESA = p_id_empresa)
         ORDER BY L.FECHA_HORA DESC, L.ID_CLICK DESC
-        LIMIT 20
-        OFFSET ((GREATEST(COALESCE(p_pagina, 1), 1)::BIGINT - 1) * 20)
+        LIMIT 10
+        OFFSET ((GREATEST(COALESCE(p_pagina, 1), 1)::BIGINT - 1) * 10)
     ) datos;
 
     RETURN JSONB_BUILD_OBJECT(
@@ -194,7 +194,7 @@ BEGIN
         'por_empresa', v_por_empresa,
         'recientes', v_recientes,
         'pagina', GREATEST(COALESCE(p_pagina, 1), 1),
-        'por_pagina', 20
+        'por_pagina', 10
     );
 END;
 $$ LANGUAGE plpgsql STABLE;

@@ -35,6 +35,28 @@
     white-space: nowrap;
 }
 
+@media (max-width: 760px) {
+    .panel-navbar-label {
+        display: none;
+    }
+}
+
+@media (max-width: 600px) {
+    .session-trigger .session-info,
+    .session-trigger .session-chevron {
+        display: none;
+    }
+}
+
+@media (max-width: 380px) {
+    .nav-container {
+        padding: 0 10px;
+    }
+
+    .nav-logo .logo-text {
+        display: none;
+    }
+}
 
 /* ── HEADER con gradiente ── */
 

@@ -107,10 +107,45 @@
     color: #dc2626;
 }
 
+.session-logout-direct {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 38px;
+    padding: 8px 12px;
+    border: 1.5px solid #fecaca;
+    border-radius: 999px;
+    background: transparent;
+    color: #dc2626;
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.82rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.session-logout-direct:hover {
+    background: #dc2626;
+    border-color: #dc2626;
+    color: #fff;
+}
+
 body.dark-mode .session-trigger,
 body.dark-mode .session-dropdown {
     border-color: #334155;
     background-color: #1e293b;
+}
+
+body.dark-mode .session-logout-direct {
+    border-color: #7f1d1d;
+    color: #fca5a5;
+}
+
+body.dark-mode .session-logout-direct:hover {
+    background: #dc2626;
+    border-color: #dc2626;
+    color: #fff;
 }
 
 body.dark-mode .session-menu-item {
@@ -135,5 +170,23 @@ body.dark-mode .session-menu-danger {
 
     .session-name {
         max-width: 120px;
+    }
+
+    .session-logout-direct {
+        width: 38px;
+        height: 38px;
+        padding: 0;
+    }
+
+    .session-logout-label {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
     }
 }

@@ -122,6 +122,8 @@
         var usuario = obtenerSesion();
         var rol = slot.dataset.role || (usuario && usuario.tipo);
         if (!usuario || !menus[rol] || usuario.tipo !== rol) return false;
+        var logoutAnterior = document.getElementById("btnLogoutArtesano");
+        if (logoutAnterior) logoutAnterior.remove();
 
         var configuracion = menus[rol];
         var raiz = slot.dataset.root || "../";
@@ -187,21 +189,39 @@
         });
 
         var salir = document.createElement(rol === "artesano" ? "button" : "a");
-        salir.className = "session-menu-item session-menu-danger";
+        salir.className = rol === "artesano"
+            ? "session-logout-direct"
+            : "session-menu-item session-menu-danger";
         salir.id = rol === "artesano" ? "btnLogoutArtesano" : "btnLogout";
         if (rol === "artesano") {
             salir.type = "button";
-            salir.textContent = "Cerrar sesión";
+            salir.setAttribute("aria-label", "Cerrar sesión");
+            salir.title = "Cerrar sesión";
+            var logoutIcon = document.createElement("i");
+            logoutIcon.className = "fa-solid fa-right-from-bracket";
+            logoutIcon.setAttribute("aria-hidden", "true");
+            var logoutLabel = document.createElement("span");
+            logoutLabel.className = "session-logout-label";
+            logoutLabel.textContent = "Cerrar sesión";
+            salir.append(logoutIcon, logoutLabel);
         } else {
             salir.href = "#";
             salir.setAttribute("role", "menuitem");
+            agregarIcono(salir, "fa-right-from-bracket");
             salir.appendChild(document.createTextNode("Cerrar sesión"));
+            menu.appendChild(salir);
         }
-        agregarIcono(salir, "fa-right-from-bracket");
-        menu.appendChild(salir);
 
         widget.append(boton, menu);
         slot.replaceChildren(widget);
+        if (rol === "artesano") {
+            var darkModeToggle = document.getElementById("dark-mode-toggle");
+            if (darkModeToggle && darkModeToggle.parentNode === slot.parentNode) {
+                darkModeToggle.insertAdjacentElement("afterend", salir);
+            } else {
+                slot.insertAdjacentElement("afterend", salir);
+            }
+        }
 
         cargarNombrePerfil(rol, raiz, function (nombrePerfil) {
             nombreElemento.textContent = nombrePerfil;
