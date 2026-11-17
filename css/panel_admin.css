@@ -1486,7 +1486,7 @@ body.dark-mode .catalog-action:hover {
 }
 
 .pu-container--profile {
-    align-items: start;
+    align-items: stretch;
 }
 
 .pu-container--profile .pu-content {
@@ -1513,7 +1513,7 @@ body.dark-mode .catalog-action:hover {
 .pu-sidebar--profile {
     display: flex;
     flex-direction: column;
-    align-self: start;
+    align-self: stretch;
     position: static;
 }
 
@@ -1866,6 +1866,16 @@ body.dark-mode .catalog-action:hover {
     padding: 24px;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
     border: 1px solid var(--gray-200);
+}
+
+.pu-container--profile .pu-content > .pu-card:last-child {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+}
+
+.pu-container--profile .admin-profile-stats {
+    flex: 1;
 }
 
 .pu-card-danger {
