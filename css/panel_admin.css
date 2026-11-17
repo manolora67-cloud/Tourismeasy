@@ -1486,9 +1486,16 @@ body.dark-mode .catalog-action:hover {
 }
 
 .pu-container--profile {
-    align-items: stretch;
+    align-items: start;
 }
 
+.pu-container--profile .pu-content {
+    min-width: 0;
+}
+
+.pu-container--profile .pu-grid-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
 
 /* Sidebar del admin: sticky para quedarse al scroll */
 
@@ -1506,7 +1513,8 @@ body.dark-mode .catalog-action:hover {
 .pu-sidebar--profile {
     display: flex;
     flex-direction: column;
-    align-self: stretch;
+    align-self: start;
+    position: static;
 }
 
 .pu-sidebar-logout {
@@ -1983,6 +1991,11 @@ body.dark-mode .catalog-action:hover {
     gap: 12px;
 }
 
+.pu-container--profile .pu-field {
+    display: grid;
+    grid-template-columns: minmax(105px, 0.8fr) minmax(0, 1.2fr);
+}
+
 .pu-field--col {
     flex-direction: column;
     align-items: flex-start;
@@ -2004,6 +2017,7 @@ body.dark-mode .catalog-action:hover {
     font-weight: 600;
     text-align: right;
     word-break: break-word;
+    min-width: 0;
 }
 
 
@@ -2034,6 +2048,38 @@ body.dark-mode .catalog-action:hover {
     font-size: 0.78rem;
     color: var(--gray-600);
     font-weight: 600;
+}
+
+.admin-profile-stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: stretch;
+}
+
+.admin-profile-stats .pu-stat {
+    display: flex;
+    min-width: 0;
+    min-height: 128px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+.admin-profile-stats .pu-stat-num {
+    display: flex;
+    min-height: 2.5rem;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.admin-profile-stats .pu-stat-label {
+    display: flex;
+    min-height: 2.8em;
+    max-width: 22ch;
+    align-items: flex-start;
+    justify-content: center;
+    line-height: 1.4;
 }
 
 
@@ -2878,8 +2924,16 @@ body.dark-mode .btn-tbl-reject {
         grid-template-columns: 1fr;
     }
 
+    .pu-container--profile .pu-grid-2 {
+        grid-template-columns: 1fr;
+    }
+
     .pu-stats-row {
         grid-template-columns: repeat(2, 1fr);
+    }
+
+    .admin-profile-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .pu-perfil-datos-grid {
@@ -2982,6 +3036,10 @@ body.dark-mode .btn-tbl-reject {
     .pu-stats-row {
         grid-template-columns: 1fr 1fr;
         gap: 10px;
+    }
+
+    .admin-profile-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .pu-stat-num {
