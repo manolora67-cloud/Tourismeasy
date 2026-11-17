@@ -75,6 +75,11 @@ $artesanoNombreSesion = $_SESSION['artesano_nombre'] ?? 'Artesano';
             <div class="nav-slot">
                 <div id="sessionWidgetSlot" data-role="artesano" data-root="../" data-active="panel"></div>
                 <div id="dark-mode-toggle"></div>
+                <button class="session-logout-direct" id="btnLogoutArtesano" type="button"
+                    aria-label="Cerrar sesión" title="Cerrar sesión">
+                    <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
+                    <span class="session-logout-label">Cerrar sesión</span>
+                </button>
             </div>
         </div>
     </nav>
@@ -321,7 +326,7 @@ $artesanoNombreSesion = $_SESSION['artesano_nombre'] ?? 'Artesano';
     <script src="../componentes/paginacion.js"></script>
     <script src="../componentes/menu-sesion.js?v=session-menu-v3"></script>
     <script>window.TESessionMenu.mount();</script>
-    <script src="../js/admin.js?v=secure-session-v1"></script>
+    <script src="../js/admin.js?v=secure-session-v2"></script>
     <script src="../componentes/cambio-contrasena.js?v=password-change-v1"></script>
     <script src="../js/configuracion_artesano.js?v=artisan-settings-v1"></script>
     <script src="../componentes/agente-ia.js?v=private-chat-memory-v1"></script>

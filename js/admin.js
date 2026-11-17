@@ -138,7 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!response.ok || !result.ok) {
                     throw new Error(result.error || 'No se pudo cerrar la sesión.');
                 }
-                window.TourismSession.clear();
+                if (window.TourismSession) window.TourismSession.clear();
                 window.location.replace('../html/e-commerce.html');
             } catch (e) {
                 console.error('Error cerrando sesión en el servidor:', e);
