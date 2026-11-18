@@ -70,17 +70,37 @@
     vertical-align: middle;
 }
 
+.festividades-admin-table td:nth-child(2) {
+    width: 40%;
+}
+
+.festividades-admin-table tbody tr {
+    height: 76px;
+}
+
+.festividades-admin-table tbody td:not(:nth-child(2)):not(:last-child) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 .festividad-cell-title {
     display: block;
+    overflow: hidden;
     color: var(--gray-800);
     font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .festividad-cell-subtitle {
     display: block;
+    overflow: hidden;
     margin-top: 4px;
     color: var(--gray-500);
     font-size: 0.78rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .festividad-actions {

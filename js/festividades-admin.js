@@ -78,6 +78,7 @@
     function crearCelda(texto, clase) {
         var celda = document.createElement("td");
         celda.textContent = texto;
+        celda.title = celda.textContent;
         if (clase) celda.className = clase;
         return celda;
     }
@@ -165,9 +166,11 @@
             var titulo = document.createElement("span");
             titulo.className = "festividad-cell-title";
             titulo.textContent = festividad.emoji + " " + festividad.titulo;
+            titulo.title = titulo.textContent;
             var subtitulo = document.createElement("span");
             subtitulo.className = "festividad-cell-subtitle";
             subtitulo.textContent = festividad.subtitulo;
+            subtitulo.title = subtitulo.textContent;
             nombre.append(titulo, subtitulo);
             fila.appendChild(nombre);
 
