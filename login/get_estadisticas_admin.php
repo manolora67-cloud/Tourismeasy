@@ -20,9 +20,9 @@ try {
     echo json_encode([
         "ok" => true,
         "estadisticas" => [
-            "empresas_registradas"  => (int) $row['empresas_registradas'],
+            "empresas_registradas"  => $row['empresas_registradas'] !== null ? (int) $row['empresas_registradas'] : null,
             "calificacion_promedio" => $row['calificacion_promedio'] !== null ? (float) $row['calificacion_promedio'] : null,
-            "servicios_activos"     => (int) $row['servicios_activos'],
+            "servicios_activos"     => $row['servicios_activos'] !== null ? (int) $row['servicios_activos'] : null,
             "clics_whatsapp_30_dias" => $row['clics_whatsapp_30_dias'] !== null ? (int) $row['clics_whatsapp_30_dias'] : null,
         ]
     ]);

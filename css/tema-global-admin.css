@@ -82,6 +82,12 @@
     margin-top: 18px;
 }
 
+.tema-global__actions button {
+    box-sizing: border-box;
+    height: 40px;
+    margin-top: 0;
+}
+
 .tema-global__actions button:disabled {
     cursor: wait;
     opacity: 0.65;

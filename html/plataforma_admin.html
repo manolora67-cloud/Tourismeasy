@@ -8,11 +8,11 @@
     <title>Plataforma - Panel Administrador - TourismEasy</title>
     <link rel="stylesheet" href="../css/index.css?v=footer-cookie-settings-v6" />
     <link rel="stylesheet" href="../css/login.css?v=admin-menu-icons-v1" />
-    <link rel="stylesheet" href="../css/panel_admin.css?v=admin-platform-v1" />
+    <link rel="stylesheet" href="../css/panel_admin.css?v=admin-config-alignment-v5" />
     <link rel="stylesheet" href="../componentes/cambio-contrasena.css?v=password-change-v1" />
     <link rel="stylesheet" href="../componentes/configuracion-seguridad.css?v=security-settings-v3" />
     <link rel="stylesheet" href="../css/agente-ia.css?v=mobile-layout-v2" />
-    <link rel="stylesheet" href="../css/tema-global-admin.css?v=global-theme-v1" />
+    <link rel="stylesheet" href="../css/tema-global-admin.css?v=global-theme-v2" />
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;500&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
@@ -38,8 +38,8 @@
     </nav>
 
     <main class="pu-main">
-        <div class="pu-container" style="align-items: stretch">
-            <aside class="pu-sidebar" style="display: flex; flex-direction: column">
+        <div class="pu-container pu-container--admin-platform">
+            <aside class="pu-sidebar">
                 <div class="pu-sidebar-avatar pu-sidebar-avatar-empresa" id="sidebarAvatar">AD</div>
                 <div class="pu-sidebar-nombre" id="sidebarNombre">Cargando administrador…</div>
                 <div class="pu-sidebar-tipo">
@@ -55,18 +55,79 @@
                     <a href="catalogos_admin.html" class="pu-nav-item"><i class="fa-solid fa-list-check" aria-hidden="true"></i> Catálogos</a>
                 </nav>
 
-                <div class="pe-sidebar-bloque pe-sidebar-bloque--purple">
-                    <p class="pe-sidebar-bloque__titulo pe-sidebar-bloque__titulo--purple">
-                        <i class="fa-solid fa-server"></i> Estado de la plataforma
+                <div class="pe-sidebar-bloque pe-sidebar-bloque--purple" aria-labelledby="platformStatsTitle">
+                    <p class="pe-sidebar-bloque__titulo pe-sidebar-bloque__titulo--purple" id="platformStatsTitle">
+                        <i class="fa-solid fa-chart-simple"></i> Resumen de plataforma
                     </p>
-                    <div class="pe-sidebar-check">
-                        <i class="fa-solid fa-circle-check" style="color: #22c55e"></i>
-                        <span>Configuración disponible</span>
+                    <div aria-live="polite">
+                        <div class="pe-sidebar-row">
+                            <span>Empresas activas</span><strong class="pe-sidebar-row__val--purple" id="platformStatCompanies">Cargando…</strong>
+                        </div>
+                        <div class="pe-sidebar-row">
+                            <span>Calificación promedio</span><strong class="pe-sidebar-row__val--purple" id="platformStatRating">Cargando…</strong>
+                        </div>
+                        <div class="pe-sidebar-row">
+                            <span>Servicios activos</span><strong class="pe-sidebar-row__val--purple" id="platformStatServices">Cargando…</strong>
+                        </div>
                     </div>
                 </div>
 
-                <div style="margin-top: auto; padding-top: 16px">
-                    <a href="#" class="pu-nav-item pu-nav-danger" style="display: block" id="sidebarLogout">
+                <div class="pe-sidebar-bloque pe-sidebar-bloque--verde" aria-labelledby="platformCompaniesTitle">
+                    <p class="pe-sidebar-bloque__titulo pe-sidebar-bloque__titulo--verde" id="platformCompaniesTitle">
+                        <i class="fa-solid fa-building"></i> Cuentas de empresa
+                    </p>
+                    <div aria-live="polite">
+                        <div class="pe-sidebar-row">
+                            <span>Procesadas</span><strong class="pe-sidebar-row__val--verde" id="platformCompaniesTotal">Cargando…</strong>
+                        </div>
+                        <div class="pe-sidebar-row">
+                            <span>Inactivas</span><strong class="pe-sidebar-row__val--verde" id="platformCompaniesInactive">Cargando…</strong>
+                        </div>
+                        <div class="pe-sidebar-row">
+                            <span>Solicitudes pendientes</span><strong class="pe-sidebar-row__val--verde" id="platformCompanyRequests">Cargando…</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pe-sidebar-bloque pe-sidebar-bloque--purple" aria-labelledby="platformArtisansTitle">
+                    <p class="pe-sidebar-bloque__titulo pe-sidebar-bloque__titulo--purple" id="platformArtisansTitle">
+                        <i class="fa-solid fa-palette"></i> Cuentas de artesano
+                    </p>
+                    <div aria-live="polite">
+                        <div class="pe-sidebar-row">
+                            <span>Registradas</span><strong class="pe-sidebar-row__val--purple" id="platformArtisansTotal">Cargando…</strong>
+                        </div>
+                        <div class="pe-sidebar-row">
+                            <span>Activas</span><strong class="pe-sidebar-row__val--purple" id="platformArtisansActive">Cargando…</strong>
+                        </div>
+                        <div class="pe-sidebar-row">
+                            <span>Pendientes</span><strong class="pe-sidebar-row__val--purple" id="platformArtisansPending">Cargando…</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pe-sidebar-bloque pe-sidebar-bloque--amber" aria-labelledby="platformActivityTitle">
+                    <p class="pe-sidebar-bloque__titulo pe-sidebar-bloque__titulo--amber" id="platformActivityTitle">
+                        <i class="fa-solid fa-chart-line"></i> Actividad y auditoría reciente
+                    </p>
+                    <div aria-live="polite">
+                        <div class="pe-sidebar-row">
+                            <span>Clics totales</span><strong class="pe-sidebar-row__val--gray" id="platformClicksTotal">Cargando…</strong>
+                        </div>
+                        <div class="pe-sidebar-row">
+                            <span>Clics (30 días)</span><strong class="pe-sidebar-row__val--gray" id="platformClicksRecent">Cargando…</strong>
+                        </div>
+                        <div class="pe-sidebar-row">
+                            <span>Eventos (máx. 100)</span><strong class="pe-sidebar-row__val--gray" id="platformAuditEvents">Cargando…</strong>
+                        </div>
+                        <div class="pe-sidebar-row">
+                            <span>Alertas en esos eventos</span><strong class="pe-sidebar-row__val--gray" id="platformAuditAlerts">Cargando…</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pu-sidebar-logout">
+                    <a href="#" class="pu-nav-item pu-nav-danger" id="sidebarLogout">
                         <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> Cerrar sesión
                     </a>
                 </div>
@@ -189,6 +250,138 @@
                 })
                 .catch(function (error) {
                     console.error("No se pudo cargar el perfil de administrador:", error);
+                });
+
+            var platformStats = {
+                companies: document.getElementById("platformStatCompanies"),
+                rating: document.getElementById("platformStatRating"),
+                services: document.getElementById("platformStatServices")
+            };
+            fetch("../login/get_estadisticas_admin.php", { credentials: "include", cache: "no-store" })
+                .then(function (response) {
+                    if (!response.ok) throw new Error("HTTP " + response.status);
+                    return response.json();
+                })
+                .then(function (data) {
+                    if (!data.ok || !data.estadisticas) {
+                        throw new Error(data.error || "La respuesta de estadísticas no es válida.");
+                    }
+                    var stats = data.estadisticas;
+                    platformStats.companies.textContent = Number.isInteger(stats.empresas_registradas)
+                        ? stats.empresas_registradas.toLocaleString("es-CO") : "No disponible";
+                    platformStats.rating.textContent = Number.isFinite(stats.calificacion_promedio)
+                        ? stats.calificacion_promedio.toFixed(1) : "No disponible";
+                    platformStats.services.textContent = Number.isInteger(stats.servicios_activos)
+                        ? stats.servicios_activos.toLocaleString("es-CO") : "No disponible";
+                })
+                .catch(function (error) {
+                    console.error("No se pudieron cargar las estadísticas de plataforma:", error);
+                    Object.keys(platformStats).forEach(function (key) {
+                        platformStats[key].textContent = "No disponible";
+                    });
+                });
+
+            function fetchAdminData(url) {
+                return fetch(url, { credentials: "include", cache: "no-store" }).then(function (response) {
+                    return response.json().then(function (data) {
+                        if (!response.ok || !data.ok) {
+                            throw new Error(data.error || "HTTP " + response.status);
+                        }
+                        return data;
+                    });
+                });
+            }
+            function setPlatformMetrics(metrics, message) {
+                Object.keys(metrics).forEach(function (key) {
+                    metrics[key].textContent = message;
+                });
+            }
+            function formatCount(value) {
+                return Number.isInteger(value) ? value.toLocaleString("es-CO") : "No disponible";
+            }
+
+            var companyMetrics = {
+                total: document.getElementById("platformCompaniesTotal"),
+                inactive: document.getElementById("platformCompaniesInactive")
+            };
+            fetchAdminData("../soli_empresas/get_empresas.php")
+                .then(function (data) {
+                    if (!Array.isArray(data.data)) throw new Error("La respuesta de empresas no es válida.");
+                    var activeCount = data.data.filter(function (company) {
+                        return company.estado === "ACTIVO";
+                    }).length;
+                    companyMetrics.total.textContent = formatCount(data.data.length);
+                    companyMetrics.inactive.textContent = formatCount(data.data.length - activeCount);
+                })
+                .catch(function (error) {
+                    console.error("No se pudieron cargar las cuentas de empresa:", error);
+                    setPlatformMetrics(companyMetrics, "No disponible");
+                });
+
+            var requestMetric = document.getElementById("platformCompanyRequests");
+            fetchAdminData("../soli_empresas/get_solicitudes.php")
+                .then(function (data) {
+                    if (!Array.isArray(data.data)) throw new Error("La respuesta de solicitudes no es válida.");
+                    requestMetric.textContent = formatCount(data.data.length);
+                })
+                .catch(function (error) {
+                    console.error("No se pudieron cargar las solicitudes pendientes:", error);
+                    requestMetric.textContent = "No disponible";
+                });
+
+            var artisanMetrics = {
+                total: document.getElementById("platformArtisansTotal"),
+                active: document.getElementById("platformArtisansActive"),
+                pending: document.getElementById("platformArtisansPending")
+            };
+            fetchAdminData("../e-commerce/artesanos_admin.php?estado=TODOS")
+                .then(function (data) {
+                    if (!Array.isArray(data.artesanos)) throw new Error("La respuesta de artesanos no es válida.");
+                    artisanMetrics.total.textContent = formatCount(data.artesanos.length);
+                    artisanMetrics.active.textContent = formatCount(data.artesanos.filter(function (artisan) {
+                        return artisan.estado === "ACTIVO";
+                    }).length);
+                    artisanMetrics.pending.textContent = formatCount(data.artesanos.filter(function (artisan) {
+                        return artisan.estado === "PENDIENTE";
+                    }).length);
+                })
+                .catch(function (error) {
+                    console.error("No se pudieron cargar las cuentas de artesano:", error);
+                    setPlatformMetrics(artisanMetrics, "No disponible");
+                });
+
+            var clickMetrics = {
+                total: document.getElementById("platformClicksTotal"),
+                recent: document.getElementById("platformClicksRecent")
+            };
+            fetchAdminData("../login/get_estadisticas_clicks.php?pagina=1")
+                .then(function (data) {
+                    if (!data.resumen || !Number.isInteger(data.total)) {
+                        throw new Error("La respuesta de clics no es válida.");
+                    }
+                    clickMetrics.total.textContent = formatCount(data.total);
+                    clickMetrics.recent.textContent = formatCount(data.resumen.ultimos_30_dias);
+                })
+                .catch(function (error) {
+                    console.error("No se pudieron cargar las estadísticas de clics:", error);
+                    setPlatformMetrics(clickMetrics, "No disponible");
+                });
+
+            var auditMetrics = {
+                events: document.getElementById("platformAuditEvents"),
+                alerts: document.getElementById("platformAuditAlerts")
+            };
+            fetchAdminData("../soli_empresas/get_auditoria.php")
+                .then(function (data) {
+                    if (!Array.isArray(data.data)) throw new Error("La respuesta de auditoría no es válida.");
+                    auditMetrics.events.textContent = formatCount(data.data.length);
+                    auditMetrics.alerts.textContent = formatCount(data.data.filter(function (event) {
+                        return ["alerta", "advertencia", "error"].includes(event.nivel);
+                    }).length);
+                })
+                .catch(function (error) {
+                    console.error("No se pudo cargar el resumen de auditoría:", error);
+                    setPlatformMetrics(auditMetrics, "No disponible");
                 });
         })();
     </script>

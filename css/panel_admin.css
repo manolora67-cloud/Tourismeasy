@@ -1476,6 +1476,37 @@ body.dark-mode .catalog-action:hover {
     align-items: start;
 }
 
+.pu-container--admin-config {
+    align-items: stretch;
+}
+
+.pu-container--admin-platform {
+    align-items: stretch;
+}
+
+.pu-container--admin-config .pu-sidebar {
+    display: flex;
+    flex-direction: column;
+}
+
+.pu-container--admin-platform .pu-sidebar {
+    display: flex;
+    flex-direction: column;
+}
+
+.pu-container--admin-config .pu-sidebar-logout {
+    margin-top: auto;
+}
+
+.pu-container--admin-config .pu-sidebar-logout .pu-nav-danger,
+.pu-container--admin-config .pu-card-danger .pu-btn-danger {
+    box-sizing: border-box;
+    min-height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .pu-container--profile {
     align-items: stretch;
 }
@@ -1704,7 +1735,6 @@ body.dark-mode .catalog-action:hover {
     color: var(--gray-400);
     font-weight: 600;
 }
-
 
 /* Lista de verificaciones (checks) en el sidebar */
 
@@ -2869,6 +2899,14 @@ body.dark-mode .btn-tbl-reject {
         gap: 16px;
         padding: 20px;
         text-align: left;
+    }
+
+    .pu-container--admin-config .pu-sidebar {
+        flex-direction: row;
+    }
+
+    .pu-container--admin-platform .pu-sidebar {
+        flex-direction: row;
     }
 
     .pu-sidebar--profile {
