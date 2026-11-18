@@ -559,13 +559,14 @@ body.dark-mode .catalogos-admin-table-wrap {
 
 .catalogos-sidebar-visibility {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: 9px;
     margin-top: 12px;
     padding: 11px 12px;
     background: rgba(var(--theme-primary-rgb, 124, 58, 237), .055);
     border: 1px solid rgba(var(--theme-primary-rgb, 124, 58, 237), .16);
     border-radius: 12px;
+    text-align: left;
 }
 
 .catalogos-sidebar-visibility__icon {
@@ -589,6 +590,7 @@ body.dark-mode .catalogos-admin-table-wrap {
     margin: 1px 0 4px;
     color: var(--gray-800);
     font-size: .72rem;
+    text-align: left;
 }
 
 .catalogos-sidebar-visibility p {
@@ -596,6 +598,7 @@ body.dark-mode .catalogos-admin-table-wrap {
     color: var(--gray-600);
     font-size: .68rem;
     line-height: 1.4;
+    text-align: left;
 }
 
 body.dark-mode .catalogos-sidebar-summary {
