@@ -14,6 +14,7 @@ TourismEasy es una plataforma web para descubrir Santander, Colombia. Conecta a 
 - Gestión de servicios y productos artesanales.
 - Reseñas y reacciones de viajeros.
 - Perfiles y preferencias de administración y empresas.
+- Descarga de auditoría mensual para administración en un libro Excel con resumen y detalle completo, sin modificar los registros guardados.
 - Menú de accesibilidad compartido: cambio de idioma, ajuste y restablecimiento del tamaño del texto, alto contraste y lectura en voz alta cuando el navegador lo admite. El pie de página incluye una declaración de accesibilidad emergente con herramientas disponibles, referencias normativas y datos de contacto; es informativa y no representa una certificación de conformidad.
 - Pie de página compartido con cuatro enlaces en Plataforma, Soporte y Legal, redes sociales y acceso a las preferencias de cookies sin recargar la página. El botón de guardado queda separado de las opciones y con un espacio inferior compacto; al guardarlas, la ventana se cierra y aparece una confirmación flotante temporal. Incluye una ventana de reporte de problemas con teléfono, WhatsApp y correo; el copyright existente se conserva sin duplicarlo.
 - Aviso de privacidad en la primera visita para aceptar todas las preferencias, guardar solo las necesarias o personalizar opciones. La elección se conserva en el navegador; se puede revisar o cambiar desde la ventana **Preferencias de cookies** del pie de página, sin recargar la página. Las opciones de análisis y marketing se guardan, pero actualmente no habilitan servicios externos.
@@ -38,7 +39,7 @@ TourismEasy es una plataforma web para descubrir Santander, Colombia. Conecta a 
 
 ## Requisitos
 
-- PHP 7.3 o posterior con `pdo_pgsql`, `mbstring` y `curl`. Para SMTP cifrado se requiere `openssl`. `fileinfo` habilita la validación MIME de imágenes.
+- PHP 7.3 o posterior con `pdo_pgsql`, `mbstring`, `curl` y `zip`. Para SMTP cifrado se requiere `openssl`. `fileinfo` habilita la validación MIME de imágenes.
 - Composer.
 - PostgreSQL 9.5 o posterior (el esquema usa `ON CONFLICT`) y su cliente `psql` o una herramienta gráfica como pgAdmin.
 - Una base de datos inicializada con el esquema del proyecto.

@@ -1494,6 +1494,10 @@ body.dark-mode .catalog-action:hover {
     flex-direction: column;
 }
 
+.pu-container--admin-platform .pu-content > .pu-card:last-child {
+    margin-top: auto;
+}
+
 .pu-container--admin-config .pu-sidebar-logout {
     margin-top: auto;
 }
@@ -2299,6 +2303,37 @@ body.dark-mode .catalog-action:hover {
     border-radius: 12px;
 }
 
+.monthly-report__excel {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 16px;
+    border: 1px solid rgba(var(--theme-primary-rgb, 124, 58, 237), 0.18);
+    border-radius: 12px;
+    background: rgba(var(--theme-primary-rgb, 124, 58, 237), 0.04);
+}
+
+.monthly-report__excel strong {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--gray-800);
+    font-family: var(--font-head);
+    font-size: 0.9rem;
+}
+
+.monthly-report__excel p {
+    margin: 0;
+    color: var(--gray-500);
+    font-size: 0.82rem;
+    line-height: 1.5;
+}
+
+.monthly-report__excel .monthly-report__button {
+    flex-shrink: 0;
+    margin: 0;
+}
+
 .monthly-report__month {
     display: grid;
     gap: 6px;
@@ -2646,6 +2681,19 @@ body.dark-mode .monthly-report__hint {
 body.dark-mode .monthly-report__controls {
     background: #0f172a;
     border-color: #334155;
+}
+
+body.dark-mode .monthly-report__excel {
+    background: rgba(124, 58, 237, 0.12);
+    border-color: rgba(167, 139, 250, 0.28);
+}
+
+body.dark-mode .monthly-report__excel strong {
+    color: #f1f5f9;
+}
+
+body.dark-mode .monthly-report__excel p {
+    color: #94a3b8;
 }
 
 body.dark-mode .monthly-report__month input {
@@ -3113,8 +3161,15 @@ body.dark-mode .btn-tbl-reject {
         padding: 12px;
     }
 
+    .monthly-report__excel {
+        align-items: stretch;
+        flex-direction: column;
+        padding: 12px;
+    }
+
     .monthly-report__month input,
-    .monthly-report__button {
+    .monthly-report__controls .monthly-report__button,
+    .monthly-report__excel .monthly-report__button {
         width: 100%;
     }
 

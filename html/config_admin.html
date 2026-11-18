@@ -8,7 +8,7 @@
     <title>Configuración - Panel Administrador - TourismEasy</title>
     <link rel="stylesheet" href="../css/index.css?v=footer-cookie-settings-v6" />
     <link rel="stylesheet" href="../css/login.css?v=admin-menu-icons-v1" />
-    <link rel="stylesheet" href="../css/panel_admin.css?v=admin-config-alignment-v4" />
+    <link rel="stylesheet" href="../css/panel_admin.css?v=admin-config-alignment-v5" />
     <link rel="stylesheet" href="../componentes/cambio-contrasena.css?v=password-change-v1" />
     <link rel="stylesheet" href="../css/agente-ia.css?v=mobile-layout-v2" />
     <link rel="stylesheet" href="../css/tema-global-admin.css?v=global-theme-v1" />
@@ -145,6 +145,16 @@
                         </div>
                         <p class="monthly-report__hint"><i class="fa-solid fa-circle-info"></i> Solo puedes generar informes de meses completos. Al abrir la vista de impresión, elige «Guardar como PDF».</p>
                         <p id="estadoInformeAdmin" class="monthly-report__status" role="status" aria-live="polite"></p>
+                        <div class="monthly-report__excel">
+                            <div>
+                                <strong>Auditoría completa del mes</strong>
+                                <p>Descarga todos los eventos del mes seleccionado en un libro de Excel con resumen y detalle.</p>
+                            </div>
+                            <button class="pu-btn-secondary monthly-report__button" id="btnDescargarAuditoriaAdmin" type="button">
+                                <i class="fa-solid fa-file-excel"></i> Descargar auditoría Excel
+                            </button>
+                        </div>
+                        <p id="estadoAuditoriaAdmin" class="monthly-report__status" role="status" aria-live="polite"></p>
                     </div>
                 </div>
 
@@ -392,6 +402,8 @@
             var mesInforme = document.getElementById("mesInformeAdmin");
             var btnInforme = document.getElementById("btnGenerarInformeAdmin");
             var estadoInforme = document.getElementById("estadoInformeAdmin");
+            var btnAuditoria = document.getElementById("btnDescargarAuditoriaAdmin");
+            var estadoAuditoria = document.getElementById("estadoAuditoriaAdmin");
             function mesLocal(fecha) {
                 return fecha.getFullYear() + "-" + String(fecha.getMonth() + 1).padStart(2, "0");
             }
@@ -550,6 +562,60 @@
                     })
                     .finally(function () {
                         btnInforme.disabled = false;
+                    });
+            });
+
+            function actualizarEstadoAuditoria(mensaje, estado) {
+                estadoAuditoria.textContent = mensaje;
+                if (estado) {
+                    estadoAuditoria.dataset.estado = estado;
+                } else {
+                    delete estadoAuditoria.dataset.estado;
+                }
+            }
+
+            btnAuditoria.addEventListener("click", function () {
+                if (!mesInforme.value) {
+                    actualizarEstadoAuditoria("Selecciona un mes para continuar.", "error");
+                    mesInforme.focus();
+                    return;
+                }
+
+                btnAuditoria.disabled = true;
+                actualizarEstadoAuditoria("Preparando el Excel con toda la auditoría del mes…", "loading");
+                fetch(API_BASE + "exportar_auditoria_mensual_admin.php?mes=" + encodeURIComponent(mesInforme.value), {
+                    credentials: "include",
+                    cache: "no-store"
+                })
+                    .then(function (response) {
+                        if (!response.ok) {
+                            return response.json().then(function (data) {
+                                throw new Error(data.error || "No se pudo descargar la auditoría.");
+                            });
+                        }
+                        var contentType = response.headers.get("Content-Type") || "";
+                        if (contentType.indexOf("spreadsheetml") === -1) {
+                            throw new Error("El servidor no devolvió un archivo Excel válido.");
+                        }
+                        return response.blob();
+                    })
+                    .then(function (blob) {
+                        var url = URL.createObjectURL(blob);
+                        var link = document.createElement("a");
+                        link.href = url;
+                        link.download = "tourismeasy-auditoria-" + mesInforme.value + ".xlsx";
+                        document.body.appendChild(link);
+                        link.click();
+                        link.remove();
+                        window.setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+                        actualizarEstadoAuditoria("Excel descargado con todos los eventos de ese mes.", "success");
+                    })
+                    .catch(function (error) {
+                        console.error("No se pudo descargar el Excel de auditoría:", error);
+                        actualizarEstadoAuditoria(error.message || "No se pudo descargar la auditoría.", "error");
+                    })
+                    .finally(function () {
+                        btnAuditoria.disabled = false;
                     });
             });
 
