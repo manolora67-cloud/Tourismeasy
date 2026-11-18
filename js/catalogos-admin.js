@@ -13,9 +13,10 @@
         var summaryActive = document.getElementById("catalogosActivos");
         var summaryInactive = document.getElementById("catalogosInactivos");
         var summaryTotal = document.getElementById("catalogosTotal");
+        var summaryUsageTotal = document.getElementById("catalogosUsoTotal");
         var usageList = document.getElementById("catalogosUsoActual");
         if (!form || !table || !status || !identifierTitle || !count || !formTitle || !formHelp ||
-            !summaryName || !summaryActive || !summaryInactive || !summaryTotal || !usageList) return;
+            !summaryName || !summaryActive || !summaryInactive || !summaryTotal || !summaryUsageTotal || !usageList) return;
 
         var API_URL = "../admin/catalogos.php?admin=1";
         var csrfToken = "";
@@ -95,11 +96,21 @@
             usageList.appendChild(notice);
         }
 
-        function renderUsage(items, type) {
-            usageList.replaceChildren();
+        function totalUsoOpciones(items) {
             if (!items.every(function (item) {
                 return Number.isSafeInteger(item.uso_actual) && item.uso_actual >= 0;
             })) {
+                return null;
+            }
+            var total = items.reduce(function (sum, item) {
+                return sum + item.uso_actual;
+            }, 0);
+            return Number.isSafeInteger(total) ? total : null;
+        }
+
+        function renderUsage(items, type) {
+            usageList.replaceChildren();
+            if (totalUsoOpciones(items) === null) {
                 mostrarMensajeUso("No se recibieron conteos válidos. Verifica la función fn_listar_catalogos instalada.");
                 return;
             }
@@ -140,6 +151,8 @@
             summaryActive.textContent = options.filter(function (item) { return item.activo; }).length;
             summaryInactive.textContent = options.filter(function (item) { return !item.activo; }).length;
             summaryTotal.textContent = options.length;
+            var totalUsos = totalUsoOpciones(options);
+            summaryUsageTotal.textContent = totalUsos === null ? "—" : totalUsos.toLocaleString("es-CO");
             var items = options;
             items = items.slice().sort(function (a, b) {
                 return String(a.nombre).localeCompare(String(b.nombre), "es");
