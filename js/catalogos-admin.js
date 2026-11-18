@@ -13,8 +13,9 @@
         var summaryActive = document.getElementById("catalogosActivos");
         var summaryInactive = document.getElementById("catalogosInactivos");
         var summaryTotal = document.getElementById("catalogosTotal");
+        var usageList = document.getElementById("catalogosUsoActual");
         if (!form || !table || !status || !identifierTitle || !count || !formTitle || !formHelp ||
-            !summaryName || !summaryActive || !summaryInactive || !summaryTotal) return;
+            !summaryName || !summaryActive || !summaryInactive || !summaryTotal || !usageList) return;
 
         var API_URL = "../admin/catalogos.php?admin=1";
         var csrfToken = "";
@@ -26,11 +27,41 @@
         var saveButton = document.getElementById("catalogoGuardar");
         var cancelButton = document.getElementById("catalogoCancelar");
         var labels = {
-            tipos_plan: { name: "Tipos de plan turístico", maxLength: 28, example: "Ej. Ecoturismo" },
-            tipos_hospedaje: { name: "Tipos de hospedaje", maxLength: 30, example: "Ej. Hotel boutique" },
-            categorias_artesania: { name: "Categorías artesanales", maxLength: 50, example: "Ej. Tejidos" },
-            servicios_hospedaje: { name: "Servicios de hospedaje", maxLength: 100, example: "Ej. Desayuno incluido" },
-            clases_transporte: { name: "Clases de transporte", maxLength: 100, example: "Ej. Servicio ejecutivo" }
+            tipos_plan: {
+                name: "Tipos de plan turístico",
+                maxLength: 28,
+                example: "Ej. Ecoturismo",
+                usoSingular: "plan turístico",
+                usoPlural: "planes turísticos"
+            },
+            tipos_hospedaje: {
+                name: "Tipos de hospedaje",
+                maxLength: 30,
+                example: "Ej. Hotel boutique",
+                usoSingular: "alojamiento",
+                usoPlural: "alojamientos"
+            },
+            categorias_artesania: {
+                name: "Categorías artesanales",
+                maxLength: 50,
+                example: "Ej. Tejidos",
+                usoSingular: "producto artesanal",
+                usoPlural: "productos artesanales"
+            },
+            servicios_hospedaje: {
+                name: "Servicios de hospedaje",
+                maxLength: 100,
+                example: "Ej. Desayuno incluido",
+                usoSingular: "hospedaje con este servicio",
+                usoPlural: "hospedajes con este servicio"
+            },
+            clases_transporte: {
+                name: "Clases de transporte",
+                maxLength: 100,
+                example: "Ej. Servicio ejecutivo",
+                usoSingular: "servicio de transporte",
+                usoPlural: "servicios de transporte"
+            }
         };
 
         function setStatus(message, isError) {
@@ -56,6 +87,43 @@
             return cell;
         }
 
+        function mostrarMensajeUso(message) {
+            usageList.replaceChildren();
+            var notice = document.createElement("p");
+            notice.className = "catalogos-usage-message";
+            notice.textContent = message;
+            usageList.appendChild(notice);
+        }
+
+        function renderUsage(items, type) {
+            usageList.replaceChildren();
+            if (!items.every(function (item) {
+                return Number.isSafeInteger(item.uso_actual) && item.uso_actual >= 0;
+            })) {
+                mostrarMensajeUso("No se recibieron conteos válidos. Verifica la función fn_listar_catalogos instalada.");
+                return;
+            }
+            if (!items.length) {
+                mostrarMensajeUso("No hay opciones registradas en este catálogo.");
+                return;
+            }
+
+            items.forEach(function (item) {
+                var row = document.createElement("div");
+                row.className = "catalogos-usage-item";
+                var name = document.createElement("span");
+                name.className = "catalogos-usage-item__name";
+                name.textContent = item.nombre;
+                name.title = item.nombre;
+                var usage = document.createElement("span");
+                usage.className = "catalogos-usage-item__count";
+                usage.textContent = item.uso_actual + " " +
+                    (item.uso_actual === 1 ? labels[type].usoSingular : labels[type].usoPlural);
+                row.append(name, usage);
+                usageList.appendChild(row);
+            });
+        }
+
         function render() {
             if (!catalogData) return;
             var type = typeSelect.value;
@@ -76,6 +144,7 @@
             items = items.slice().sort(function (a, b) {
                 return String(a.nombre).localeCompare(String(b.nombre), "es");
             });
+            renderUsage(items, type);
 
             table.replaceChildren();
             if (!items.length) {
@@ -154,6 +223,7 @@
                 console.error("Error cargando catálogos:", error);
                 setStatus(error.message || "No se pudieron cargar los catálogos.", true);
                 table.replaceChildren();
+                mostrarMensajeUso("No se pudieron cargar los conteos de uso.");
                 var row = document.createElement("tr");
                 var cell = addCell(row, "No se pudieron cargar los catálogos.");
                 cell.colSpan = 4;

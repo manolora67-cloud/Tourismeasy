@@ -19,6 +19,98 @@
     box-shadow: 0 4px 20px rgba(15, 23, 42, .05);
 }
 
+.catalogos-usage-card {
+    margin-top: 18px;
+    padding: 20px;
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(15, 23, 42, .04);
+}
+
+.catalogos-usage-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.catalogos-usage-heading h2 {
+    margin: 0 0 5px;
+    color: var(--gray-800);
+    font: 700 1rem var(--font-head);
+}
+
+.catalogos-usage-heading h2 i {
+    margin-right: 7px;
+    color: var(--purple);
+}
+
+.catalogos-usage-heading p {
+    margin: 0;
+    color: var(--gray-500);
+    font-size: .8rem;
+    line-height: 1.5;
+}
+
+.catalogos-usage-badge {
+    flex: 0 0 auto;
+    padding: 6px 10px;
+    border: 1px solid rgba(var(--theme-primary-rgb, 124, 58, 237), .16);
+    border-radius: 999px;
+    background: rgba(var(--theme-primary-rgb, 124, 58, 237), .07);
+    color: var(--purple);
+    font: 700 .7rem var(--font-head);
+}
+
+.catalogos-usage-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 9px;
+    max-height: 240px;
+    margin-top: 15px;
+    overflow-y: auto;
+}
+
+.catalogos-usage-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-width: 0;
+    padding: 10px 12px;
+    border: 1px solid var(--gray-200);
+    border-radius: 10px;
+    background: #f8fafc;
+}
+
+.catalogos-usage-item__name {
+    min-width: 0;
+    overflow: hidden;
+    color: var(--gray-700);
+    font-size: .8rem;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.catalogos-usage-item__count {
+    flex: 0 0 auto;
+    color: var(--purple);
+    font: 800 .76rem var(--font-head);
+    text-align: right;
+}
+
+.catalogos-usage-message {
+    grid-column: 1 / -1;
+    margin: 0;
+    padding: 12px;
+    border: 1px dashed var(--gray-300);
+    border-radius: 10px;
+    color: var(--gray-500);
+    font-size: .8rem;
+}
+
 .catalogos-admin-header {
     display: flex;
     align-items: center;
@@ -248,6 +340,43 @@ body.dark-mode .catalogos-admin-content {
     border-color: #334155;
 }
 
+body.dark-mode .catalogos-usage-card {
+    background: #1e293b;
+    border-color: #334155;
+}
+
+body.dark-mode .catalogos-usage-heading h2 {
+    color: #f1f5f9;
+}
+
+body.dark-mode .catalogos-usage-heading p {
+    color: #94a3b8;
+}
+
+body.dark-mode .catalogos-usage-badge {
+    border-color: rgba(167, 139, 250, .28);
+    background: rgba(124, 58, 237, .14);
+    color: #c4b5fd;
+}
+
+body.dark-mode .catalogos-usage-item {
+    border-color: #334155;
+    background: #0f172a;
+}
+
+body.dark-mode .catalogos-usage-item__name {
+    color: #e2e8f0;
+}
+
+body.dark-mode .catalogos-usage-item__count {
+    color: #c4b5fd;
+}
+
+body.dark-mode .catalogos-usage-message {
+    border-color: #475569;
+    color: #94a3b8;
+}
+
 body.dark-mode .catalogos-admin-header h1,
 body.dark-mode .catalog-form-heading h2,
 body.dark-mode .catalogos-list-heading h2 {
@@ -402,6 +531,12 @@ body.dark-mode .catalogos-admin-table-wrap {
     background: linear-gradient(145deg, #f0fdf4, #f7fef9);
     border: 1px solid #bbf7d0;
     border-radius: 12px;
+    text-align: left;
+}
+
+.catalogos-sidebar-note > div {
+    flex: 1;
+    min-width: 0;
 }
 
 .catalogos-sidebar-note__icon {
@@ -473,6 +608,10 @@ body.dark-mode .catalogos-sidebar-note p {
         padding: 22px;
     }
 
+    .catalogos-usage-card {
+        padding: 17px;
+    }
+
     .catalogos-admin-toolbar {
         align-items: stretch;
         flex-direction: column;
@@ -488,6 +627,19 @@ body.dark-mode .catalogos-sidebar-note p {
     .catalogos-admin-content {
         padding: 17px 13px;
         border-radius: 14px;
+    }
+
+    .catalogos-usage-card {
+        padding: 15px;
+    }
+
+    .catalogos-usage-heading {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .catalogos-usage-list {
+        grid-template-columns: 1fr;
     }
 
     .catalogos-admin-header {

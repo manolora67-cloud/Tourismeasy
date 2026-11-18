@@ -126,6 +126,8 @@ El panel **Catálogos** permite crear, renombrar y activar/desactivar tipos de p
 
 El código de una categoría artesanal se genera en `fn_guardar_catalogo` a partir de su nombre; al renombrarla, se conserva su código para no afectar productos ya relacionados.
 
+La pantalla muestra también cuántos registros existentes usan cada opción, incluidos los asociados a opciones inactivas. Los conteos de planes, hospedajes, productos artesanales, servicios de hospedaje y clases de transporte los devuelve `fn_listar_catalogos`. En una base que ya tenga instaladas las tablas y relaciones de catálogos, vuelve a ejecutar ese archivo para actualizar los conteos; no requiere cambios de esquema ni modifica registros.
+
 Este cambio requiere una instalación nueva: respalda los datos que quieras conservar, crea una base vacía e importa `DB_TOURISMEASY.sql`. No basta con borrar solo las nuevas tablas porque las tablas existentes `TIPOS_DE_PLAN_TURISTICO`, `HOSPEDAJE` y `PRODUCTOS_ARTESANALES` también tienen cambios de esquema, y `CREATE TABLE IF NOT EXISTS` no actualiza estructuras existentes. No ejecutes el esquema sobre una base con datos ni se incluyen instrucciones `ALTER` o una migración.
 
 El fragmento [`catalogos_tablas_inserts.sql`](./catalogos_tablas_inserts.sql) separa las definiciones de las tablas de sus datos iniciales. Es una referencia para instalación en una base vacía con las tablas base ya creadas; no es una actualización para una base existente.

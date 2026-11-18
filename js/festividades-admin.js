@@ -387,10 +387,6 @@
         actualizarVistaPreviaImagen("");
         imageStatus.textContent = "La imagen se quitará al guardar.";
     });
-    document.getElementById("agregarFestividadSidebar").addEventListener("click", function(event) {
-        event.preventDefault();
-        document.getElementById("btnAgregarFestividad").click();
-    });
     previousPageButton.addEventListener("click", function() {
         if (currentPage > 1) {
             currentPage -= 1;
