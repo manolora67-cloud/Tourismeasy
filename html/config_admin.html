@@ -10,7 +10,6 @@
     <link rel="stylesheet" href="../css/login.css?v=admin-menu-icons-v1" />
     <link rel="stylesheet" href="../css/panel_admin.css?v=admin-session-menu-v2" />
     <link rel="stylesheet" href="../componentes/cambio-contrasena.css?v=password-change-v1" />
-    <link rel="stylesheet" href="../componentes/configuracion-seguridad.css?v=security-settings-v3" />
     <link rel="stylesheet" href="../css/agente-ia.css?v=mobile-layout-v2" />
     <link rel="stylesheet" href="../css/tema-global-admin.css?v=global-theme-v1" />
     <link
@@ -57,6 +56,7 @@
                     <a href="panel_admin.html" class="pu-nav-item pu-nav-highlight"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Panel Admin</a>
                     <a href="perfil_admin.html" class="pu-nav-item"><i class="fa-solid fa-user" aria-hidden="true"></i> Mi Perfil</a>
                     <a href="config_admin.html" class="pu-nav-item active"><i class="fa-solid fa-gear" aria-hidden="true"></i> Configuración</a>
+                    <a href="plataforma_admin.html" class="pu-nav-item"><i class="fa-solid fa-diagram-project" aria-hidden="true"></i> Plataforma</a>
                     <a href="festividades_admin.html" class="pu-nav-item"><i class="fa-solid fa-calendar-days" aria-hidden="true"></i> Festividades</a>
                     <a href="catalogos_admin.html" class="pu-nav-item"><i class="fa-solid fa-list-check" aria-hidden="true"></i> Catálogos</a>
                 </nav>
@@ -143,18 +143,6 @@
                     </div>
                 </div>
 
-                <section class="pu-card security-settings" aria-labelledby="securitySettingsTitle">
-                    <h3 class="pu-card-title" id="securitySettingsTitle">
-                        <i class="fa-solid fa-shield-halved"></i> Límites de seguridad
-                    </h3>
-                    <p class="security-settings__intro">
-                        Configura intentos, ventanas y bloqueos de cada acción. Los cambios se validan en el servidor y quedan registrados en Auditoría.
-                    </p>
-                    <div id="securitySettingsList" class="security-settings__list" aria-live="polite">
-                        <p role="status">Cargando controles de seguridad…</p>
-                    </div>
-                </section>
-
                 <div class="pu-card pu-card--monthly-report">
                     <h3 class="pu-card-title">
                         <i class="fa-solid fa-file-pdf"></i> Informe mensual
@@ -192,44 +180,6 @@
                     </div>
                 </div>
 
-                <div class="pu-card">
-                    <h3 class="pu-card-title">
-                        <i class="fa-solid fa-swatchbook"></i> Colores globales del sitio
-                    </h3>
-                    <p class="tema-global__intro">Esta paleta la administra el equipo de TourismEasy y se aplica a todas las páginas. Los cambios se guardan para todos los visitantes; los navegadores pueden tardar hasta 30 segundos en actualizar la paleta almacenada en caché.</p>
-                    <form id="formTemaGlobal">
-                        <div class="tema-global__fields">
-                            <label class="tema-global__field" for="tema-primary">
-                                <input id="tema-primary" type="color" value="#7c3aed" aria-label="Color principal">
-                                <span><strong>Principal</strong><small>Acciones y elementos de marca</small></span>
-                            </label>
-                            <label class="tema-global__field" for="tema-primaryLight">
-                                <input id="tema-primaryLight" type="color" value="#a855f7" aria-label="Color principal claro">
-                                <span><strong>Principal claro</strong><small>Estados activos y degradados</small></span>
-                            </label>
-                            <label class="tema-global__field" for="tema-primaryDark">
-                                <input id="tema-primaryDark" type="color" value="#5b21b6" aria-label="Color principal oscuro">
-                                <span><strong>Principal oscuro</strong><small>Estados presionados y contraste</small></span>
-                            </label>
-                            <label class="tema-global__field" for="tema-accent">
-                                <input id="tema-accent" type="color" value="#f59e0b" aria-label="Color de acento">
-                                <span><strong>Acento</strong><small>Detalles y elementos destacados</small></span>
-                            </label>
-                        </div>
-                        <div class="tema-global__preview" aria-label="Vista previa de la paleta">
-                            <span class="tema-global__preview-primary">Color principal</span>
-                            <span class="tema-global__preview-accent">Color de acento</span>
-                        </div>
-                        <div class="tema-global__actions">
-                            <button class="pu-btn-primary" id="btnGuardarTemaGlobal" type="submit" disabled>
-                                <i class="fa-solid fa-floppy-disk"></i> Guardar colores
-                            </button>
-                            <button class="pu-btn-secondary" type="reset">Restablecer valores iniciales</button>
-                            <p class="tema-global__status" id="estadoTemaGlobal" role="status" aria-live="polite"></p>
-                        </div>
-                    </form>
-                </div>
-
                 <div class="pu-card pu-card-danger">
                     <h3 class="pu-card-title pu-card-title--danger">
                         <i class="fa-solid fa-triangle-exclamation"></i> Zona de peligro
@@ -256,7 +206,6 @@
     <!-- FOOTER -->
     <div id="site-footer"></div>
     <script src="../componentes/footer.js?v=footer-cookie-settings-v6"></script>
-    <script src="../componentes/configuracion-seguridad.js?v=security-settings-v3"></script>
     <script>
         (function () {
             var sess = (localStorage.getItem("te_session") || sessionStorage.getItem("te_session"));
@@ -626,7 +575,7 @@
     </script>
     <script src="../componentes/agente-ia.js?v=private-chat-memory-v2"></script>
     <script src="../menu_accesibilidad/menu.js?v=a11y-v17"></script>
-    <script src="../js/tema-global-admin.js?v=global-theme-v1"></script>
+
     <script src="../componentes/cambio-contrasena.js?v=password-change-v1"></script>
 </body>
 

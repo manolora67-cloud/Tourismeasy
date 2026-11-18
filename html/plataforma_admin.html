@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="../js/control_tiempo_sesion.js?v=secure-session-v4"></script>
+    <title>Plataforma - Panel Administrador - TourismEasy</title>
+    <link rel="stylesheet" href="../css/index.css?v=footer-cookie-settings-v6" />
+    <link rel="stylesheet" href="../css/login.css?v=admin-menu-icons-v1" />
+    <link rel="stylesheet" href="../css/panel_admin.css?v=admin-platform-v1" />
+    <link rel="stylesheet" href="../componentes/cambio-contrasena.css?v=password-change-v1" />
+    <link rel="stylesheet" href="../componentes/configuracion-seguridad.css?v=security-settings-v3" />
+    <link rel="stylesheet" href="../css/agente-ia.css?v=mobile-layout-v2" />
+    <link rel="stylesheet" href="../css/tema-global-admin.css?v=global-theme-v1" />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
+    <script src="../componentes/ui-feedback.js?v=ui-feedback-v4"></script>
+    <script src="../componentes/menu-sesion.js?v=session-menu-v2"></script>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="../index.html" class="nav-logo">
+                <img src="../img/TURISMEASY.png" alt="Logo" class="logo-img" />
+                <span class="logo-text">TOURISMEASY</span>
+            </a>
+            <span class="panel-navbar-label"><i class="fa-solid fa-shield-halved"></i> Panel Administrador</span>
+            <div class="nav-slot">
+                <div id="sessionWidgetSlot" data-role="admin" data-root="../" data-active="plataforma"></div>
+                <button class="btn-dark-mode" id="darkModeToggle" type="button" aria-label="Cambiar modo oscuro">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="pu-main">
+        <div class="pu-container" style="align-items: stretch">
+            <aside class="pu-sidebar" style="display: flex; flex-direction: column">
+                <div class="pu-sidebar-avatar pu-sidebar-avatar-empresa" id="sidebarAvatar">AD</div>
+                <div class="pu-sidebar-nombre" id="sidebarNombre">Cargando administrador…</div>
+                <div class="pu-sidebar-tipo">
+                    <i class="fa-solid fa-shield-halved"></i> Administrador
+                </div>
+                <nav class="pu-sidebar-nav">
+                    <a href="../index.html" class="pu-nav-item"><i class="fa-solid fa-house" aria-hidden="true"></i> Ir al sitio</a>
+                    <a href="panel_admin.html" class="pu-nav-item pu-nav-highlight"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Panel Admin</a>
+                    <a href="perfil_admin.html" class="pu-nav-item"><i class="fa-solid fa-user" aria-hidden="true"></i> Mi Perfil</a>
+                    <a href="config_admin.html" class="pu-nav-item"><i class="fa-solid fa-gear" aria-hidden="true"></i> Configuración</a>
+                    <a href="plataforma_admin.html" class="pu-nav-item active"><i class="fa-solid fa-diagram-project" aria-hidden="true"></i> Plataforma</a>
+                    <a href="festividades_admin.html" class="pu-nav-item"><i class="fa-solid fa-calendar-days" aria-hidden="true"></i> Festividades</a>
+                    <a href="catalogos_admin.html" class="pu-nav-item"><i class="fa-solid fa-list-check" aria-hidden="true"></i> Catálogos</a>
+                </nav>
+
+                <div class="pe-sidebar-bloque pe-sidebar-bloque--purple">
+                    <p class="pe-sidebar-bloque__titulo pe-sidebar-bloque__titulo--purple">
+                        <i class="fa-solid fa-server"></i> Estado de la plataforma
+                    </p>
+                    <div class="pe-sidebar-check">
+                        <i class="fa-solid fa-circle-check" style="color: #22c55e"></i>
+                        <span>Configuración disponible</span>
+                    </div>
+                </div>
+
+                <div style="margin-top: auto; padding-top: 16px">
+                    <a href="#" class="pu-nav-item pu-nav-danger" style="display: block" id="sidebarLogout">
+                        <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> Cerrar sesión
+                    </a>
+                </div>
+            </aside>
+
+            <div class="pu-content">
+                <div class="pu-page-header">
+                    <h1><i class="fa-solid fa-diagram-project"></i> Configuración de Plataforma</h1>
+                </div>
+
+                <section class="pu-card security-settings" aria-labelledby="securitySettingsTitle">
+                    <h3 class="pu-card-title" id="securitySettingsTitle">
+                        <i class="fa-solid fa-shield-halved"></i> Límites de seguridad
+                    </h3>
+                    <p class="security-settings__intro">
+                        Configura intentos, ventanas y bloqueos de cada acción. Los cambios se validan en el servidor y quedan registrados en Auditoría.
+                    </p>
+                    <div id="securitySettingsList" class="security-settings__list" aria-live="polite">
+                        <p role="status">Cargando controles de seguridad…</p>
+                    </div>
+                </section>
+
+                <div class="pu-card">
+                    <h3 class="pu-card-title">
+                        <i class="fa-solid fa-swatchbook"></i> Colores globales del sitio
+                    </h3>
+                    <p class="tema-global__intro">Esta paleta se aplica a todas las páginas. Los cambios se guardan para todos los visitantes; los navegadores pueden tardar hasta 30 segundos en actualizar la paleta almacenada en caché.</p>
+                    <form id="formTemaGlobal">
+                        <div class="tema-global__fields">
+                            <label class="tema-global__field" for="tema-primary">
+                                <input id="tema-primary" type="color" value="#7c3aed" aria-label="Color principal">
+                                <span><strong>Principal</strong><small>Acciones y elementos de marca</small></span>
+                            </label>
+                            <label class="tema-global__field" for="tema-primaryLight">
+                                <input id="tema-primaryLight" type="color" value="#a855f7" aria-label="Color principal claro">
+                                <span><strong>Principal claro</strong><small>Estados activos y degradados</small></span>
+                            </label>
+                            <label class="tema-global__field" for="tema-primaryDark">
+                                <input id="tema-primaryDark" type="color" value="#5b21b6" aria-label="Color principal oscuro">
+                                <span><strong>Principal oscuro</strong><small>Estados presionados y contraste</small></span>
+                            </label>
+                            <label class="tema-global__field" for="tema-accent">
+                                <input id="tema-accent" type="color" value="#f59e0b" aria-label="Color de acento">
+                                <span><strong>Acento</strong><small>Detalles y elementos destacados</small></span>
+                            </label>
+                        </div>
+                        <div class="tema-global__preview" aria-label="Vista previa de la paleta">
+                            <span class="tema-global__preview-primary">Color principal</span>
+                            <span class="tema-global__preview-accent">Color de acento</span>
+                        </div>
+                        <div class="tema-global__actions">
+                            <button class="pu-btn-primary" id="btnGuardarTemaGlobal" type="submit" disabled>
+                                <i class="fa-solid fa-floppy-disk"></i> Guardar colores
+                            </button>
+                            <button class="pu-btn-secondary" type="reset">Restablecer valores iniciales</button>
+                            <p class="tema-global__status" id="estadoTemaGlobal" role="status" aria-live="polite"></p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="site-footer"></div>
+    <script src="../componentes/footer.js?v=footer-cookie-settings-v6"></script>
+    <script src="../componentes/configuracion-seguridad.js?v=security-settings-v3"></script>
+    <script>
+        (function () {
+            var raw = localStorage.getItem("te_session") || sessionStorage.getItem("te_session");
+            if (!raw) {
+                window.location.replace("../index.html");
+                return;
+            }
+            try {
+                var session = JSON.parse(raw);
+                if (session.tipo !== "admin") {
+                    window.location.replace("../index.html");
+                    return;
+                }
+            } catch (error) {
+                window.location.replace("../index.html");
+                return;
+            }
+
+            window.TESessionMenu.mount();
+
+            var darkModeBtn = document.getElementById("darkModeToggle");
+            var darkModeIcon = darkModeBtn.querySelector("i");
+            function applyTheme(dark) {
+                document.body.classList.toggle("dark-mode", dark);
+                darkModeIcon.className = dark ? "fa-solid fa-sun" : "fa-solid fa-moon";
+                localStorage.setItem("theme", dark ? "dark" : "light");
+            }
+            var savedTheme = localStorage.getItem("theme");
+            applyTheme(savedTheme ? savedTheme === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches);
+            darkModeBtn.addEventListener("click", function () {
+                applyTheme(!document.body.classList.contains("dark-mode"));
+            });
+
+            var logoutBtn = document.getElementById("sidebarLogout");
+            if (logoutBtn) {
+                logoutBtn.addEventListener("click", function (event) {
+                    event.preventDefault();
+                    window.TEUI.logoutAdmin("../login/logout_admin.php", "../index.html");
+                });
+            }
+
+            fetch("../login/get_perfil_admin.php", { credentials: "include", cache: "no-store" })
+                .then(function (response) { return response.json(); })
+                .then(function (data) {
+                    var perfil = data && data.admin;
+                    if (!data.ok || !perfil) return;
+                    var nombre = [perfil.nombre, perfil.apellido].filter(Boolean).join(" ").trim();
+                    if (!nombre) return;
+                    var initials = nombre.trim().split(/\s+/).slice(0, 2).map(function (part) {
+                        return part.charAt(0);
+                    }).join("").toUpperCase();
+                    document.getElementById("sidebarNombre").textContent = nombre;
+                    document.getElementById("sidebarAvatar").textContent = initials;
+                })
+                .catch(function (error) {
+                    console.error("No se pudo cargar el perfil de administrador:", error);
+                });
+        })();
+    </script>
+    <script src="../js/tema-global-admin.js?v=global-theme-v1"></script>
+    <script src="../menu_accesibilidad/menu.js?v=a11y-v16"></script>
+</body>
+
+</html>

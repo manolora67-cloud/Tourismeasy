@@ -19,6 +19,7 @@ TourismEasy es una plataforma web para descubrir Santander, Colombia. Conecta a 
 - Aviso de privacidad en la primera visita para aceptar todas las preferencias, guardar solo las necesarias o personalizar opciones. La elección se conserva en el navegador; se puede revisar o cambiar desde la ventana **Preferencias de cookies** del pie de página, sin recargar la página. Las opciones de análisis y marketing se guardan, pero actualmente no habilitan servicios externos.
 - CAPTCHA verificado en el servidor para los inicios de sesión, y recuperación de contraseña con enlace por correo.
 - Límites de seguridad configurables por administración para login, cambio de contraseña, recuperación y confirmación de dispositivos.
+- Vista separada de **Plataforma** para la administración de límites de seguridad y colores globales del sitio.
 - Menú de sesión compartido con opciones separadas por rol para administradores, empresas y artesanos.
 - Confirmaciones, notificaciones y avisos de cambios sin guardar reutilizados en los paneles que los integran.
 - Sesiones de administración, empresas y artesanos administradas por el servidor, con vencimiento tras 10 minutos de inactividad y cierre manual.

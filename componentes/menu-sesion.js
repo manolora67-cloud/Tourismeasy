@@ -18,6 +18,7 @@
                 { texto: "Panel Administrador", ruta: "html/panel_admin.html", icono: "fa-shield-halved", activo: "panel" },
                 { texto: "Mi Perfil", ruta: "html/perfil_admin.html", icono: "fa-user", activo: "perfil" },
                 { texto: "Configuración", ruta: "html/config_admin.html", icono: "fa-gear", activo: "config" },
+                { texto: "Plataforma", ruta: "html/plataforma_admin.html", icono: "fa-diagram-project", activo: "plataforma" },
                 { texto: "Festividades", ruta: "html/festividades_admin.html", icono: "fa-calendar-days", activo: "festividades" },
                 { texto: "Catálogos", ruta: "html/catalogos_admin.html", icono: "fa-list-check", activo: "catalogos" }
             ]
