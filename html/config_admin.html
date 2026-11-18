@@ -299,7 +299,7 @@
                         var email = String(adminActual.email_login || "").toLowerCase();
                         var eventos = data.data.filter(function (event) {
                             return String(event.usuario || "").toLowerCase() === email;
-                        }).slice(0, 3);
+                        }).slice(0, 5);
                         activity.replaceChildren();
                         if (!eventos.length) {
                             var empty = document.createElement("p");
