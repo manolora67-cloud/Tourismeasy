@@ -1495,7 +1495,7 @@ body.dark-mode .pu-sidebar-check {
     border-color: var(--purple);
   }
 
-  /* Ocultar bloques auxiliares del sidebar en tablet */
+  /* Ocultar bloques secundarios del sidebar en tablet */
   .pu-sidebar-promo,
   .pu-sidebar-bloque,
   .pu-sidebar-checks {

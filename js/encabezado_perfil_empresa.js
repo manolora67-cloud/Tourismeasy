@@ -45,9 +45,7 @@
             var panelByService = {
                 TRANSPORTE: "panel_transporte.html",
                 HOSPEDAJE: "panel_hospedaje.html",
-                PLANES: "panel_planes.html",
-                PERSONAL_AUXILIAR: "panel_auxiliar.html",
-                AUXILIAR: "panel_auxiliar.html"
+                PLANES: "panel_planes.html"
             };
             var panelLink = document.querySelector("#sessionWidget .session-menu-highlight");
             if (panelLink && panelByService[serviceKey]) {

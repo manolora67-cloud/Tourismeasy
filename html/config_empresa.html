@@ -251,7 +251,6 @@
             };
             var ICONO = {
                 "transporte": "fa-bus",
-                "auxiliar": "fa-person-cane",
                 "hospedaje": "fa-hotel",
                 "planes": "fa-map-location-dot",
                 "todo": "fa-star"
@@ -346,10 +345,9 @@
                     var paneles = {
                         transporte: "panel_transporte.html",
                         hospedaje: "panel_hospedaje.html",
-                        planes: "panel_planes.html",
-                        auxiliar: "panel_auxiliar.html"
+                        planes: "panel_planes.html"
                     };
-                    var panelHref = paneles[servicio] || "panel_transporte.html";
+                    var panelHref = paneles[servicio] || "perfil_empresa.html";
                     var menuPanel = document.querySelector("#sessionWidget .session-menu-highlight");
                     var sidebarPanel = document.getElementById("sidebarMiPanel");
                     if (menuPanel) menuPanel.href = panelHref;
@@ -390,11 +388,9 @@
                 var m = {
                     transporte: "panel_transporte.html",
                     hospedaje: "panel_hospedaje.html",
-                    planes: "panel_planes.html",
-                    auxiliar: "panel_auxiliar.html",
-                    personal_auxiliar: "panel_auxiliar.html"
+                    planes: "panel_planes.html"
                 };
-                var dest = m[(u.tipoServicio || "").toLowerCase()] || "panel_transporte.html";
+                var dest = m[(u.tipoServicio || "").toLowerCase()] || "perfil_empresa.html";
                 document.querySelectorAll("#sidebarMiPanel").forEach(function (a) {
                     a.href = dest;
                 });

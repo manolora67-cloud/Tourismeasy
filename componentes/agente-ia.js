@@ -23,16 +23,15 @@
         burbulaAutoClose: 6000, // Milisegundos que dura visible la burbuja antes de ocultarse
         chips: [
             { emoji: "🚌", texto: "Transporte desde Bucaramanga" },
-            { emoji: "🏨", texto: "Hospedaje accesible" },
+            { emoji: "🏨", texto: "Hospedajes en Santander" },
             { emoji: "🗺️", texto: "Planes turísticos" },
             { emoji: "♿", texto: "Turismo inclusivo" },
             { emoji: "📍", texto: "Destinos en Santander" },
-            { emoji: "🧭", texto: "Guías especializados" },
         ],
     };
 
     sessionStorage.removeItem("tourismeasy_sue_chat");
-    const MENSAJE_BIENVENIDA = `¡Hola! 👋 Soy **Sue**, tu guía de viajes en **TourismEasy**.\n\nEstoy aquí para ayudarte a explorar los destinos más hermosos y accesibles de Santander, Colombia. Desde el Cañón del Chicamocha hasta las calles coloniales de Barichara. 🌿\n\n¿Sobre qué te puedo ayudar hoy?`;
+    const MENSAJE_BIENVENIDA = `¡Hola! 👋 Soy **Sue**, tu asistente de viajes en **TourismEasy**.\n\nPuedo ayudarte a explorar destinos y servicios turísticos publicados en Santander, Colombia. 🌿\n\n¿Sobre qué te puedo ayudar hoy?`;
 
     let conversacion = [];
 
@@ -72,7 +71,7 @@
           </div>
           <div class="te-header-info">
             <strong>${TE_CONFIG.nombre} </strong>
-            <span>Asistente de viajes inclusivos · Santander</span>
+            <span>Asistente de viajes · Santander</span>
           </div>
           <div class="te-online-indicator">
             <div class="te-online-dot"></div>
@@ -175,14 +174,13 @@
                 /\btransporte\b/, /\bterminal\b/, /\bbus\b/, /\bautobus\b/, /\bruta\b/, /\bmicro\b/, /\bboleto\b/, /\bviajar\b/, /\bllegar\b/, /\bsalida\b/, /\bmovi/,
             ],
             responder: (texto) => {
-                const accesible = /\b(silla de ruedas|adaptad|accesibilidad|discapacidad|movilidad reducida|guia|auxiliar)\b/.test(texto);
+                const accesible = /\b(silla de ruedas|adaptad|accesibilidad|discapacidad|movilidad reducida|guia)\b/.test(texto);
                 const base =
                     "En Santander tienes transporte intermunicipal desde la Terminal de Bucaramanga hacia San Gil, Barichara, Socorro, Giron y otros destinos. " +
-                    "Puedes ver rutas y horarios en la sección de transporte de TourismEasy.";
+                    "Consulta en cada ruta los detalles y atributos de accesibilidad que haya registrado el proveedor.";
                 return accesible
-                    ? base +
-                          " Además, hay servicios con vehículos adaptados, acompañamiento para personas con movilidad reducida y ayuda de guías certificados." 
-                    : base;
+                    ? base
+                    : "Puedes consultar las rutas disponibles en la sección de transporte de TourismEasy.";
             },
         },
         {
@@ -191,17 +189,11 @@
                 /\bhospedaje\b/, /\bhotel\b/, /\balojamiento\b/, /\bposada\b/, /\bhostal\b/, /\bhabitacion\b/, /\bcama\b/, /\breserva\b/, /\breservo\b/, /\breservar\b/, /\bquedarse\b/
             ],
             responder: (texto) => {
-                const accesible = /\b(silla de ruedas|adaptad|accesibilidad|discapacidad|banos adaptad|baños adaptad|baño adaptad|baranda)\b/.test(texto);
                 let respuesta =
-                    "En TourismEasy encuentras hospedajes accesibles con rampas, baños adaptados y opciones inclusivas en Santander. " +
-                    "Para elegir uno, entra a la sección de hospedaje y filtra por accesibilidad.";
+                    "Entra a la sección de hospedaje y revisa en cada ficha los atributos de accesibilidad registrados por el proveedor.";
                 if (texto.includes("reservar") || texto.includes("reserva")) {
                     respuesta +=
                         " Para reservar, selecciona el hospedaje que te guste, elige fechas y completa el formulario en la misma página.";
-                }
-                if (accesible) {
-                    respuesta +=
-                        " También puedes pedir alojamiento con accesos amplios, camas especiales y asistencia en llegada y salida.";
                 }
                 return respuesta;
             },
@@ -214,11 +206,10 @@
             responder: (texto) => {
                 const escucha = /\b(visual|audio|audiencia|sonido|guia auditiva)\b/.test(texto);
                 let respuesta =
-                    "Santander ofrece destinos muy variados: Barichara para turismo colonial, San Gil para aventura adaptada y el Cañon del Chicamocha para vistas impresionantes y accesibles. " +
-                    "También puedes visitar Giron, Socorro, Velez y lugares rurales con experiencias culturales inclusivas.";
+                    "Santander ofrece destinos como Barichara, San Gil, Girón, Socorro, Vélez y el Cañón del Chicamocha. Consulta los planes publicados para conocer sus detalles.";
                 if (escucha) {
                     respuesta +=
-                        " Si necesitas apoyo visual o una experiencia más sensible, pregunta por guías con audiodescripción y servicios para personas con discapacidad visual.";
+                        " Revisa en cada plan los atributos de accesibilidad que haya registrado el proveedor.";
                 }
                 return respuesta;
             },
@@ -231,26 +222,11 @@
             responder: (texto) => {
                 const inclusivo = /\b(accesible|discapacidad|inclusivo|inclusiva|silla de ruedas|visual|auditiva)\b/.test(texto);
                 return (
-                    "TourismEasy tiene planes turísticos inclusivos con guías especializados y actividades adaptadas para distintos perfiles. " +
+                    "Consulta los planes publicados y revisa los atributos de accesibilidad que haya registrado cada proveedor. " +
                     (inclusivo
-                        ? "Puedes escoger experiencias con rutas suaves, apoyo para movilidad y actividades culturales accesibles. "
-                        : "Encuentra planes para aventura, cultura y descanso según lo que quieras hacer.") +
+                        ? "La disponibilidad depende de los detalles de cada plan. "
+                        : "Puedes comparar sus destinos, precios y detalles.") +
                     " Si quieres, dime qué tipo de experiencia buscas y te orientaré mejor."
-                );
-            },
-        },
-        {
-            nombre: "auxiliar",
-            patrones: [
-                /\b(auxiliar|asistente|guia|guia)\b/, /\bpersonal\b/, /\bacompañante\b/, /\bayuda\b/, /\bsoporte\b/, /\bapoyo\b/
-            ],
-            responder: (texto) => {
-                const tipo = /\b(motriz|visual|auditiva|discapacidad|silla de ruedas)\b/.test(texto);
-                return (
-                    "En la plataforma puedes solicitar personal auxiliar y guías certificados para acompañarte en el viaje, transporte, hospedaje y actividades. " +
-                    (tipo
-                        ? "Hay apoyos específicos para discapacidad motriz, visual y auditiva, con atención personalizada y mayor seguridad."
-                        : "Estas personas ayudan a que tu recorrido sea más cómodo y seguro.")
                 );
             },
         },
@@ -260,12 +236,10 @@
                 /\baccesibilidad\b/, /\binclusivo\b/, /\binclusiva\b/, /\bdiscapacidad\b/, /\bsilla de ruedas\b/, /\bauditiva\b/, /\bvisual\b/, /\badaptad\b/
             ],
             responder: (texto) => {
-                const tipo = /\b(visual|auditiva|motric|rueda|silla de ruedas|motriz)\b/.exec(texto);
-                const detalle = tipo ? `Para ${tipo[0]},` : "En general,";
                 return (
-                    `${detalle} TourismEasy ofrece servicios accesibles en transporte, hospedaje y experiencias. ` +
-                    "Puedes buscar alojamiento con baños adaptados, transporte con rampas y guías que ayudan a las personas con discapacidad visual o auditiva. " +
-                    "Si quieres, dime tu necesidad y te diré qué opciones son mejores para ti."
+                    "Revisa las fichas de transporte, hospedaje y planes para ver los atributos de accesibilidad registrados por cada proveedor. " +
+                    "La disponibilidad depende de cada servicio. " +
+                    "Si quieres, dime qué tipo de servicio buscas y te ayudo a encontrarlo."
                 );
             },
         },
@@ -349,11 +323,11 @@
         const texto = normalizarTexto(mensajeUsuario);
 
         if (!texto) {
-            return "Escribe tu pregunta y te ayudaré con información sobre turismo inclusivo en Santander.";
+            return "Escribe tu pregunta y te ayudaré con información turística sobre Santander.";
         }
 
         if (/\b(hola|buenas|buenos dias|buenas tardes|buenas noches|hey|buenas|holi)\b/.test(texto)) {
-            return "¡Hola! 👋 Soy Sue, tu asistente para viajes inclusivos en Santander. ¿En qué puedo ayudarte hoy?";
+            return "¡Hola! 👋 Soy Sue, tu asistente de viajes en Santander. ¿En qué puedo ayudarte hoy?";
         }
 
         if (/\b(gracias|muchas gracias|perfecto|genial|vale|ok|buenisimo|gracias sue)\b/.test(texto)) {
@@ -363,8 +337,8 @@
         const intenciones = detectarIntenciones(texto);
         if (intenciones.length === 0) {
             return (
-                "No tengo una respuesta exacta para eso, pero puedo ayudarte con transporte intermunicipal, hospedaje accesible, planes turísticos, personal auxiliar y accesibilidad. " +
-                "Si quieres, dime si buscas transporte, hospedaje o un plan inclusivo."
+                "No tengo una respuesta exacta para eso ahora mismo. " +
+                "Puedes preguntarme sobre transporte, hospedaje, destinos, planes o accesibilidad en Santander."
             );
         }
 

@@ -4,9 +4,7 @@
     var panelesEmpresa = {
         TRANSPORTE: { ruta: "panel_transporte.html", icono: "fa-bus" },
         HOSPEDAJE: { ruta: "panel_hospedaje.html", icono: "fa-hotel" },
-        PLANES: { ruta: "panel_planes.html", icono: "fa-map-location-dot" },
-        PERSONAL_AUXILIAR: { ruta: "panel_auxiliar.html", icono: "fa-person-cane" },
-        AUXILIAR: { ruta: "panel_auxiliar.html", icono: "fa-person-cane" }
+        PLANES: { ruta: "panel_planes.html", icono: "fa-map-location-dot" }
     };
 
     var menus = {
@@ -177,9 +175,15 @@
             }
             if (item.panelEmpresa) {
                 var servicio = String(usuario.tipoServicio || usuario.servicio || "TRANSPORTE").toUpperCase();
-                var panel = panelesEmpresa[servicio] || panelesEmpresa.TRANSPORTE;
-                enlace.href = raiz + "html/" + panel.ruta;
-                item.icono = panel.icono;
+                var panel = panelesEmpresa[servicio];
+                if (panel) {
+                    enlace.href = raiz + "html/" + panel.ruta;
+                    item.icono = panel.icono;
+                } else {
+                    item.texto = "Mi Perfil";
+                    item.icono = "fa-user";
+                    enlace.href = raiz + "html/perfil_empresa.html";
+                }
             } else {
                 enlace.href = raiz + item.ruta;
             }

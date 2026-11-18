@@ -40,7 +40,7 @@ if (strlen($password) < 8) {
     exit;
 }
 
-$tipos_validos = ['HOSPEDAJE','PLANES','TRANSPORTE','PERSONAL_AUXILIAR'];
+$tipos_validos = ['HOSPEDAJE','PLANES','TRANSPORTE'];
 if (!in_array($tipo_serv, $tipos_validos)) {
     echo json_encode(["ok" => false, "error" => "Tipo de servicio inválido."]);
     exit;

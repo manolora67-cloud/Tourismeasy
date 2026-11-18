@@ -95,7 +95,7 @@
         <ul>
           <li>🏨 Hoteles y hospedajes</li>
           <li>✈️ Agencias de viaje</li>
-          <li>🎒 Operadores turísticos con guías especializados</li>
+          <li>🎒 Operadores turísticos</li>
         </ul>
         <h3>Beneficios de ser aliado</h3>
         <ul>

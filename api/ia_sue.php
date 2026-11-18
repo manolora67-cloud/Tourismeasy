@@ -743,8 +743,8 @@ function fallbackResponse(string $question): array
         return [
             'success' => true,
             'response' => $english
-                ? 'Hello! 👋 I am Sue, your inclusive travel assistant for Santander. How can I help you today?'
-                : '¡Hola! 👋 Soy Sue, tu asistente para viajes inclusivos en Santander. ¿En qué puedo ayudarte hoy?',
+                ? 'Hello! 👋 I am Sue, your travel assistant for Santander. How can I help you today?'
+                : '¡Hola! 👋 Soy Sue, tu asistente de viajes en Santander. ¿En qué puedo ayudarte hoy?',
         ];
     }
 
@@ -752,8 +752,8 @@ function fallbackResponse(string $question): array
         return [
             'success' => true,
             'response' => $english
-                ? 'In Santander, you can take intercity transportation from Bucaramanga Terminal to destinations such as San Gil, Barichara, Socorro, and Girón. TourismEasy can also help you find accessible transportation and mobility support.'
-                : 'En Santander puedes tomar transporte intermunicipal desde la Terminal de Bucaramanga a destinos como San Gil, Barichara, Socorro y Giron. TourismEasy también te ayuda con opciones de transporte adaptado y guías para movilidad reducida.',
+                ? 'You can explore the transportation listings on TourismEasy. Check each listing for the route details and accessibility features reported by its provider.'
+                : 'Puedes consultar las rutas publicadas en TourismEasy. Revisa en cada ficha los detalles y atributos de accesibilidad registrados por el proveedor.',
         ];
     }
 
@@ -761,8 +761,8 @@ function fallbackResponse(string $question): array
         return [
             'success' => true,
             'response' => $english
-                ? 'You can find accessible accommodations on the platform. Open the accommodation section and filter by accessibility to explore the available options.'
-                : 'En la plataforma encontrarás hospedajes accesibles con rampas, baños adaptados y opciones inclusivas. Selecciona la sección de hospedaje y filtra por accesibilidad para ver las mejores opciones.',
+                ? 'You can explore the accommodation listings on TourismEasy. Check each listing for details and accessibility features reported by its provider.'
+                : 'Puedes consultar los hospedajes publicados en TourismEasy. Revisa en cada ficha los detalles y atributos de accesibilidad registrados por el proveedor.',
         ];
     }
 
@@ -770,8 +770,8 @@ function fallbackResponse(string $question): array
         return [
             'success' => true,
             'response' => $english
-                ? 'Santander offers destinations such as Barichara for colonial tourism, San Gil for accessible adventures, and Chicamocha Canyon for scenic views. You can explore tour options on the platform.'
-                : 'Santander tiene destinos como Barichara para turismo colonial, San Gil para aventura adaptada y el Cañon del Chicamocha para vistas accesibles. Puedes explorar planes en la plataforma según tu necesidad.',
+                ? 'Santander has destinations such as Barichara, San Gil, Girón, Socorro, Vélez, and Chicamocha Canyon. Check the listings for details about available tours.'
+                : 'Santander tiene destinos como Barichara, San Gil, Girón, Socorro, Vélez y el Cañón del Chicamocha. Consulta los planes publicados para conocer sus detalles.',
         ];
     }
 
@@ -779,8 +779,8 @@ function fallbackResponse(string $question): array
         return [
             'success' => true,
             'response' => $english
-                ? 'TourismEasy offers inclusive tours with specialized guides and adapted activities. Tell me what kind of experience you are looking for and I will help you explore the options.'
-                : 'TourismEasy ofrece planes turísticos inclusivos con guías especializados y actividades adaptadas. Elige el tipo de experiencia que buscas y te guiaré a la mejor opción.',
+                ? 'Check the published tours and the accessibility features reported by each provider. Availability depends on each listing.'
+                : 'Consulta los planes publicados y los atributos de accesibilidad registrados por cada proveedor. La disponibilidad depende de cada ficha.',
         ];
     }
 
@@ -788,8 +788,8 @@ function fallbackResponse(string $question): array
         return [
             'success' => true,
             'response' => $english
-                ? 'You can find accessible transportation, accommodation, and tours. If you need specific support, ask about mobility, visual, or hearing accessibility.'
-                : 'Puedes encontrar servicios accesibles en transporte, hospedaje y planes. Si necesitas apoyo especial, pregunta por opciones para movilidad reducida, discapacidad visual o auditiva.',
+                ? 'Check the transportation, accommodation, and tour listings for accessibility features reported by each provider. Availability depends on each listing.'
+                : 'Revisa las fichas de transporte, hospedaje y planes para ver los atributos de accesibilidad registrados por cada proveedor. La disponibilidad depende de cada servicio.',
         ];
     }
 
