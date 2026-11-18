@@ -458,7 +458,8 @@ body.dark-mode .catalogos-admin-table-wrap {
 }
 
 .catalogos-sidebar-summary__heading h2,
-.catalogos-sidebar-note h2 {
+.catalogos-sidebar-note h2,
+.catalogos-sidebar-visibility h2 {
     margin: 0;
     color: var(--gray-800);
     font: 700 .78rem var(--font-head);
@@ -556,6 +557,47 @@ body.dark-mode .catalogos-admin-table-wrap {
     line-height: 1.5;
 }
 
+.catalogos-sidebar-visibility {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    margin-top: 12px;
+    padding: 11px 12px;
+    background: rgba(var(--theme-primary-rgb, 124, 58, 237), .055);
+    border: 1px solid rgba(var(--theme-primary-rgb, 124, 58, 237), .16);
+    border-radius: 12px;
+}
+
+.catalogos-sidebar-visibility__icon {
+    display: grid;
+    flex: 0 0 auto;
+    width: 27px;
+    height: 27px;
+    place-items: center;
+    color: var(--purple);
+    background: rgba(var(--theme-primary-rgb, 124, 58, 237), .12);
+    border-radius: 8px;
+    font-size: .72rem;
+}
+
+.catalogos-sidebar-visibility > div {
+    flex: 1;
+    min-width: 0;
+}
+
+.catalogos-sidebar-visibility h2 {
+    margin: 1px 0 4px;
+    color: var(--gray-800);
+    font-size: .72rem;
+}
+
+.catalogos-sidebar-visibility p {
+    margin: 0;
+    color: var(--gray-600);
+    font-size: .68rem;
+    line-height: 1.4;
+}
+
 body.dark-mode .catalogos-sidebar-summary {
     background: rgba(var(--theme-primary-rgb, 124, 58, 237), .12);
     border-color: rgba(var(--theme-primary-rgb, 124, 58, 237), .25);
@@ -600,6 +642,24 @@ body.dark-mode .catalogos-sidebar-note h2 {
 }
 
 body.dark-mode .catalogos-sidebar-note p {
+    color: #cbd5e1;
+}
+
+body.dark-mode .catalogos-sidebar-visibility {
+    background: rgba(var(--theme-primary-rgb, 124, 58, 237), .12);
+    border-color: rgba(var(--theme-primary-rgb, 124, 58, 237), .25);
+}
+
+body.dark-mode .catalogos-sidebar-visibility__icon {
+    color: #c4b5fd;
+    background: rgba(124, 58, 237, .2);
+}
+
+body.dark-mode .catalogos-sidebar-visibility h2 {
+    color: #f1f5f9;
+}
+
+body.dark-mode .catalogos-sidebar-visibility p {
     color: #cbd5e1;
 }
 
