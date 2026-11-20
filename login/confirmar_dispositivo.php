@@ -46,12 +46,13 @@ $contenido = $resultado !== null
     <title>Confirmación de inicio de sesión - TourismEasy</title>
     <link rel="stylesheet" href="../tema_global.php?v=global-theme-v1">
     <style>
-        body{margin:0;min-height:100vh;display:grid;place-items:center;background:#f1f5f9;font-family:Arial,sans-serif;color:#1e293b}
-        main{box-sizing:border-box;width:min(92vw,520px);padding:32px;border:1px solid #e2e8f0;border-radius:16px;background:#fff;box-shadow:0 16px 45px #0f172a18}
-        h1{margin-top:0;color:var(--theme-primary-dark,#6d28d9)}p{line-height:1.6}.actions{display:flex;gap:12px;margin-top:24px}
-        button{flex:1;padding:13px;border:0;border-radius:8px;font-size:16px;font-weight:700;cursor:pointer}
-        .yes{background:var(--theme-primary-dark,#6d28d9);color:#fff}.no{background:#e2e8f0;color:#334155}
+        body{margin:0;min-height:100vh;display:grid;place-items:center;background:#f7f5f1;font-family:"Open Sans",sans-serif;color:#29261f}
+        main{box-sizing:border-box;width:min(92vw,520px);padding:32px;border:1px solid #e8e4dc;border-radius:8px;background:#fff;box-shadow:none}
+        h1{margin-top:0;color:var(--theme-primary-dark,#6d28d9);font-family:Georgia,"Times New Roman",serif;font-weight:500;letter-spacing:-.025em}p{line-height:1.6}.actions{display:flex;gap:12px;margin-top:24px}
+        button{flex:1;padding:13px;border:1px solid #e8e4dc;border-radius:5px;font-family:"Open Sans",sans-serif;font-size:16px;font-weight:600;cursor:pointer}
+        .yes{background:var(--theme-primary-dark,#6d28d9);color:#fff}.no{background:#f7f5f1;color:#29261f}
     </style>
+    <link rel="stylesheet" href="../css/estilo-editorial.css?v=editorial-v1">
 </head>
 <body>
 <main>

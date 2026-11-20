@@ -361,9 +361,6 @@ body.welcome-active #ck-info-modal {
 }
 
 #site-content .btn-sound {
-    right: auto;
-    bottom: 1.5rem;
-    left: clamp(1.25rem, 7vw, 7rem);
     padding: 0.65rem 0.85rem;
     border: 1px solid rgba(255, 255, 255, 0.4);
     border-radius: 0.4rem;
@@ -561,77 +558,6 @@ body.welcome-active #ck-info-modal {
     box-shadow: none;
 }
 
-/* Controles flotantes */
-.home-page .te-chat-fab {
-    right: calc(20px + env(safe-area-inset-right, 0px));
-    bottom: calc(20px + env(safe-area-inset-bottom, 0px));
-    width: 52px;
-    height: 52px;
-    background: var(--purple, #7c3aed);
-    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.22);
-    transition: transform 180ms ease, box-shadow 180ms ease;
-}
-
-.home-page .te-chat-fab:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 7px 20px rgba(15, 23, 42, 0.24);
-}
-
-.home-page .te-chat-fab::after {
-    display: none;
-}
-
-.home-page .te-chat-fab:focus-visible {
-    outline: 3px solid #fff;
-    outline-offset: 4px;
-}
-
-.home-page .te-chat-bubble {
-    right: calc(84px + env(safe-area-inset-right, 0px));
-    bottom: calc(24px + env(safe-area-inset-bottom, 0px));
-    max-width: min(260px, calc(100vw - 120px));
-    border-radius: 0.4rem;
-    font-size: 0.78rem;
-    font-weight: 500;
-    line-height: 1.4;
-    white-space: normal;
-    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.16);
-}
-
-.home-page .te-accessibility {
-    right: calc(20px + env(safe-area-inset-right, 0px));
-    bottom: calc(84px + env(safe-area-inset-bottom, 0px));
-}
-
-.home-page .te-accessibility .te-accessibility-toggle {
-    width: 52px;
-    height: 52px;
-    min-height: 52px !important;
-    border: 1px solid rgba(76, 29, 149, 0.16);
-    background: rgba(255, 255, 255, 0.97);
-    color: var(--theme-primary-dark, #4c1d95);
-    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.18);
-    transition: transform 180ms ease, background-color 180ms ease;
-}
-
-.home-page .te-accessibility .te-accessibility-toggle:hover {
-    transform: translateY(-2px);
-    background: #fff;
-}
-
-.home-page .te-accessibility .te-accessibility-toggle:focus-visible {
-    outline: 3px solid var(--theme-primary-dark, #4c1d95);
-    outline-offset: 4px;
-}
-
-.home-page .te-accessibility .te-accessibility-panel {
-    width: min(320px, calc(100vw - 48px - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)));
-}
-
-.home-page .te-accessibility .te-accessibility-toggle > span:first-child {
-    font-family: "Segoe UI Symbol", "Arial Unicode MS", sans-serif;
-}
-
 body.dark-mode #site-content .destinos {
     background: #111827;
 }
@@ -698,8 +624,6 @@ body.dark-mode #site-destinos .mapa-eyebrow {
     }
 
     #site-content .btn-sound {
-        bottom: 1rem;
-        left: 1rem;
         padding: 0.55rem 0.7rem;
     }
 
@@ -741,24 +665,6 @@ body.dark-mode #site-destinos .mapa-eyebrow {
         border-radius: 0.75rem 0.75rem 0 0;
     }
 
-    .home-page .te-chat-fab {
-        right: calc(76px + env(safe-area-inset-right, 0px));
-        bottom: calc(16px + env(safe-area-inset-bottom, 0px));
-    }
-
-    .home-page .te-chat-bubble {
-        display: none;
-    }
-
-    .home-page .te-accessibility {
-        right: calc(16px + env(safe-area-inset-right, 0px));
-        bottom: calc(16px + env(safe-area-inset-bottom, 0px));
-    }
-
-    .home-page .te-accessibility .te-accessibility-panel {
-        right: calc(16px + env(safe-area-inset-right, 0px));
-        bottom: calc(84px + env(safe-area-inset-bottom, 0px));
-    }
 }
 
 @media (max-width: 479px) {
@@ -786,27 +692,6 @@ body.dark-mode #site-destinos .mapa-eyebrow {
 @media (max-height: 500px) and (max-width: 767px) {
     .welcome-content h1 {
         font-size: clamp(1.9rem, 8vh, 2.4rem);
-    }
-}
-
-@media (max-height: 520px) {
-    .home-page .te-chat-fab {
-        top: calc(72px + env(safe-area-inset-top, 0px));
-        right: calc(16px + env(safe-area-inset-right, 0px));
-        bottom: auto;
-    }
-
-    .home-page .te-accessibility {
-        top: calc(72px + env(safe-area-inset-top, 0px));
-        right: calc(76px + env(safe-area-inset-right, 0px));
-        bottom: auto;
-    }
-
-    .home-page .te-accessibility .te-accessibility-panel {
-        top: calc(132px + env(safe-area-inset-top, 0px));
-        right: calc(16px + env(safe-area-inset-right, 0px));
-        bottom: auto;
-        max-height: calc(100dvh - 148px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
     }
 }
 

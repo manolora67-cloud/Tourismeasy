@@ -56,11 +56,12 @@ $artesanoNombreSesion = $_SESSION['artesano_nombre'] ?? 'Artesano';
     <link rel="stylesheet" href="../componentes/menu-sesion.css?v=session-menu-v3" />
     <link rel="stylesheet" href="../componentes/cambio-contrasena.css?v=password-change-v1" />
     <link rel="stylesheet" href="../css/click_metrics.css" />
-    <link rel="stylesheet" href="../css/agente-ia.css?v=mobile-layout-v2" />
+    <link rel="stylesheet" href="../css/agente-ia.css?v=editorial-v1" />
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;500&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
     <script src="../componentes/ui-feedback.js?v=ui-feedback-v4"></script>
+    <link rel="stylesheet" href="../css/estilo-editorial.css?v=editorial-v1" />
 </head>
 
 <body>
@@ -330,7 +331,7 @@ $artesanoNombreSesion = $_SESSION['artesano_nombre'] ?? 'Artesano';
     <script src="../componentes/cambio-contrasena.js?v=password-change-v1"></script>
     <script src="../js/configuracion_artesano.js?v=artisan-settings-v1"></script>
     <script src="../componentes/agente-ia.js?v=private-chat-memory-v1"></script>
-    <script src="../menu_accesibilidad/menu.js?v=a11y-v14"></script>
+    <script src="../menu_accesibilidad/menu.js?v=editorial-v2"></script>
 </body>
 
 </html>

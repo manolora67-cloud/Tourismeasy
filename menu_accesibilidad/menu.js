@@ -11,7 +11,7 @@
 
     const style = document.createElement("link");
     style.rel = "stylesheet";
-    style.href = new URL("menu.css?v=a11y-v16", scriptUrl).href;
+    style.href = new URL("menu.css?v=editorial-v2", scriptUrl).href;
     document.head.appendChild(style);
 
     const minScale = 80;
@@ -44,7 +44,11 @@
     root.dataset.teAccessibility = "";
     root.innerHTML = `
         <button class="te-accessibility-toggle" type="button" aria-label="Abrir menú de accesibilidad" title="Accesibilidad" aria-expanded="false" aria-controls="te-accessibility-panel">
-            <span aria-hidden="true">♿</span>
+            <svg class="te-accessibility-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.6"/>
+                <circle cx="12" cy="6.2" r="1.2" fill="currentColor"/>
+                <path d="M6.3 9.8 12 8.5l5.7 1.3M12 9v4.3m0 0-3.2 4.5m3.2-4.5 3.2 4.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7"/>
+            </svg>
         </button>
         <section class="te-accessibility-panel" id="te-accessibility-panel" aria-labelledby="te-accessibility-title" hidden>
             <div class="te-accessibility-heading">

@@ -1,0 +1,225 @@
+:root {
+    --font-head: Georgia, "Times New Roman", serif;
+    --radius: 0.5rem;
+    --shadow: 0 2px 10px rgba(39, 38, 31, 0.06);
+    --shadow-card: 0 1px 5px rgba(39, 38, 31, 0.06);
+    --gray-100: #f7f5f1;
+    --gray-200: #e8e4dc;
+    --gray-600: #706b62;
+    --gray-800: #29261f;
+    --editorial-line: #e8e4dc;
+}
+
+body.dark-mode {
+    --gray-100: #111827;
+    --gray-200: #374151;
+    --gray-600: #cbd5e1;
+    --gray-800: #f3f4f6;
+    --shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    --shadow-card: none;
+    --editorial-line: #374151;
+}
+
+body h1,
+body h2,
+body h3,
+body h4,
+body :is(.module-title, .section-title, .pu-card-title, .panel-empresa-nombre, .rec-title, .audit-snapshot-title, .te-cap-title, .ck-title) {
+    font-family: var(--font-head);
+    font-weight: 500;
+    letter-spacing: -0.025em;
+}
+
+body :is(.nav-logo, .logo-text, .panel-navbar-label) {
+    font-family: "Montserrat", "Open Sans", sans-serif;
+}
+
+body .navbar {
+    border-bottom-color: var(--editorial-line);
+    box-shadow: none;
+}
+
+body .search-container {
+    border: 1px solid var(--editorial-line);
+}
+
+body :is(
+    .card,
+    .card-item,
+    .testimonial-card,
+    .pu-card,
+    .stat-card,
+    .login-page-card,
+    .lec-card,
+    .approval-code-card,
+    .rec-card,
+    .error-card,
+    .portada-card,
+    .catalog-admin-card,
+    .catalogos-usage-card,
+    .click-metrics__card,
+    .chart-card,
+    .artisan-settings-card,
+    .te-password-modal__card,
+    .search-container
+) {
+    border-color: var(--editorial-line);
+    border-radius: var(--radius);
+    box-shadow: none;
+}
+
+body.dark-mode :is(
+    .card,
+    .card-item,
+    .testimonial-card,
+    .pu-card,
+    .stat-card,
+    .login-page-card,
+    .lec-card,
+    .approval-code-card,
+    .rec-card,
+    .error-card,
+    .portada-card,
+    .catalog-admin-card,
+    .catalogos-usage-card,
+    .click-metrics__card,
+    .chart-card,
+    .artisan-settings-card,
+    .te-password-modal__card,
+    .search-container
+) {
+    border-color: var(--editorial-line);
+    box-shadow: none;
+}
+
+body :is(.card-badge, .card-tag, .filter-tag, .filter-chip, .panel-badge, .badge, .tag) {
+    border-radius: 0.25rem;
+}
+
+body :is(input, select, textarea):not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="button"]):not([type="submit"]) {
+    border-color: var(--editorial-line);
+    border-radius: 0.35rem;
+}
+
+body :is(input, select, textarea):focus-visible {
+    outline: 2px solid rgba(var(--theme-primary-rgb, 124, 58, 237), 0.35);
+    outline-offset: 2px;
+}
+
+body button:not(.te-chat-fab):not(.te-accessibility-toggle):not(.te-chat-send):not(.te-close-mobile):not(.btn-sound):not(.art-btn-sound):not(.destinos-arrow):not(.dot):not(.social-icon):not(.hamburger):not(#darkModeToggle):not(.te-accessibility button):not(.te-chat-panel button),
+body input[type="button"],
+body input[type="submit"],
+body a[class*="btn-"],
+body a.button {
+    border-radius: 0.4rem;
+    box-shadow: none;
+}
+
+body.dark-mode :is(h1, h2, h3, h4) {
+    color: #f3f4f6;
+}
+
+html body .te-accessibility {
+    font-family: var(--font-body, "Open Sans", sans-serif);
+}
+
+html body .te-accessibility button {
+    border: 1px solid var(--editorial-line);
+    border-radius: 5px;
+    background: #f7f5f1;
+    color: #29261f;
+    box-shadow: none;
+    font-family: var(--font-body, "Open Sans", sans-serif);
+    font-weight: 600;
+}
+
+html body .te-accessibility button:focus-visible {
+    outline: 3px solid var(--theme-primary-dark, #4c1d95);
+}
+
+html body .te-accessibility .te-accessibility-toggle {
+    border-color: rgba(76, 29, 149, 0.16);
+    border-radius: 50%;
+    background: #fff;
+    color: var(--theme-primary-dark, #4c1d95);
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.16);
+}
+
+html body .te-accessibility .te-accessibility-panel {
+    border-color: var(--editorial-line);
+    border-radius: 8px;
+    background: #fff;
+    color: #29261f;
+    box-shadow: 0 12px 36px rgba(15, 23, 42, 0.16);
+}
+
+html body .te-accessibility .te-accessibility-heading h2 {
+    color: #29261f;
+    font-family: Georgia, "Times New Roman", serif;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+}
+
+html body .te-accessibility .te-accessibility-language button[aria-pressed="true"],
+html body .te-accessibility .te-accessibility-contrast[aria-pressed="true"] {
+    border-color: var(--theme-primary-dark, #4c1d95);
+    background: var(--theme-primary-dark, #4c1d95);
+    color: #fff;
+}
+
+html body .te-accessibility .te-accessibility-contrast[aria-pressed="true"] {
+    outline: 2px solid rgba(76, 29, 149, 0.25);
+}
+
+html body .te-accessibility .te-accessibility-close {
+    border-radius: 50%;
+    background: transparent;
+    color: #706b62;
+}
+
+html body .te-accessibility .te-accessibility-status {
+    color: #706b62;
+}
+
+html body.dark-mode .te-accessibility button:not(.te-accessibility-toggle) {
+    border-color: #374151;
+    background: #111827;
+    color: #f3f4f6;
+}
+
+html body.dark-mode .te-accessibility .te-accessibility-panel {
+    border-color: #374151;
+    background: #1e293b;
+    color: #f3f4f6;
+}
+
+html body.dark-mode .te-accessibility .te-accessibility-heading h2,
+html body.dark-mode .te-accessibility .te-accessibility-status {
+    color: #f3f4f6;
+}
+
+html body.dark-mode .te-accessibility .te-accessibility-language button[aria-pressed="true"],
+html body.dark-mode .te-accessibility .te-accessibility-contrast[aria-pressed="true"] {
+    border-color: var(--theme-primary-light, #a855f7);
+    background: var(--theme-primary-dark, #4c1d95);
+    color: #fff;
+}
+
+html body.dark-mode .te-accessibility .te-accessibility-toggle {
+    border-color: #374151;
+    background: #1e293b;
+    color: var(--theme-primary-light, #a855f7);
+}
+
+/* Keep the accessibility control stacked above Sue on short screens. */
+@media (max-width: 767px) and (max-height: 520px) {
+    html body .te-accessibility {
+        bottom: calc(100px + env(safe-area-inset-bottom, 0px));
+    }
+}
+
+@media (max-width: 480px) and (max-height: 520px) {
+    html body .te-accessibility {
+        bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+    }
+}
