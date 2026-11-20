@@ -253,6 +253,12 @@ body.dark-mode .modal-box li {
     /* Ocupa el espacio disponible en la navbar */
 }
 
+@media (max-width: 760px) {
+    .panel-navbar-label {
+        display: none;
+    }
+}
+
 body.dark-mode .panel-navbar-label {
     color: var(--purple-light, var(--theme-primary-light, #c4b5fd));
 }
@@ -1471,7 +1477,7 @@ body.dark-mode .catalog-action:hover {
 
 .pu-container {
     display: grid;
-    grid-template-columns: 240px 1fr;
+    grid-template-columns: minmax(0, 240px) minmax(0, 1fr);
     gap: 24px;
     align-items: start;
 }
@@ -1526,6 +1532,7 @@ body.dark-mode .catalog-action:hover {
 /* Sidebar del admin: sticky para quedarse al scroll */
 
 .pu-sidebar {
+    min-width: 0;
     background: var(--white);
     border-radius: 16px;
     padding: 24px 20px;
@@ -1594,6 +1601,7 @@ body.dark-mode .catalog-action:hover {
     display: flex;
     flex-direction: column;
     gap: 4px;
+    min-width: 0;
     text-align: left;
 }
 
@@ -1855,6 +1863,7 @@ body.dark-mode .catalog-action:hover {
     display: flex;
     flex-direction: column;
     gap: 20px;
+    min-width: 0;
 }
 
 
@@ -2936,7 +2945,7 @@ body.dark-mode .btn-tbl-reject {
 
     /* El sidebar del usuario pasa de columna a fila */
     .pu-container {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
     }
 
     .pu-sidebar {
@@ -2983,9 +2992,13 @@ body.dark-mode .btn-tbl-reject {
     }
 
     .pu-nav-item {
+        flex: 1 1 180px;
+        min-width: 0;
         padding: 9px 14px;
         font-size: 0.83rem;
         border: 1px solid var(--gray-200);
+        white-space: normal;
+        overflow-wrap: anywhere;
     }
 
     .pu-nav-item.active {
@@ -3104,20 +3117,23 @@ body.dark-mode .btn-tbl-reject {
         margin-bottom: 12px;
     }
 
-    /* Navegación con scroll horizontal */
+    /* Navegación en dos columnas sin desbordar la página */
     .pu-sidebar-nav {
-        justify-content: center;
-        overflow-x: auto;
-        flex-wrap: nowrap;
-        -webkit-overflow-scrolling: touch;
-        padding-bottom: 4px;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        overflow: visible;
         width: 100%;
+        gap: 8px;
     }
 
     .pu-nav-item {
-        flex-shrink: 0;
+        flex: initial;
+        min-width: 0;
         font-size: 0.8rem;
         padding: 8px 12px;
+        white-space: normal;
+        line-height: 1.35;
+        overflow-wrap: anywhere;
     }
 
     .pu-stats-row {
@@ -3204,6 +3220,12 @@ body.dark-mode .btn-tbl-reject {
     .btn-panel-add {
         width: 100%;
         justify-content: center;
+    }
+}
+
+@media (max-width: 360px) {
+    .pu-sidebar-nav {
+        grid-template-columns: minmax(0, 1fr);
     }
 }
 

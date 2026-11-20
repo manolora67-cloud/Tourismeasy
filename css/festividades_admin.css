@@ -440,3 +440,118 @@ body.dark-mode .festividad-image-remove {
         padding: 18px;
     }
 }
+
+@media (max-width: 1100px) {
+    .festividades-admin-content {
+        padding: 16px 13px;
+    }
+
+    .festividades-admin-table-wrap {
+        overflow: visible;
+        border: 0;
+    }
+
+    .festividades-admin-table {
+        display: block;
+        width: 100%;
+        min-width: 0;
+    }
+
+    .festividades-admin-table thead {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        margin: -1px;
+        padding: 0;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+    }
+
+    .festividades-admin-table tbody {
+        display: grid;
+        gap: 12px;
+    }
+
+    .festividades-admin-table tbody tr {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 7px;
+        height: auto;
+        padding: 14px;
+        border: 1px solid var(--gray-200);
+        border-radius: 14px;
+        background: var(--white);
+        box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
+    }
+
+    .festividades-admin-table tbody td {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        min-width: 0;
+        padding: 4px 0;
+        border: 0;
+        overflow: visible;
+        text-align: left;
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+
+    .festividades-admin-table tbody td:not(:nth-child(2)):not(:last-child) {
+        overflow: visible;
+        text-overflow: clip;
+        white-space: normal;
+    }
+
+    .festividades-admin-table tbody td[data-label]::before {
+        flex: 0 0 auto;
+        color: var(--gray-600);
+        content: attr(data-label);
+        font: 700 0.66rem var(--font-head);
+        text-transform: uppercase;
+    }
+
+    .festividades-admin-table tbody td:nth-child(2) {
+        width: auto;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 3px;
+    }
+
+    .festividad-cell-title,
+    .festividad-cell-subtitle {
+        display: block;
+        overflow: visible;
+        text-overflow: clip;
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+
+    .festividad-cell-title {
+        color: var(--gray-800);
+        font-weight: 700;
+    }
+
+    .festividad-cell-subtitle {
+        margin-top: 0;
+    }
+
+    .festividades-admin-table tbody td:last-child {
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 4px;
+        padding-top: 10px;
+        border-top: 1px solid var(--gray-200);
+    }
+
+    .festividades-admin-table tbody td[colspan] {
+        display: block;
+        text-align: center;
+    }
+
+    .festividades-admin-table tbody td[colspan]::before {
+        content: none;
+    }
+}

@@ -81,9 +81,10 @@
             formHelp.textContent = "Añade una opción para que pueda seleccionarse en nuevas publicaciones.";
         }
 
-        function addCell(row, value) {
+        function addCell(row, value, label) {
             var cell = document.createElement("td");
             cell.textContent = value == null ? "" : String(value);
+            if (label) cell.dataset.label = label;
             row.appendChild(cell);
             return cell;
         }
@@ -171,10 +172,11 @@
 
             items.forEach(function (item) {
                 var row = document.createElement("tr");
-                addCell(row, item.codigo || item.id);
-                addCell(row, item.nombre);
+                addCell(row, item.codigo || item.id, identifierTitle.textContent);
+                addCell(row, item.nombre, "Nombre");
 
                 var stateCell = document.createElement("td");
+                stateCell.dataset.label = "Estado";
                 var badge = document.createElement("span");
                 badge.className = item.activo ? "status-badge status-badge--active" : "status-badge status-badge--inactive";
                 badge.textContent = item.activo ? "Activo" : "Inactivo";
@@ -182,6 +184,7 @@
                 row.appendChild(stateCell);
 
                 var actionsCell = document.createElement("td");
+                actionsCell.dataset.label = "Acciones";
                 var actions = document.createElement("div");
                 actions.className = "table-actions";
                 var edit = document.createElement("button");

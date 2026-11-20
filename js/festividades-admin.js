@@ -160,9 +160,12 @@
 
         festividades.slice((currentPage - 1) * pageSize, currentPage * pageSize).forEach(function(festividad) {
             var fila = document.createElement("tr");
-            fila.appendChild(crearCelda(festividad.fecha_clave.trim()));
+            var fecha = crearCelda(festividad.fecha_clave.trim());
+            fecha.dataset.label = "Fecha";
+            fila.appendChild(fecha);
 
             var nombre = document.createElement("td");
+            nombre.dataset.label = "Festividad";
             var titulo = document.createElement("span");
             titulo.className = "festividad-cell-title";
             titulo.textContent = festividad.emoji + " " + festividad.titulo;
@@ -174,11 +177,18 @@
             nombre.append(titulo, subtitulo);
             fila.appendChild(nombre);
 
-            fila.appendChild(crearCelda(festividad.tipo === "NACIONAL" ? "Nacional" : "Regional"));
-            fila.appendChild(crearCelda(categorias[festividad.categoria] || "Tradición"));
-            fila.appendChild(crearCelda(nombreCiudad(festividad)));
+            var tipo = crearCelda(festividad.tipo === "NACIONAL" ? "Nacional" : "Regional");
+            tipo.dataset.label = "Tipo";
+            fila.appendChild(tipo);
+            var categoria = crearCelda(categorias[festividad.categoria] || "Tradición");
+            categoria.dataset.label = "Categoría";
+            fila.appendChild(categoria);
+            var municipio = crearCelda(nombreCiudad(festividad));
+            municipio.dataset.label = "Municipio";
+            fila.appendChild(municipio);
 
             var acciones = document.createElement("td");
+            acciones.dataset.label = "Acciones";
             var grupo = document.createElement("div");
             grupo.className = "festividad-actions";
             var editar = document.createElement("button");

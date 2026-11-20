@@ -8,8 +8,8 @@
     <title>Festividades - Panel Administrador - TourismEasy</title>
     <link rel="stylesheet" href="../css/index.css?v=footer-cookie-settings-v6" />
     <link rel="stylesheet" href="../css/login.css?v=admin-menu-icons-v1" />
-    <link rel="stylesheet" href="../css/panel_admin.css?v=admin-session-menu-v2" />
-    <link rel="stylesheet" href="../css/festividades_admin.css?v=festividades-pagination-height-v1" />
+    <link rel="stylesheet" href="../css/panel_admin.css?v=admin-mobile-nav-v1" />
+    <link rel="stylesheet" href="../css/festividades_admin.css?v=festividades-mobile-cards-v1" />
     <link rel="stylesheet" href="../css/agente-ia.css?v=editorial-v1" />
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;500&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
@@ -105,15 +105,15 @@
 
                 <div class="festividades-admin-alert" id="festividadesError" role="alert" hidden></div>
                 <div class="festividades-admin-table-wrap">
-                    <table class="panel-table festividades-admin-table">
+                    <table class="panel-table festividades-admin-table" aria-label="Festividades registradas">
                         <thead>
                             <tr>
-                                <th>Fecha</th>
-                                <th>Festividad</th>
-                                <th>Tipo</th>
-                                <th>Categoría</th>
-                                <th>Municipio</th>
-                                <th>Acciones</th>
+                                <th scope="col">Fecha</th>
+                                <th scope="col">Festividad</th>
+                                <th scope="col">Tipo</th>
+                                <th scope="col">Categoría</th>
+                                <th scope="col">Municipio</th>
+                                <th scope="col">Acciones</th>
                             </tr>
                         </thead>
                         <tbody id="festividadesTabla">
@@ -236,6 +236,8 @@
             </footer>
         </form>
     </dialog>
+    <div id="site-footer"></div>
+    <script src="../componentes/footer.js?v=footer-cookie-settings-v6"></script>
     <script>
         (function () {
             var rawSession = localStorage.getItem("te_session") || sessionStorage.getItem("te_session");
@@ -287,7 +289,7 @@
                 .catch(setUnavailable);
         })();
     </script>
-    <script src="../js/festividades-admin.js?v=festividades-row-layout-v2"></script>
+    <script src="../js/festividades-admin.js?v=festividades-mobile-cards-v1"></script>
     <script src="../componentes/agente-ia.js?v=private-chat-memory-v2"></script>
     <script src="../menu_accesibilidad/menu.js?v=editorial-v3"></script>
     <script>window.TESessionMenu.mount();</script>

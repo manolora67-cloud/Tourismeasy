@@ -8,8 +8,8 @@
     <title>Catálogos - Panel Administrador - TourismEasy</title>
     <link rel="stylesheet" href="../css/index.css?v=footer-cookie-settings-v6" />
     <link rel="stylesheet" href="../css/login.css?v=admin-menu-icons-v1" />
-    <link rel="stylesheet" href="../css/panel_admin.css?v=admin-session-menu-v2" />
-    <link rel="stylesheet" href="../css/catalogos_admin.css?v=catalogos-usage-v3" />
+    <link rel="stylesheet" href="../css/panel_admin.css?v=admin-mobile-nav-v1" />
+    <link rel="stylesheet" href="../css/catalogos_admin.css?v=catalogos-mobile-cards-v1" />
     <link rel="stylesheet" href="../css/agente-ia.css?v=editorial-v1" />
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;500&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
@@ -150,9 +150,9 @@
                         <span class="catalogos-count" id="catalogosConteo">— opciones</span>
                     </div>
                     <div class="panel-table-wrap catalogos-admin-table-wrap">
-                        <table class="panel-table">
+                        <table class="panel-table" aria-label="Opciones registradas">
                             <thead>
-                                <tr><th id="catalogoIdentificadorTitulo">ID</th><th>Nombre</th><th>Estado</th><th>Acciones</th></tr>
+                                <tr><th id="catalogoIdentificadorTitulo" scope="col">ID</th><th scope="col">Nombre</th><th scope="col">Estado</th><th scope="col">Acciones</th></tr>
                             </thead>
                             <tbody id="catalogosTabla">
                                 <tr><td colspan="4" class="catalog-empty">Cargando…</td></tr>
@@ -248,7 +248,7 @@
                 });
         })();
     </script>
-    <script src="../js/catalogos-admin.js?v=catalogos-usage-v2"></script>
+    <script src="../js/catalogos-admin.js?v=catalogos-mobile-cards-v1"></script>
     <script src="../componentes/agente-ia.js?v=private-chat-memory-v2"></script>
     <script src="../menu_accesibilidad/menu.js?v=editorial-v3"></script>
 </body>
