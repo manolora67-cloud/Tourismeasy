@@ -52,7 +52,7 @@ $contenido = $resultado !== null
         button{flex:1;padding:13px;border:1px solid #e8e4dc;border-radius:5px;font-family:"Open Sans",sans-serif;font-size:16px;font-weight:600;cursor:pointer}
         .yes{background:var(--theme-primary-dark,#6d28d9);color:#fff}.no{background:#f7f5f1;color:#29261f}
     </style>
-    <link rel="stylesheet" href="../css/estilo-editorial.css?v=editorial-v1">
+    <link rel="stylesheet" href="../css/estilo-editorial.css?v=editorial-v2">
 </head>
 <body>
 <main>

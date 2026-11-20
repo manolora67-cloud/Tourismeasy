@@ -6,46 +6,47 @@
         .te-ui-dialog {
             width: min(92vw, 420px);
             margin: auto;
-            padding: 28px;
-            border: 0;
-            border-radius: 22px;
-            color: #1e293b;
+            padding: 24px;
+            border: 1px solid var(--editorial-line, #e8e4dc);
+            border-radius: 8px;
+            color: var(--gray-800, #29261f);
             background: #fff;
-            box-shadow: 0 24px 80px rgba(15, 23, 42, .3);
-            font-family: "Open Sans", sans-serif;
+            box-shadow: 0 12px 36px rgba(15, 23, 42, .16);
+            font-family: var(--font-body, "Open Sans", sans-serif);
         }
         .te-ui-dialog::backdrop {
-            background: rgba(15, 23, 42, .62);
-            backdrop-filter: blur(5px);
+            background: rgba(15, 23, 42, .52);
+            backdrop-filter: blur(3px);
         }
         .te-ui-dialog__icon {
             display: grid;
-            width: 52px;
-            height: 52px;
-            margin: 0 auto 14px;
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 16px;
             place-items: center;
             border-radius: 50%;
             color: #dc2626;
             background: #fef2f2;
-            font-size: 1.25rem;
+            font-size: 1.15rem;
         }
         .te-ui-dialog__icon--info {
             color: #6d28d9;
-            background: #f3e8ff;
+            background: #f5f3ff;
         }
         .te-ui-dialog__icon--success {
             color: #15803d;
-            background: #dcfce7;
+            background: #f0fdf4;
         }
         .te-ui-dialog h2 {
-            margin: 0 0 8px;
-            color: #1e293b;
-            font: 800 1.15rem/1.35 "Montserrat", sans-serif;
+            margin: 0 0 10px;
+            color: var(--gray-800, #29261f);
+            font: 500 1.2rem/1.35 Georgia, "Times New Roman", serif;
+            letter-spacing: -.02em;
             text-align: center;
         }
         .te-ui-dialog p {
-            margin: 0 0 22px;
-            color: #475569;
+            margin: 0 0 20px;
+            color: var(--gray-600, #706b62);
             font-size: .94rem;
             line-height: 1.55;
             text-align: center;
@@ -53,30 +54,35 @@
         }
         .te-ui-dialog__actions {
             display: flex;
-            gap: 10px;
+            gap: 8px;
         }
         .te-ui-dialog__actions button {
             flex: 1;
             min-height: 44px;
-            padding: 10px 14px;
-            border: 0;
-            border-radius: 999px;
-            font: 700 .88rem "Montserrat", sans-serif;
+            padding: 10px 12px;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            font: 600 .88rem var(--font-body, "Open Sans", sans-serif);
             cursor: pointer;
-            transition: transform .18s ease, background .18s ease;
+            transition: background .18s ease, border-color .18s ease;
+        }
+        .te-ui-dialog__actions button:focus-visible {
+            outline: 3px solid rgba(76, 29, 149, .35);
+            outline-offset: 2px;
         }
         .te-ui-dialog__cancel {
-            color: #334155;
-            background: #e2e8f0;
+            border-color: var(--editorial-line, #e8e4dc);
+            color: var(--gray-800, #29261f);
+            background: var(--gray-100, #f7f5f1);
         }
-        .te-ui-dialog__cancel:hover { background: #cbd5e1; }
+        .te-ui-dialog__cancel:hover { background: #eeeae2; }
         .te-ui-dialog__confirm {
             color: #fff;
-            background: #dc2626;
+            background: #b91c1c;
         }
-        .te-ui-dialog__confirm:hover { background: #b91c1c; transform: translateY(-1px); }
-        .te-ui-dialog__confirm--primary { background: #7c3aed; }
-        .te-ui-dialog__confirm--primary:hover { background: #6d28d9; }
+        .te-ui-dialog__confirm:hover { background: #991b1b; }
+        .te-ui-dialog__confirm--primary { background: var(--theme-primary-dark, #4c1d95); }
+        .te-ui-dialog__confirm--primary:hover { background: #3b1675; }
         .te-ui-toast-stack {
             position: fixed;
             z-index: 100001;
@@ -91,25 +97,43 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            padding: 14px 18px;
-            border: 1px solid #bbf7d0;
-            border-radius: 14px;
-            color: #14532d;
-            background: #f0fdf4;
-            box-shadow: 0 12px 30px rgba(15, 23, 42, .16);
-            font: 600 .9rem/1.45 "Open Sans", sans-serif;
+            padding: 12px 16px;
+            border: 1px solid var(--editorial-line, #e8e4dc);
+            border-left: 4px solid #15803d;
+            border-radius: 8px;
+            color: var(--gray-800, #29261f);
+            background: #fff;
+            box-shadow: 0 6px 20px rgba(15, 23, 42, .12);
+            font: 600 .9rem/1.45 var(--font-body, "Open Sans", sans-serif);
             animation: te-ui-toast-in .22s ease-out;
         }
-        .te-ui-toast i { color: #16a34a; font-size: 1.1rem; }
-        .te-ui-toast--error { border-color: #fecaca; color: #7f1d1d; background: #fef2f2; }
+        .te-ui-toast i { flex: 0 0 auto; color: #15803d; font-size: 1.05rem; }
+        .te-ui-toast--error { border-left-color: #dc2626; }
         .te-ui-toast--error i { color: #dc2626; }
-        .te-ui-toast--info { border-color: #ddd6fe; color: #4c1d95; background: #f5f3ff; }
-        .te-ui-toast--info i { color: #7c3aed; }
+        .te-ui-toast--info { border-left-color: var(--theme-primary-dark, #4c1d95); }
+        .te-ui-toast--info i { color: var(--theme-primary-dark, #4c1d95); }
         .te-ui-toast--leaving { opacity: 0; transform: translateY(8px); transition: opacity .2s, transform .2s; }
-        body.dark-mode .te-ui-dialog { color: #f1f5f9; background: #1e293b; }
-        body.dark-mode .te-ui-dialog h2 { color: #f1f5f9; }
+        body.dark-mode .te-ui-dialog {
+            border-color: #374151;
+            color: #f3f4f6;
+            background: #1e293b;
+        }
+        body.dark-mode .te-ui-dialog h2 { color: #f3f4f6; }
         body.dark-mode .te-ui-dialog p { color: #cbd5e1; }
-        body.dark-mode .te-ui-dialog__cancel { color: #f1f5f9; background: #334155; }
+        body.dark-mode .te-ui-dialog__cancel {
+            border-color: #475569;
+            color: #f3f4f6;
+            background: #334155;
+        }
+        body.dark-mode .te-ui-toast {
+            border-color: #374151;
+            color: #f3f4f6;
+            background: #1e293b;
+        }
+        body.dark-mode .te-ui-toast--error { border-left-color: #f87171; }
+        body.dark-mode .te-ui-toast--error i { color: #f87171; }
+        body.dark-mode .te-ui-toast--info { border-left-color: #a78bfa; }
+        body.dark-mode .te-ui-toast--info i { color: #c4b5fd; }
         @keyframes te-ui-toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
         @media (max-width: 480px) {
             .te-ui-toast-stack { right: 12px; bottom: 12px; width: calc(100vw - 24px); }
@@ -259,7 +283,9 @@
     }
 
     function notifyClosed(subject) {
-        toast((subject || "Ventana") + " cerrada correctamente.");
+        const label = subject || "Ventana";
+        const feminineSubjects = ["Ventana", "Vista previa", "Edición"];
+        toast(label + (feminineSubjects.includes(label) ? " cerrada correctamente." : " cerrado correctamente."));
     }
 
     function snapshotForm(form) {

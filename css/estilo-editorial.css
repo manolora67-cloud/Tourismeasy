@@ -211,6 +211,24 @@ html body.dark-mode .te-accessibility .te-accessibility-toggle {
     color: var(--theme-primary-light, #a855f7);
 }
 
+html body .pu-modal-toast {
+    border: 1px solid var(--editorial-line, #e8e4dc);
+    border-left: 4px solid #15803d;
+    border-radius: 8px;
+    color: var(--gray-800, #29261f);
+    background: #fff;
+    box-shadow: 0 6px 20px rgba(15, 23, 42, 0.1);
+    font: 600 0.9rem/1.45 var(--font-body, "Open Sans", sans-serif);
+    text-align: left;
+}
+
+html body.dark-mode .pu-modal-toast {
+    border-color: #374151;
+    border-left-color: #4ade80;
+    color: #f3f4f6;
+    background: #1e293b;
+}
+
 /* Keep the accessibility control stacked above Sue on short screens. */
 @media (max-width: 767px) and (max-height: 520px) {
     html body .te-accessibility {

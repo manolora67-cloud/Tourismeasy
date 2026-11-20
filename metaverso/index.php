@@ -12,7 +12,7 @@ declare(strict_types=1);
     <title>Metaverso de Santander - TourismEasy</title>
     <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
     <link rel="stylesheet" href="metaverso.css">
-    <link rel="stylesheet" href="../css/estilo-editorial.css?v=editorial-v1" />
+    <link rel="stylesheet" href="../css/estilo-editorial.css?v=editorial-v2" />
 </head>
 
 <body>
