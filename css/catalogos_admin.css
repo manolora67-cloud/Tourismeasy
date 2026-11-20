@@ -687,6 +687,10 @@ body.dark-mode .catalogos-sidebar-visibility p {
 }
 
 @media (max-width: 600px) {
+    .catalogos-sidebar-summary {
+        display: none;
+    }
+
     .catalogos-admin-content {
         padding: 17px 13px;
         border-radius: 14px;
