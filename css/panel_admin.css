@@ -3066,10 +3066,14 @@ body.dark-mode .btn-tbl-reject {
         width: 100%;
     }
 
-    /* Stats en 2 columnas */
+    /* En móvil, los indicadores se omiten para dejar espacio al contenido del panel. */
     .panel-stats {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
+        display: none;
+    }
+
+    .pu-sidebar-logout,
+    .pu-nav-logout-wrapper {
+        display: none;
     }
 
     .stat-num {
