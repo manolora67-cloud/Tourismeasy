@@ -603,16 +603,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 imageCell.appendChild(image);
 
                 const nameCell = document.createElement('td');
+                nameCell.dataset.label = 'Producto';
                 nameCell.textContent = product.nom_producto || '';
                 const categoryCell = document.createElement('td');
+                categoryCell.dataset.label = 'Categoría';
                 categoryCell.textContent = product.nombre_categoria || product.categoria || '';
                 categoryCell.dataset.codigo = product.categoria || '';
                 const priceCell = document.createElement('td');
+                priceCell.dataset.label = 'Precio';
                 priceCell.textContent = priceFormatted;
                 const locationCell = document.createElement('td');
+                locationCell.dataset.label = 'Ubicación';
                 locationCell.textContent = ubicacionTexto;
 
                 const actionsCell = document.createElement('td');
+                actionsCell.dataset.label = 'Acciones';
                 const actions = document.createElement('div');
                 actions.className = 'table-actions';
                 const editButton = document.createElement('button');
