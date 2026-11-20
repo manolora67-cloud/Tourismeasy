@@ -59,13 +59,12 @@ body.welcome-active #ck-info-modal {
 
 .welcome-logo {
     display: block;
-    width: clamp(4.25rem, 8vw, 5.5rem);
-    height: clamp(4.25rem, 8vw, 5.5rem);
+    width: clamp(3.5rem, 6vw, 4.25rem);
+    height: clamp(3.5rem, 6vw, 4.25rem);
     margin-bottom: clamp(1.5rem, 4vh, 2.5rem);
-    border-radius: 50%;
+    border-radius: 0.5rem;
     object-fit: cover;
     background: #fff;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
 }
 
 .welcome-eyebrow {
@@ -81,10 +80,10 @@ body.welcome-active #ck-info-modal {
 
 .welcome-content h1 {
     max-width: 13ch;
-    font-family: var(--font-head, "Montserrat", sans-serif);
-    font-size: clamp(2.4rem, 6vw, 5rem);
-    font-weight: 800;
-    letter-spacing: -0.045em;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(2.5rem, 5.5vw, 4.5rem);
+    font-weight: 500;
+    letter-spacing: -0.035em;
     line-height: 1.08;
     text-wrap: balance;
 }
@@ -107,10 +106,9 @@ body.welcome-active #ck-info-modal {
     margin-top: clamp(2.25rem, 6vh, 3.25rem);
     padding: 0.9rem 1.6rem;
     border: 2px solid rgba(255, 255, 255, 0.92);
-    border-radius: 999px;
+    border-radius: 0.4rem;
     color: #fff;
     background: var(--purple, var(--theme-primary, #7c3aed));
-    box-shadow: 0 8px 26px rgba(42, 18, 77, 0.35);
     cursor: pointer;
     font-family: var(--font-head, "Montserrat", sans-serif);
     font-size: 1rem;
@@ -181,9 +179,9 @@ body.welcome-active #ck-info-modal {
     }
 
     .welcome-logo {
-        width: 3.75rem;
-        height: 3.75rem;
-        margin-bottom: 1.25rem;
+        width: 3.25rem;
+        height: 3.25rem;
+        margin-bottom: 1rem;
     }
 
     .welcome-eyebrow {
@@ -195,7 +193,7 @@ body.welcome-active #ck-info-modal {
 
     .welcome-content h1 {
         max-width: 12ch;
-        font-size: clamp(2.15rem, 10vw, 3.5rem);
+        font-size: clamp(2.1rem, 8vw, 3rem);
     }
 
     .welcome-description {
@@ -288,6 +286,536 @@ body.welcome-active #ck-info-modal {
 @media (prefers-reduced-motion: reduce) {
     .welcome-screen,
     .welcome-button {
+        transition: none;
+    }
+}
+
+/* Portada */
+#site-content .hero {
+    min-height: clamp(560px, calc(100svh - 72px), 790px);
+    padding: clamp(4rem, 10vh, 7rem) clamp(1.5rem, 7vw, 7rem);
+}
+
+#site-content .hero::before {
+    background:
+        linear-gradient(90deg, rgba(20, 13, 35, 0.38), rgba(20, 13, 35, 0.38)),
+        linear-gradient(0deg, rgba(20, 13, 35, 0.58), rgba(20, 13, 35, 0.2));
+}
+
+#site-content .hero-content {
+    width: min(100%, 900px);
+    max-width: 900px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+#site-content .hero-eyebrow {
+    margin-bottom: 1.1rem;
+    color: #eadbff;
+    font-family: var(--font-head, "Montserrat", sans-serif);
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    line-height: 1.5;
+    text-transform: uppercase;
+}
+
+#site-content .hero-title {
+    max-width: 18ch;
+    margin: 0 auto 1.25rem;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(3rem, 5.25vw, 5.2rem);
+    font-weight: 500;
+    letter-spacing: -0.035em;
+    line-height: 1.04;
+    text-shadow: none;
+    text-wrap: balance;
+}
+
+#site-content .hero-subtitle {
+    max-width: 40rem;
+    margin: 0 auto 1.75rem;
+    color: rgba(255, 255, 255, 0.92);
+    font-size: clamp(1rem, 1.4vw, 1.15rem);
+    line-height: 1.7;
+}
+
+#site-content .btn-primary {
+    border-radius: 0.4rem;
+    background: var(--purple);
+    color: #fff;
+    box-shadow: none;
+    transition: background-color 180ms ease, transform 180ms ease;
+}
+
+#site-content .btn-primary:hover {
+    background: var(--purple-dark);
+    box-shadow: none;
+    transform: translateY(-2px);
+}
+
+#site-content .btn-primary:focus-visible,
+#site-content .btn-sound:focus-visible {
+    outline: 3px solid #fff;
+    outline-offset: 4px;
+}
+
+#site-content .btn-sound {
+    right: auto;
+    bottom: 1.5rem;
+    left: clamp(1.25rem, 7vw, 7rem);
+    padding: 0.65rem 0.85rem;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 0.4rem;
+    background: rgba(20, 13, 35, 0.72);
+    font-size: 0.78rem;
+    font-weight: 600;
+    backdrop-filter: blur(8px);
+}
+
+/* Secciones de destinos y reseñas */
+#site-content .section-container {
+    width: min(100%, 1200px);
+    padding-right: clamp(1rem, 3.5vw, 2rem);
+    padding-left: clamp(1rem, 3.5vw, 2rem);
+}
+
+#site-content .destinos,
+#site-content .testimonios {
+    padding: clamp(4rem, 7vw, 6.5rem) 0;
+}
+
+#site-content .destinos {
+    background: #f7f5f1;
+}
+
+#site-content .destinos .section-header {
+    margin-bottom: 2rem;
+}
+
+#site-content .destinos .section-title,
+#site-content .testimonios .section-title {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(1.9rem, 3.4vw, 2.8rem);
+    font-weight: 500;
+    letter-spacing: -0.025em;
+}
+
+#site-content .destinos .section-desc,
+#site-content .testimonios .section-desc {
+    max-width: 40rem;
+    line-height: 1.7;
+}
+
+#site-destinos .destinos-page .card {
+    border: 1px solid #e8e4dc;
+    border-radius: 0.5rem;
+    box-shadow: none;
+    transition: transform 180ms ease, border-color 180ms ease;
+}
+
+#site-destinos .destinos-page .card:hover {
+    border-color: var(--purple);
+    box-shadow: none;
+    transform: translateY(-2px);
+}
+
+#site-destinos .destinos-page .card-badge {
+    border-radius: 0.2rem;
+    letter-spacing: 0;
+}
+
+#site-destinos .mapa-encabezado {
+    gap: 1.5rem;
+    padding: 1.5rem 0;
+    border: 0;
+    border-bottom: 1px solid #e8e4dc;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+#site-destinos .mapa-encabezado-icono {
+    display: none;
+}
+
+#site-destinos .mapa-eyebrow {
+    margin-bottom: 0.45rem;
+}
+
+#site-destinos .mapa-titulo {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(1.9rem, 3.4vw, 2.8rem);
+    font-weight: 500;
+    letter-spacing: -0.025em;
+}
+
+#site-destinos .mapa-encabezado-texto p {
+    margin-top: 0.5rem;
+}
+
+#site-destinos .mapa-contador {
+    padding: 0.65rem 0.85rem;
+    border: 1px solid #e8e4dc;
+    border-radius: 0.4rem;
+    background: #fff;
+    box-shadow: none;
+}
+
+#site-destinos .mapa-contador-numero {
+    font-family: Georgia, "Times New Roman", serif;
+    font-weight: 500;
+}
+
+#site-destinos .mapa-explorador {
+    border-radius: 0.5rem;
+    box-shadow: none;
+}
+
+#site-destinos .mapa-destino-item {
+    border-radius: 0.4rem;
+}
+
+#site-destinos .mapa-destino-icono {
+    border-radius: 0.35rem;
+}
+
+#site-destinos .mapa-orden-select {
+    border-radius: 0.4rem;
+}
+
+#site-destinos #mapa-turistico {
+    height: 460px;
+}
+
+#site-content .destinos-arrow {
+    box-shadow: none;
+}
+
+#site-content .testimonios .section-title.center,
+#site-content .testimonios .section-desc.center {
+    text-align: left;
+}
+
+#site-content .testimonios .section-desc.center {
+    margin: 0 0 2rem;
+}
+
+#site-content .testimonial-card {
+    border: 1px solid #e8e4dc;
+    border-left: 2px solid var(--purple);
+    border-radius: 0.5rem;
+    box-shadow: none;
+}
+
+#site-content .resena-form-box {
+    border: 1px solid #e8e4dc;
+    border-radius: 0.5rem;
+    box-shadow: none;
+}
+
+#site-content .resena-anon-input,
+#site-content .resena-textarea {
+    border-radius: 0.4rem;
+}
+
+/* Detalles de destino */
+#site-content .art-modal {
+    border-radius: 0.75rem;
+    box-shadow: 0 24px 64px rgba(15, 23, 42, 0.22);
+    transform: translateY(12px);
+    transition: transform 220ms ease;
+}
+
+#site-content .art-overlay.open .art-modal {
+    transform: translateY(0);
+}
+
+#site-content .art-close {
+    border-radius: 0.4rem;
+    transition: background-color 160ms ease;
+}
+
+#site-content .art-close:hover {
+    transform: none;
+}
+
+#site-content .art-badge {
+    border-radius: 0.2rem;
+}
+
+#site-content .art-titulo {
+    font-family: Georgia, "Times New Roman", serif;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+}
+
+#site-content .art-cta {
+    border: 1px solid rgba(var(--theme-primary-rgb, 124, 58, 237), 0.2);
+    border-radius: 0.5rem;
+    background: rgba(var(--theme-primary-rgb, 124, 58, 237), 0.05);
+}
+
+#site-content .art-btn-reservar {
+    border-radius: 0.4rem;
+    box-shadow: none;
+}
+
+/* Controles flotantes */
+.home-page .te-chat-fab {
+    right: calc(20px + env(safe-area-inset-right, 0px));
+    bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+    width: 52px;
+    height: 52px;
+    background: var(--purple, #7c3aed);
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.22);
+    transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.home-page .te-chat-fab:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 7px 20px rgba(15, 23, 42, 0.24);
+}
+
+.home-page .te-chat-fab::after {
+    display: none;
+}
+
+.home-page .te-chat-fab:focus-visible {
+    outline: 3px solid #fff;
+    outline-offset: 4px;
+}
+
+.home-page .te-chat-bubble {
+    right: calc(84px + env(safe-area-inset-right, 0px));
+    bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+    max-width: min(260px, calc(100vw - 120px));
+    border-radius: 0.4rem;
+    font-size: 0.78rem;
+    font-weight: 500;
+    line-height: 1.4;
+    white-space: normal;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.16);
+}
+
+.home-page .te-accessibility {
+    right: calc(20px + env(safe-area-inset-right, 0px));
+    bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+}
+
+.home-page .te-accessibility .te-accessibility-toggle {
+    width: 52px;
+    height: 52px;
+    min-height: 52px !important;
+    border: 1px solid rgba(76, 29, 149, 0.16);
+    background: rgba(255, 255, 255, 0.97);
+    color: var(--theme-primary-dark, #4c1d95);
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.18);
+    transition: transform 180ms ease, background-color 180ms ease;
+}
+
+.home-page .te-accessibility .te-accessibility-toggle:hover {
+    transform: translateY(-2px);
+    background: #fff;
+}
+
+.home-page .te-accessibility .te-accessibility-toggle:focus-visible {
+    outline: 3px solid var(--theme-primary-dark, #4c1d95);
+    outline-offset: 4px;
+}
+
+.home-page .te-accessibility .te-accessibility-panel {
+    width: min(320px, calc(100vw - 48px - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)));
+}
+
+.home-page .te-accessibility .te-accessibility-toggle > span:first-child {
+    font-family: "Segoe UI Symbol", "Arial Unicode MS", sans-serif;
+}
+
+body.dark-mode #site-content .destinos {
+    background: #111827;
+}
+
+body.dark-mode #site-destinos .destinos-page .card,
+body.dark-mode #site-content .testimonial-card,
+body.dark-mode #site-content .resena-form-box {
+    border-color: #374151;
+}
+
+body.dark-mode #site-destinos .destinos-page .card:hover {
+    border-color: var(--purple-light);
+}
+
+body.dark-mode #site-destinos .mapa-encabezado {
+    border-color: #374151;
+    background: transparent;
+}
+
+body.dark-mode #site-destinos .mapa-contador {
+    border-color: #374151;
+    background: #1e293b;
+}
+
+body.dark-mode #site-destinos .mapa-eyebrow {
+    color: var(--purple-light);
+}
+
+@media (max-width: 767px) {
+    .welcome-content h1 {
+        font-size: clamp(2.1rem, 8vw, 3rem);
+    }
+
+    #site-content .hero {
+        min-height: clamp(520px, 82svh, 680px);
+        padding: 3.5rem 1.25rem 5.5rem;
+    }
+
+    #site-content .hero::before {
+        background: linear-gradient(0deg, rgba(20, 13, 35, 0.86), rgba(20, 13, 35, 0.28));
+    }
+
+    #site-content .hero-eyebrow {
+        margin-bottom: 0.85rem;
+        font-size: 0.68rem;
+        letter-spacing: 0.1em;
+    }
+
+    #site-content .hero-title {
+        max-width: 16ch;
+        margin-bottom: 1rem;
+        font-size: clamp(2.2rem, 8.4vw, 3.2rem);
+    }
+
+    #site-content .hero-subtitle {
+        max-width: 34rem;
+        margin-bottom: 1.35rem;
+        font-size: clamp(0.95rem, 4vw, 1.05rem);
+        line-height: 1.6;
+    }
+
+    #site-content .btn-primary {
+        padding: 0.85rem 1.25rem;
+    }
+
+    #site-content .btn-sound {
+        bottom: 1rem;
+        left: 1rem;
+        padding: 0.55rem 0.7rem;
+    }
+
+    #site-content .destinos,
+    #site-content .testimonios {
+        padding: 3.5rem 0;
+    }
+
+    #site-content .destinos .section-title,
+    #site-content .testimonios .section-title {
+        font-size: clamp(1.75rem, 7.5vw, 2.25rem);
+    }
+
+    #site-content .testimonios .section-desc.center {
+        margin-bottom: 1.5rem;
+    }
+
+    #site-content .resena-form-box {
+        padding: 1.25rem;
+    }
+
+    #site-destinos .mapa-encabezado {
+        padding: 1rem 0;
+    }
+
+    #site-destinos .mapa-titulo {
+        font-size: clamp(1.75rem, 7.5vw, 2.25rem);
+    }
+
+    #site-destinos .mapa-destinos-lista {
+        max-height: 160px;
+    }
+
+    #site-destinos #mapa-turistico {
+        height: 330px;
+    }
+
+    #site-content .art-modal {
+        border-radius: 0.75rem 0.75rem 0 0;
+    }
+
+    .home-page .te-chat-fab {
+        right: calc(76px + env(safe-area-inset-right, 0px));
+        bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    }
+
+    .home-page .te-chat-bubble {
+        display: none;
+    }
+
+    .home-page .te-accessibility {
+        right: calc(16px + env(safe-area-inset-right, 0px));
+        bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    }
+
+    .home-page .te-accessibility .te-accessibility-panel {
+        right: calc(16px + env(safe-area-inset-right, 0px));
+        bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+    }
+}
+
+@media (max-width: 479px) {
+    #site-content .hero {
+        min-height: clamp(520px, 82svh, 640px);
+        padding-right: 1rem;
+        padding-left: 1rem;
+    }
+
+    #site-content .hero-title {
+        max-width: 15ch;
+        font-size: clamp(2.05rem, 9.2vw, 2.75rem);
+    }
+
+    #site-content .section-container {
+        padding-right: 1rem;
+        padding-left: 1rem;
+    }
+
+    #site-destinos #mapa-turistico {
+        height: 300px;
+    }
+}
+
+@media (max-height: 500px) and (max-width: 767px) {
+    .welcome-content h1 {
+        font-size: clamp(1.9rem, 8vh, 2.4rem);
+    }
+}
+
+@media (max-height: 520px) {
+    .home-page .te-chat-fab {
+        top: calc(72px + env(safe-area-inset-top, 0px));
+        right: calc(16px + env(safe-area-inset-right, 0px));
+        bottom: auto;
+    }
+
+    .home-page .te-accessibility {
+        top: calc(72px + env(safe-area-inset-top, 0px));
+        right: calc(76px + env(safe-area-inset-right, 0px));
+        bottom: auto;
+    }
+
+    .home-page .te-accessibility .te-accessibility-panel {
+        top: calc(132px + env(safe-area-inset-top, 0px));
+        right: calc(16px + env(safe-area-inset-right, 0px));
+        bottom: auto;
+        max-height: calc(100dvh - 148px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #site-content .btn-primary,
+    #site-content .art-modal,
+    #site-content .destinos-page .card,
+    .home-page .te-chat-fab,
+    .home-page .te-accessibility .te-accessibility-toggle {
         transition: none;
     }
 }
