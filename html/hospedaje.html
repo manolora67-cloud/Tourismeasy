@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="stylesheet" href="../css/captcha.css">
     <link rel="stylesheet" href="../css/agente-ia.css?v=editorial-v1" />
+    <link rel="stylesheet" href="../componentes/modal-empresa.css" />
     <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
     <script src="../componentes/ui-feedback.js?v=ui-feedback-v6"></script>
     <link rel="stylesheet" href="../css/estilo-editorial.css?v=editorial-v2" />
@@ -27,7 +28,7 @@
     <main>
         <section class="module-hero">
             <h1 class="module-title">Reserva de Hospedaje</h1>
-            <p class="module-subtitle">Hoteles y residencias con accesibilidad garantizada.</p>
+            <p class="module-subtitle">Explora hospedajes para todo tipo de viajeros y consulta la información de accesibilidad publicada por cada empresa.</p>
         </section>
 
         <div class="search-container">
@@ -39,9 +40,8 @@
             </div>
             <div class="search-group">
                 <label for="input-accesibilidad">Accesibilidad</label>
-                <select id="input-accesibilidad">
-                    <option value="">Todas las opciones publicadas</option>
-                </select>
+                <input type="search" id="input-accesibilidad" maxlength="200"
+                    placeholder="Ej. rampa, baño adaptado...">
             </div>
             <div class="search-group">
                 <label for="input-adultos">Adultos</label>
@@ -149,7 +149,8 @@
     <script src="../componentes/agente-ia.js?v=private-chat-memory-v2"></script>
     <script src="../js/catalog-cache.js?v=catalog-cache-v1"></script>
     <script src="../js/imagen-cloudinary.js?v=cloudinary-delivery-v1"></script>
-    <script src="../js/hospedaje.js?v=cloudinary-delivery-v1"></script>
+    <script src="../componentes/modal-empresa.js"></script>
+    <script src="../js/hospedaje.js?v=company-accessibility-v1"></script>
     <script src="../js/registrar_click_whatsapp.js"></script>
 
     <script src="../menu_accesibilidad/menu.js?v=editorial-v3"></script>

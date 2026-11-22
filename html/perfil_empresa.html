@@ -128,6 +128,12 @@
                                 pattern="\+?[0-9]{7,15}" autocomplete="tel" required>
                         </label>
                         <label>
+                            Descripción de la empresa
+                            <textarea id="editarPerfilDescripcion" name="descripcion" rows="4" maxlength="1000"
+                                placeholder="Cuéntales a los visitantes sobre tu empresa."></textarea>
+                            <small>Se mostrará en “Ver empresa” desde todas tus publicaciones.</small>
+                        </label>
+                        <label>
                             Municipio
                             <select id="editarPerfilCiudad" name="id_ciudad" required>
                                 <option value="">Selecciona un municipio</option>
@@ -184,6 +190,10 @@
                         <div class="pu-field">
                             <span class="pu-field-label">Teléfono de contacto</span><span class="pu-field-val"
                                 id="perfilContacto">Cargando...</span>
+                        </div>
+                        <div class="pu-field">
+                            <span class="pu-field-label">Descripción</span><span class="pu-field-val"
+                                id="perfilDescripcion" style="white-space:pre-wrap">Cargando...</span>
                         </div>
                         <div class="pu-field">
                             <span class="pu-field-label">Ciudad</span><span class="pu-field-val"
@@ -347,6 +357,7 @@
                     "perfilNombreResumen", "perfilNombre", "perfilNitResumen", "perfilNit",
                     "perfilCiudad", "infoCiudad", "perfilCorreoInstitucional",
                     "perfilCorreoAcceso", "perfilContacto", "perfilSector",
+                    "perfilDescripcion",
                     "perfilFechaRegistro", "perfilEstado"
                 ].forEach(function (id) {
                     mostrarValor(id, "No disponible");
@@ -415,6 +426,19 @@
                 estadoFormularioPerfil.hidden = false;
             }
 
+            function resumenLimitePerfil() {
+                var disponibles = Number(empresaActual.ediciones_restantes_mes);
+                var limite = Number(empresaActual.limite_ediciones_mes);
+                var cambio = disponibles === 1 ? "cambio" : "cambios";
+                return "Te quedan " + disponibles + " " + cambio + " de perfil este mes, de "
+                    + limite + " permitidos. Cambiar el correo de acceso actualiza el correo que usas para iniciar sesión.";
+            }
+
+            function avisoLimitePerfilAgotado() {
+                return "Ya alcanzaste el límite de " + Number(empresaActual.limite_ediciones_mes)
+                    + " cambios de perfil de este mes.";
+            }
+
             document.getElementById("btnEditPerfil").addEventListener("click", function () {
                 if (!empresaActual) return;
 
@@ -423,13 +447,14 @@
                 document.getElementById("editarPerfilEmailInstitucional").value = empresaActual.email_inst || "";
                 document.getElementById("editarPerfilEmailAcceso").value = empresaActual.email_login || "";
                 document.getElementById("editarPerfilContacto").value = empresaActual.contacto || "";
+                document.getElementById("editarPerfilDescripcion").value = empresaActual.descripcion || "";
                 window.TEUI.markClean(formEditarPerfil);
                 estadoFormularioPerfil.hidden = true;
                 estadoFormularioPerfil.textContent = "";
                 var proximaFecha = formatearProximaEdicion(empresaActual.proxima_edicion);
                 limiteEdicionPerfil.textContent = perfilEditable
-                    ? "Puedes guardar cambios una vez por mes calendario. Cambiar el correo de acceso actualiza el correo que usas para iniciar sesión."
-                    : "Ya actualizaste el perfil este mes." +
+                    ? resumenLimitePerfil()
+                    : avisoLimitePerfilAgotado() +
                         (proximaFecha ? " Podrás volver a cambiarlo a partir del " + proximaFecha + "." : "");
                 btnGuardarPerfil.disabled = true;
                 modalEditarPerfil.showModal();
@@ -462,7 +487,7 @@
             formEditarPerfil.addEventListener("submit", function (event) {
                 event.preventDefault();
                 if (!perfilEditable) {
-                    mostrarEstadoFormulario("Ya usaste la actualización mensual de tu perfil.");
+                    mostrarEstadoFormulario(avisoLimitePerfilAgotado());
                     return;
                 }
                 if (!formEditarPerfil.reportValidity()) return;
@@ -474,6 +499,7 @@
                     email_institucional: document.getElementById("editarPerfilEmailInstitucional").value.trim(),
                     email_acceso: document.getElementById("editarPerfilEmailAcceso").value.trim(),
                     contacto: document.getElementById("editarPerfilContacto").value.trim(),
+                    descripcion: document.getElementById("editarPerfilDescripcion").value.trim(),
                     id_ciudad: document.getElementById("editarPerfilCiudad").value
                 };
                 var url = new URL("../soli_empresas/actualizar_perfil_empresa.php", window.location.href);
@@ -553,6 +579,7 @@
                 mostrarValor("perfilCorreoInstitucional", sol.email_inst);
                 mostrarValor("perfilCorreoAcceso", sol.email_login);
                 mostrarValor("perfilContacto", sol.contacto);
+                mostrarValor("perfilDescripcion", sol.descripcion || "Aún no has agregado una descripción.");
                 mostrarValor("perfilSector", sector);
                 mostrarValor("perfilFechaRegistro", formatearFechaRegistro(sol.fecha_registro));
                 mostrarValor("perfilEstado", estadoLabel);

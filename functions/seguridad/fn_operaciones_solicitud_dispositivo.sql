@@ -53,7 +53,7 @@ AS $$
       AND FECHA_CREACION > NOW() - MAKE_INTERVAL(mins => (
           SELECT VENTANA_MINUTOS
           FROM CONFIGURACION_SEGURIDAD
-          WHERE CONTROL = 'device_request'
+          WHERE ID_CONTROL = 'solicitud_dispositivo'
       ));
 $$;
 

@@ -165,15 +165,10 @@
                             class="vm-input" id="vm-descripcion" rows="3"
                             placeholder="Describe el plan detalladamente..." style="resize:vertical;"></textarea></div>
                     <div class="vm-field vm-field--full">
-                        <label class="vm-label">Accesibilidad</label>
-                        <select class="vm-input" id="vm-acc">
-                            <option value="none">Sin servicio especial</option>
-                            <option value="wheelchair">Ruta accesible silla de ruedas</option>
-                            <option value="deaf">Guia en lengua de senas</option>
-                            <option value="visual">Guia audio-descriptiva</option>
-                            <option value="dog">Perro guia permitido</option>
-                            <option value="ramp">Sin barreras arquitectonicas</option>
-                        </select>
+                        <label class="vm-label" for="vm-acc">Accesibilidad de este plan (opcional)</label>
+                        <textarea class="vm-input" id="vm-acc" rows="4" maxlength="2000"
+                            placeholder="Describe las condiciones y apoyos disponibles para este plan."
+                            style="resize:vertical;"></textarea>
                     </div>
                     <div class="vm-field vm-field--full">
                         <label class="vm-label">Estado</label>
@@ -293,22 +288,6 @@
             applyTheme(!document.body.classList.contains("dark-mode"));
         });
         window.TESessionMenu.mount();
-        var ACC_MAP = {
-            none: '<span class="badge-acc"><i class="fa-solid fa-globe"></i> General</span>',
-            wheelchair: '<span class="badge-acc"><i class="fa-solid fa-wheelchair"></i> Ruta accesible</span>',
-            deaf: '<span class="badge-acc"><i class="fa-solid fa-ear-deaf"></i> Guia LSC</span>',
-            visual: '<span class="badge-acc"><i class="fa-solid fa-eye-slash"></i> Audio-descriptivo</span>',
-            dog: '<span class="badge-acc"><i class="fa-solid fa-dog"></i> Perro guia</span>',
-            ramp: '<span class="badge-acc"><i class="fa-solid fa-person-walking"></i> Sin barreras</span>'
-        };
-        var ACC_LABEL = {
-            none: "Sin servicio especial",
-            wheelchair: "Ruta accesible silla de ruedas",
-            deaf: "Guia en lengua de senas",
-            visual: "Guia audio-descriptiva",
-            dog: "Perro guia permitido",
-            ramp: "Sin barreras arquitectonicas"
-        };
         var _foto64 = "",
             editRow = null,
             _editId = null;
@@ -358,7 +337,7 @@
                 document.getElementById("vm-tipo-plan").value = row.dataset.idTipoPlan || "";
                 document.getElementById("vm-incluye").value = row.dataset.incluye || "";
                 document.getElementById("vm-descripcion").value = row.dataset.descripcion || "";
-                document.getElementById("vm-acc").value = row.dataset.accKey || "none";
+                document.getElementById("vm-acc").value = row.dataset.accesibilidad || "";
                 document.getElementById("vm-estado").value = row.dataset.disponible === "true" ? "activo" : "cancelado";
                 var fp = document.getElementById("vm-foto-preview"),
                     fi = document.getElementById("vm-foto-img");
@@ -379,7 +358,7 @@
                 });
                 document.getElementById("vm-ciudad").selectedIndex = 0;
                 document.getElementById("vm-tipo-plan").selectedIndex = 0;
-                document.getElementById("vm-acc").selectedIndex = 0;
+                document.getElementById("vm-acc").value = "";
                 document.getElementById("vm-estado").value = "activo";
                 document.getElementById("vm-foto").value = "";
                 document.getElementById("vm-foto-preview").style.display = "none";
@@ -427,7 +406,6 @@
             var precioRaw = document.getElementById("vm-precio").value.trim().replace(/[^0-9]/g, "");
             var idTipoPlan = document.getElementById("vm-tipo-plan").value;
             var incluye = document.getElementById("vm-incluye").value.trim();
-            var accVal = document.getElementById("vm-acc").value;
             var estVal = document.getElementById("vm-estado").value;
             if (!nombre || !idCiudad || !duracion || !precioRaw || !idTipoPlan || !incluye) {
                 window.TEUI.toast("Completa: nombre, ciudad, duración, precio, tipo de plan e incluye.", "error");
@@ -441,7 +419,7 @@
                 id_tipo_plan: parseInt(idTipoPlan, 10),
                 incluye: incluye,
                 descripcion: document.getElementById("vm-descripcion").value.trim(),
-                accesibilidad: ACC_LABEL[accVal] || "Sin servicio especial",
+                accesibilidad: document.getElementById("vm-acc").value.trim(),
                 disponible: estVal === "activo"
             };
             var _fotoFile = document.getElementById("vm-foto").files[0];
@@ -533,7 +511,7 @@
             document.getElementById("vDetalle-duracion").textContent = row.dataset.duracion || "--";
             document.getElementById("vDetalle-categoria").textContent = row.dataset.tipoPlan || "--";
             document.getElementById("vDetalle-incluye").textContent = row.dataset.incluye || "--";
-            document.getElementById("vDetalle-acc").textContent = row.dataset.accesibilidad || "--";
+            document.getElementById("vDetalle-acc").textContent = row.dataset.accesibilidad || "Sin información agregada.";
             document.getElementById("vDetalle-estado").innerHTML = cells[4].innerHTML;
             var fw = document.getElementById("vDetalle-foto-wrap"),
                 fi = document.getElementById("vDetalle-foto");
@@ -654,7 +632,6 @@
             tr.dataset.precio = item.precio || "";
             tr.dataset.incluye = item.incluye || "";
             tr.dataset.accesibilidad = item.accesibilidad || "";
-            tr.dataset.accKey = "none";
             tr.dataset.descripcion = item.descripcion || "";
             tr.dataset.disponible = item.disponible ? "true" : "false";
             tr.dataset.imgUrl = item.img_url || "";

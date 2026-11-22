@@ -9,7 +9,8 @@ CREATE OR REPLACE FUNCTION fn_editar_transporte(
     t_id_clase        CLASE_SERVICIO_TRANSPORTE.ID_CLASE%TYPE,
     t_descripcion     TRANSPORTE.DESCRIPCION%TYPE DEFAULT NULL,
     t_img_url         TRANSPORTE.IMG_URL%TYPE DEFAULT NULL,
-    t_disponibilidad  TRANSPORTE.DISPONIBILIDAD%TYPE DEFAULT TRUE
+    t_disponibilidad  TRANSPORTE.DISPONIBILIDAD%TYPE DEFAULT TRUE,
+    t_accesibilidad   TRANSPORTE.ACCESIBILIDAD%TYPE DEFAULT NULL
 )
 RETURNS BOOLEAN AS
 $$
@@ -99,6 +100,7 @@ BEGIN
         HORA_SALIDA = t_hora_salida,
         PRECIO = t_precio,
         DESCRIPCION = t_descripcion,
+        ACCESIBILIDAD = NULLIF(BTRIM(t_accesibilidad), ''),
         IMG_URL = t_img_url,
         DISPONIBILIDAD = t_disponibilidad
     WHERE ID_TRANSPORTE = t_id_transporte

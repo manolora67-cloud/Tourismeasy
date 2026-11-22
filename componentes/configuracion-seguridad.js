@@ -7,27 +7,27 @@
     var endpoint = "../admin/seguridad.php";
     var csrf = "";
     var etiquetas = {
-        login: {
+        inicio_sesion: {
             titulo: "Inicio de sesión",
             descripcion: "Fallos de autenticación por correo, compartidos entre admin, empresa y artesano."
         },
-        password_change: {
+        cambio_contrasena: {
             titulo: "Comprobación de contraseña actual",
             descripcion: "Fallos al cambiar la contraseña. Es un contador separado del inicio de sesión."
         },
-        recovery_request: {
+        solicitud_recuperacion: {
             titulo: "Solicitudes de recuperación",
             descripcion: "Solicitudes de enlace por correo. Se cuentan todas, exista o no una cuenta con ese correo."
         },
-        recovery_link: {
+        enlace_recuperacion: {
             titulo: "Validación de enlace de recuperación",
             descripcion: "Enlaces inválidos por dirección IP. Los enlaces válidos usan un token aleatorio de un solo uso."
         },
-        device_request: {
+        solicitud_dispositivo: {
             titulo: "Confirmación de dispositivo nuevo",
             descripcion: "Solicitudes de aprobación de dispositivo por cuenta."
         },
-        device_code: {
+        codigo_dispositivo: {
             titulo: "Código de dispositivo",
             descripcion: "Códigos incorrectos para una solicitud de dispositivo aprobada."
         }
@@ -77,13 +77,13 @@
                 "max_intentos",
                 control.max_intentos,
                 1,
-                control.control === "device_code" ? 5 : 10,
+                control.control === "codigo_dispositivo" ? 5 : 10,
                 "fallos o solicitudes"
             ),
             crearCampo("Ventana de conteo", "ventana_minutos", control.ventana_minutos, 1, 1440, "minutos"),
             crearCampo("Duración del bloqueo", "duracion_bloqueo_minutos", control.duracion_bloqueo_minutos, 1, 10080, "minutos")
         );
-        if (control.control === "password_change") {
+        if (control.control === "cambio_contrasena") {
             formulario.append(
                 crearCampo("Cambios exitosos permitidos", "limite_mensual", control.limite_mensual, 1, 10, "por mes calendario")
             );
@@ -187,7 +187,7 @@
             }
             csrf = resultado.csrf;
             contenedor.replaceChildren();
-            var orden = ["login", "password_change", "recovery_request", "recovery_link", "device_request", "device_code"];
+            var orden = ["inicio_sesion", "cambio_contrasena", "solicitud_recuperacion", "enlace_recuperacion", "solicitud_dispositivo", "codigo_dispositivo"];
             resultado.data.sort(function(a, b) {
                 return orden.indexOf(a.control) - orden.indexOf(b.control);
             }).forEach(function (control) {

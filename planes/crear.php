@@ -31,7 +31,13 @@ $id_tipo_plan  = (is_string($id_tipo_plan_entrada) || is_int($id_tipo_plan_entra
     ? trim((string)$id_tipo_plan_entrada)
     : '';
 $precio        = intval($input['precio']       ?? 0);
-$accesibilidad = trim($input['accesibilidad']  ?? '');
+$accesibilidadEntrada = $input['accesibilidad'] ?? null;
+if ($accesibilidadEntrada !== null && !is_string($accesibilidadEntrada)) {
+    http_response_code(400);
+    echo json_encode(["ok" => false, "error" => "La descripción de accesibilidad debe ser texto."]);
+    exit;
+}
+$accesibilidad = trim($accesibilidadEntrada ?? '') ?: null;
 $id_ciudad     = trim($input['id_ciudad']      ?? '');
 $disponible    = isset($input['disponible']) ? (bool)$input['disponible'] : true;
 $img_url       = trim($input['img_url']        ?? '') ?: null;

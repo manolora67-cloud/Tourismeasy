@@ -47,7 +47,7 @@ BEGIN
 
     SELECT b.bloqueado, b.minutos_restantes
     INTO v_bloqueado, v_minutos_restantes
-    FROM fn_verificar_bloqueo_seguridad('login', p_email) AS b;
+    FROM fn_verificar_bloqueo_seguridad('inicio_sesion', p_email) AS b;
 
     IF COALESCE(v_bloqueado, FALSE) THEN
         RETURN QUERY SELECT
@@ -85,7 +85,7 @@ BEGIN
     END IF;
 
     v_intento_registrado := fn_registrar_intento_seguridad(
-        'login',
+        'inicio_sesion',
         p_email,
         p_ip,
         COALESCE(v_ok, FALSE)
@@ -114,7 +114,7 @@ BEGIN
 
         SELECT b.bloqueado, b.minutos_restantes
         INTO v_bloqueado, v_minutos_restantes
-        FROM fn_verificar_bloqueo_seguridad('login', p_email) AS b;
+        FROM fn_verificar_bloqueo_seguridad('inicio_sesion', p_email) AS b;
         IF COALESCE(v_bloqueado, FALSE) THEN
             RETURN QUERY SELECT
                 'BLOQUEADO'::VARCHAR(20), FALSE,

@@ -25,7 +25,7 @@ BEGIN
     SELECT c.LIMITE_MENSUAL
     INTO STRICT v_limite_mensual
     FROM CONFIGURACION_SEGURIDAD c
-    WHERE c.CONTROL = 'password_change';
+    WHERE c.ID_CONTROL = 'cambio_contrasena';
 
     SELECT COUNT(*) INTO v_cambios_mes
     FROM CAMBIOS_CONTRASENA_CUENTA c

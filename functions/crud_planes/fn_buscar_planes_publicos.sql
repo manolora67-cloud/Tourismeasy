@@ -24,7 +24,9 @@ BEGIN
         'img_url', P.IMG_URL,
         'empresa', E.NOM_EMPRESA,
         'id_empresa', P.ID_EMPRESA,
-        'telefono', E.NUM_CONTACTO_EMPRESA
+        'telefono', E.NUM_CONTACTO_EMPRESA,
+        'email_empresa', E.EMAIL_INSTITU_EMPRESA,
+        'descripcion_empresa', E.DESCRIPCION
     ) ORDER BY P.PRECIO_PLAN ASC), '[]'::JSONB)
     INTO v_planes
     FROM PLANES_TURISTICOS P
@@ -43,7 +45,7 @@ BEGIN
       AND (p_id_tipo_plan IS NULL OR P.ID_TIPO_PLAN = p_id_tipo_plan)
       AND (
           p_accesibilidad IS NULL
-          OR LOWER(BTRIM(P.ACCESIBILIDAD)) = LOWER(BTRIM(p_accesibilidad))
+          OR STRPOS(LOWER(COALESCE(P.ACCESIBILIDAD, '')), LOWER(BTRIM(p_accesibilidad))) > 0
       );
 
     RETURN v_planes;

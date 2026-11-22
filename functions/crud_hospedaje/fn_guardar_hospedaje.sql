@@ -27,6 +27,12 @@ BEGIN
         RETURN;
     END IF;
 
+    IF p_datos ? 'accesibilidad'
+       AND JSONB_TYPEOF(p_datos->'accesibilidad') NOT IN ('string', 'null') THEN
+        RETURN QUERY SELECT FALSE, NULL::NUMERIC;
+        RETURN;
+    END IF;
+
     IF NULLIF(BTRIM(p_datos->>'id'), '') IS NOT NULL THEN
         IF BTRIM(p_datos->>'id') !~ '^[0-9]+$' THEN
             RETURN QUERY SELECT FALSE, NULL::NUMERIC;

@@ -1,0 +1,59 @@
+CREATE OR REPLACE FUNCTION fn_listar_transporte_publico_detallado()
+RETURNS TABLE (
+    id                  TRANSPORTE.ID_TRANSPORTE%TYPE,
+    origen              TRANSPORTE.ORIGEN%TYPE,
+    destino             TRANSPORTE.DESTINO%TYPE,
+    fecha_salida        TRANSPORTE.FECHA_SALIDA%TYPE,
+    hora_salida         TRANSPORTE.HORA_SALIDA%TYPE,
+    precio              TRANSPORTE.PRECIO%TYPE,
+    disponible          TRANSPORTE.DISPONIBILIDAD%TYPE,
+    descripcion         TRANSPORTE.DESCRIPCION%TYPE,
+    accesibilidad       TRANSPORTE.ACCESIBILIDAD%TYPE,
+    img_url             TRANSPORTE.IMG_URL%TYPE,
+    empresa             EMPRESAS.NOM_EMPRESA%TYPE,
+    id_empresa          TRANSPORTE.ID_EMPRESA%TYPE,
+    ciudad_origen       CIUDADES.NOM_CIUDAD%TYPE,
+    telefono            EMPRESAS.NUM_CONTACTO_EMPRESA%TYPE,
+    email_empresa       EMPRESAS.EMAIL_INSTITU_EMPRESA%TYPE,
+    descripcion_empresa EMPRESAS.DESCRIPCION%TYPE,
+    id_clase            CLASE_SERVICIO_TRANSPORTE.ID_CLASE%TYPE,
+    nombre_clase        CLASE_SERVICIO_TRANSPORTE.NOMBRE_CLASE%TYPE,
+    id_ciudad_origen    TRANSPORTE.ID_CIUDAD_ORIGEN%TYPE,
+    id_ciudad_destino   TRANSPORTE.ID_CIUDAD_DESTINO%TYPE
+) AS
+$$
+BEGIN
+    RETURN QUERY
+    SELECT
+        t.ID_TRANSPORTE,
+        COALESCE(co.NOM_CIUDAD, t.ORIGEN),
+        COALESCE(cd.NOM_CIUDAD, t.DESTINO),
+        t.FECHA_SALIDA,
+        t.HORA_SALIDA,
+        t.PRECIO,
+        t.DISPONIBILIDAD,
+        t.DESCRIPCION,
+        t.ACCESIBILIDAD,
+        t.IMG_URL,
+        e.NOM_EMPRESA,
+        e.ID_EMPRESA,
+        ce.NOM_CIUDAD,
+        e.NUM_CONTACTO_EMPRESA,
+        e.EMAIL_INSTITU_EMPRESA,
+        e.DESCRIPCION,
+        cst.ID_CLASE,
+        cst.NOMBRE_CLASE,
+        t.ID_CIUDAD_ORIGEN,
+        t.ID_CIUDAD_DESTINO
+    FROM TRANSPORTE t
+    JOIN EMPRESAS e ON e.ID_EMPRESA = t.ID_EMPRESA
+    LEFT JOIN CIUDADES ce ON ce.ID_CIUDAD = e.ID_CIUDAD
+    LEFT JOIN CIUDADES co ON co.ID_CIUDAD = t.ID_CIUDAD_ORIGEN
+    LEFT JOIN CIUDADES cd ON cd.ID_CIUDAD = t.ID_CIUDAD_DESTINO
+    LEFT JOIN TRANSPORTE_CLASE tc ON tc.ID_TRANSPORTE = t.ID_TRANSPORTE
+    LEFT JOIN CLASE_SERVICIO_TRANSPORTE cst ON cst.ID_CLASE = tc.ID_CLASE
+    WHERE t.DISPONIBILIDAD = TRUE
+    ORDER BY t.FECHA_SALIDA, t.HORA_SALIDA;
+END;
+$$
+LANGUAGE plpgsql;

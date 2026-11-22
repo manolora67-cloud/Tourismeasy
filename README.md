@@ -94,7 +94,7 @@ El idioma inglés se aplica inmediatamente con un glosario local de palabras y f
 | [admin/](admin/) | Endpoint de contenido administrable de portada. |
 | [api/](api/) | Asistente y configuración de servicios externos. |
 | [con_db/](con_db/) | Conexión PDO y utilidades de sesión. |
-| [db/](db/) | Esquema inicial y datos de referencia de PostgreSQL; no contiene migraciones de actualización. |
+| [db/](db/) | Esquema inicial, datos de referencia y migraciones de PostgreSQL. |
 | [functions/](functions/) | Funciones PostgreSQL invocadas por los endpoints y procesos del backend. |
 | [triggers/](triggers/) | Triggers de historial y actualización de fechas. |
 | [mapa_interactuable/](mapa_interactuable/) | JavaScript y estilos del mapa turístico de la portada. |

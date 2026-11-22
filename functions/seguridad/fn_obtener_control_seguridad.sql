@@ -12,7 +12,7 @@ BEGIN
     SELECT c.MAX_INTENTOS, c.VENTANA_MINUTOS, c.DURACION_BLOQUEO_MINUTOS,
            c.CONTAR_EXITOSOS, c.LIMITE_MENSUAL
     FROM CONFIGURACION_SEGURIDAD c
-    WHERE c.CONTROL = p_control;
+    WHERE c.ID_CONTROL = p_control;
 
     IF NOT FOUND THEN
         RAISE EXCEPTION 'No existe la configuración del control de seguridad %.', p_control;

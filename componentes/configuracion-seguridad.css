@@ -86,6 +86,10 @@
     gap: 12px;
 }
 
+#formLimiteEdicionPerfil[hidden] {
+    display: none;
+}
+
 .security-settings__field {
     display: grid;
     gap: 6px;

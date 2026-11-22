@@ -1,8 +1,8 @@
 <?php
 /**
  * transporte/listar.php
- * GET ?panel=1  → solo las rutas de la empresa en sesión (fn_listar_transporte_empresa)
- * GET           → todas las rutas disponibles, frontal público (fn_listar_transporte_publico)
+ * GET ?panel=1  → solo las rutas de la empresa en sesión
+ * GET           → todas las rutas disponibles, frontal público
  */
 
 require_once __DIR__ . '/../con_db/sesion_persistente.php';
@@ -22,11 +22,11 @@ try {
             exit;
         }
 
-        $stmt = $pdo->prepare("SELECT * FROM fn_listar_transporte_empresa(:emp)");
+        $stmt = $pdo->prepare("SELECT * FROM fn_listar_transporte_empresa_detallado(:emp)");
         $stmt->execute([':emp' => $_SESSION['id_empresa']]);
 
     } else {
-        $stmt = $pdo->prepare("SELECT * FROM fn_listar_transporte_publico()");
+        $stmt = $pdo->prepare("SELECT * FROM fn_listar_transporte_publico_detallado()");
         $stmt->execute();
     }
 

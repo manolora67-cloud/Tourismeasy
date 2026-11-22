@@ -44,6 +44,8 @@ BEGIN
         RETURN NULL;
     END IF;
 
+    p_accesibilidad := NULLIF(BTRIM(p_accesibilidad), '');
+
     IF NOT fn_validar_codigo_ciudad(p_id_ciudad) THEN
         RETURN NULL;
     END IF;

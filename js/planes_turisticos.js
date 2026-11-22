@@ -56,7 +56,8 @@ function mostrarDetallePlan(plan) {
     document.getElementById("plan-ubicacion").textContent = plan.ubicacion || "";
     document.getElementById("plan-duracion").textContent = plan.duracion || "";
     document.getElementById("plan-incluye").textContent = plan.incluye || "";
-    document.getElementById("plan-accesibilidad").textContent = plan.accesibilidad || "";
+    document.getElementById("plan-accesibilidad").textContent = plan.accesibilidad
+        || "Consulta con la empresa sobre las condiciones de accesibilidad.";
     document.getElementById("plan-precio").textContent = plan.precio || "";
     actualizarBotonWhatsApp(plan);
     var overlay = document.getElementById("plan-detalle-overlay");
@@ -147,16 +148,6 @@ function mostrarDetallePlan(plan) {
             selectTipo.appendChild(option);
         });
 
-        Array.from(new Set(items.map(function (item) {
-            return String(item.accesibilidad || "").trim();
-        }).filter(Boolean))).sort(function (a, b) {
-            return a.localeCompare(b, "es");
-        }).forEach(function (accessibility) {
-            var option = document.createElement("option");
-            option.value = accessibility;
-            option.textContent = accessibility;
-            selectAccesibilidad.appendChild(option);
-        });
     }
 
     function renderPage() {
@@ -287,14 +278,27 @@ function mostrarDetallePlan(plan) {
                 ubicacion: ciudad,
                 duracion: item.duracion || "—",
                 incluye: item.incluye || "—",
-                accesibilidad: item.accesibilidad || "—",
+                accesibilidad: item.accesibilidad || "",
                 precio: precioDisplay,
                 whatsapp: item.whatsapp || item.telefono || item.num_contacto_empresa || "",
                 img: item.img_url || ""
             });
         });
+        var companyButton = document.createElement("button");
+        companyButton.className = "btn-reservar btn-ver-empresa";
+        companyButton.type = "button";
+        companyButton.textContent = "Ver empresa";
+        companyButton.addEventListener("click", function () {
+            window.TEEmpresaModal.open({
+                nombre: item.empresa,
+                descripcion: item.descripcion_empresa,
+                telefono: item.telefono || item.num_contacto_empresa,
+                email: item.email_empresa
+            });
+        });
         footer.appendChild(price);
         footer.appendChild(detailsButton);
+        footer.appendChild(companyButton);
         body.appendChild(tag);
         body.appendChild(title);
         body.appendChild(description);

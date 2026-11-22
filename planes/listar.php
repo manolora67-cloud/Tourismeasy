@@ -2,7 +2,7 @@
 /**
  * planes/listar.php
  * GET ?panel=1  → planes de la empresa en sesión (fn_listar_planes_empresa)
- * GET           → todos los disponibles, frontal público (fn_listar_planes_publico)
+ * GET           → todos los disponibles, frontal público con datos de empresa
  */
 
 require_once __DIR__ . '/../con_db/sesion_persistente.php';
@@ -26,7 +26,7 @@ try {
         $stmt->execute([':emp' => $_SESSION['id_empresa']]);
 
     } else {
-        $stmt = $pdo->prepare("SELECT * FROM fn_listar_planes_publico()");
+        $stmt = $pdo->prepare("SELECT * FROM fn_listar_planes_publico_detallado()");
         $stmt->execute();
     }
 

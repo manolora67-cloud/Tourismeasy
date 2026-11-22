@@ -255,15 +255,10 @@
                             placeholder="Ej: Servicio directo con aire acondicionado..."
                             style="resize:vertical;"></textarea></div>
                     <div class="vm-field vm-field--full">
-                        <label class="vm-label">Accesibilidad</label>
-                        <select class="vm-input" id="vm-acc">
-                            <option value="none">Ningun servicio especial</option>
-                            <option value="wheelchair">Silla adaptada</option>
-                            <option value="deaf">Asistencia auditiva</option>
-                            <option value="visual">Guia visual</option>
-                            <option value="dog">Perro guia permitido</option>
-                            <option value="ramp">Rampa de acceso</option>
-                        </select>
+                        <label class="vm-label" for="vm-acc">Accesibilidad de esta ruta (opcional)</label>
+                        <textarea class="vm-input" id="vm-acc" rows="4" maxlength="2000"
+                            placeholder="Describe las condiciones y apoyos disponibles en esta ruta."
+                            style="resize:vertical;"></textarea>
                     </div>
                     <div class="vm-field vm-field--full">
                         <label class="vm-label">Estado</label>
@@ -388,15 +383,6 @@
 
         window.TESessionMenu.mount();
 
-        // MAPAS ACCESIBILIDAD Y ESTADO
-        var ACC_MAP = {
-            none: '<span class="badge-acc"><i class="fa-solid fa-globe"></i> General</span>',
-            wheelchair: '<span class="badge-acc"><i class="fa-solid fa-wheelchair"></i> Silla adaptada</span>',
-            deaf: '<span class="badge-acc"><i class="fa-solid fa-ear-deaf"></i> Asistencia auditiva</span>',
-            visual: '<span class="badge-acc"><i class="fa-solid fa-eye-slash"></i> Guia visual</span>',
-            dog: '<span class="badge-acc"><i class="fa-solid fa-dog"></i> Perro guia permitido</span>',
-            ramp: '<span class="badge-acc"><i class="fa-solid fa-person-walking"></i> Rampa de acceso</span>'
-        };
         var EST_MAP = {
             activo: '<span class="status-badge status-badge--active">Activo</span>',
             pendiente: '<span class="status-badge status-badge--warning">Pendiente</span>',
@@ -523,6 +509,7 @@
                 document.getElementById("vm-precio").value = cells[3].textContent.trim();
                 claseSelect.value = row.dataset.idClase || "";
                 document.getElementById("vm-descripcion").value = row.dataset.descripcion || "";
+                document.getElementById("vm-acc").value = row.dataset.accesibilidad || "";
                 var estTexto = cells[4].textContent.trim().toLowerCase();
                 document.getElementById("vm-estado").value = (estTexto === "activo") ? "activo" : "cancelado";
                 var fp = document.getElementById("vm-foto-preview"),
@@ -540,6 +527,7 @@
                 ["vm-precio", "vm-descripcion"].forEach(function (id) {
                     document.getElementById(id).value = "";
                 });
+                document.getElementById("vm-acc").value = "";
                 document.getElementById("vm-origen").value = "";
                 document.getElementById("vm-destino").value = "";
                 document.getElementById("vm-fecha").value = "";
@@ -547,7 +535,6 @@
                 document.getElementById("vm-hora-h").value = "08";
                 document.getElementById("vm-hora-m").value = "00";
                 document.getElementById("vm-hora-ampm").value = "AM";
-                document.getElementById("vm-acc").selectedIndex = 0;
                 document.getElementById("vm-estado").value = "activo";
                 document.getElementById("vm-foto").value = "";
                 document.getElementById("vm-foto-preview").style.display = "none";
@@ -606,9 +593,9 @@
                 window.TEUI.toast("Selecciona municipios distintos para origen y destino, y completa fecha, hora y precio.", "error");
                 return;
             }
-            var accVal = document.getElementById("vm-acc").value;
             var estVal = document.getElementById("vm-estado").value;
             var desc = document.getElementById("vm-descripcion").value.trim();
+            var accesibilidad = document.getElementById("vm-acc").value.trim();
             var clase = document.getElementById("vm-clase").value;
 
             if (!clase) {
@@ -624,6 +611,7 @@
                 precio: parseInt(precioRaw, 10),
                 id_clase: parseInt(clase, 10),
                 descripcion: desc,
+                accesibilidad: accesibilidad,
                 disponible: estVal === "activo"
             };
             var _fotoFile = document.getElementById("vm-foto").files[0];
@@ -723,7 +711,7 @@
             document.getElementById("vDetalle-hora").textContent = fmt12(row.dataset.horaSalida || "") || "--";
             document.getElementById("vDetalle-precio").textContent = cells[3] ? cells[3].textContent.trim() : "--";
             document.getElementById("vDetalle-clase").textContent = row.dataset.nombreClase || "Sin clase";
-            document.getElementById("vDetalle-acc").textContent = row.dataset.descripcion || "Sin descripcion adicional";
+            document.getElementById("vDetalle-acc").textContent = row.dataset.accesibilidad || "Sin información agregada.";
             document.getElementById("vDetalle-estado").innerHTML = cells[4] ? cells[4].innerHTML : "";
             var fw = document.getElementById("vDetalle-foto-wrap"),
                 fi = document.getElementById("vDetalle-foto");
@@ -859,6 +847,7 @@
             var tr = document.createElement("tr");
             tr.dataset.id = item.id || "";
             tr.dataset.descripcion = item.descripcion || "";
+            tr.dataset.accesibilidad = item.accesibilidad || "";
             tr.dataset.fechaSalida = item.fecha_salida || "";
             tr.dataset.horaSalida = item.hora_salida || "";
             tr.dataset.imgUrl = item.img_url || "";

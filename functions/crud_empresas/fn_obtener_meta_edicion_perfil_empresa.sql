@@ -10,15 +10,27 @@ LANGUAGE sql
 AS $$
     SELECT
         u.FECHA_ULTIMA_EDICION_PERFIL,
+        (
+            CASE
+                WHEN e.MES = DATE_TRUNC('month', CURRENT_TIMESTAMP::TIMESTAMP)::DATE
+                THEN COALESCE(e.CANTIDAD, 0)::INTEGER
+                ELSE 0
+            END
+        ) < c.LIMITE_MENSUAL,
         CASE
-            WHEN u.FECHA_ULTIMA_EDICION_PERFIL IS NULL THEN TRUE
-            ELSE DATE_TRUNC('month', u.FECHA_ULTIMA_EDICION_PERFIL)
-                 < DATE_TRUNC('month', CURRENT_TIMESTAMP::TIMESTAMP)
-        END,
-        CASE
-            WHEN u.FECHA_ULTIMA_EDICION_PERFIL IS NULL THEN NULL
-            ELSE (DATE_TRUNC('month', u.FECHA_ULTIMA_EDICION_PERFIL) + INTERVAL '1 month')::TIMESTAMP
+            WHEN (
+                CASE
+                    WHEN e.MES = DATE_TRUNC('month', CURRENT_TIMESTAMP::TIMESTAMP)::DATE
+                    THEN COALESCE(e.CANTIDAD, 0)::INTEGER
+                    ELSE 0
+                END
+            ) >= c.LIMITE_MENSUAL
+            THEN (DATE_TRUNC('month', CURRENT_TIMESTAMP::TIMESTAMP) + INTERVAL '1 month')::TIMESTAMP
+            ELSE NULL::TIMESTAMP
         END
     FROM USUARIOS_EMPRESA u
-    WHERE u.ID_EMPRESA = p_id;
+    CROSS JOIN CONFIGURACION_LIMITE_PERFIL_EMPRESA c
+    LEFT JOIN EDICIONES_PERFIL_EMPRESA e ON e.ID_EMPRESA = u.ID_EMPRESA
+    WHERE u.ID_EMPRESA = p_id
+      AND c.ID_CONFIG = 1;
 $$;

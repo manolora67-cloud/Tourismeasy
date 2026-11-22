@@ -21,7 +21,7 @@ if (!$id) {
 }
 
 try {
-    $stmt = $pdo->prepare('SELECT * FROM fn_obtener_perfil_empresa(:id)');
+    $stmt = $pdo->prepare('SELECT * FROM fn_obtener_perfil_empresa_detallado(:id)');
     $stmt->execute([':id' => $id]);
     $empresa = $stmt->fetch();
 
@@ -31,7 +31,7 @@ try {
         exit;
     }
 
-    $metaStmt = $pdo->prepare('SELECT * FROM fn_obtener_meta_edicion_perfil_empresa(:id)');
+    $metaStmt = $pdo->prepare('SELECT * FROM fn_obtener_meta_edicion_perfil_empresa_detallada(:id)');
     $metaStmt->execute([':id' => $id]);
     $meta = $metaStmt->fetch();
     if (!$meta) {
@@ -47,6 +47,9 @@ try {
         true
     );
     $empresa['proxima_edicion'] = $meta['proxima_edicion'];
+    $empresa['limite_ediciones_mes'] = (int) $meta['limite_mensual'];
+    $empresa['ediciones_realizadas_mes'] = (int) $meta['ediciones_realizadas_mes'];
+    $empresa['ediciones_restantes_mes'] = (int) $meta['ediciones_restantes_mes'];
 
     echo json_encode(["ok" => true, "empresa" => $empresa]);
 

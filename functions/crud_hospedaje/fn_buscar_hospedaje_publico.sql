@@ -23,6 +23,8 @@ BEGIN
         'empresa', E.NOM_EMPRESA,
         'id_empresa', E.ID_EMPRESA,
         'telefono', E.NUM_CONTACTO_EMPRESA,
+        'email_empresa', E.EMAIL_INSTITU_EMPRESA,
+        'descripcion_empresa', E.DESCRIPCION,
         'servicios', COALESCE(S.SERVICIOS, '[]'::JSONB),
         'servicios_txt', COALESCE(S.SERVICIOS_TXT, '')
     ) ORDER BY H.PRECIO_NOCHE ASC), '[]'::JSONB)
@@ -51,7 +53,7 @@ BEGIN
       AND (p_id_ciudad IS NULL OR H.ID_CIUDAD = p_id_ciudad)
       AND (
           p_accesibilidad IS NULL
-          OR LOWER(BTRIM(H.ACCESIBILIDAD)) = LOWER(BTRIM(p_accesibilidad))
+          OR STRPOS(LOWER(COALESCE(H.ACCESIBILIDAD, '')), LOWER(BTRIM(p_accesibilidad))) > 0
       )
       AND (p_capacidad IS NULL OR H.CAPACIDAD_MAX >= p_capacidad);
 

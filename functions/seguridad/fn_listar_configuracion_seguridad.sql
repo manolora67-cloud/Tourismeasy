@@ -4,7 +4,7 @@ $$
     SELECT COALESCE(
         JSONB_AGG(
             JSONB_BUILD_OBJECT(
-                'control', CONTROL,
+                'control', ID_CONTROL,
                 'max_intentos', MAX_INTENTOS,
                 'ventana_minutos', VENTANA_MINUTOS,
                 'duracion_bloqueo_minutos', DURACION_BLOQUEO_MINUTOS,
@@ -13,7 +13,7 @@ $$
                 'actualizado_por', ACTUALIZADO_POR,
                 'fecha_actualizacion', FECHA_ACTUALIZACION
             )
-            ORDER BY CONTROL
+            ORDER BY ID_CONTROL
         ),
         '[]'::JSONB
     )

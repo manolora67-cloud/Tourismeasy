@@ -70,7 +70,7 @@ if (!preg_match('/^.{8,}$/us', $contrasenaNueva) || strlen($contrasenaNueva) > 7
 
 try {
     $bloqueoStmt = $pdo->prepare(
-        "SELECT bloqueado, minutos_restantes FROM fn_verificar_bloqueo_seguridad('password_change', :email)"
+        "SELECT bloqueado, minutos_restantes FROM fn_verificar_bloqueo_seguridad('cambio_contrasena', :email)"
     );
     $bloqueoStmt->execute([':email' => $email]);
     $bloqueo = $bloqueoStmt->fetch();
@@ -89,11 +89,11 @@ try {
         $email,
         $contrasenaActual,
         $tipo,
-        'password_change'
+        'cambio_contrasena'
     );
     if ($hashActual === null) {
         $intentoStmt = $pdo->prepare(
-            "SELECT fn_registrar_intento_seguridad('password_change', :email, :ip, FALSE)"
+            "SELECT fn_registrar_intento_seguridad('cambio_contrasena', :email, :ip, FALSE)"
         );
         $intentoStmt->execute([
             ':email' => $email,
@@ -153,7 +153,7 @@ try {
     }
 
     $intentoExitosoStmt = $pdo->prepare(
-        "SELECT fn_registrar_intento_seguridad('password_change', :email, :ip, TRUE)"
+        "SELECT fn_registrar_intento_seguridad('cambio_contrasena', :email, :ip, TRUE)"
     );
     $intentoExitosoStmt->execute([
         ':email' => $email,

@@ -43,7 +43,8 @@ function actualizarBotonWhatsApp(btn) {
             document.getElementById('hosp-ubicacion').textContent = btn.dataset.ubicacion || '';
             document.getElementById('hosp-capacidad').textContent = btn.dataset.capacidad || '';
             document.getElementById('hosp-servicios').textContent = btn.dataset.servicios || '';
-            document.getElementById('hosp-accesibilidad').textContent = btn.dataset.accesibilidad || '';
+            document.getElementById('hosp-accesibilidad').textContent = btn.dataset.accesibilidad
+                || "Consulta con la empresa sobre las condiciones de accesibilidad.";
             document.getElementById('hosp-precio').textContent = btn.dataset.precio || '';
             actualizarBotonWhatsApp(btn);
             overlay.classList.add('visible');
@@ -113,17 +114,6 @@ function actualizarBotonWhatsApp(btn) {
             inputDestino.appendChild(option);
         });
 
-        var accessibilityOptions = Array.from(new Set(items.map(function(item) {
-            return String(item.accesibilidad || "").trim();
-        }).filter(Boolean))).sort(function(a, b) {
-            return a.localeCompare(b, "es");
-        });
-        accessibilityOptions.forEach(function(accessibility) {
-            var option = document.createElement("option");
-            option.value = accessibility;
-            option.textContent = accessibility;
-            inputAccesibilidad.appendChild(option);
-        });
     }
 
     function renderPage(matches) {
@@ -287,9 +277,10 @@ function actualizarBotonWhatsApp(btn) {
             ' data-titulo="' + nombre + '" data-tipo="' + escapeHtml(item.tipo || "") + '"' +
             ' data-id-producto="' + escapeHtml(item.id || "") + '"' +
             ' data-ubicacion="' + ciudad + '" data-capacidad="' + escapeHtml(item.capacidad_max || "—") + '"' +
-            ' data-servicios="' + servicios + '" data-accesibilidad="' + (accesibilidad || "—") + '"' +
+            ' data-servicios="' + servicios + '" data-accesibilidad="' + accesibilidad + '"' +
             ' data-precio="' + escapeHtml(precioDisplay) + '" data-empresa="' + empresa + '"' +
             ' data-whatsapp="' + whatsapp + '" data-img="' + imagen + '">Ver detalles</button>' +
+            '<button class="btn-reservar btn-ver-empresa" type="button">Ver empresa</button>' +
             '</div></div>';
         card.querySelector(".btn-ver-detalles-empresa").addEventListener("click", function() {
             var btn = this;
@@ -307,6 +298,14 @@ function actualizarBotonWhatsApp(btn) {
             overlay.removeAttribute("aria-hidden");
             overlay.classList.add("visible");
             document.body.style.overflow = "hidden";
+        });
+        card.querySelector(".btn-ver-empresa").addEventListener("click", function() {
+            window.TEEmpresaModal.open({
+                nombre: item.empresa,
+                descripcion: item.descripcion_empresa,
+                telefono: item.telefono || item.num_contacto_empresa,
+                email: item.email_empresa
+            });
         });
         grid.appendChild(card);
     }

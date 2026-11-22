@@ -43,6 +43,13 @@ $id_clase = (is_string($id_clase_entrada) || is_int($id_clase_entrada))
     ? trim((string)$id_clase_entrada)
     : '';
 $descripcion = trim($input['descripcion']  ?? '');
+$accesibilidad_entrada = $input['accesibilidad'] ?? null;
+if ($accesibilidad_entrada !== null && !is_string($accesibilidad_entrada)) {
+    http_response_code(400);
+    echo json_encode(["ok" => false, "error" => "La descripción de accesibilidad debe ser texto."]);
+    exit;
+}
+$accesibilidad = trim($accesibilidad_entrada ?? '') ?: null;
 $disponible  = isset($input['disponible']) ? (bool)$input['disponible'] : true;
 $img_url     = trim($input['img_url']      ?? '') ?: null;
 $id_editar = null;
@@ -144,7 +151,8 @@ try {
                 :clase,
                 :desc,
                 :img,
-                :disp
+                :disp,
+                :accesibilidad
             )
         ");
 
@@ -160,6 +168,7 @@ try {
             ':desc'    => $descripcion ?: null,
             ':img'     => $img_url,
             ':disp'    => $disponible ? 't' : 'f',
+            ':accesibilidad' => $accesibilidad,
         ]);
         $actualizada = $stmt->fetchColumn();
         if (!in_array($actualizada, [true, 't', 'true', '1', 1], true)) {
@@ -193,7 +202,8 @@ try {
                 :precio,
                 :clase,
                 :desc,
-                :img
+                :img,
+                :accesibilidad
             )
         ");
 
@@ -207,6 +217,7 @@ try {
             ':clase'   => $id_clase,
             ':desc'    => $descripcion ?: null,
             ':img'     => $img_url,
+            ':accesibilidad' => $accesibilidad,
         ]);
 
         $nuevoId = $stmt->fetchColumn();

@@ -19,16 +19,16 @@ BEGIN
        OR p_max_intentos IS NULL OR p_max_intentos NOT BETWEEN 1 AND 10
        OR p_ventana_minutos IS NULL OR p_ventana_minutos NOT BETWEEN 1 AND 1440
        OR p_duracion_bloqueo_minutos IS NULL OR p_duracion_bloqueo_minutos NOT BETWEEN 1 AND 10080
-       OR (p_control = 'device_code' AND p_max_intentos > 5)
-       OR (p_control = 'password_change' AND
+       OR (p_control = 'codigo_dispositivo' AND p_max_intentos > 5)
+       OR (p_control = 'cambio_contrasena' AND
            (p_limite_mensual IS NULL OR p_limite_mensual NOT BETWEEN 1 AND 10))
-       OR (p_control <> 'password_change' AND p_limite_mensual IS NOT NULL) THEN
+       OR (p_control <> 'cambio_contrasena' AND p_limite_mensual IS NOT NULL) THEN
         RETURN JSONB_BUILD_OBJECT('ok', FALSE, 'error', 'Los límites configurados están fuera del rango permitido.');
     END IF;
 
     SELECT * INTO v_anterior
     FROM CONFIGURACION_SEGURIDAD
-    WHERE CONTROL = p_control
+    WHERE ID_CONTROL = p_control
     FOR UPDATE;
     IF NOT FOUND THEN
         RETURN JSONB_BUILD_OBJECT('ok', FALSE, 'error', 'El control de seguridad solicitado no existe.');
@@ -41,7 +41,7 @@ BEGIN
         LIMITE_MENSUAL = p_limite_mensual,
         ACTUALIZADO_POR = p_admin,
         FECHA_ACTUALIZACION = NOW()
-    WHERE CONTROL = p_control
+    WHERE ID_CONTROL = p_control
     RETURNING * INTO v_nuevo;
 
     INSERT INTO AUDITORIA (
@@ -68,7 +68,7 @@ BEGIN
     RETURN JSONB_BUILD_OBJECT(
         'ok', TRUE,
         'data', JSONB_BUILD_OBJECT(
-            'control', v_nuevo.CONTROL,
+            'control', v_nuevo.ID_CONTROL,
             'max_intentos', v_nuevo.MAX_INTENTOS,
             'ventana_minutos', v_nuevo.VENTANA_MINUTOS,
             'duracion_bloqueo_minutos', v_nuevo.DURACION_BLOQUEO_MINUTOS,

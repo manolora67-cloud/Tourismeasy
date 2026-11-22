@@ -7,7 +7,8 @@ CREATE OR REPLACE FUNCTION fn_agregar_transporte(
     t_precio        TRANSPORTE.PRECIO%TYPE,
     t_id_clase      CLASE_SERVICIO_TRANSPORTE.ID_CLASE%TYPE,
     t_descripcion   TRANSPORTE.DESCRIPCION%TYPE DEFAULT NULL,
-    t_img_url       TRANSPORTE.IMG_URL%TYPE DEFAULT NULL
+    t_img_url       TRANSPORTE.IMG_URL%TYPE DEFAULT NULL,
+    t_accesibilidad TRANSPORTE.ACCESIBILIDAD%TYPE DEFAULT NULL
 )
 RETURNS TRANSPORTE.ID_TRANSPORTE%TYPE AS
 $$
@@ -75,6 +76,7 @@ BEGIN
         PRECIO,
         DISPONIBILIDAD,
         DESCRIPCION,
+        ACCESIBILIDAD,
         IMG_URL,
         FECHA_CREACION
     )
@@ -89,6 +91,7 @@ BEGIN
         t_precio,
         TRUE,
         t_descripcion,
+        NULLIF(BTRIM(t_accesibilidad), ''),
         t_img_url,
         NOW()
     )

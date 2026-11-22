@@ -28,6 +28,66 @@ El esquema crea las tablas de la aplicación y carga datos iniciales, incluyendo
 
 `FESTIVIDADES_SANTANDER` guarda también la categoría temática y `IMG_URL` para cada festividad. La columna de imagen sigue la misma longitud mínima que las demás columnas `IMG_URL`; las cargas desde el apartado **Festividades** del panel se alojan en Cloudinary. Las 48 festividades iniciales tienen una categoría asignada y, cuando no se ha cargado una imagen propia, el sitio usa una imagen temática de esa categoría.
 
+## Actualizar una base existente: perfil de empresa y accesibilidad
+
+Para una base ya creada, no importes `DB_TOURISMEASY.sql`. Primero haz un respaldo y ejecuta las migraciones específicas. Si la base todavía no tiene las tablas de seguridad (`CONFIGURACION_SEGURIDAD`, `INTENTOS_SEGURIDAD` y `BLOQUEOS_SEGURIDAD`), créalas según la sección **Controles de seguridad configurables** antes de las dos últimas migraciones:
+
+```powershell
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\db\migraciones\20261122_perfil_empresa_y_accesibilidad.sql
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\db\migraciones\20261122_limite_ediciones_perfil_empresa.sql
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\db\migraciones\20261122_codigos_seguridad_espanol.sql
+psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\db\migraciones\20261122_id_control_seguridad.sql
+```
+
+La segunda migración crea el límite configurable (inicia en 3, ajustable entre 1 y 10) y el contador mensual. Si una empresa ya editó el perfil durante el mes en que se ejecuta, esa edición se cuenta como la primera.
+La tercera traduce al español los códigos internos de los controles de seguridad y conserva los registros de intentos y bloqueos existentes.
+La cuarta renombra `CONFIGURACION_SEGURIDAD.CONTROL` a `ID_CONTROL`; las llaves foráneas existentes se actualizan automáticamente.
+
+Después instala las funciones actualizadas y las nuevas, desde la raíz del repositorio:
+
+```powershell
+$db = 'tourismeasy'
+$user = 'postgres'
+$archivos = @(
+    '.\functions\crud_empresas\fn_actualizar_perfil_empresa.sql',
+    '.\functions\crud_empresas\fn_obtener_meta_edicion_perfil_empresa_detallada.sql',
+    '.\functions\crud_empresas\fn_obtener_meta_edicion_perfil_empresa.sql',
+    '.\functions\crud_empresas\fn_obtener_limite_edicion_perfil_empresa.sql',
+    '.\functions\crud_empresas\fn_actualizar_limite_edicion_perfil_empresa.sql',
+    '.\functions\crud_empresas\fn_obtener_perfil_empresa_detallado.sql',
+    '.\functions\seguridad\fn_actualizar_configuracion_seguridad.sql',
+    '.\functions\seguridad\fn_actualizar_contrasena_cuenta.sql',
+    '.\functions\seguridad\fn_obtener_control_seguridad.sql',
+    '.\functions\seguridad\fn_listar_configuracion_seguridad.sql',
+    '.\functions\seguridad\fn_registrar_intento_seguridad.sql',
+    '.\functions\seguridad\fn_verificar_bloqueo_seguridad.sql',
+    '.\functions\seguridad\fn_operaciones_solicitud_dispositivo.sql',
+    '.\functions\seguridad\fn_procesar_login.sql',
+    '.\functions\crud_hospedaje\fn_agregar_hospedaje.sql',
+    '.\functions\crud_hospedaje\fn_editar_hospedaje.sql',
+    '.\functions\crud_hospedaje\fn_guardar_hospedaje.sql',
+    '.\functions\crud_hospedaje\fn_listar_hospedaje_publico.sql',
+    '.\functions\crud_hospedaje\fn_buscar_hospedaje_publico.sql',
+    '.\functions\crud_planes\fn_agregar_plan.sql',
+    '.\functions\crud_planes\fn_editar_plan.sql',
+    '.\functions\crud_planes\fn_buscar_planes_publicos.sql',
+    '.\functions\crud_planes\fn_listar_planes_publico_detallado.sql',
+    '.\functions\crud_transporte\fn_agregar_transporte.sql',
+    '.\functions\crud_transporte\fn_editar_transporte.sql',
+    '.\functions\crud_transporte\fn_listar_transporte_empresa_detallado.sql',
+    '.\functions\crud_transporte\fn_listar_transporte_publico_detallado.sql'
+)
+
+foreach ($archivo in $archivos) {
+    & psql -v ON_ERROR_STOP=1 -U $user -d $db -f $archivo
+    if ($LASTEXITCODE -ne 0) { throw "Falló $archivo" }
+}
+```
+
+La migración conserva los datos de accesibilidad existentes. En los formularios, la descripción de accesibilidad queda opcional y pertenece a cada publicación; la descripción general se guarda una vez en el perfil de empresa.
+
+La nueva configuración también requiere `admin/limite_edicion_perfil.php` y `componentes/configuracion-limite-perfil.js`, incluidos en el código de la aplicación.
+
 Las preferencias del aviso de cookies no se almacenan en PostgreSQL: el navegador las conserva localmente y el usuario puede cambiarlas desde **Preferencias de cookies** en el pie de página. No requieren tablas, cambios de esquema ni migraciones.
 
 Las funciones se cargan por separado después del esquema. Si únicamente necesitas reemplazar una función en una base que ya tiene la estructura compatible, ejecuta el archivo correspondiente de `functions/`; `CREATE OR REPLACE FUNCTION` reemplaza la definición cuando la firma de retorno es compatible. `fn_listar_festividades()` ahora devuelve también categoría e imagen, por lo que PostgreSQL no permite ampliar directamente los parámetros `OUT` de la versión anterior. En una base que ya tiene esa versión, elimina manualmente la función anterior antes de ejecutar el archivo actualizado; el archivo SQL no contiene `DROP`. Esto no convierte `DB_TOURISMEASY.sql` en una actualización: nunca lo ejecutes sobre una base con datos.
@@ -93,9 +153,9 @@ El panel **Configuración de Administrador → Límites de seguridad** administr
 
 Los intentos de login y de comprobación de contraseña actual usan contadores independientes. Las solicitudes de recuperación se cuentan incluso si el correo no corresponde a una cuenta, sin revelar si existe; los enlaces inválidos se limitan por IP. No se agrega límite a la comprobación de tokens aleatorios válidos: estos tienen 256 bits y solo se pueden usar una vez. Los restablecimientos de contraseña por correo siguen sin aumentar `CAMBIOS_CONTRASENA_CUENTA`.
 
-En una instalación nueva, `DB_TOURISMEASY.sql` crea `CONFIGURACION_SEGURIDAD`, `INTENTOS_SEGURIDAD` y `BLOQUEOS_SEGURIDAD` con valores iniciales. Para una base existente, **no ejecutes el esquema completo**: después de respaldar la base, un responsable debe crear únicamente esas tres tablas y cargar las filas iniciales correspondientes a ese bloque del esquema. No se requiere `ALTER` ni `DROP`; los intentos previos de `INTENTOS_LOGIN` se conservan como historial, pero no se convierten en bloqueos activos al instalar el nuevo contador.
+En una instalación nueva, `DB_TOURISMEASY.sql` crea `CONFIGURACION_SEGURIDAD`, `INTENTOS_SEGURIDAD` y `BLOQUEOS_SEGURIDAD` con valores iniciales. Para una base existente, **no ejecutes el esquema completo**: después de respaldar la base, si esas tablas aún no existen, un responsable debe crear únicamente esas tres tablas y cargar sus filas iniciales según el esquema. Una vez existan, ejecuta las migraciones de códigos en español y de renombrado a `ID_CONTROL`, en ese orden. Estas conservan los intentos y bloqueos existentes; el historial antiguo de `INTENTOS_LOGIN` tampoco se convierte en bloqueos activos.
 
-Después de crear las tablas, instala las funciones en este orden y despliega los PHP actualizados. Login y el resto de acciones sensibles usan directamente el mismo registrador configurable, distinguiéndose por el valor `CONTROL`. La tabla `INTENTOS_LOGIN` y sus filas históricas se conservan, pero el flujo nuevo no escribe en ella. Si una base ya tiene instalados los antiguos envoltorios `fn_registrar_intento_login` o `fn_verificar_bloqueo_login`, pueden permanecer sin uso; no es necesario ejecutar `DROP`:
+Después de crear o migrar las tablas, instala las funciones en este orden y despliega los PHP actualizados. El identificador de cada límite está en `CONFIGURACION_SEGURIDAD.ID_CONTROL`; `INTENTOS_SEGURIDAD.CONTROL` y `BLOQUEOS_SEGURIDAD.CONTROL` lo referencian. El inicio de sesión y el resto de acciones sensibles usan el mismo registrador configurable. La tabla `INTENTOS_LOGIN` y sus filas históricas se conservan, pero el flujo nuevo no escribe en ella. Si una base ya tiene instalados los antiguos envoltorios `fn_registrar_intento_login` o `fn_verificar_bloqueo_login`, pueden permanecer sin uso; no es necesario ejecutar `DROP`:
 
 ```powershell
 psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\seguridad\fn_obtener_control_seguridad.sql
@@ -108,7 +168,7 @@ psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\seguridad\fn_l
 psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\seguridad\fn_actualizar_configuracion_seguridad.sql
 ```
 
-La aplicación requiere también el endpoint nuevo [`../admin/seguridad.php`](../admin/seguridad.php), los PHP actualizados de login, cambio de contraseña, recuperación y confirmación de dispositivo, y los componentes de configuración y menú compartido. No se ofrece una migración automática para bases existentes.
+La aplicación requiere también el endpoint nuevo [`../admin/seguridad.php`](../admin/seguridad.php), los PHP actualizados de login, cambio de contraseña, recuperación y confirmación de dispositivo, y los componentes de configuración y menú compartido.
 
 Este archivo representa una instalación nueva. Importa el esquema en una base vacía; no lo ejecutes sobre una base anterior para intentar actualizarla. Si tienes datos que conservar, haz un respaldo y conserva esa base por separado.
 
@@ -205,6 +265,7 @@ Si ya tienes una base instalada, carga las funciones nuevas desde la raíz del r
 $db = 'tourismeasy'
 $user = 'postgres'
 $archivos = @(
+	'.\functions\crud_empresas\fn_obtener_meta_edicion_perfil_empresa_detallada.sql',
 	'.\functions\crud_empresas\fn_obtener_meta_edicion_perfil_empresa.sql',
 	'.\functions\seguridad\fn_obtener_nombre_recuperacion.sql',
 	'.\functions\crud_referencias\fn_sue_buscar_transportes_ruta.sql',
@@ -228,7 +289,7 @@ foreach ($archivo in $archivos) {
 
 No ejecutes `DB_TOURISMEASY.sql` sobre una base existente.
 
-Las empresas pueden actualizar razón social, correo institucional, correo de acceso, teléfono y municipio una vez por mes calendario. El correo de acceso se guarda en `USUARIOS_EMPRESA.EMAIL_LOGIN` y se usa para iniciar sesión. El NIT y el sector no se pueden cambiar desde el perfil.
+Las empresas pueden guardar hasta tres cambios de perfil por mes calendario. El administrador puede ajustar el límite entre 1 y 10 desde **Plataforma → Ediciones del perfil de empresa**. Cada guardado que cambia datos cuenta como una edición, incluida la descripción; guardar sin cambios no consume cupo. El correo de acceso se guarda en `USUARIOS_EMPRESA.EMAIL_LOGIN` y se usa para iniciar sesión. El NIT y el sector no se pueden cambiar desde el perfil.
 
 ```powershell
 $db = 'tourismeasy'
@@ -337,7 +398,7 @@ No es necesario ejecutarlas otra vez si el instalador general ya terminó correc
 
 El bloque inicia `psql` una vez por archivo; para evitar que solicite la contraseña repetidamente, configura el archivo `pgpass.conf` de PostgreSQL para tu usuario local o ejecuta cada script desde pgAdmin.
 
-Este procedimiento está destinado a una base vacía recién creada; no lo uses sobre una base con datos o funciones en uso. El límite mensual del perfil forma parte del esquema inicial de `USUARIOS_EMPRESA` en `DB_TOURISMEASY.sql`, y la lógica de edición se instala desde `functions/crud_empresas/fn_actualizar_perfil_empresa.sql`. Solo las cuentas con estado `ACTIVO` pueden editar su perfil; las solicitudes pendientes no pueden hacerlo.
+Este procedimiento está destinado a una base vacía recién creada; no lo uses sobre una base con datos o funciones en uso. El límite mensual del perfil y el contador de ediciones se crean en `DB_TOURISMEASY.sql`; para bases existentes, ejecuta las migraciones indicadas arriba. La lógica de edición se instala desde `functions/crud_empresas/fn_actualizar_perfil_empresa.sql`. Solo las cuentas con estado `ACTIVO` pueden editar su perfil; las solicitudes pendientes no pueden hacerlo.
 
 
 ## Configurar el backend

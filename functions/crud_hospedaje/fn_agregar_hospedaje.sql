@@ -45,9 +45,7 @@ BEGIN
         RETURN NULL;
     END IF;
 
-    IF h_accesibilidad IS NULL OR LENGTH(TRIM(h_accesibilidad)) < 3 THEN
-        RETURN NULL;
-    END IF;
+    h_accesibilidad := NULLIF(BTRIM(h_accesibilidad), '');
 
     IF h_descripcion IS NOT NULL AND LENGTH(TRIM(h_descripcion)) < 5 THEN
         RETURN NULL;

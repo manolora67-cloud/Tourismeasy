@@ -38,7 +38,7 @@ if (!is_array($input)) {
     exit;
 }
 
-foreach (['nombre', 'email_institucional', 'email_acceso', 'contacto', 'id_ciudad'] as $field) {
+foreach (['nombre', 'email_institucional', 'email_acceso', 'contacto', 'id_ciudad', 'descripcion'] as $field) {
     if (!isset($input[$field]) || !is_string($input[$field])) {
         http_response_code(400);
         echo json_encode(["ok" => false, "error" => "Falta un dato o su formato es inválido."]);
@@ -51,6 +51,7 @@ $emailInstitucional = trim($input['email_institucional']);
 $emailAcceso = trim($input['email_acceso']);
 $contacto = trim($input['contacto']);
 $idCiudad = trim($input['id_ciudad']);
+$descripcion = trim($input['descripcion']);
 
 if (!preg_match('/^[0-9]{5,6}$/', $idCiudad)) {
     http_response_code(400);
@@ -60,7 +61,7 @@ if (!preg_match('/^[0-9]{5,6}$/', $idCiudad)) {
 
 try {
     $stmt = $pdo->prepare(
-        'SELECT * FROM fn_actualizar_perfil_empresa(:id, :nombre, :email_inst, :contacto, :ciudad, :email_login)'
+        'SELECT * FROM fn_actualizar_perfil_empresa(:id, :nombre, :email_inst, :contacto, :ciudad, :email_login, :descripcion)'
     );
     $stmt->execute([
         ':id' => $id,
@@ -69,6 +70,7 @@ try {
         ':contacto' => $contacto,
         ':ciudad' => $idCiudad,
         ':email_login' => $emailAcceso,
+        ':descripcion' => $descripcion,
     ]);
     $result = $stmt->fetch();
     $resultOk = in_array(

@@ -146,7 +146,8 @@ function mostrarDetalleTransporte(datos) {
     document.getElementById("vd-fecha").textContent = formatDateLong(datos.fecha || "");
     document.getElementById("vd-hora").textContent = formatTime24to12(datos.hora || "");
     document.getElementById("vd-empresa").textContent = datos.empresa || "";
-    document.getElementById("vd-accesibilidad").textContent = datos.accesibilidad || "";
+    document.getElementById("vd-accesibilidad").textContent = datos.accesibilidad
+        || "Consulta con la empresa sobre las condiciones de accesibilidad.";
     document.getElementById("vd-precio").textContent = datos.precio || "";
 
     var detalleClase = document.getElementById("vd-clase");
@@ -889,7 +890,9 @@ document
             escapeTransportHtml(item.empresa || "") +
             '"' +
 
-            ' data-accesibilidad="Servicio de transporte"' +
+            ' data-accesibilidad="' +
+            escapeTransportHtml(item.accesibilidad || "") +
+            '"' +
 
             ' data-whatsapp="' +
             escapeTransportHtml(whatsapp) +
@@ -900,6 +903,7 @@ document
             '"' +
 
             '>Ver detalles</button>' +
+            '<button class="btn-reservar btn-ver-empresa" type="button">Ver empresa</button>' +
 
             '</div></div>';
 
@@ -909,6 +913,15 @@ document
                 mostrarDetalleTransporte(this.dataset);
             });
 
+        card.querySelector(".btn-ver-empresa")
+            .addEventListener("click", function () {
+                window.TEEmpresaModal.open({
+                    nombre: item.empresa,
+                    descripcion: item.descripcion_empresa,
+                    telefono: item.telefono || item.num_contacto_empresa,
+                    email: item.email_empresa
+                });
+            });
 
         grid.appendChild(card);
 

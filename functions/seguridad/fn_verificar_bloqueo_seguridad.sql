@@ -25,7 +25,7 @@ BEGIN
            c.CONTAR_EXITOSOS
     INTO STRICT v_max_intentos, v_ventana_minutos, v_duracion_bloqueo, v_contar_exitosos
     FROM CONFIGURACION_SEGURIDAD c
-    WHERE c.CONTROL = p_control;
+    WHERE c.ID_CONTROL = p_control;
 
     PERFORM pg_advisory_xact_lock(HASHTEXT(p_control), HASHTEXT(v_sujeto));
 

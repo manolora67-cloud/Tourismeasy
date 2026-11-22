@@ -32,7 +32,7 @@ function obtenerHashLoginVerificado(
     string $email,
     string $password,
     string $tipo,
-    string $controlIntentos = 'login'
+    string $controlIntentos = 'inicio_sesion'
 ): ?string
 {
     $bloqueoStmt = $pdo->prepare(

@@ -29,7 +29,7 @@ $fechaExpira   = date('Y-m-d H:i:s', strtotime('+1 hour'));
 
 try {
     $limiteStmt = $pdo->prepare(
-        "SELECT bloqueado, minutos_restantes FROM fn_verificar_bloqueo_seguridad('recovery_request', :email)"
+        "SELECT bloqueado, minutos_restantes FROM fn_verificar_bloqueo_seguridad('solicitud_recuperacion', :email)"
     );
     $limiteStmt->execute([':email' => $email]);
     $limite = $limiteStmt->fetch();
@@ -53,7 +53,7 @@ try {
     $row = $stmt->fetch();
 
     $registroStmt = $pdo->prepare(
-        "SELECT fn_registrar_intento_seguridad('recovery_request', :email, :ip, :exitoso)"
+        "SELECT fn_registrar_intento_seguridad('solicitud_recuperacion', :email, :ip, :exitoso)"
     );
     $registroStmt->execute([
         ':email' => $email,

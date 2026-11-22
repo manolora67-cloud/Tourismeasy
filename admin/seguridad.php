@@ -56,12 +56,12 @@ try {
 
     $control = $input['control'] ?? null;
     $controlesValidos = [
-        'login',
-        'password_change',
-        'recovery_request',
-        'recovery_link',
-        'device_request',
-        'device_code',
+        'inicio_sesion',
+        'cambio_contrasena',
+        'solicitud_recuperacion',
+        'enlace_recuperacion',
+        'solicitud_dispositivo',
+        'codigo_dispositivo',
     ];
     if (!is_string($control) || !in_array($control, $controlesValidos, true)) {
         responderSeguridad(400, ['ok' => false, 'error' => 'El control de seguridad no es válido.']);
@@ -73,12 +73,12 @@ try {
         }
     }
     $limiteMensual = $input['limite_mensual'] ?? null;
-    if ($control === 'device_code' && $input['max_intentos'] > 5) {
+    if ($control === 'codigo_dispositivo' && $input['max_intentos'] > 5) {
         responderSeguridad(422, ['ok' => false, 'error' => 'Los códigos de dispositivo permiten entre 1 y 5 intentos.']);
     }
     if (
-        ($control === 'password_change' && (!is_int($limiteMensual) || $limiteMensual < 1 || $limiteMensual > 10))
-        || ($control !== 'password_change' && $limiteMensual !== null)
+        ($control === 'cambio_contrasena' && (!is_int($limiteMensual) || $limiteMensual < 1 || $limiteMensual > 10))
+        || ($control !== 'cambio_contrasena' && $limiteMensual !== null)
     ) {
         responderSeguridad(400, ['ok' => false, 'error' => 'El límite mensual solo aplica al cambio de contraseña.']);
     }
