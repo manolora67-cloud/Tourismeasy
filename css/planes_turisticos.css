@@ -288,9 +288,9 @@
 /* Pie de tarjeta */
 
 .card-footer {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
     border-top: 1px solid var(--gray-100);
     padding-top: 15px;
     margin-top: auto;
@@ -301,8 +301,8 @@
 /* El precio tiene prioridad en el espacio disponible */
 
 .card-footer .price {
-    flex: 1 1 auto;
-    min-width: 90px;
+    grid-column: 1 / -1;
+    min-width: 0;
 }
 
 .price {
@@ -325,6 +325,13 @@
     transition: all 0.3s;
     white-space: nowrap;
     flex: 0 0 auto;
+}
+
+.card-footer .btn-reservar {
+    width: 100%;
+    min-width: 0;
+    text-align: center;
+    white-space: normal;
 }
 
 .btn-reservar:hover {

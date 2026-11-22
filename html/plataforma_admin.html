@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="../css/login.css?v=admin-menu-icons-v1" />
     <link rel="stylesheet" href="../css/panel_admin.css?v=admin-mobile-nav-v2" />
     <link rel="stylesheet" href="../componentes/cambio-contrasena.css?v=password-change-v1" />
-    <link rel="stylesheet" href="../componentes/configuracion-seguridad.css?v=security-settings-v4" />
+    <link rel="stylesheet" href="../componentes/configuracion-seguridad.css?v=security-settings-v5" />
     <link rel="stylesheet" href="../css/agente-ia.css?v=editorial-v1" />
     <link rel="stylesheet" href="../css/tema-global-admin.css?v=global-theme-v2" />
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;500&display=swap" rel="stylesheet" />
@@ -139,42 +139,41 @@
                     <h1><i class="fa-solid fa-diagram-project"></i> Configuración de Plataforma</h1>
                 </div>
 
-                <section class="pu-card security-settings" aria-labelledby="securitySettingsTitle">
-                    <h3 class="pu-card-title" id="securitySettingsTitle">
-                        <i class="fa-solid fa-shield-halved"></i> Límites de seguridad
+                <section class="pu-card security-settings" aria-labelledby="platformLimitsTitle">
+                    <h3 class="pu-card-title" id="platformLimitsTitle">
+                        <i class="fa-solid fa-shield-halved"></i> Límites y controles de plataforma
                     </h3>
                     <p class="security-settings__intro">
-                        Configura intentos, ventanas y bloqueos de cada acción. Los cambios se validan en el servidor y quedan registrados en Auditoría.
+                        Configura intentos, ventanas y bloqueos de seguridad, además de los cambios mensuales del perfil empresarial. Los cambios se validan en el servidor y quedan registrados en Auditoría.
                     </p>
                     <div id="securitySettingsList" class="security-settings__list" aria-live="polite">
                         <p role="status">Cargando controles de seguridad…</p>
                     </div>
-                </section>
-
-                <section class="pu-card security-settings" aria-labelledby="profileEditLimitTitle">
-                    <h3 class="pu-card-title" id="profileEditLimitTitle">
-                        <i class="fa-solid fa-building"></i> Ediciones del perfil de empresa
-                    </h3>
-                    <p class="security-settings__intro">
-                        Define cuántas veces puede guardar cada empresa cambios en su perfil por mes calendario. La descripción también cuenta como un cambio.
-                    </p>
-                    <p id="estadoCargaLimiteEdicionPerfil" class="security-settings__status" role="status" aria-live="polite">
-                        Cargando límite…
-                    </p>
-                    <form id="formLimiteEdicionPerfil" class="security-settings__form" hidden>
-                        <label class="security-settings__field" for="limiteEdicionPerfilEmpresa">
-                            Cambios permitidos por mes (1 a 10)
-                            <input id="limiteEdicionPerfilEmpresa" name="limite_mensual" type="number"
-                                min="1" max="10" step="1" required>
-                        </label>
-                        <div class="security-settings__actions">
-                            <button class="pu-btn-primary" id="btnGuardarLimiteEdicionPerfil" type="submit">
-                                Guardar límite
-                            </button>
-                            <p id="estadoLimiteEdicionPerfil" class="security-settings__status" role="status" aria-live="polite"></p>
-                        </div>
-                        <small id="fechaLimiteEdicionPerfil" class="security-settings__updated"></small>
-                    </form>
+                    <details class="security-settings__control" id="controlLimiteEdicionPerfil">
+                        <summary class="security-settings__heading">
+                            <div class="security-settings__heading-copy">
+                                <h4>Ediciones del perfil de empresa</h4>
+                                <p>Define cuántos cambios puede guardar cada empresa por mes. La descripción también cuenta como un cambio.</p>
+                            </div>
+                        </summary>
+                        <p id="estadoCargaLimiteEdicionPerfil" class="security-settings__status" role="status" aria-live="polite">
+                            Cargando límite…
+                        </p>
+                        <form id="formLimiteEdicionPerfil" class="security-settings__form" hidden>
+                            <label class="security-settings__field" for="limiteEdicionPerfilEmpresa">
+                                Cambios permitidos por mes (1 a 10)
+                                <input id="limiteEdicionPerfilEmpresa" name="limite_mensual" type="number"
+                                    min="1" max="10" step="1" required>
+                            </label>
+                            <div class="security-settings__actions">
+                                <button class="pu-btn-primary" id="btnGuardarLimiteEdicionPerfil" type="submit">
+                                    Guardar límite
+                                </button>
+                                <p id="estadoLimiteEdicionPerfil" class="security-settings__status" role="status" aria-live="polite"></p>
+                            </div>
+                            <small id="fechaLimiteEdicionPerfil" class="security-settings__updated"></small>
+                        </form>
+                    </details>
                 </section>
 
                 <div class="pu-card">
@@ -220,8 +219,8 @@
 
     <div id="site-footer"></div>
     <script src="../componentes/footer.js?v=footer-cookie-settings-v6"></script>
-    <script src="../componentes/configuracion-seguridad.js?v=security-settings-v4"></script>
-    <script src="../componentes/configuracion-limite-perfil.js?v=profile-edit-limit-v1"></script>
+    <script src="../componentes/configuracion-seguridad.js?v=security-settings-v5"></script>
+    <script src="../componentes/configuracion-limite-perfil.js?v=profile-edit-limit-v2"></script>
     <script>
         (function () {
             var raw = localStorage.getItem("te_session") || sessionStorage.getItem("te_session");
@@ -414,6 +413,7 @@
         })();
     </script>
     <script src="../js/tema-global-admin.js?v=global-theme-v1"></script>
+    <script src="../componentes/agente-ia.js?v=platform-ai-button-v1"></script>
     <script src="../menu_accesibilidad/menu.js?v=editorial-v3"></script>
 </body>
 

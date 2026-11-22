@@ -303,13 +303,25 @@
 /* Pie de tarjeta: precio + botones */
 
 .card-footer {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
     border-top: 1px solid var(--gray-100);
     padding-top: 15px;
     margin-top: auto;
     gap: 8px;
+}
+
+.card-footer .price {
+    grid-column: 1 / -1;
+    min-width: 0;
+}
+
+.card-footer .btn-reservar {
+    width: 100%;
+    min-width: 0;
+    text-align: center;
+    white-space: normal;
 }
 
 .price {

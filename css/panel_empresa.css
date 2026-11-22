@@ -583,6 +583,21 @@
     word-break: break-word;
 }
 
+.pu-field--description {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.pu-field--description .pu-field-val {
+    width: 100%;
+    font-weight: 500;
+    line-height: 1.7;
+    text-align: left;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
 
 /* Fila de estadísticas */
 

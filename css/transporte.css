@@ -317,29 +317,25 @@
 /* Pie de la tarjeta: precio + botones */
 
 .card-footer {
-    display: flex;
-    flex-wrap: wrap;
-    /* Los botones se envuelven en pantallas pequeñas */
-    align-items: center;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
     gap: 8px;
     border-top: 1px solid var(--gray-100);
     padding-top: 15px;
     margin-top: auto;
 }
 
-
-/* El precio tiene prioridad de espacio flexible */
-
 .card-footer .price {
-    flex: 1 1 auto;
-    min-width: 90px;
+    grid-column: 1 / -1;
+    min-width: 0;
 }
 
-
-/* Los botones no se estiran */
-
 .card-footer .btn-reservar {
-    flex: 0 0 auto;
+    width: 100%;
+    min-width: 0;
+    text-align: center;
+    white-space: normal;
 }
 
 

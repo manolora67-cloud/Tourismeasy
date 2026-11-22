@@ -111,7 +111,9 @@
         });
         articulo.addEventListener("toggle", function() {
             if (!articulo.open) return;
-            contenedor.querySelectorAll(".security-settings__control[open]").forEach(function(otro) {
+            var grupo = contenedor.closest(".security-settings");
+            if (!grupo) return;
+            grupo.querySelectorAll(".security-settings__control[open]").forEach(function(otro) {
                 if (otro !== articulo) otro.open = false;
             });
         });

@@ -10,7 +10,19 @@
     var estadoCarga = document.getElementById("estadoCargaLimiteEdicionPerfil");
     var estadoFormulario = document.getElementById("estadoLimiteEdicionPerfil");
     var fechaActualizacion = document.getElementById("fechaLimiteEdicionPerfil");
+    var acordeon = formulario.closest("details");
     var csrf = "";
+
+    if (acordeon) {
+        acordeon.addEventListener("toggle", function () {
+            if (!acordeon.open) return;
+            var grupo = acordeon.closest(".security-settings");
+            if (!grupo) return;
+            grupo.querySelectorAll(".security-settings__control[open]").forEach(function (otro) {
+                if (otro !== acordeon) otro.open = false;
+            });
+        });
+    }
 
     function mostrarFecha(fecha) {
         if (!fecha) return "Configuración inicial";
