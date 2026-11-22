@@ -28,20 +28,9 @@ El esquema crea las tablas de la aplicación y carga datos iniciales, incluyendo
 
 `FESTIVIDADES_SANTANDER` guarda también la categoría temática y `IMG_URL` para cada festividad. La columna de imagen sigue la misma longitud mínima que las demás columnas `IMG_URL`; las cargas desde el apartado **Festividades** del panel se alojan en Cloudinary. Las 48 festividades iniciales tienen una categoría asignada y, cuando no se ha cargado una imagen propia, el sitio usa una imagen temática de esa categoría.
 
-## Actualizar una base existente: perfil de empresa y accesibilidad
+## Perfil de empresa, accesibilidad y límite mensual
 
-Para una base ya creada, no importes `DB_TOURISMEASY.sql`. Primero haz un respaldo y ejecuta las migraciones específicas. Si la base todavía no tiene las tablas de seguridad (`CONFIGURACION_SEGURIDAD`, `INTENTOS_SEGURIDAD` y `BLOQUEOS_SEGURIDAD`), créalas según la sección **Controles de seguridad configurables** antes de las dos últimas migraciones:
-
-```powershell
-psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\db\migraciones\20261122_perfil_empresa_y_accesibilidad.sql
-psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\db\migraciones\20261122_limite_ediciones_perfil_empresa.sql
-psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\db\migraciones\20261122_codigos_seguridad_espanol.sql
-psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\db\migraciones\20261122_id_control_seguridad.sql
-```
-
-La segunda migración crea el límite configurable (inicia en 3, ajustable entre 1 y 10) y el contador mensual. Si una empresa ya editó el perfil durante el mes en que se ejecuta, esa edición se cuenta como la primera.
-La tercera traduce al español los códigos internos de los controles de seguridad y conserva los registros de intentos y bloqueos existentes.
-La cuarta renombra `CONFIGURACION_SEGURIDAD.CONTROL` a `ID_CONTROL`; las llaves foráneas existentes se actualizan automáticamente.
+`DB_TOURISMEASY.sql` incluye el esquema actualizado para instalaciones nuevas: descripciones de accesibilidad por publicación, descripción de empresa, límite mensual de ediciones y controles de seguridad identificados por `CONFIGURACION_SEGURIDAD.ID_CONTROL`. No se incluyen scripts de migración para bases ya creadas. Para adaptar una base existente, respáldala y actualiza manualmente su estructura y datos antes de instalar estas funciones. No ejecutes el esquema completo sobre una base con datos.
 
 Después instala las funciones actualizadas y las nuevas, desde la raíz del repositorio:
 
@@ -84,7 +73,7 @@ foreach ($archivo in $archivos) {
 }
 ```
 
-La migración conserva los datos de accesibilidad existentes. En los formularios, la descripción de accesibilidad queda opcional y pertenece a cada publicación; la descripción general se guarda una vez en el perfil de empresa.
+En los formularios, la descripción de accesibilidad es opcional y pertenece a cada publicación; la descripción general se guarda una vez en el perfil de empresa.
 
 La nueva configuración también requiere `admin/limite_edicion_perfil.php` y `componentes/configuracion-limite-perfil.js`, incluidos en el código de la aplicación.
 
@@ -153,9 +142,9 @@ El panel **Configuración de Administrador → Límites de seguridad** administr
 
 Los intentos de login y de comprobación de contraseña actual usan contadores independientes. Las solicitudes de recuperación se cuentan incluso si el correo no corresponde a una cuenta, sin revelar si existe; los enlaces inválidos se limitan por IP. No se agrega límite a la comprobación de tokens aleatorios válidos: estos tienen 256 bits y solo se pueden usar una vez. Los restablecimientos de contraseña por correo siguen sin aumentar `CAMBIOS_CONTRASENA_CUENTA`.
 
-En una instalación nueva, `DB_TOURISMEASY.sql` crea `CONFIGURACION_SEGURIDAD`, `INTENTOS_SEGURIDAD` y `BLOQUEOS_SEGURIDAD` con valores iniciales. Para una base existente, **no ejecutes el esquema completo**: después de respaldar la base, si esas tablas aún no existen, un responsable debe crear únicamente esas tres tablas y cargar sus filas iniciales según el esquema. Una vez existan, ejecuta las migraciones de códigos en español y de renombrado a `ID_CONTROL`, en ese orden. Estas conservan los intentos y bloqueos existentes; el historial antiguo de `INTENTOS_LOGIN` tampoco se convierte en bloqueos activos.
+En una instalación nueva, `DB_TOURISMEASY.sql` crea `CONFIGURACION_SEGURIDAD`, `INTENTOS_SEGURIDAD` y `BLOQUEOS_SEGURIDAD` con valores iniciales y códigos en español. Para una base existente no se incluyen migraciones: no ejecutes el esquema completo sobre ella. Un responsable debe adaptar manualmente las tablas y conservar los datos antes de instalar las funciones actualizadas. El historial antiguo de `INTENTOS_LOGIN` no se convierte en bloqueos activos.
 
-Después de crear o migrar las tablas, instala las funciones en este orden y despliega los PHP actualizados. El identificador de cada límite está en `CONFIGURACION_SEGURIDAD.ID_CONTROL`; `INTENTOS_SEGURIDAD.CONTROL` y `BLOQUEOS_SEGURIDAD.CONTROL` lo referencian. El inicio de sesión y el resto de acciones sensibles usan el mismo registrador configurable. La tabla `INTENTOS_LOGIN` y sus filas históricas se conservan, pero el flujo nuevo no escribe en ella. Si una base ya tiene instalados los antiguos envoltorios `fn_registrar_intento_login` o `fn_verificar_bloqueo_login`, pueden permanecer sin uso; no es necesario ejecutar `DROP`:
+Después de crear las tablas con el esquema nuevo o confirmar que la base existente ya tiene la estructura compatible, instala las funciones en este orden y despliega los PHP actualizados. El identificador de cada límite está en `CONFIGURACION_SEGURIDAD.ID_CONTROL`; `INTENTOS_SEGURIDAD.CONTROL` y `BLOQUEOS_SEGURIDAD.CONTROL` lo referencian. El inicio de sesión y el resto de acciones sensibles usan el mismo registrador configurable. La tabla `INTENTOS_LOGIN` y sus filas históricas se conservan, pero el flujo nuevo no escribe en ella. Si una base ya tiene instalados los antiguos envoltorios `fn_registrar_intento_login` o `fn_verificar_bloqueo_login`, pueden permanecer sin uso; no es necesario ejecutar `DROP`:
 
 ```powershell
 psql -v ON_ERROR_STOP=1 -U postgres -d tourismeasy -f .\functions\seguridad\fn_obtener_control_seguridad.sql
@@ -398,7 +387,7 @@ No es necesario ejecutarlas otra vez si el instalador general ya terminó correc
 
 El bloque inicia `psql` una vez por archivo; para evitar que solicite la contraseña repetidamente, configura el archivo `pgpass.conf` de PostgreSQL para tu usuario local o ejecuta cada script desde pgAdmin.
 
-Este procedimiento está destinado a una base vacía recién creada; no lo uses sobre una base con datos o funciones en uso. El límite mensual del perfil y el contador de ediciones se crean en `DB_TOURISMEASY.sql`; para bases existentes, ejecuta las migraciones indicadas arriba. La lógica de edición se instala desde `functions/crud_empresas/fn_actualizar_perfil_empresa.sql`. Solo las cuentas con estado `ACTIVO` pueden editar su perfil; las solicitudes pendientes no pueden hacerlo.
+Este procedimiento está destinado a una base vacía recién creada o a una base cuya estructura ya se actualizó manualmente; no lo uses si la estructura no es compatible. El límite mensual del perfil y el contador de ediciones se crean en `DB_TOURISMEASY.sql`. La lógica de edición se instala desde `functions/crud_empresas/fn_actualizar_perfil_empresa.sql`. Solo las cuentas con estado `ACTIVO` pueden editar su perfil; las solicitudes pendientes no pueden hacerlo.
 
 
 ## Configurar el backend
