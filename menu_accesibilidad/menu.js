@@ -11,7 +11,7 @@
 
     const style = document.createElement("link");
     style.rel = "stylesheet";
-    style.href = new URL("menu.css?v=editorial-v2", scriptUrl).href;
+    style.href = new URL("menu.css?v=cookie-visible-v3", scriptUrl).href;
     document.head.appendChild(style);
 
     const minScale = 80;

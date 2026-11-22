@@ -34,7 +34,10 @@
 
     function makeBackgroundInert() {
         Array.from(document.body.children).forEach(function (element) {
-            if (element !== welcomeScreen && !element.hasAttribute("data-te-accessibility")) {
+            var allowedDuringWelcome = element.hasAttribute("data-te-accessibility")
+                || element.querySelector(".te-accessibility, .te-chat-fab")
+                || ["cookie-modal-wrap", "cookie-overlay", "ck-info-modal"].includes(element.id);
+            if (element !== welcomeScreen && !allowedDuringWelcome) {
                 element.inert = true;
             }
         });

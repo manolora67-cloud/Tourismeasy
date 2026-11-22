@@ -6,6 +6,10 @@
     font-family: var(--font-body, "Open Sans", sans-serif);
 }
 
+body.cookie-consent-active .te-accessibility {
+    z-index: 10003;
+}
+
 body.welcome-active .te-accessibility {
     z-index: 2147483647;
 }

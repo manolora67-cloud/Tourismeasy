@@ -163,6 +163,7 @@
         var wrap = document.getElementById('cookie-modal-wrap');
         var overlay = document.getElementById('cookie-overlay');
         if (!wrap) return;
+        document.body.classList.add('cookie-consent-active');
         wrap.classList.add('visible');
         if (overlay) overlay.classList.add('visible');
         wrap.removeAttribute('aria-hidden');
@@ -175,6 +176,7 @@
         var wrap = document.getElementById('cookie-modal-wrap');
         var overlay = document.getElementById('cookie-overlay');
         if (!wrap) return;
+        document.body.classList.remove('cookie-consent-active');
         wrap.classList.remove('visible');
         if (overlay) overlay.classList.remove('visible');
         wrap.setAttribute('aria-hidden', 'true');
