@@ -1,0 +1,687 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Documentos y diagramas del proyecto TourismEasy.">
+    <title>Documentos del proyecto | TourismEasy</title>
+    <link rel="stylesheet" href="tema_global.php?v=global-theme-v1">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            color-scheme: light;
+            --purple: var(--theme-primary, #7c3aed);
+            --purple-light: var(--theme-primary-light, #a855f7);
+            --purple-dark: var(--theme-primary-dark, #5b21b6);
+            --ink: #1e293b;
+            --muted: #475569;
+            --paper: #f8fafc;
+            --surface: #fff;
+            --line: #e2e8f0;
+            --soft: rgba(var(--theme-primary-rgb, 124, 58, 237), .08);
+            --shadow: 0 2px 16px rgba(0, 0, 0, .08);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            background: #fff;
+            color: var(--ink);
+            font-family: "Open Sans", sans-serif;
+            line-height: 1.6;
+        }
+
+        a {
+            color: inherit;
+        }
+
+        a:focus-visible {
+            outline: 3px solid var(--purple-light);
+            outline-offset: 4px;
+        }
+
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            border-bottom: 1px solid var(--line);
+            background: var(--surface);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, .05);
+        }
+
+        .header-inner {
+            display: flex;
+            width: min(1300px, 100%);
+            min-height: 72px;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin: 0 auto;
+            padding: 10px 24px;
+        }
+
+        .brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            color: var(--purple);
+            text-decoration: none;
+        }
+
+        .brand-logo {
+            width: 52px;
+            height: 52px;
+            flex: none;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .brand-name {
+            font-family: Montserrat, sans-serif;
+            font-size: 1rem;
+            font-weight: 800;
+            letter-spacing: .5px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            min-height: 42px;
+            align-items: center;
+            justify-content: center;
+            padding: 9px 18px;
+            border: 1px solid var(--purple);
+            border-radius: 50px;
+            color: var(--purple-dark);
+            font-family: Montserrat, sans-serif;
+            font-size: .88rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: color .18s ease, background .18s ease, transform .18s ease;
+        }
+
+        .back-link:hover {
+            transform: translateY(-2px);
+            color: #fff;
+            background: var(--purple);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        #dark-mode-toggle {
+            display: flex;
+            flex: none;
+        }
+
+        .btn-dark-mode {
+            display: flex;
+            width: 38px;
+            height: 38px;
+            flex: none;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--line);
+            border-radius: 50%;
+            color: var(--muted);
+            background: transparent;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background .2s, color .2s, border-color .2s, transform .2s;
+        }
+
+        .btn-dark-mode:hover {
+            transform: rotate(20deg);
+            border-color: var(--purple);
+            color: #fff;
+            background: var(--purple);
+        }
+
+        button:focus-visible {
+            outline: 3px solid var(--purple-light);
+            outline-offset: 4px;
+        }
+
+        main,
+        .footer-inner {
+            width: min(1200px, 100%);
+            margin: 0 auto;
+        }
+
+        .eyebrow {
+            margin: 0 0 10px;
+            color: var(--purple-dark);
+            font-family: Montserrat, sans-serif;
+            font-size: .78rem;
+            font-weight: 700;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+        }
+
+        h1,
+        h2,
+        h3 {
+            font-family: Montserrat, sans-serif;
+            line-height: 1.2;
+        }
+
+        h1 {
+            max-width: 760px;
+            margin: 0;
+            color: var(--ink);
+            font-size: clamp(2rem, 4vw, 2.8rem);
+            font-weight: 800;
+        }
+
+        .page-intro {
+            margin-bottom: 42px;
+            padding: 34px 0 30px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .page-copy {
+            max-width: 680px;
+            margin: 14px 0 0;
+            color: var(--muted);
+            font-size: 1.05rem;
+        }
+
+        main {
+            padding: 0 24px 64px;
+        }
+
+        .section {
+            margin: 0 0 52px;
+            scroll-margin-top: 20px;
+        }
+
+        .section-heading {
+            margin-bottom: 20px;
+        }
+
+        .section-heading h2 {
+            margin: 0;
+            font-size: clamp(1.45rem, 3vw, 2rem);
+        }
+
+        .section-heading p {
+            max-width: 780px;
+            margin: 8px 0 0;
+            color: var(--muted);
+        }
+
+        .section-heading h2 {
+            color: var(--ink);
+            font-weight: 800;
+        }
+
+        .document-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 245px), 1fr));
+            gap: 16px;
+        }
+
+        .document-card {
+            display: flex;
+            min-height: 210px;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 22px;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            background: var(--surface);
+            box-shadow: var(--shadow);
+            text-decoration: none;
+            transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+        }
+
+        .document-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--purple-light);
+            box-shadow: 0 8px 24px rgba(var(--theme-primary-rgb, 124, 58, 237), .14);
+        }
+
+        .file-type {
+            display: inline-flex;
+            align-items: center;
+            min-height: 28px;
+            margin-bottom: 13px;
+            padding: 3px 10px;
+            border-radius: 999px;
+            background: var(--soft);
+            color: var(--purple-dark);
+            font-family: Montserrat, sans-serif;
+            font-size: .75rem;
+            font-weight: 800;
+            letter-spacing: .04em;
+        }
+
+        .document-card h3 {
+            margin: 0;
+            font-size: 1.08rem;
+        }
+
+        .document-card p {
+            margin: 9px 0 18px;
+            color: var(--muted);
+            font-size: .93rem;
+        }
+
+        .card-action {
+            margin-top: auto;
+            color: var(--purple-dark);
+            font-family: Montserrat, sans-serif;
+            font-weight: 800;
+        }
+
+        .diagram-group {
+            margin-top: 28px;
+        }
+
+        .diagram-group h3 {
+            margin: 0 0 14px;
+            font-size: 1.15rem;
+        }
+
+        .diagram-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+            gap: 16px;
+        }
+
+        .diagram-card {
+            overflow: hidden;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            background: var(--surface);
+            box-shadow: var(--shadow);
+        }
+
+        .diagram-preview {
+            display: grid;
+            min-height: 185px;
+            place-items: center;
+            padding: 12px;
+            background: var(--paper);
+        }
+
+        .diagram-preview img {
+            display: block;
+            width: 100%;
+            height: 190px;
+            object-fit: contain;
+        }
+
+        .diagram-caption {
+            padding: 14px 16px 16px;
+        }
+
+        .diagram-caption h4 {
+            margin: 0;
+            font-size: .98rem;
+            line-height: 1.4;
+        }
+
+        .diagram-caption a {
+            display: inline-block;
+            margin-top: 8px;
+            color: var(--purple-dark);
+            font-family: Montserrat, sans-serif;
+            font-size: .88rem;
+            font-weight: 800;
+            text-decoration-thickness: 1px;
+            text-underline-offset: 3px;
+        }
+
+        footer {
+            padding: 22px 24px;
+            background: #1e293b;
+        }
+
+        .footer-inner {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            color: #94a3b8;
+            font-size: .9rem;
+        }
+
+        .footer-inner a {
+            color: var(--purple-light);
+            font-family: Montserrat, sans-serif;
+            font-weight: 800;
+            text-decoration: none;
+        }
+
+        body.dark-mode {
+            color-scheme: dark;
+            --ink: #f1f5f9;
+            --muted: #cbd5e1;
+            --paper: #0f172a;
+            --surface: #1e293b;
+            --line: #334155;
+            --soft: rgba(var(--theme-primary-rgb, 124, 58, 237), .16);
+            --shadow: 0 2px 16px rgba(0, 0, 0, .35);
+            background: #0f172a;
+        }
+
+        body.dark-mode .site-header {
+            border-bottom-color: var(--line);
+            background: var(--surface);
+        }
+
+        body.dark-mode .back-link {
+            color: var(--purple-light);
+        }
+
+        body.dark-mode .brand,
+        body.dark-mode .eyebrow,
+        body.dark-mode .file-type,
+        body.dark-mode .card-action,
+        body.dark-mode .diagram-caption a {
+            color: var(--purple-light);
+        }
+
+        body.dark-mode .diagram-preview {
+            background: var(--paper);
+        }
+
+        body.dark-mode .btn-dark-mode {
+            border-color: var(--line);
+            color: var(--muted);
+        }
+
+        body.dark-mode .btn-dark-mode:hover {
+            border-color: var(--purple);
+            color: #fff;
+            background: var(--purple);
+        }
+
+        @media (max-width: 600px) {
+            .header-inner {
+                gap: 8px;
+                padding: 8px 14px;
+            }
+
+            .brand-logo {
+                width: 42px;
+                height: 42px;
+            }
+
+            .brand-name {
+                font-size: .88rem;
+            }
+
+            .header-actions {
+                gap: 8px;
+            }
+
+            .back-link {
+                min-height: 38px;
+                padding: 7px 10px;
+                font-size: .75rem;
+            }
+
+            main {
+                padding: 0 18px 48px;
+            }
+
+            .page-intro {
+                padding: 28px 0 24px;
+            }
+
+            .document-card {
+                min-height: 0;
+            }
+
+            .diagram-preview img {
+                height: 165px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            html {
+                scroll-behavior: auto;
+            }
+
+            *,
+            *::before,
+            *::after {
+                transition-duration: .01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-inner">
+            <a class="brand" href="index.html" aria-label="TourismEasy">
+                <img class="brand-logo" src="img/TURISMEASY.png" alt="">
+                <span class="brand-name">TOURISMEASY</span>
+            </a>
+            <div class="header-actions">
+                <div id="dark-mode-toggle"></div>
+                <a class="back-link" href="index.html">Volver a TourismEasy</a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="page-intro" aria-labelledby="page-title">
+            <p class="eyebrow">TourismEasy · Santander, Colombia</p>
+            <h1 id="page-title">Documentos del proyecto</h1>
+            <p class="page-copy">Informes, datos y diagramas relacionados con el análisis y diseño de TourismEasy.</p>
+        </section>
+
+        <section class="section" aria-labelledby="docs-title">
+            <div class="section-heading">
+                <h2 id="docs-title">Documentos</h2>
+                <p>Consulta o descarga los archivos principales del proyecto.</p>
+            </div>
+            <div class="document-grid">
+                <a class="document-card" href="docs/Informe%20an%C3%A1lisis%20.docx" download>
+                    <span class="file-type">DOCX · INFORME</span>
+                    <h3>Informe de análisis</h3>
+                    <p>Alcance, módulos, participantes, diagramas y características actuales de la plataforma.</p>
+                    <span class="card-action">Descargar informe</span>
+                </a>
+                <a class="document-card" href="docs/informe%20ieee.docx" download>
+                    <span class="file-type">DOCX · INFORME</span>
+                    <h3>Informe IEEE</h3>
+                    <p>Documento del proyecto preparado en formato IEEE.</p>
+                    <span class="card-action">Descargar informe</span>
+                </a>
+                <a class="document-card" href="docs/Diccionario_de_datos_TourismEasy.xlsx" download>
+                    <span class="file-type">XLSX · DATOS</span>
+                    <h3>Diccionario de datos</h3>
+                    <p>Descripción de las tablas y campos de la base de datos.</p>
+                    <span class="card-action">Descargar diccionario</span>
+                </a>
+                <a class="document-card" href="docs/presentaci%C3%B3n%20tourismeasy.pdf" target="_blank" rel="noopener">
+                    <span class="file-type">PDF · PRESENTACIÓN</span>
+                    <h3>Presentación de TourismEasy</h3>
+                    <p>Presentación del proyecto TourismEasy en formato PDF.</p>
+                    <span class="card-action">Abrir presentación</span>
+                </a>
+            </div>
+        </section>
+
+        <section class="section" aria-labelledby="diagrams-title">
+            <div class="section-heading">
+                <h2 id="diagrams-title">Diagramas</h2>
+                <p>Abre cualquier imagen para verla en su tamaño original.</p>
+            </div>
+
+            <div class="diagram-group">
+                <h3>Diagramas generales</h3>
+                <div class="diagram-grid">
+                    <figure class="diagram-card">
+                        <a class="diagram-preview" href="docs/diagramas/figura-1-casos-de-uso.png" target="_blank" rel="noopener">
+                            <img src="docs/diagramas/figura-1-casos-de-uso.png" alt="Vista previa del diagrama de casos de uso" loading="lazy">
+                        </a>
+                        <figcaption class="diagram-caption">
+                            <h4>Casos de uso</h4>
+                            <a href="docs/diagramas/figura-1-casos-de-uso.png" target="_blank" rel="noopener">Abrir diagrama</a>
+                        </figcaption>
+                    </figure>
+                    <figure class="diagram-card">
+                        <a class="diagram-preview" href="docs/diagramas/figura-2-flujo-de-navegacion.png" target="_blank" rel="noopener">
+                            <img src="docs/diagramas/figura-2-flujo-de-navegacion.png" alt="Vista previa del flujo de navegación" loading="lazy">
+                        </a>
+                        <figcaption class="diagram-caption">
+                            <h4>Flujo de navegación</h4>
+                            <a href="docs/diagramas/figura-2-flujo-de-navegacion.png" target="_blank" rel="noopener">Abrir diagrama</a>
+                        </figcaption>
+                    </figure>
+                    <figure class="diagram-card">
+                        <a class="diagram-preview" href="docs/diagramas/figura-3-diagrama-er-pgadmin.png" target="_blank" rel="noopener">
+                            <img src="docs/diagramas/figura-3-diagrama-er-pgadmin.png" alt="Vista previa del diagrama ER generado en pgAdmin" loading="lazy">
+                        </a>
+                        <figcaption class="diagram-caption">
+                            <h4>Diagrama ER de pgAdmin</h4>
+                            <a href="docs/diagramas/figura-3-diagrama-er-pgadmin.png" target="_blank" rel="noopener">Abrir diagrama</a>
+                        </figcaption>
+                    </figure>
+                    <figure class="diagram-card">
+                        <a class="diagram-preview" href="docs/diagramas/figura-5-arquitectura.png" target="_blank" rel="noopener">
+                            <img src="docs/diagramas/figura-5-arquitectura.png" alt="Vista previa de la arquitectura cliente-servidor" loading="lazy">
+                        </a>
+                        <figcaption class="diagram-caption">
+                            <h4>Arquitectura cliente-servidor</h4>
+                            <a href="docs/diagramas/figura-5-arquitectura.png" target="_blank" rel="noopener">Abrir diagrama</a>
+                        </figcaption>
+                    </figure>
+                </div>
+            </div>
+
+            <div class="diagram-group">
+                <h3>Modelo entidad-relación (MER) · 8 láminas</h3>
+                <div class="diagram-grid">
+                    <figure class="diagram-card">
+                        <a class="diagram-preview" href="docs/diagramas/figura-3-modelo-entidad-relacion.png" target="_blank" rel="noopener">
+                            <img src="docs/diagramas/figura-3-modelo-entidad-relacion.png" alt="MER, lámina 1: geografía y oferta turística" loading="lazy">
+                        </a>
+                        <figcaption class="diagram-caption"><h4>1 de 8 · Geografía y oferta turística</h4><a href="docs/diagramas/figura-3-modelo-entidad-relacion.png" target="_blank" rel="noopener">Abrir lámina</a></figcaption>
+                    </figure>
+                    <figure class="diagram-card">
+                        <a class="diagram-preview" href="docs/diagramas/figura-3-2-modelo-entidad-relacion.png" target="_blank" rel="noopener">
+                            <img src="docs/diagramas/figura-3-2-modelo-entidad-relacion.png" alt="MER, lámina 2: hospedajes y transporte" loading="lazy">
+                        </a>
+                        <figcaption class="diagram-caption"><h4>2 de 8 · Hospedajes y transporte</h4><a href="docs/diagramas/figura-3-2-modelo-entidad-relacion.png" target="_blank" rel="noopener">Abrir lámina</a></figcaption>
+                    </figure>
+                    <figure class="diagram-card">
+                        <a class="diagram-preview" href="docs/diagramas/figura-3-3-modelo-entidad-relacion.png" target="_blank" rel="noopener">
+                            <img src="docs/diagramas/figura-3-3-modelo-entidad-relacion.png" alt="MER, lámina 3: cuentas y personas" loading="lazy">
+                        </a>
+                        <figcaption class="diagram-caption"><h4>3 de 8 · Cuentas y personas</h4><a href="docs/diagramas/figura-3-3-modelo-entidad-relacion.png" target="_blank" rel="noopener">Abrir lámina</a></figcaption>
+                    </figure>
+                    <figure class="diagram-card">
+                        <a class="diagram-preview" href="docs/diagramas/figura-3-4-modelo-entidad-relacion.png" target="_blank" rel="noopener">
+                            <img src="docs/diagramas/figura-3-4-modelo-entidad-relacion.png" alt="MER, lámina 4: contenido de portada y preferencias" loading="lazy">
+                        </a>
+                        <figcaption class="diagram-caption"><h4>4 de 8 · Portada y preferencias</h4><a href="docs/diagramas/figura-3-4-modelo-entidad-relacion.png" target="_blank" rel="noopener">Abrir lámina</a></figcaption>
+                    </figure>
+                    <figure class="diagram-card">
+                        <a class="diagram-preview" href="docs/diagramas/figura-3-5-modelo-entidad-relacion.png" target="_blank" rel="noopener">
+                            <img src="docs/diagramas/figura-3-5-modelo-entidad-relacion.png" alt="MER, lámina 5: recuperación y sesiones" loading="lazy">
+                        </a>
+                        <figcaption class="diagram-caption"><h4>5 de 8 · Recuperación y sesiones</h4><a href="docs/diagramas/figura-3-5-modelo-entidad-relacion.png" target="_blank" rel="noopener">Abrir lámina</a></figcaption>
+                    </figure>
+                    <figure class="diagram-card">
+                        <a class="diagram-preview" href="docs/diagramas/figura-3-6-modelo-entidad-relacion.png" target="_blank" rel="noopener">
+                            <img src="docs/diagramas/figura-3-6-modelo-entidad-relacion.png" alt="MER, lámina 6: seguridad y control de acceso" loading="lazy">
+                        </a>
+                        <figcaption class="diagram-caption"><h4>6 de 8 · Seguridad y control de acceso</h4><a href="docs/diagramas/figura-3-6-modelo-entidad-relacion.png" target="_blank" rel="noopener">Abrir lámina</a></figcaption>
+                    </figure>
+                    <figure class="diagram-card">
+                        <a class="diagram-preview" href="docs/diagramas/figura-3-7-modelo-entidad-relacion.png" target="_blank" rel="noopener">
+                            <img src="docs/diagramas/figura-3-7-modelo-entidad-relacion.png" alt="MER, lámina 7: artesanías, reseñas y actividad" loading="lazy">
+                        </a>
+                        <figcaption class="diagram-caption"><h4>7 de 8 · Artesanías, reseñas y actividad</h4><a href="docs/diagramas/figura-3-7-modelo-entidad-relacion.png" target="_blank" rel="noopener">Abrir lámina</a></figcaption>
+                    </figure>
+                    <figure class="diagram-card">
+                        <a class="diagram-preview" href="docs/diagramas/figura-3-8-modelo-entidad-relacion.png" target="_blank" rel="noopener">
+                            <img src="docs/diagramas/figura-3-8-modelo-entidad-relacion.png" alt="MER, lámina 8: registros históricos" loading="lazy">
+                        </a>
+                        <figcaption class="diagram-caption"><h4>8 de 8 · Registros históricos</h4><a href="docs/diagramas/figura-3-8-modelo-entidad-relacion.png" target="_blank" rel="noopener">Abrir lámina</a></figcaption>
+                    </figure>
+                </div>
+            </div>
+
+            <div class="diagram-group">
+                <h3>Diagrama conceptual de clases · 8 láminas</h3>
+                <p class="section-heading">Estas láminas proponen clases a partir de las tablas; no representan clases ya implementadas en el código.</p>
+                <div class="diagram-grid">
+                    <figure class="diagram-card">
+                        <a class="diagram-preview" href="docs/diagramas/figura-5-clases-1-de-8.png" target="_blank" rel="noopener">
+                            <img src="docs/diagramas/figura-5-clases-1-de-8.png" alt="Clases conceptuales, lámina 1: geografía y oferta turística" loading="lazy">
+                        </a>
+                        <figcaption class="diagram-caption"><h4>1 de 8 · Geografía y oferta turística</h4><a href="docs/diagramas/figura-5-clases-1-de-8.png" target="_blank" rel="noopener">Abrir lámina</a></figcaption>
+                    </figure>
+                    <figure class="diagram-card">
+                        <a class="diagram-preview" href="docs/diagramas/figura-5-clases-2-de-8.png" target="_blank" rel="noopener">
+                            <img src="docs/diagramas/figura-5-clases-2-de-8.png" alt="Clases conceptuales, lámina 2: hospedajes y transporte" loading="lazy">
+                        </a>
+                        <figcaption class="diagram-caption"><h4>2 de 8 · Hospedajes y transporte</h4><a href="docs/diagramas/figura-5-clases-2-de-8.png" target="_blank" rel="noopener">Abrir lámina</a></figcaption>
+                    </figure>
+                    <figure class="diagram-card">
+                        <a class="diagram-preview" href="docs/diagramas/figura-5-clases-3-de-8.png" target="_blank" rel="noopener">
+                            <img src="docs/diagramas/figura-5-clases-3-de-8.png" alt="Clases conceptuales, lámina 3: cuentas y personas" loading="lazy">
+                        </a>
+                        <figcaption class="diagram-caption"><h4>3 de 8 · Cuentas y personas</h4><a href="docs/diagramas/figura-5-clases-3-de-8.png" target="_blank" rel="noopener">Abrir lámina</a></figcaption>
+                    </figure>
+                    <figure class="diagram-card">
+                        <a class="diagram-preview" href="docs/diagramas/figura-5-clases-4-de-8.png" target="_blank" rel="noopener">
+                            <img src="docs/diagramas/figura-5-clases-4-de-8.png" alt="Clases conceptuales, lámina 4: contenido de portada y preferencias" loading="lazy">
+                        </a>
+                        <figcaption class="diagram-caption"><h4>4 de 8 · Portada y preferencias</h4><a href="docs/diagramas/figura-5-clases-4-de-8.png" target="_blank" rel="noopener">Abrir lámina</a></figcaption>
+                    </figure>
+                    <figure class="diagram-card">
+                        <a class="diagram-preview" href="docs/diagramas/figura-5-clases-5-de-8.png" target="_blank" rel="noopener">
+                            <img src="docs/diagramas/figura-5-clases-5-de-8.png" alt="Clases conceptuales, lámina 5: recuperación y sesiones" loading="lazy">
+                        </a>
+                        <figcaption class="diagram-caption"><h4>5 de 8 · Recuperación y sesiones</h4><a href="docs/diagramas/figura-5-clases-5-de-8.png" target="_blank" rel="noopener">Abrir lámina</a></figcaption>
+                    </figure>
+                    <figure class="diagram-card">
+                        <a class="diagram-preview" href="docs/diagramas/figura-5-clases-6-de-8.png" target="_blank" rel="noopener">
+                            <img src="docs/diagramas/figura-5-clases-6-de-8.png" alt="Clases conceptuales, lámina 6: seguridad y control de acceso" loading="lazy">
+                        </a>
+                        <figcaption class="diagram-caption"><h4>6 de 8 · Seguridad y control de acceso</h4><a href="docs/diagramas/figura-5-clases-6-de-8.png" target="_blank" rel="noopener">Abrir lámina</a></figcaption>
+                    </figure>
+                    <figure class="diagram-card">
+                        <a class="diagram-preview" href="docs/diagramas/figura-5-clases-7-de-8.png" target="_blank" rel="noopener">
+                            <img src="docs/diagramas/figura-5-clases-7-de-8.png" alt="Clases conceptuales, lámina 7: artesanías, reseñas y actividad" loading="lazy">
+                        </a>
+                        <figcaption class="diagram-caption"><h4>7 de 8 · Artesanías, reseñas y actividad</h4><a href="docs/diagramas/figura-5-clases-7-de-8.png" target="_blank" rel="noopener">Abrir lámina</a></figcaption>
+                    </figure>
+                    <figure class="diagram-card">
+                        <a class="diagram-preview" href="docs/diagramas/figura-5-clases-8-de-8.png" target="_blank" rel="noopener">
+                            <img src="docs/diagramas/figura-5-clases-8-de-8.png" alt="Clases conceptuales, lámina 8: registros históricos" loading="lazy">
+                        </a>
+                        <figcaption class="diagram-caption"><h4>8 de 8 · Registros históricos</h4><a href="docs/diagramas/figura-5-clases-8-de-8.png" target="_blank" rel="noopener">Abrir lámina</a></figcaption>
+                    </figure>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-inner">
+            <span>TourismEasy · Documentación del proyecto</span>
+        </div>
+    </footer>
+    <script defer src="componentes/dark-mode-toggle.js"></script>
+</body>
+</html>

@@ -14,6 +14,9 @@
     function applyTheme(dark) {
         document.body.classList.toggle("dark-mode", dark);
         icon.className = dark ? "fa-solid fa-sun" : "fa-solid fa-moon";
+        const label = dark ? "Cambiar a modo claro" : "Cambiar a modo oscuro";
+        darkBtn.setAttribute("aria-label", label);
+        darkBtn.title = label;
         localStorage.setItem("theme", dark ? "dark" : "light");
     }
 
