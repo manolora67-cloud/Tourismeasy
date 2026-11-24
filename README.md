@@ -87,6 +87,7 @@ El idioma inglés se aplica inmediatamente con un glosario local de palabras y f
 | [metaverso/](metaverso/) | Experiencia 3D, estilos y lógica del metaverso de Santander. |
 | [css/](css/) | Estilos de la interfaz. |
 | [js/](js/) | Lógica de las páginas y controladores del navegador. |
+| [js/artesano-product-dashboard.js](js/artesano-product-dashboard.js) | Filtros, paginación y estadísticas del panel de productos de artesanos. |
 | [componentes/](componentes/) | Componentes compartidos de interfaz y contenido. |
 | [login/](login/), [recuperacion/](recuperacion/), [resenas/](resenas/) | Endpoints de cuentas, recuperación y reseñas. |
 | [planes/](planes/), [hospedaje/](hospedaje/), [transporte/](transporte/) | Endpoints de servicios turísticos. |

@@ -329,7 +329,8 @@ $artesanoNombreSesion = $_SESSION['artesano_nombre'] ?? 'Artesano';
     <script src="../componentes/paginacion.js"></script>
     <script src="../componentes/menu-sesion.js?v=session-menu-v3"></script>
     <script>window.TESessionMenu.mount();</script>
-    <script src="../js/admin.js?v=secure-session-v2-products-mobile-v1"></script>
+    <script src="../js/artesano-product-dashboard.js?v=product-dashboard-v1"></script>
+    <script src="../js/admin.js?v=product-dashboard-v1"></script>
     <script src="../componentes/cambio-contrasena.js?v=password-change-v1"></script>
     <script src="../js/configuracion_artesano.js?v=artisan-settings-v1"></script>
     <script src="../componentes/agente-ia.js?v=private-chat-memory-v1"></script>

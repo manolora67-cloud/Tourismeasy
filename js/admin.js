@@ -1,6 +1,3 @@
-// /js/admin.js
-// Panel de administración con conexión a la base de datos mediante fetch
-
 document.addEventListener('DOMContentLoaded', () => {
     // Truco para desactivar el caché de "atrás/adelante" (bfcache):
     // con un listener de "unload" la mayoría de navegadores dejan de guardar
@@ -13,8 +10,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const productForm = document.getElementById('product-form');
     const tableBody = document.getElementById('admin-table-body');
     const loadingIndicator = document.getElementById('loading-indicator');
-    const productsPagination = document.getElementById('productosPaginacion');
-    const filtroCategoria = document.getElementById('filterCategoria');
     const btnSave = document.getElementById('btn-save');
     const btnCancel = document.getElementById('btn-cancel');
     const formTitle = document.getElementById('form-title');
@@ -28,88 +23,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const CIUDADES_URL = '../datos_referencia.php?tipo=ciudades';
     const CATEGORIAS_URL = '../datos_referencia.php?tipo=categorias_artesania';
     const DEFAULT_PRODUCT_IMAGE = '../img/default-product.jpg';
-    const PRODUCT_PAGE_SIZE = 10;
-    let productsCurrentPage = 1;
     let ciudadesPromise;
     let categoriasPromise;
     let productosLoadState = 'loading';
-
-    // ── Modal de confirmación (usado antes de cerrar sesión) ──
-    // Se inyecta solo (CSS + HTML) la primera vez que se necesita, así no
-    // hace falta tocar ningún archivo .css ni <link> en el HTML.
-    function confirmarCerrarSesion(mensaje) {
-        return new Promise((resolve) => {
-            if (!document.getElementById('teConfirmStyles')) {
-                const style = document.createElement('style');
-                style.id = 'teConfirmStyles';
-                style.textContent = `
-                    .te-confirm-overlay{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;visibility:hidden;transition:opacity .25s ease, visibility 0s linear .25s;}
-                    .te-confirm-overlay::before{content:"";position:fixed;inset:0;background:rgba(15,23,42,.65);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:-1;}
-                    .te-confirm-overlay.active{opacity:1;pointer-events:all;visibility:visible;transition:opacity .25s ease, visibility 0s linear 0s;}
-                    .te-confirm-box{background:var(--white);border-radius:20px;width:100%;max-width:360px;padding:28px 26px 24px;text-align:center;box-shadow:0 32px 80px rgba(0,0,0,.28);transform:translateY(20px) scale(.97);opacity:0;transition:transform .3s cubic-bezier(.34,1.56,.64,1), opacity .25s ease;}
-                    .te-confirm-overlay.active .te-confirm-box{transform:translateY(0) scale(1);opacity:1;}
-                    .te-confirm-icon{width:52px;height:52px;border-radius:50%;background:rgba(239,68,68,.1);color:#dc2626;display:flex;align-items:center;justify-content:center;font-size:1.3rem;margin:0 auto 14px;}
-                    .te-confirm-box p{font-family:var(--font-head);font-weight:700;font-size:1.02rem;color:var(--gray-800);margin-bottom:22px;}
-                    .te-confirm-actions{display:flex;gap:10px;}
-                    .te-confirm-actions button{flex:1;padding:11px;border-radius:50px;border:none;font-family:var(--font-head);font-weight:700;font-size:.88rem;cursor:pointer;transition:background .2s, transform .15s;}
-                    .te-confirm-cancel{background:var(--gray-200);color:var(--gray-800);}
-                    .te-confirm-cancel:hover{background:var(--gray-400);}
-                    .te-confirm-ok{background:#dc2626;color:#fff;}
-                    .te-confirm-ok:hover{background:#b91c1c;transform:translateY(-1px);}
-                    body.dark-mode .te-confirm-box{background:#1e293b;}
-                    body.dark-mode .te-confirm-box p{color:#f1f5f9;}
-                    body.dark-mode .te-confirm-cancel{background:#334155;color:#f1f5f9;}`;
-                document.head.appendChild(style);
-            }
-
-            const overlay = document.createElement('div');
-            overlay.className = 'te-confirm-overlay';
-            overlay.innerHTML = `
-                <div class="te-confirm-box">
-                    <div class="te-confirm-icon"><i class="fa-solid fa-right-from-bracket"></i></div>
-                    <p>${mensaje}</p>
-                    <div class="te-confirm-actions">
-                        <button class="te-confirm-cancel" id="teConfirmCancel">Cancelar</button>
-                        <button class="te-confirm-ok" id="teConfirmOk">Cerrar sesión</button>
-                    </div>
-                </div>`;
-            document.body.appendChild(overlay);
-            requestAnimationFrame(() => overlay.classList.add('active'));
-
-            function cerrar(resultado) {
-                overlay.classList.remove('active');
-                setTimeout(() => overlay.remove(), 250);
-                resolve(resultado);
-            }
-            overlay.querySelector('#teConfirmCancel').addEventListener('click', () => cerrar(false));
-            overlay.querySelector('#teConfirmOk').addEventListener('click', () => cerrar(true));
-        });
-    }
-
-    // ── Sesión del artesano logueado ──
-    function getSesionArtesano() {
-        const session = window.TourismSession && window.TourismSession.get();
-        return session && session.tipo === 'artesano' ? session : { tipo: 'artesano' };
-    }
-
-    const sesion = getSesionArtesano();
-
-    if (!sesion) {
-        // Sin sesión no puede estar aquí (ni siquiera volviendo con el botón
-        // "adelante" del navegador tras cerrar sesión): lo mandamos a iniciar
-        // sesión. replace() no deja rastro en el historial.
-        window.location.replace('../html/login_ecommerce.html');
-        return;
-    }
-
-    // Si el navegador restaura esta página desde el caché de atrás/adelante
-    // (bfcache) y la sesión ya no existe (por ejemplo, se cerró sesión en
-    // otra pestaña), volvemos a revisar y sacamos al usuario del panel.
-    window.addEventListener('pageshow', function(e) {
-        if (e.persisted && !getSesionArtesano()) {
-            window.location.replace('../html/login_ecommerce.html');
-        }
-    });
+    const productDashboard = window.TEProductDashboard.initialize(() => productosLoadState);
 
     // ── Widget de sesión en el navbar (nombre + cerrar sesión) ──
     const artesanoNombreEl = document.getElementById('artesanoNombre');
@@ -545,11 +462,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // ── Renderizar tabla ──
     async function renderAdminTable() {
         productosLoadState = 'loading';
-        productsCurrentPage = 1;
-        if (productsPagination) productsPagination.hidden = true;
-        setStatsLoading('Cargando…');
+        productDashboard.resetProductsPage();
+        productDashboard.setStatsLoading('Cargando…');
         if (document.getElementById('tab-estadisticas').classList.contains('active')) {
-            renderEstadisticas();
+            productDashboard.renderStatistics();
         }
         try {
             loadingIndicator.style.display = 'block';
@@ -560,7 +476,6 @@ document.addEventListener('DOMContentLoaded', () => {
             productosLoadState = 'loaded';
 
             if (!products || products.length === 0) {
-                if (productsPagination) productsPagination.hidden = true;
                 tableBody.innerHTML = `
                     <tr>
                         <td colspan="6" style="text-align: center; padding: 30px; color: var(--gray-400);">
@@ -569,7 +484,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         </td>
                     </tr>
                 `;
-                actualizarStats();
+                productDashboard.updateStatistics();
                 return;
             }
 
@@ -636,16 +551,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 tableBody.appendChild(tr);
             });
 
-            renderPaginaProductos();
-            actualizarStats();
+            productDashboard.renderProductsPage();
+            productDashboard.updateStatistics();
         } catch (error) {
             loadingIndicator.style.display = 'none';
             productosLoadState = 'error';
-            if (productsPagination) productsPagination.hidden = true;
-            setStatsLoading('No disponible');
+            productDashboard.resetProductsPage();
+            productDashboard.setStatsLoading('No disponible');
             console.error('Error rendering table:', error);
             if (document.getElementById('tab-estadisticas').classList.contains('active')) {
-                renderEstadisticas();
+                productDashboard.renderStatistics();
             }
             const row = document.createElement('tr');
             const cell = document.createElement('td');
@@ -668,16 +583,6 @@ document.addEventListener('DOMContentLoaded', () => {
             console.warn('Se omitió una URL de imagen inválida.');
         }
         return DEFAULT_PRODUCT_IMAGE;
-    }
-
-    function setStatsLoading(value) {
-        ['statTotal', 'statMasCaro', 'statMasBarato', 'statPromedio', 'statTopCategoria']
-        .forEach(id => {
-            document.getElementById(id).textContent = value;
-        });
-        document.getElementById('badgeTotal').textContent = value;
-        document.getElementById('badgeCategorias').textContent = value;
-        document.getElementById('badgeCiudades').textContent = value;
     }
 
     // ── Manejar eliminación ──
@@ -851,28 +756,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // ── Exponer funciones ──
     window.editProduct = editProduct;
 
-    // ══════════════════════════════════════════════════════
-    //  DASHBOARD DEL PANEL
-    //  Modo oscuro, tabs, filtro por categoría y estadísticas.
-    //  Esta parte solo maneja la interfaz; no toca el CRUD de
-    //  arriba, pero reacciona automáticamente cada vez que
-    //  renderAdminTable() cambia el contenido de la tabla.
-    // ══════════════════════════════════════════════════════
-
-    // ── Modo oscuro: ahora lo maneja el componente compartido dark-mode-toggle.js
-    // (mismo botón #darkModeToggle, llave 'theme' compartida con todo el sitio).
-
-    // ── Tabs (Productos / Estadísticas) ──
-    document.querySelectorAll('.panel-tab').forEach(tab => {
-        tab.addEventListener('click', () => {
-            document.querySelectorAll('.panel-tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.panel-content').forEach(c => c.classList.remove('active'));
-            tab.classList.add('active');
-            document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
-            if (tab.dataset.tab === 'estadisticas') renderEstadisticas();
-        });
-    });
-
     tableBody.addEventListener('click', event => {
         const editButton = event.target.closest('.btn-edit');
         const deleteButton = event.target.closest('.btn-delete');
@@ -883,231 +766,4 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    function renderPaginaProductos() {
-        const filas = filasValidas();
-        const categoria = filtroCategoria.value.toLowerCase();
-        const filtradas = filas.filter(tr => {
-            const cat = tr.cells[2] ? tr.cells[2].dataset.codigo : '';
-            return !categoria || cat === categoria;
-        });
-        const totalPages = Math.max(1, Math.ceil(filtradas.length / PRODUCT_PAGE_SIZE));
-        productsCurrentPage = Math.min(productsCurrentPage, totalPages);
-        const inicio = (productsCurrentPage - 1) * PRODUCT_PAGE_SIZE;
-        const visibles = new Set(filtradas.slice(inicio, inicio + PRODUCT_PAGE_SIZE));
-        filas.forEach(tr => {
-            tr.style.display = visibles.has(tr) ? '' : 'none';
-        });
-
-        const emptyFilterRow = tableBody.querySelector('.products-filter-empty');
-        if (!filtradas.length && filas.length) {
-            if (!emptyFilterRow) {
-                const row = document.createElement('tr');
-                row.className = 'products-filter-empty';
-                const cell = document.createElement('td');
-                cell.colSpan = 6;
-                cell.style.cssText = 'text-align:center;padding:24px;color:var(--gray-600);';
-                cell.textContent = 'No hay productos en esta categoría.';
-                row.appendChild(cell);
-                tableBody.appendChild(row);
-            }
-        } else if (emptyFilterRow) {
-            emptyFilterRow.remove();
-        }
-
-        const pagination = window.TourismEasyPagination.render({
-            selector: '#productosPaginacion',
-            currentPage: productsCurrentPage,
-            totalItems: filtradas.length,
-            pageSize: PRODUCT_PAGE_SIZE,
-            label: 'Mostrando',
-            onPageChange: page => {
-                productsCurrentPage = page;
-                renderPaginaProductos();
-            }
-        });
-        if (pagination) productsCurrentPage = pagination.currentPage;
-    }
-
-    // ── Filtro por categoría ──
-    filtroCategoria.addEventListener('change', () => {
-        productsCurrentPage = 1;
-        renderPaginaProductos();
-    });
-
-    // ── Estadísticas — se calculan leyendo las filas que renderAdminTable() ya pintó ──
-    function filasValidas() {
-        return Array.from(document.querySelectorAll('#admin-table-body tr')).filter(tr => !tr.querySelector('td[colspan]'));
-    }
-
-    function contarPor(map, key) {
-        key = (key || 'Sin dato').trim();
-        if (!key) key = 'Sin dato';
-        map[key] = (map[key] || 0) + 1;
-    }
-
-    function pintarBarras(contenedorId, mapa) {
-        const el = document.getElementById(contenedorId);
-        const entradas = Object.keys(mapa).map(k => [k, mapa[k]]);
-        entradas.sort((a, b) => b[1] - a[1]);
-
-        if (!entradas.length) {
-            const empty = document.createElement('div');
-            empty.className = 'chart-empty';
-            const icon = document.createElement('i');
-            icon.className = 'fa-solid fa-chart-simple';
-            const message = document.createElement('p');
-            message.textContent = 'Todavía no hay productos para graficar.';
-            empty.append(icon, message);
-            el.replaceChildren(empty);
-            return;
-        }
-
-        const max = entradas[0][1];
-        const rows = entradas.map(([label, count]) => {
-            const row = document.createElement('div');
-            row.className = 'bar-row';
-            const labelElement = document.createElement('span');
-            labelElement.className = 'bar-row__label';
-            labelElement.title = label;
-            labelElement.textContent = label;
-            const track = document.createElement('div');
-            track.className = 'bar-row__track';
-            const fill = document.createElement('div');
-            fill.className = 'bar-row__fill';
-            fill.style.width = `${Math.round((count / max) * 100)}%`;
-            track.appendChild(fill);
-            const value = document.createElement('span');
-            value.className = 'bar-row__val';
-            value.textContent = count;
-            row.append(labelElement, track, value);
-            return row;
-        });
-        el.replaceChildren(...rows);
-    }
-
-    function actualizarStats() {
-        if (productosLoadState !== 'loaded') return;
-
-        const filas = filasValidas();
-        const total = filas.length;
-
-        const categorias = {};
-        const ciudades = {};
-        const productosPrecio = []; // { nombre, precio } de cada producto propio
-        let sumaPrecio = 0;
-        let conteoPrecio = 0;
-
-        filas.forEach(tr => {
-            const nombre = tr.cells[1] ? tr.cells[1].textContent.trim() : 'Producto';
-            const categoria = tr.cells[2] ? tr.cells[2].textContent : '';
-            const ciudad = tr.cells[4] ? tr.cells[4].textContent : '';
-
-            contarPor(categorias, categoria);
-            contarPor(ciudades, ciudad);
-
-            // Preferimos el precio "crudo" guardado en data-precio; si no está, lo sacamos del texto formateado
-            const precioTxt = tr.cells[3] ? tr.cells[3].textContent : '';
-            const precioNum = tr.dataset.precio ?
-                parseFloat(tr.dataset.precio) :
-                parseInt((precioTxt || '').replace(/[^0-9]/g, ''), 10);
-
-            if (!isNaN(precioNum) && precioNum > 0) {
-                sumaPrecio += precioNum;
-                conteoPrecio++;
-                productosPrecio.push({ nombre, precio: precioNum });
-            }
-        });
-
-        const topCategoria = Object.keys(categorias).sort((a, b) => categorias[b] - categorias[a])[0] || '—';
-        const promedio = conteoPrecio ? Math.round(sumaPrecio / conteoPrecio) : null;
-
-        productosPrecio.sort((a, b) => b.precio - a.precio);
-        const masCaro = productosPrecio[0];
-        const masBarato = productosPrecio[productosPrecio.length - 1];
-
-        document.getElementById('statTotal').textContent = total;
-        document.getElementById('statPromedio').textContent = promedio === null ?
-            '—' : '$' + promedio.toLocaleString('es-CO');
-        document.getElementById('statTopCategoria').textContent = topCategoria;
-        document.getElementById('statMasCaro').textContent = masCaro ?
-            '$' + masCaro.precio.toLocaleString('es-CO') : '—';
-        // Si solo hay 1 producto, masBarato === masCaro (mismo producto), lo cual es correcto.
-        document.getElementById('statMasBarato').textContent = masBarato ?
-            '$' + masBarato.precio.toLocaleString('es-CO') : '—';
-
-        document.getElementById('badgeTotal').textContent = total + (total === 1 ? ' producto' : ' productos');
-        document.getElementById('badgeCategorias').textContent = Object.keys(categorias).length + ' categorías';
-        document.getElementById('badgeCiudades').textContent = Object.keys(ciudades).length + ' ciudades';
-
-        // Se guarda para pintar la pestaña de Estadísticas al abrirla
-        window._teStatsCache = { categorias, ciudades, productosPrecio };
-    }
-
-    function renderEstadisticas() {
-        if (productosLoadState !== 'loaded') {
-            const message = productosLoadState === 'error' ? 'No se pudieron cargar las estadísticas.' : 'Cargando estadísticas…';
-            document.getElementById('chartCategorias').textContent = message;
-            document.getElementById('chartCiudades').textContent = message;
-            document.getElementById('rankPrecios').textContent = message;
-            document.getElementById('rankPreciosEmpty').style.display = 'none';
-            return;
-        }
-
-        const cache = window._teStatsCache || { categorias: {}, ciudades: {}, productosPrecio: [] };
-        pintarBarras('chartCategorias', cache.categorias);
-        pintarBarras('chartCiudades', cache.ciudades);
-
-        const top5 = cache.productosPrecio.slice(0, 5);
-        const rankEl = document.getElementById('rankPrecios');
-        const emptyEl = document.getElementById('rankPreciosEmpty');
-
-        if (!top5.length) {
-            rankEl.innerHTML = '';
-            emptyEl.style.display = 'block';
-            return;
-        }
-        emptyEl.style.display = 'none';
-        const maxPrecio = top5[0].precio;
-
-        const rows = top5.map((p, i) => {
-            const pct = Math.round((p.precio / maxPrecio) * 100);
-            const precioFmt = '$' + p.precio.toLocaleString('es-CO');
-            const row = document.createElement('div');
-            row.className = 'bar-row';
-            row.style.marginBottom = '12px';
-            const label = document.createElement('span');
-            label.className = 'bar-row__label';
-            label.style.minWidth = '170px';
-            label.title = p.nombre;
-            const rank = document.createElement('span');
-            rank.className = 'rank-num';
-            rank.textContent = i + 1;
-            label.append(rank, document.createTextNode(p.nombre));
-            const track = document.createElement('div');
-            track.className = 'bar-row__track';
-            const fill = document.createElement('div');
-            fill.className = 'bar-row__fill';
-            fill.style.width = `${pct}%`;
-            track.appendChild(fill);
-            const value = document.createElement('span');
-            value.className = 'bar-row__val';
-            value.textContent = precioFmt;
-            row.append(label, track, value);
-            return row;
-        });
-        rankEl.replaceChildren(...rows);
-    }
-
-    // Recalcula cada vez que renderAdminTable() modifica la tabla (alta, edición, borrado, carga inicial)
-    const tbodyObs = new MutationObserver(() => {
-        actualizarStats();
-        if (productosLoadState === 'loaded' &&
-            document.getElementById('tab-estadisticas').classList.contains('active')) {
-            renderEstadisticas();
-        }
-    });
-    tbodyObs.observe(tableBody, { childList: true, subtree: true });
-
-    // Primer cálculo por si la tabla ya tenía contenido
-    if (productosLoadState === 'loading') setStatsLoading('Cargando…');
 });
