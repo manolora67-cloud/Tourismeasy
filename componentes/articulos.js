@@ -1925,8 +1925,7 @@
     }
 
     renderArticulos(ARTICULOS);
-    const municipiosPromise = window.TE_MUNICIPIOS_PROMISE || Promise.resolve([]);
-    municipiosPromise.then((municipios) => {
+    function renderArticulosMunicipales(municipios) {
         if (!Array.isArray(municipios) || !municipios.length) return;
         const articulosBase = new Map(ARTICULOS.map((article) => [article.key, article]));
         const articulos = municipios.map((municipio) => {
@@ -1957,6 +1956,11 @@
             };
         });
         renderArticulos(articulos);
+    }
+
+    const municipiosPromise = window.TE_MUNICIPIOS_PROMISE || Promise.resolve([]);
+    municipiosPromise.then((municipios) => {
+        renderArticulosMunicipales(municipios);
 
         const previewKey = new URLSearchParams(window.location.search).get("previewDestino");
         if (previewKey) {
@@ -1973,6 +1977,10 @@
         }
     }).catch((error) => {
         console.error("[TourismEasy] No se pudieron cargar los artículos de los municipios.", error);
+    });
+    window.addEventListener("tourismeasy:destinos-actualizados", (event) => {
+        const municipios = event.detail && event.detail.destinos;
+        if (Array.isArray(municipios)) renderArticulosMunicipales(municipios);
     });
 
     // ---- Abrir / cerrar artículos (delegación de eventos) ----

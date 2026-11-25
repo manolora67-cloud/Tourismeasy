@@ -656,7 +656,7 @@
     }
 
     function fetchMunicipalities(url) {
-        return fetch(url)
+        return fetch(url, { cache: "no-store" })
             .then((response) => {
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 return response.json();
@@ -794,13 +794,23 @@
         });
     }
 
-    function renderDestinos(destinations) {
+    function renderDestinos(destinations, notifyChanges) {
         if (!mount) return;
         const publicDestinations = destinations
             .filter((destination) => destination.publicado)
             .sort((a, b) => a.titulo.localeCompare(b.titulo, "es", { sensitivity: "base" }));
+        const mapaExistente = mount.querySelector(".destinos-mapa");
+        const tarjetaActual = mount.querySelector('.destinos-page[aria-hidden="false"] .card');
+        const claveActual = tarjetaActual ? tarjetaActual.dataset.destinoKey : "";
         if (!publicDestinations.length) {
             mount.innerHTML = '<section class="destinos" id="destinos"><div class="section-container"><p class="destinos-error">Próximamente encontrarás nuevos destinos de Santander.</p></div></section>';
+            const contenedorVacio = mount.querySelector(".section-container");
+            if (mapaExistente && contenedorVacio) contenedorVacio.appendChild(mapaExistente);
+            if (notifyChanges) {
+                window.dispatchEvent(new CustomEvent("tourismeasy:destinos-actualizados", {
+                    detail: { destinos }
+                }));
+            }
             return;
         }
         mount.innerHTML = `
@@ -829,6 +839,10 @@
         <p class="destinos-paginacion" aria-live="polite"></p>
       </div>
     </section>`;
+
+        const contenedor = mount.querySelector(".section-container");
+        const encabezado = contenedor.querySelector(".section-header");
+        if (mapaExistente) contenedor.insertBefore(mapaExistente, encabezado);
 
         const track = mount.querySelector(".destinos-track");
         const previous = mount.querySelector(".destinos-arrow-prev");
@@ -878,11 +892,20 @@
 
         previous.addEventListener("click", () => changePage(-1));
         next.addEventListener("click", () => changePage(1));
-        renderCarousel();
+        const indiceActual = publicDestinations.findIndex((destination) => destination.key === claveActual);
+        renderCarousel(indiceActual < 0 ? 0 : indiceActual);
         mobileLayout.addEventListener("change", () => renderCarousel(pageIndex * pageSize));
+        if (notifyChanges) {
+            window.dispatchEvent(new CustomEvent("tourismeasy:destinos-actualizados", {
+                detail: { destinos }
+            }));
+        }
     }
 
     const citiesPromise = fetchMunicipalities(`${basePath}datos_referencia.php?tipo=ciudades`);
+    let destinosInicializados = false;
+    let destinosRefreshInFlight = false;
+    let destinosSnapshot = null;
 
     async function cargarContenidoPortada(url) {
         let ultimoError;
@@ -912,14 +935,49 @@
         .then(([cities, content]) => {
             const municipalities = createMunicipalities(cities, content.data, content.initialized);
             window.TE_MUNICIPIOS = municipalities;
+            destinosSnapshot = JSON.stringify(municipalities);
+            destinosInicializados = true;
             renderDestinos(municipalities);
             return municipalities;
         })
         .catch((error) => {
             console.error("[TourismEasy] No se pudieron cargar los destinos de Santander.", error);
+            destinosInicializados = true;
             if (mount) {
                 mount.innerHTML = '<section class="destinos" id="destinos"><div class="section-container"><p class="destinos-error" role="alert">No se pudo cargar la lista de destinos. Recarga la página o inténtalo más tarde.</p></div></section>';
             }
             return [];
         });
+
+    async function actualizarDestinosPublicados() {
+        if (!mount || !destinosInicializados || destinosRefreshInFlight
+            || document.visibilityState !== "visible" || !mount.getClientRects().length) return;
+        const elementoActivo = document.activeElement;
+        if ((elementoActivo && mount.contains(elementoActivo)
+                && ["INPUT", "SELECT", "TEXTAREA"].includes(elementoActivo.tagName))
+            || mount.querySelector(".leaflet-popup")
+            || document.querySelector(".art-overlay.open")) return;
+
+        destinosRefreshInFlight = true;
+        try {
+            const [cities, content] = await Promise.all([
+                fetchMunicipalities(`${basePath}datos_referencia.php?tipo=ciudades`),
+                cargarContenidoPortada(`${basePath}admin/contenido_portada.php`)
+            ]);
+            const municipalities = createMunicipalities(cities, content.data, content.initialized);
+            const snapshot = JSON.stringify(municipalities);
+            if (snapshot === destinosSnapshot) return;
+
+            destinosSnapshot = snapshot;
+            window.TE_MUNICIPIOS = municipalities;
+            window.TE_MUNICIPIOS_PROMISE = Promise.resolve(municipalities);
+            renderDestinos(municipalities, true);
+        } catch (error) {
+            console.error("[TourismEasy] No se pudieron actualizar los destinos en segundo plano.", error);
+        } finally {
+            destinosRefreshInFlight = false;
+        }
+    }
+
+    window.setInterval(actualizarDestinosPublicados, 30000);
 })();

@@ -17,6 +17,8 @@
         "molagavita",
     ];
     const comparadorMunicipios = new Intl.Collator("es", { sensitivity: "base" });
+    let grupoMarcadoresActivo = null;
+    let solicitudCargaDestinos = 0;
 
     function ordenarMunicipios(entradas, criterio) {
         const ordenadas = [...entradas];
@@ -160,15 +162,25 @@
         return boton;
     }
 
-    async function cargarDestinos(mapa, bloque) {
+    async function cargarDestinos(mapa, bloque, destinosActuales, ajustarVista) {
+        const solicitud = ++solicitudCargaDestinos;
         const estado = bloque.querySelector(".mapa-estado");
         const lista = bloque.querySelector(".mapa-destinos-lista");
         const contador = bloque.querySelector(".mapa-contador-numero");
         const selectorOrden = bloque.querySelector(".mapa-orden-select");
         const renderizador = window.L.canvas({ padding: 0.5 });
         estado.textContent = "Cargando destinos…";
+        estado.hidden = false;
         try {
-            const destinos = await window.TE_MUNICIPIOS_PROMISE;
+            const destinos = Array.isArray(destinosActuales)
+                ? destinosActuales
+                : await window.TE_MUNICIPIOS_PROMISE;
+            if (solicitud !== solicitudCargaDestinos) return;
+            if (grupoMarcadoresActivo) {
+                mapa.removeLayer(grupoMarcadoresActivo);
+                grupoMarcadoresActivo = null;
+            }
+            lista.replaceChildren();
             if (!Array.isArray(destinos)) {
                 throw new Error("La lista de destinos no está disponible.");
             }
@@ -186,7 +198,7 @@
             if (!ubicados.length) {
                 estado.textContent = "Aún no hay destinos seleccionados para el mapa.";
                 lista.innerHTML = '<p class="mapa-lista-vacia">No hay destinos disponibles.</p>';
-                mapa.setView([6.7, -73.2], 8);
+                if (ajustarVista !== false) mapa.setView([6.7, -73.2], 8);
                 return;
             }
 
@@ -199,19 +211,22 @@
             const grupoMarcadores = window.L.featureGroup(
                 entradasLista.map((entrada) => entrada.marcador)
             ).addTo(mapa);
+            grupoMarcadoresActivo = grupoMarcadores;
             const actualizarOrden = () => {
                 const ordenadas = ordenarMunicipios(entradasLista, selectorOrden.value);
                 lista.replaceChildren(...ordenadas.map((entrada) => entrada.boton));
             };
-            selectorOrden.addEventListener("change", actualizarOrden);
+            selectorOrden.onchange = actualizarOrden;
             actualizarOrden();
 
             estado.textContent = `${ubicados.length} ${ubicados.length === 1 ? "destino" : "destinos"} en el mapa.`;
             estado.hidden = false;
-            mapa.fitBounds(grupoMarcadores.getBounds(), {
-                padding: [28, 28],
-                maxZoom: 9,
-            });
+            if (ajustarVista !== false || !mapa.getBounds().contains(grupoMarcadores.getBounds())) {
+                mapa.fitBounds(grupoMarcadores.getBounds(), {
+                    padding: [28, 28],
+                    maxZoom: 9,
+                });
+            }
         } catch (error) {
             console.error("[TourismEasy] No se pudieron cargar los destinos del mapa.", error);
             estado.textContent = "No se pudieron cargar los destinos del mapa. Inténtalo de nuevo más tarde.";
@@ -248,6 +263,10 @@
         window.L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", opcionesTiles).addTo(mapa);
 
         mapa.setView([6.7, -73.2], 8);
+        window.addEventListener("tourismeasy:destinos-actualizados", (event) => {
+            const destinos = event.detail && event.detail.destinos;
+            if (Array.isArray(destinos)) cargarDestinos(mapa, contenedor.closest(".destinos-mapa"), destinos, false);
+        });
         cargarDestinos(mapa, contenedor.closest(".destinos-mapa"));
     }
 

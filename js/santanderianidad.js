@@ -40,6 +40,8 @@
     let festividades = [];
     let avisoFestividadMostrado = yaSeMostroAvisoFestividad();
     let avisoFestividadProgramado = false;
+    let festividadesSnapshot = null;
+    let festividadesRefreshInFlight = false;
 
     function inicializarAgendaCultural() {
         const mount = document.getElementById("santanderianidad");
@@ -377,6 +379,12 @@
     }
 
     function renderAgendaSantanderiana(mount) {
+        const filtrosAnteriores = {};
+        ["month", "category", "type", "place"].forEach((filtro) => {
+            const control = mount.querySelector(`[data-snt-filter="${filtro}"]`);
+            if (control) filtrosAnteriores[filtro] = control.value;
+        });
+        const paginaAnterior = Number(mount.dataset.sntCalendarPage) || 1;
         const hoy = new Date();
         hoy.setHours(0, 0, 0, 0);
         const fechaClaveHoy = fechaClaveDeDia(hoy);
@@ -579,7 +587,13 @@
         const botonPaginaAnterior = mount.querySelector('[data-calendar-page="previous"]');
         const botonPaginaSiguiente = mount.querySelector('[data-calendar-page="next"]');
         const filasPorPagina = 10;
-        let paginaActual = 1;
+        let paginaActual = paginaAnterior;
+        filtrosCalendario.forEach((filtro) => {
+            const valorAnterior = filtrosAnteriores[filtro.dataset.sntFilter];
+            if (valorAnterior && Array.from(filtro.options).some((opcion) => opcion.value === valorAnterior)) {
+                filtro.value = valorAnterior;
+            }
+        });
         const actualizarCalendario = () => {
             const filtros = {
                 month: mount.querySelector('[data-snt-filter="month"]').value,
@@ -594,6 +608,7 @@
             );
             const totalPaginas = Math.max(1, Math.ceil(coincidentes.length / filasPorPagina));
             paginaActual = Math.min(paginaActual, totalPaginas);
+            mount.dataset.sntCalendarPage = String(paginaActual);
             const inicio = (paginaActual - 1) * filasPorPagina;
             const fin = Math.min(inicio + filasPorPagina, coincidentes.length);
             const filasVisibles = new Set(coincidentes.slice(inicio, fin));
@@ -756,19 +771,24 @@
         return /^#[0-9a-fA-F]{6}$/.test(color || "") ? color : respaldo;
     }
 
-    async function cargarFestividadesAdministradas() {
+    async function cargarFestividadesAdministradas(silenciosa) {
         const mount = document.getElementById("santanderianidad");
         const homeNotice = document.getElementById("aviso-festividad-hoy");
         const idFestividadSolicitada = new URLSearchParams(window.location.search).get("festividad");
         if (!mount && !homeNotice && !idFestividadSolicitada) return;
+        if (festividadesRefreshInFlight) return;
 
+        festividadesRefreshInFlight = true;
         try {
-            const response = await fetch(API_FESTIVIDADES, { credentials: "include" });
+            const response = await fetch(API_FESTIVIDADES, {
+                credentials: "include",
+                cache: "no-store"
+            });
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             const result = await response.json();
             if (!result.ok || !Array.isArray(result.data)) throw new Error("Respuesta de festividades inválida");
 
-            festividades = result.data.map((row) => {
+            const nuevasFestividades = result.data.map((row) => {
                 const id = String(row.id_festividad || "").trim();
                 const c1 = colorValido(row.color_1, "#009B3A");
                 const c2 = colorValido(row.color_2, "#FFCD00");
@@ -787,9 +807,14 @@
                     destino: DESTINOS_POR_FESTIVIDAD[id] || null,
                 };
             });
+            const snapshot = JSON.stringify(nuevasFestividades);
+            if (snapshot === festividadesSnapshot) return;
+
+            festividadesSnapshot = snapshot;
+            festividades = nuevasFestividades;
         } catch (error) {
             console.error("No se pudieron cargar las festividades administradas.", error);
-            if (mount) {
+            if (!silenciosa && mount) {
                 mount.hidden = false;
                 mount.innerHTML = `
                 <section class="snt-section" aria-labelledby="sntSectionTitle">
@@ -803,6 +828,8 @@
                 </section>`;
             }
             return;
+        } finally {
+            festividadesRefreshInFlight = false;
         }
 
         if (mount) inicializarAgendaCultural();
@@ -811,4 +838,16 @@
     }
 
     cargarFestividadesAdministradas();
+    window.setInterval(() => {
+        if (document.visibilityState !== "visible") return;
+        const mount = document.getElementById("santanderianidad");
+        const homeNotice = document.getElementById("aviso-festividad-hoy");
+        if ((!mount || !mount.getClientRects().length) && !homeNotice) return;
+        const elementoActivo = document.activeElement;
+        if ((mount && elementoActivo && mount.contains(elementoActivo)
+                && ["INPUT", "SELECT", "TEXTAREA"].includes(elementoActivo.tagName))
+            || (mount && mount.querySelector("dialog[open]"))) return;
+        if (homeNotice && homeNotice.open) return;
+        cargarFestividadesAdministradas(true);
+    }, 30000);
 })();

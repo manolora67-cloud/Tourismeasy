@@ -200,10 +200,15 @@ function openDetailModal(product) {
         "Consultar precio";
     overlay.querySelector(".pm-price").textContent = priceFormatted;
 
-    // El botón de WhatsApp usa el número de contacto sin espacios ni símbolos
-    // .replace(/\D/g, "") elimina todo lo que no sea dígito
+    // El botón de WhatsApp incluye el nombre del producto en el mensaje.
     const whatsappLink = overlay.querySelector(".pm-whatsapp");
-    whatsappLink.href = "https://wa.me/" + (product.contacto || "").replace(/\D/g, "");
+    let whatsappPhone = String(product.contacto || "").replace(/\D/g, "");
+    if (whatsappPhone.length === 10) whatsappPhone = "57" + whatsappPhone;
+    const whatsappMessage = `Hola, vi el producto ${product.name || "de artesanía"} en TourismEasy y quisiera más información.`;
+    whatsappLink.href = whatsappPhone
+        ? `https://wa.me/${whatsappPhone}?text=${encodeURIComponent(whatsappMessage)}`
+        : "#";
+    whatsappLink.style.display = whatsappPhone ? "" : "none";
     whatsappLink.dataset.idProducto = String(product.id || "");
     whatsappLink.dataset.categoria = "Artesanía";
 
