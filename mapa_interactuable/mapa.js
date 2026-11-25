@@ -69,6 +69,13 @@
         enlace.href = `#art-${encodeURIComponent(destino.key)}`;
         enlace.dataset.article = destino.key;
         enlace.textContent = "Ver destino";
+        enlace.addEventListener("click", (event) => {
+            event.preventDefault();
+            if (typeof window.TE_ABRIR_ARTICULO_DESTINO !== "function"
+                || !window.TE_ABRIR_ARTICULO_DESTINO(destino.key)) {
+                console.error("[TourismEasy] No se pudo abrir el detalle del destino:", destino.key);
+            }
+        });
         cuerpo.appendChild(enlace);
 
         contenido.appendChild(cuerpo);

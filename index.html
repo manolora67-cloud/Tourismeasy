@@ -181,7 +181,7 @@
                         loadStyle("mapa_interactuable/mapa.css?v=mapa-canvas-all-v1"),
                         loadScript("https://unpkg.com/leaflet@1.9.4/dist/leaflet.js")
                     ]);
-                    await loadScript("mapa_interactuable/mapa.js?v=live-destinations-v2");
+                    await loadScript("mapa_interactuable/mapa.js?v=live-destinations-v3");
                 } catch (error) {
                     console.error("[TourismEasy] No se pudo iniciar el mapa.", error);
                     const notice = document.createElement("p");
@@ -205,7 +205,7 @@
             observer.observe(mount);
         })();
     </script>
-    <script defer src="componentes/articulos.js?v=live-destinations-v1"></script>
+    <script defer src="componentes/articulos.js?v=live-destinations-v2"></script>
     <script defer src="componentes/control-sonido-video.js?v=video-sound-v4"></script>
     <script defer src="componentes/footer.js?v=footer-cookie-settings-v6"></script>
     <script defer src="js/captcha.js"></script>

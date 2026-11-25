@@ -1958,6 +1958,32 @@
         renderArticulos(articulos);
     }
 
+    function abrirArticuloDestino(key) {
+        const articleKey = String(key || "").trim();
+        if (!articleKey) return false;
+
+        let overlay = document.getElementById("art-" + articleKey);
+        if (!overlay) {
+            renderArticulosMunicipales(window.TE_MUNICIPIOS);
+            overlay = document.getElementById("art-" + articleKey);
+        }
+        if (!overlay) return false;
+
+        overlay.classList.add("open");
+        document.body.style.overflow = "hidden";
+        const modal = overlay.querySelector(".art-modal");
+        if (modal) modal.scrollTop = 0;
+        const video = overlay.querySelector(".art-video-bg");
+        if (video) {
+            prepararArtVideo(video);
+            video.currentTime = 0;
+            video.play().catch(() => {});
+        }
+        return true;
+    }
+
+    window.TE_ABRIR_ARTICULO_DESTINO = abrirArticuloDestino;
+
     const municipiosPromise = window.TE_MUNICIPIOS_PROMISE || Promise.resolve([]);
     municipiosPromise.then((municipios) => {
         renderArticulosMunicipales(municipios);
@@ -2007,18 +2033,7 @@
         const openTrigger = e.target.closest("[data-article]");
         if (openTrigger) {
             e.preventDefault();
-            const overlay = document.getElementById("art-" + openTrigger.getAttribute("data-article"));
-            if (!overlay) return;
-            overlay.classList.add("open");
-            document.body.style.overflow = "hidden";
-            const modal = overlay.querySelector(".art-modal");
-            if (modal) modal.scrollTop = 0;
-            const video = overlay.querySelector(".art-video-bg");
-            if (video) {
-                prepararArtVideo(video);
-                video.currentTime = 0;
-                video.play().catch(() => {});
-            }
+            abrirArticuloDestino(openTrigger.getAttribute("data-article"));
             return;
         }
 
