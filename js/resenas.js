@@ -18,6 +18,8 @@
     var resenasStatus = document.createElement("p");
     var rating = 0;
     var resenasRequestId = 0;
+    var likesRefreshInFlight = false;
+    var likeActionVersion = 0;
     var resenasData = [];
     var paginaResenas = 1;
     var resenasPorPagina = reviewPagination ? 20 : Infinity;
@@ -314,6 +316,7 @@
                     })
                     .then(function (res) {
                         if (!res.ok) throw new Error(res.error || "No se pudo actualizar el me gusta.");
+                        likeActionVersion++;
                         var nuevoLiked = !yaLiked;
                         btn.dataset.liked = nuevoLiked ? "1" : "0";
                         btn.querySelector(".like-icon").textContent = nuevoLiked ? "♥" : "♡";
@@ -431,6 +434,49 @@
             });
     }
 
+    function actualizarConteosLikes() {
+        if (document.visibilityState !== "visible" ||
+            !sliderTrack.getClientRects().length ||
+            !resenasData.length ||
+            likesRefreshInFlight) return;
+
+        var versionAlConsultar = likeActionVersion;
+        likesRefreshInFlight = true;
+        fetch(URL_GET + "?solo_likes=1", { cache: "no-store" })
+            .then(function (response) {
+                if (!response.ok) throw new Error("No se pudieron actualizar los likes.");
+                return response.json();
+            })
+            .then(function (result) {
+                if (!result.ok || !Array.isArray(result.data)) {
+                    throw new Error(result.error || "El servidor devolvió una respuesta inválida.");
+                }
+                if (versionAlConsultar !== likeActionVersion) return;
+
+                var likesPorResena = new Map();
+                result.data.forEach(function (item) {
+                    var cantidad = Number(item.likes);
+                    if (Number.isFinite(cantidad)) likesPorResena.set(String(item.id), cantidad);
+                });
+
+                resenasData.forEach(function (resena) {
+                    var cantidad = likesPorResena.get(String(resena.id));
+                    if (cantidad !== undefined) resena.likes = cantidad;
+                });
+                sliderTrack.querySelectorAll(".resena-btn-like").forEach(function (button) {
+                    var cantidad = likesPorResena.get(button.dataset.id);
+                    var contador = button.querySelector(".like-count");
+                    if (cantidad !== undefined && contador) contador.textContent = String(cantidad);
+                });
+            })
+            .catch(function (error) {
+                console.error("[TourismEasy] No se pudieron actualizar los likes en segundo plano:", error);
+            })
+            .finally(function () {
+                likesRefreshInFlight = false;
+            });
+    }
+
     if (previousReviewPage) previousReviewPage.addEventListener("click", function () {
         if (paginaResenas <= 1) return;
         paginaResenas--;
@@ -444,6 +490,7 @@
     });
 
     cargarResenas();
+    window.setInterval(actualizarConteosLikes, 30000);
 
     // ── Carrusel: puntos de navegación + desplazamiento ────────────────────
     // (Esta parte faltaba: las tarjetas se agregaban al DOM pero nada movía

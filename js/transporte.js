@@ -322,6 +322,15 @@ cargarClasesTransporte();
 var busquedaTransporteId = 0;
 var transportePaginaActual = 1;
 var transporteResultadosPorPagina = 6;
+var transporteRequestInFlight = false;
+var transporteInFlightRequestId = 0;
+var rutasPublicasSnapshot = null;
+
+function finalizarCargaTransporte(solicitudId) {
+    if (transporteInFlightRequestId !== solicitudId) return;
+    transporteInFlightRequestId = 0;
+    transporteRequestInFlight = false;
+}
 
 function ocultarPaginacionTransporte() {
     var paginacion = document.getElementById('transportePagination');
@@ -937,32 +946,47 @@ document
         '</div>';
 
 
-    function cargarTodo() {
+    function cargarTodo(options) {
+        var backgroundRefresh = Boolean(options && options.background);
+        if (backgroundRefresh && transporteRequestInFlight) return;
 
         var solicitudId = ++busquedaTransporteId;
-        transportePaginaActual = 1;
-        ocultarPaginacionTransporte();
-        document.getElementById('transporteEmpty').style.display = 'none';
-        document.getElementById('transporteStatus').style.display = 'none';
-        grid.innerHTML =
-            '<div style="grid-column:1/-1;text-align:center;padding:48px;color:#94a3b8">' +
-            '<i class="fa-solid fa-spinner fa-spin fa-2x"></i>' +
-            '<p style="margin-top:12px">Cargando rutas disponibles...</p>' +
-            '</div>';
+        if (!backgroundRefresh) {
+            transportePaginaActual = 1;
+            ocultarPaginacionTransporte();
+            document.getElementById('transporteEmpty').style.display = 'none';
+            document.getElementById('transporteStatus').style.display = 'none';
+            grid.innerHTML =
+                '<div style="grid-column:1/-1;text-align:center;padding:48px;color:#94a3b8">' +
+                '<i class="fa-solid fa-spinner fa-spin fa-2x"></i>' +
+                '<p style="margin-top:12px">Cargando rutas disponibles...</p>' +
+                '</div>';
+        }
+        transporteRequestInFlight = true;
+        transporteInFlightRequestId = solicitudId;
 
         window.TECatalogCache.fetchJson(
             "../transporte/listar.php",
             {
                 credentials: "include"
             },
-            'No se pudieron cargar las rutas disponibles.'
+            'No se pudieron cargar las rutas disponibles.',
+            backgroundRefresh
         )
 
             .then(function (res) {
-                if (solicitudId !== busquedaTransporteId) return;
+                if (solicitudId !== busquedaTransporteId) {
+                    finalizarCargaTransporte(solicitudId);
+                    return;
+                }
+                finalizarCargaTransporte(solicitudId);
                 if (!res.ok || !Array.isArray(res.data)) {
                     throw new Error(res.error || 'El servidor devolvió una respuesta inválida.');
                 }
+
+                var snapshot = JSON.stringify(res.data);
+                if (backgroundRefresh && snapshot === rutasPublicasSnapshot) return;
+                rutasPublicasSnapshot = snapshot;
 
                 grid.innerHTML = "";
 
@@ -991,7 +1015,15 @@ document
             })
 
             .catch(function (error) {
-                if (solicitudId !== busquedaTransporteId) return;
+                if (solicitudId !== busquedaTransporteId) {
+                    finalizarCargaTransporte(solicitudId);
+                    return;
+                }
+                finalizarCargaTransporte(solicitudId);
+                if (backgroundRefresh) {
+                    console.error('[TourismEasy] No se pudieron actualizar las rutas en segundo plano:', error);
+                    return;
+                }
                 ocultarPaginacionTransporte();
                 console.error('Error cargando rutas de transporte:', error);
 
@@ -1006,6 +1038,19 @@ document
 
 
     cargarTodo();
+
+    window.setInterval(function () {
+        var filtros = ['tOrigen', 'tDestino', 'tFecha', 'tClase']
+            .map(function (id) { return document.getElementById(id); });
+        if (document.visibilityState !== 'visible' ||
+            !grid.getClientRects().length ||
+            transporteRequestInFlight ||
+            filtros.some(function (input) { return input && input.value; }) ||
+            filtros.indexOf(document.activeElement) !== -1) return;
+        var detailModal = document.getElementById('transporte-detalle-overlay');
+        if (detailModal && detailModal.classList.contains('visible')) return;
+        cargarTodo({ background: true });
+    }, 30000);
 
 
     // Se exponen para que el script del buscador

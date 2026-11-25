@@ -11,6 +11,8 @@ let productsLoading = true;
 let productsLoadError = false;
 let productFiltersLoaded = false;
 let productSearchTimer = null;
+let productSearchInFlight = false;
+let lastProductSnapshot = null;
 
 // Productos publicados en la base de datos.
 let dbProducts = [];
@@ -61,7 +63,10 @@ async function loadDbProducts() {
     await searchProducts();
 }
 
-async function searchProducts() {
+async function searchProducts(options) {
+    const backgroundRefresh = Boolean(options && options.background);
+    if (backgroundRefresh && productSearchInFlight) return;
+
     const requestId = ++productSearchRequestId;
     const params = new URLSearchParams();
     const query = currentSearch.trim();
@@ -69,21 +74,31 @@ async function searchProducts() {
     if (currentCategory !== "all") params.set("categoria", currentCategory);
     if (currentLocation) params.set("id_ciudad", currentLocation);
 
-    productsLoading = true;
-    productsLoadError = false;
-    renderProducts();
+    if (!backgroundRefresh) {
+        productsLoading = true;
+        productsLoadError = false;
+        renderProducts();
+    }
+    productSearchInFlight = true;
 
     try {
         const result = await window.TECatalogCache.fetchJson(
             `${PRODUCTOS_BUSCAR_API_URL}?${params.toString()}`,
             undefined,
-            "No se pudieron cargar los productos."
+            "No se pudieron cargar los productos.",
+            backgroundRefresh
         );
         if (requestId !== productSearchRequestId) return;
         if (!result.ok || !Array.isArray(result.data)) {
             throw new Error(result.error || "El servidor devolvió una respuesta inválida.");
         }
-        dbProducts = result.data.map(mapDbProduct);
+        const nextProducts = result.data.map(mapDbProduct);
+        const nextSnapshot = JSON.stringify(nextProducts);
+        productSearchInFlight = false;
+        if (backgroundRefresh && nextSnapshot === lastProductSnapshot) return;
+
+        dbProducts = nextProducts;
+        lastProductSnapshot = nextSnapshot;
         if (!productFiltersLoaded) {
             populateProductFilters();
             productFiltersLoaded = true;
@@ -92,7 +107,9 @@ async function searchProducts() {
         renderProducts();
     } catch (error) {
         if (requestId !== productSearchRequestId) return;
+        productSearchInFlight = false;
         console.error("Error buscando productos en el servidor:", error);
+        if (backgroundRefresh) return;
         productsLoadError = true;
         productsLoading = false;
         dbProducts = [];
@@ -395,6 +412,15 @@ document.addEventListener("DOMContentLoaded", () => {
         currentPage++;
         renderProducts();
     });
+
+    window.setInterval(() => {
+        if (document.visibilityState !== "visible" || productSearchInFlight) return;
+        const activeElement = document.activeElement;
+        if (activeElement && ["searchInput", "locationFilter"].includes(activeElement.id)) return;
+        const detailModal = document.getElementById("productModalOverlay");
+        if (detailModal && detailModal.classList.contains("active")) return;
+        searchProducts({ background: true });
+    }, 30000);
 
     // El modo oscuro ahora lo maneja el componente compartido dark-mode-toggle.js
     // (mismo botón #darkModeToggle, llave 'theme' compartida con todo el sitio).

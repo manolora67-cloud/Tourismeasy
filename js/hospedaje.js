@@ -86,6 +86,9 @@ function actualizarBotonWhatsApp(btn) {
     var currentPage = 1;
     var pageSize = 6;
     var requestId = 0;
+    var requestInFlight = false;
+    var lastHospedajeQuery = null;
+    var lastHospedajeSnapshot = null;
     var defaultAdults = 1;
     var defaultChildren = 0;
 
@@ -142,12 +145,17 @@ function actualizarBotonWhatsApp(btn) {
         pagination.hidden = matches.length <= pageSize;
     }
 
-    function filterHospedajes() {
+    function filterHospedajes(options) {
+        var backgroundRefresh = Boolean(options && options.background);
+        if (backgroundRefresh && requestInFlight) return;
+
         var currentRequest = ++requestId;
         var adults = inputAdultos.valueAsNumber;
         var children = inputNinos.valueAsNumber;
         if (!inputAdultos.validity.valid || !inputNinos.validity.valid ||
             !Number.isInteger(adults) || !Number.isInteger(children)) {
+            if (backgroundRefresh) return;
+            requestInFlight = false;
             pagination.hidden = true;
             noResults.style.display = "none";
             grid.replaceChildren();
@@ -162,25 +170,36 @@ function actualizarBotonWhatsApp(btn) {
         if (!isDefaultCapacity || inputDestino.value || inputAccesibilidad.value) {
             params.set("capacidad", String(adults + children));
         }
-        pagination.hidden = true;
-        noResults.style.display = "none";
-        setSearchStatus("Buscando hospedajes…");
-        grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:48px;color:#94a3b8"><i class="fa-solid fa-spinner fa-spin fa-2x"></i><p style="margin-top:12px">Buscando hospedajes…</p></div>';
+        var query = params.toString();
+        if (!backgroundRefresh) {
+            pagination.hidden = true;
+            noResults.style.display = "none";
+            setSearchStatus("Buscando hospedajes…");
+            grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:48px;color:#94a3b8"><i class="fa-solid fa-spinner fa-spin fa-2x"></i><p style="margin-top:12px">Buscando hospedajes…</p></div>';
+        }
+        requestInFlight = true;
 
         window.TECatalogCache.fetchJson(
-            "../hospedaje/buscar.php?" + params.toString(),
+            "../hospedaje/buscar.php?" + query,
             { credentials: "include" },
-            "No se pudo buscar hospedajes."
+            "No se pudo buscar hospedajes.",
+            backgroundRefresh
         )
             .then(function(result) {
                 if (currentRequest !== requestId) return;
+                requestInFlight = false;
                 if (!result.ok || !Array.isArray(result.data)) {
                     throw new Error(result.error || "El servidor devolvió una respuesta inválida.");
                 }
+                var snapshot = JSON.stringify(result.data);
+                if (backgroundRefresh && query === lastHospedajeQuery && snapshot === lastHospedajeSnapshot) return;
+                lastHospedajeQuery = query;
+                lastHospedajeSnapshot = snapshot;
+
                 grid.innerHTML = "";
                 result.data.forEach(renderCard);
                 var matches = Array.from(grid.querySelectorAll(".card-item"));
-                currentPage = 1;
+                if (!backgroundRefresh) currentPage = 1;
                 noResults.style.display = matches.length ? "none" : "block";
                 var queryText = inputDestino.value ? inputDestino.selectedOptions[0].textContent : "la búsqueda actual";
                 noResultsQuery.textContent = queryText;
@@ -189,6 +208,11 @@ function actualizarBotonWhatsApp(btn) {
             })
             .catch(function(error) {
                 if (currentRequest !== requestId) return;
+                requestInFlight = false;
+                if (backgroundRefresh) {
+                    console.error("[TourismEasy] No se pudieron actualizar los hospedajes en segundo plano:", error);
+                    return;
+                }
                 grid.replaceChildren();
                 pagination.hidden = true;
                 noResults.style.display = "none";
@@ -312,6 +336,7 @@ function actualizarBotonWhatsApp(btn) {
 
     function cargarHospedajes() {
         var currentRequest = ++requestId;
+        requestInFlight = true;
         grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:48px;color:#94a3b8"><i class="fa-solid fa-spinner fa-spin fa-2x"></i><p style="margin-top:12px">Cargando hospedajes disponibles...</p></div>';
         window.TECatalogCache.fetchJson(
             "../hospedaje/buscar.php",
@@ -320,9 +345,12 @@ function actualizarBotonWhatsApp(btn) {
         )
             .then(function(result) {
                 if (currentRequest !== requestId) return;
+                requestInFlight = false;
                 if (!result.ok || !Array.isArray(result.data)) {
                     throw new Error(result.error || "El servidor devolvió una respuesta inválida.");
                 }
+                lastHospedajeQuery = "";
+                lastHospedajeSnapshot = JSON.stringify(result.data);
                 grid.innerHTML = "";
                 populateFilterOptions(result.data);
                 result.data.forEach(renderCard);
@@ -333,10 +361,19 @@ function actualizarBotonWhatsApp(btn) {
             })
             .catch(function(error) {
                 if (currentRequest !== requestId) return;
+                requestInFlight = false;
                 grid.replaceChildren();
                 setSearchStatus(error.message || "Error al cargar hospedajes.", true);
             });
     }
 
     cargarHospedajes();
+
+    window.setInterval(function() {
+        if (document.visibilityState !== "visible" || !grid.getClientRects().length || requestInFlight) return;
+        if ([inputDestino, inputAccesibilidad, inputAdultos, inputNinos].indexOf(document.activeElement) !== -1) return;
+        var detailModal = document.getElementById("hosp-detalle-overlay");
+        if (detailModal && detailModal.classList.contains("visible")) return;
+        filterHospedajes({ background: true });
+    }, 30000);
 })();

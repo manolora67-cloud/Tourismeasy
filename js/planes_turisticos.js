@@ -108,6 +108,8 @@ function mostrarDetallePlan(plan) {
     var currentPage = 1;
     var pageSize = 6;
     var requestId = 0;
+    var requestInFlight = false;
+    var lastPlanSnapshot = null;
     var filterOptionsLoaded = false;
 
     noResults.style.cssText = "grid-column:1/-1;text-align:center;color:var(--theme-primary,#7c3aed);font-family:Montserrat,sans-serif;font-weight:700;font-size:1.1rem;padding:40px 0;";
@@ -176,34 +178,46 @@ function mostrarDetallePlan(plan) {
         pagination.hidden = totalPages <= 1;
     }
 
-    function searchPlans() {
+    function searchPlans(options) {
+        var backgroundRefresh = Boolean(options && options.background);
+        if (backgroundRefresh && requestInFlight) return;
+
         var params = new URLSearchParams();
         if (selectLugar.value) params.set("id_ciudad", selectLugar.value);
         if (selectTipo.value) params.set("id_tipo_plan", selectTipo.value);
         if (selectAccesibilidad.value) params.set("accesibilidad", selectAccesibilidad.value);
 
         var currentRequest = ++requestId;
-        pagination.hidden = true;
-        setSearchStatus("Buscando planes turísticos…");
-        grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:48px;color:#94a3b8"><i class="fa-solid fa-spinner fa-spin fa-2x"></i><p style="margin-top:12px">Buscando planes turísticos…</p></div>';
+        if (!backgroundRefresh) {
+            pagination.hidden = true;
+            setSearchStatus("Buscando planes turísticos…");
+            grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:48px;color:#94a3b8"><i class="fa-solid fa-spinner fa-spin fa-2x"></i><p style="margin-top:12px">Buscando planes turísticos…</p></div>';
+        }
+        requestInFlight = true;
 
         window.TECatalogCache.fetchJson(
             "../planes/buscar.php?" + params.toString(),
             { credentials: "include" },
-            "No se pudieron buscar los planes turísticos."
+            "No se pudieron buscar los planes turísticos.",
+            backgroundRefresh
         )
             .then(function (result) {
                 if (currentRequest !== requestId) return;
+                requestInFlight = false;
                 if (!result.ok || !Array.isArray(result.data)) {
                     throw new Error(result.error || "El servidor devolvió una respuesta inválida.");
                 }
+                var snapshot = JSON.stringify(result.data);
+                if (backgroundRefresh && snapshot === lastPlanSnapshot) return;
+                lastPlanSnapshot = snapshot;
+
                 grid.innerHTML = "";
                 if (!filterOptionsLoaded) {
                     populateFilterOptions(result.data);
                     filterOptionsLoaded = true;
                 }
                 result.data.forEach(renderCard);
-                currentPage = 1;
+                if (!backgroundRefresh) currentPage = 1;
                 renderPage();
                 setSearchStatus(result.data.length + (result.data.length === 1
                     ? " plan publicado."
@@ -211,6 +225,11 @@ function mostrarDetallePlan(plan) {
             })
             .catch(function (error) {
                 if (currentRequest !== requestId) return;
+                requestInFlight = false;
+                if (backgroundRefresh) {
+                    console.error("[TourismEasy] No se pudieron actualizar los planes en segundo plano:", error);
+                    return;
+                }
                 grid.replaceChildren();
                 pagination.hidden = true;
                 setSearchStatus(error.message || "Error al buscar planes turísticos.", true);
@@ -333,4 +352,12 @@ function mostrarDetallePlan(plan) {
     });
 
     searchPlans();
+
+    window.setInterval(function () {
+        if (document.visibilityState !== "visible" || !grid.getClientRects().length || requestInFlight) return;
+        if ([selectLugar, selectTipo, selectAccesibilidad].indexOf(document.activeElement) !== -1) return;
+        var detailModal = document.getElementById("plan-detalle-overlay");
+        if (detailModal && detailModal.classList.contains("visible")) return;
+        searchPlans({ background: true });
+    }, 30000);
 })();

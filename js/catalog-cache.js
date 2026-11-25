@@ -4,22 +4,27 @@
     var CACHE_PREFIX = "te-catalog-v1:";
     var CACHE_DURATION_MS = 30 * 1000;
 
-    async function fetchJson(url, options, errorMessage) {
+    async function fetchJson(url, options, errorMessage, forceRefresh) {
         var cacheKey = CACHE_PREFIX + new URL(url, window.location.href).href;
         var cached;
 
-        try {
-            cached = sessionStorage.getItem(cacheKey);
-            if (cached) {
-                var entry = JSON.parse(cached);
-                if (entry.expiresAt > Date.now()) return entry.data;
-                sessionStorage.removeItem(cacheKey);
+        if (!forceRefresh) {
+            try {
+                cached = sessionStorage.getItem(cacheKey);
+                if (cached) {
+                    var entry = JSON.parse(cached);
+                    if (entry.expiresAt > Date.now()) return entry.data;
+                    sessionStorage.removeItem(cacheKey);
+                }
+            } catch (error) {
+                console.warn("[TourismEasy] No se pudo leer la caché temporal del catálogo.", error);
             }
-        } catch (error) {
-            console.warn("[TourismEasy] No se pudo leer la caché temporal del catálogo.", error);
         }
 
-        var response = await fetch(url, options);
+        var fetchOptions = Object.assign({}, options || {});
+        if (forceRefresh) fetchOptions.cache = "no-store";
+
+        var response = await fetch(url, fetchOptions);
         if (!response.ok) {
             throw new Error(errorMessage || "No se pudieron cargar los datos del catálogo.");
         }
