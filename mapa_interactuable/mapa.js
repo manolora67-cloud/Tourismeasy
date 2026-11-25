@@ -263,11 +263,13 @@
         window.L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", opcionesTiles).addTo(mapa);
 
         mapa.setView([6.7, -73.2], 8);
-        window.addEventListener("tourismeasy:destinos-actualizados", (event) => {
-            const destinos = event.detail && event.detail.destinos;
-            if (Array.isArray(destinos)) cargarDestinos(mapa, contenedor.closest(".destinos-mapa"), destinos, false);
-        });
-        cargarDestinos(mapa, contenedor.closest(".destinos-mapa"));
+        const bloque = contenedor.closest(".destinos-mapa");
+        window.TE_ACTUALIZAR_MAPA_DESTINOS = (destinos) => {
+            if (!Array.isArray(destinos)) return;
+            mapa.invalidateSize({ pan: false });
+            cargarDestinos(mapa, bloque, destinos, false);
+        };
+        cargarDestinos(mapa, bloque);
     }
 
     function instalarMapa() {

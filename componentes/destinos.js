@@ -972,6 +972,9 @@
             window.TE_MUNICIPIOS = municipalities;
             window.TE_MUNICIPIOS_PROMISE = Promise.resolve(municipalities);
             renderDestinos(municipalities, true);
+            if (typeof window.TE_ACTUALIZAR_MAPA_DESTINOS === "function") {
+                window.TE_ACTUALIZAR_MAPA_DESTINOS(municipalities);
+            }
         } catch (error) {
             console.error("[TourismEasy] No se pudieron actualizar los destinos en segundo plano.", error);
         } finally {
