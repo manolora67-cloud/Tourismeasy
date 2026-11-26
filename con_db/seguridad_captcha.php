@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * @param mixed $token
+ */
 function teCaptchaLoginTokenValido($token): bool
 {
     if (!is_string($token) || $token === '') {

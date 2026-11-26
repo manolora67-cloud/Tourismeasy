@@ -7,7 +7,11 @@ if (!is_array($localConfig)) {
 }
 
 $groqKey = getenv('GROQ_API_KEY') ?: ($localConfig['groq_key'] ?? null);
+$mapillaryToken = getenv('MAPILLARY_ACCESS_TOKEN') ?: ($localConfig['mapillary_access_token'] ?? null);
 
 return [
     'groq_key' => is_string($groqKey) && trim($groqKey) !== '' ? trim($groqKey) : null,
+    'mapillary_access_token' => is_string($mapillaryToken) && trim($mapillaryToken) !== ''
+        ? trim($mapillaryToken)
+        : null,
 ];

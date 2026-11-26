@@ -14,7 +14,7 @@
             { key: "planes", label: "Planes", file: "planes_turisticos.html" },
             { key: "ecommerce", label: "E-Commerce", file: "e-commerce.html" },
             { key: "festividades", label: "Festividades", file: "festividades.html" },
-            { key: "metaverso", label: "Metaverso", file: "metaverso/index.php" },
+            { key: "metaverso", label: "Metaverso", file: "metaverso/index.html" },
         ];
 
         const linkHref = (link) =>

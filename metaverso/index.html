@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Recorre en primera persona el mapa futurista de las siete provincias de Santander.">
+    <meta name="theme-color" content="#080b12">
+    <title>Metaverso de Santander - TourismEasy</title>
+    <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
+    <link rel="stylesheet" href="metaverso.css">
+</head>
+
+<body>
+    <main class="metaverso-app">
+        <section class="experience-screen consent-screen" id="consentScreen" aria-labelledby="consentTitle">
+            <div class="consent-content">
+                <img class="consent-logo" src="../img/TURISMEASY.png" alt="Logo de TourismEasy">
+                <p class="consent-eyebrow">Una experiencia TourismEasy</p>
+                <h1 id="consentTitle">Experiencia 360° / Realidad Virtual</h1>
+                <p class="consent-copy">
+                    Para entrar al mundo 3D se cargará A-Frame desde un CDN, cuyo proveedor recibirá
+                    tu dirección IP. No solicitamos acceso a tu cámara ni a tu micrófono. Si tu
+                    dispositivo es compatible, podrás entrar al modo de realidad virtual desde el mapa.
+                    Los sonidos ambientales se generan en tu navegador y se activan cuando tú lo decidas.
+                </p>
+                <div class="consent-actions">
+                    <button class="button button-primary" id="activateButton" type="button">Entrar al mundo 3D</button>
+                    <a class="button button-secondary" href="../index.html">Volver al inicio</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="experience-screen loader-screen" id="loaderScreen" aria-live="polite" hidden>
+            <div class="loader-content">
+                <div class="loader-logo" id="loaderLogo" role="img" aria-label="TourismEasy">
+                    <img class="loader-logo-base" src="../img/TURISMEASY.png" alt="">
+                    <div class="loader-logo-fill" id="loaderLogoFill">
+                        <img src="../img/TURISMEASY.png" alt="">
+                    </div>
+                </div>
+                <p class="loader-brand">TOURISMEASY</p>
+                <h1 id="loaderTitle">Preparando el metaverso</h1>
+                <p class="loader-status" id="loaderStatus">Conectando con la experiencia 3D...</p>
+                <div class="progress-track" id="progressTrack" role="progressbar" aria-label="Carga del metaverso" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                    <span class="progress-bar" id="progressBar"></span>
+                </div>
+                <p class="progress-value" id="progressValue">0%</p>
+                <p class="loader-error" id="loaderError" role="alert" hidden></p>
+                <button class="button button-primary retry-button" id="retryButton" type="button" hidden>Reintentar carga</button>
+                <a class="loader-back-link" href="../index.html">Volver al inicio</a>
+            </div>
+        </section>
+
+        <section class="world-screen" id="worldScreen" aria-label="Mapa interactivo de las provincias de Santander" hidden>
+            <div class="scene-host" id="sceneHost"></div>
+
+            <div class="touch-controls" aria-label="Joysticks de movimiento y vista">
+                <button class="touch-stick" type="button" data-stick="move" aria-label="Joystick izquierdo: caminar">
+                    <span class="touch-stick-knob" aria-hidden="true"></span>
+                    <span class="touch-stick-label">CAMINAR</span>
+                </button>
+                <button class="touch-stick" type="button" data-stick="look" aria-label="Joystick derecho: girar la vista">
+                    <span class="touch-stick-knob" aria-hidden="true"></span>
+                    <span class="touch-stick-label">MIRAR</span>
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <script src="metaverso.js"></script>
+</body>
+
+</html>

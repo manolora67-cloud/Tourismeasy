@@ -260,9 +260,14 @@ a:focus-visible {
     z-index: 0;
 }
 
+.scene-host .a-enter-vr {
+    display: none !important;
+}
+
 .world-header,
 .province-menu,
 .province-card,
+.touch-controls,
 .world-footer {
     position: absolute;
     z-index: 3;
@@ -328,6 +333,58 @@ a:focus-visible {
 .exploration-counter strong {
     color: var(--brand-green);
     font-size: 0.85rem;
+}
+
+.world-actions {
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 5px;
+    pointer-events: auto;
+}
+
+.enter-vr-button {
+    min-height: 42px;
+    padding: 0 15px;
+    border: 1px solid rgba(226, 255, 227, 0.55);
+    border-radius: 11px;
+    background: linear-gradient(135deg, #227c54, #15583f);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.24);
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.sound-button {
+    min-height: 38px;
+    padding: 0 13px;
+    border: 1px solid rgba(224, 225, 185, 0.48);
+    border-radius: 10px;
+    background: rgba(37, 61, 43, 0.92);
+    box-shadow: 0 7px 22px rgba(0, 0, 0, 0.2);
+    color: #fff;
+    font-size: 0.76rem;
+    font-weight: 750;
+    cursor: pointer;
+}
+
+.sound-button[aria-pressed="true"] {
+    border-color: #b7e49a;
+    background: #476d41;
+}
+
+.enter-vr-button:hover {
+    filter: brightness(1.13);
+}
+
+.vr-status,
+.sound-status {
+    max-width: 180px;
+    margin: 0;
+    color: #fff1bd;
+    font-size: 0.68rem;
+    text-align: right;
 }
 
 .counter-track {
@@ -497,7 +554,7 @@ a:focus-visible {
     left: 18px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     gap: 14px;
     color: #d3dae7;
     font-size: 0.76rem;
@@ -505,6 +562,7 @@ a:focus-visible {
 }
 
 .world-footer p {
+    max-width: min(100%, 760px);
     margin: 0;
     padding: 8px 12px;
     border-radius: 9px;
@@ -512,20 +570,71 @@ a:focus-visible {
     line-height: 1.5;
 }
 
-.revoke-button {
-    padding: 9px 13px;
-    border: 1px solid rgba(255, 255, 255, 0.35);
-    border-radius: 9px;
-    background: rgba(8, 13, 23, 0.82);
-    color: #fff;
-    font-size: 0.76rem;
-    cursor: pointer;
-    pointer-events: auto;
+.touch-controls {
+    display: none;
+    right: 0;
+    bottom: 80px;
+    left: 0;
+    justify-content: space-between;
+    padding: 0 18px;
+    pointer-events: none;
 }
 
-.revoke-button:hover {
-    border-color: #ffb5bb;
-    color: #ffb5bb;
+@media (pointer: coarse) {
+    .touch-controls {
+        display: flex;
+    }
+}
+
+.touch-stick {
+    position: relative;
+    display: grid;
+    width: clamp(82px, 23vw, 118px);
+    aspect-ratio: 1;
+    place-items: center;
+    padding: 0;
+    border: 1px solid rgba(244, 249, 218, 0.55);
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(53, 89, 58, 0.55), rgba(11, 24, 21, 0.52));
+    box-shadow: inset 0 0 22px rgba(220, 236, 183, 0.12), 0 7px 22px rgba(0, 0, 0, 0.26);
+    color: #fff;
+    touch-action: none;
+    pointer-events: auto;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.touch-stick-knob {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 43%;
+    aspect-ratio: 1;
+    border: 1px solid rgba(241, 252, 206, 0.68);
+    border-radius: 50%;
+    background: rgba(207, 220, 163, 0.55);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.22);
+    transform: translate(calc(-50% + var(--stick-x, 0px)), calc(-50% + var(--stick-y, 0px)));
+    pointer-events: none;
+}
+
+.touch-stick-label {
+    position: absolute;
+    right: 0;
+    bottom: -19px;
+    left: 0;
+    color: #f4f4e3;
+    font-size: 0.57rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-align: center;
+    text-shadow: 0 1px 5px #07110e;
+    pointer-events: none;
+}
+
+.province-card:not([hidden]) ~ .touch-controls,
+.vr-active .touch-controls {
+    display: none !important;
 }
 
 @media (max-width: 700px) {
@@ -544,6 +653,31 @@ a:focus-visible {
     .world-brand img {
         width: 34px;
         height: 34px;
+    }
+
+    .world-actions {
+        position: absolute;
+        top: 70px;
+        right: 0;
+        align-items: flex-end;
+    }
+
+    .enter-vr-button {
+        min-height: 36px;
+        padding: 0 11px;
+        font-size: 0.7rem;
+    }
+
+    .sound-button {
+        min-height: 34px;
+        padding: 0 10px;
+        font-size: 0.66rem;
+    }
+
+    .vr-status,
+    .sound-status {
+        max-width: 145px;
+        font-size: 0.61rem;
     }
 
     .exploration-counter {
@@ -576,20 +710,13 @@ a:focus-visible {
         right: 10px;
         bottom: 10px;
         left: 10px;
-        align-items: flex-end;
+        align-items: center;
         font-size: 0.68rem;
     }
 
     .world-footer p {
-        max-width: 55%;
-        max-height: 60px;
-        overflow: hidden;
+        max-width: 100%;
         line-height: 1.4;
-    }
-
-    .revoke-button {
-        padding: 8px 10px;
-        font-size: 0.68rem;
     }
 
     .province-card {
@@ -626,6 +753,12 @@ a:focus-visible {
         bottom: 62px;
         width: calc(100vw - 20px);
         padding: 14px 12px;
+    }
+
+    .world-footer p {
+        max-width: 82%;
+        font-size: 0.61rem;
+        text-align: center;
     }
 
     .province-card h2 {
