@@ -43,9 +43,11 @@
             )
             .join("")}
         </ul>
-        <div data-component="btn-acceder" data-context="${context}" id="btnAccederNav"></div>
-        <button class="hamburger" id="hamburger">&#9776;</button>
-        <div id="dark-mode-toggle"></div>
+        <div class="nav-slot">
+          <div data-component="btn-acceder" data-context="${context}" id="btnAccederNav"></div>
+          <button class="hamburger" id="hamburger">&#9776;</button>
+          <div id="dark-mode-toggle"></div>
+        </div>
       </div>
       <div class="nav-mobile" id="navMobile">
         ${linksHTML()}

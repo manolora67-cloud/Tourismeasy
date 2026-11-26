@@ -195,14 +195,9 @@
           <p>Esta lista es ficticia y no constituye una certificación ni una política oficial de verificación.</p>
         </details>
         <details>
-          <summary>Modelos de suscripción para empresas</summary>
-          <p>Las siguientes opciones son ideas ficticias para demostración. No están activas, no tienen precios definidos y no generan cobros.</p>
-          <ul>
-            <li><strong>Básico:</strong> perfil informativo de la empresa.</li>
-            <li><strong>Destacado:</strong> idea de mayor visibilidad para el perfil.</li>
-            <li><strong>Plus:</strong> idea de herramientas adicionales para administrar publicaciones.</li>
-          </ul>
-          <p>Las opciones, beneficios y precios reales deben definirse antes de ofrecer cualquier suscripción.</p>
+          <summary>Aporte por venta (comisión)</summary>
+          <p>La idea es que la empresa aporte a TourismEasy una comisión por cada venta que consiga a través de la plataforma. No sería una suscripción mensual.</p>
+          <p>El porcentaje o valor, la forma de confirmar las ventas y cuándo se haría el aporte todavía están por definirse. Por ahora, no hay cobros activos.</p>
         </details>
         <p>¿No encuentras lo que buscas? <a href="#" data-modal="contacto">Contáctanos.</a></p>`,
         },

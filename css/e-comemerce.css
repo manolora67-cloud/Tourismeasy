@@ -151,10 +151,10 @@ body {
     margin: 0 auto;
     padding: 0 20px;
     height: 72px;
-    display: flex;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
     align-items: center;
     gap: 8px;
-    flex-wrap: nowrap;
     overflow: visible;
     position: relative;
 }
@@ -166,7 +166,8 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-left: auto;
+    grid-column: 3;
+    justify-self: end;
     flex-shrink: 0;
 }
 
@@ -175,6 +176,7 @@ body {
 
 .nav-logo {
     display: flex;
+    grid-column: 1;
     align-items: center;
     gap: 8px;
     font-family: var(--font-head);
@@ -207,8 +209,8 @@ body {
 
 .nav-links {
     display: flex;
+    grid-column: 2;
     gap: 8px;
-    flex: 1;
     justify-content: center;
     min-width: 0;
     list-style: none;
@@ -1361,6 +1363,12 @@ input[type="number"] {
 /* ── Responsive móvil ── */
 
 @media (max-width: 1100px) {
+    .nav-container {
+        grid-template-columns: minmax(0, 1fr) auto;
+    }
+    .nav-slot {
+        grid-column: 2;
+    }
     /* Navbar: ocultar links de escritorio, mostrar hamburguesa */
     .nav-links {
         display: none !important;
