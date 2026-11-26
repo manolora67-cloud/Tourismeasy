@@ -173,7 +173,7 @@
 }
 
 .snt-home-notice__link:focus-visible {
-    outline: 3px solid rgba(109, 40, 217, 0.3);
+    outline: 3px solid #5b21b6;
     outline-offset: 3px;
 }
 
@@ -202,7 +202,7 @@
 }
 
 .snt-home-notice__secondary-link:focus-visible {
-    outline: 3px solid rgba(109, 40, 217, 0.25);
+    outline: 3px solid #5b21b6;
     outline-offset: 3px;
 }
 
@@ -308,12 +308,17 @@
 }
 
 .snt-gallery__item:focus-visible {
-    outline: 3px solid var(--theme-primary, #6d28d9);
+    outline: 3px solid #ffffff;
     outline-offset: 3px;
+    box-shadow: 0 0 0 6px #1e293b;
 }
 
 .snt-gallery__item.is-active {
     box-shadow: 0 0 0 3px var(--theme-primary, #6d28d9);
+}
+
+.snt-gallery__item.is-active:focus-visible {
+    box-shadow: 0 0 0 6px #1e293b;
 }
 
 .snt-eyebrow {
@@ -573,7 +578,7 @@
 }
 
 .snt-action:focus-visible {
-    outline: 3px solid rgba(109, 40, 217, 0.35);
+    outline: 3px solid #5b21b6;
     outline-offset: 3px;
 }
 
@@ -595,7 +600,7 @@
 }
 
 .snt-calendar__link:focus-visible {
-    outline: 3px solid rgba(109, 40, 217, 0.35);
+    outline: 3px solid #5b21b6;
     outline-offset: 2px;
 }
 
@@ -625,7 +630,7 @@
 }
 
 .snt-calendar__detail:focus-visible {
-    outline: 3px solid rgba(109, 40, 217, 0.35);
+    outline: 3px solid #5b21b6;
     outline-offset: 2px;
 }
 
@@ -685,7 +690,7 @@
 }
 
 .snt-calendar__filters select:focus-visible {
-    outline: 3px solid rgba(109, 40, 217, 0.25);
+    outline: 3px solid #5b21b6;
     outline-offset: 2px;
 }
 
@@ -861,7 +866,7 @@
 }
 
 .snt-calendar__pagination button:focus-visible {
-    outline: 3px solid rgba(109, 40, 217, 0.25);
+    outline: 3px solid #5b21b6;
     outline-offset: 2px;
 }
 
@@ -928,6 +933,16 @@ body.dark-mode .snt-home-notice__secondary-link {
 body.dark-mode .snt-home-notice__secondary-link:hover {
     border-color: #a78bfa;
     background: #1e293b;
+}
+
+body.dark-mode .snt-home-notice__link:focus-visible,
+body.dark-mode .snt-home-notice__secondary-link:focus-visible,
+body.dark-mode .snt-action:focus-visible,
+body.dark-mode .snt-calendar__link:focus-visible,
+body.dark-mode .snt-calendar__detail:focus-visible,
+body.dark-mode .snt-calendar__filters select:focus-visible,
+body.dark-mode .snt-calendar__pagination button:focus-visible {
+    outline-color: #facc15;
 }
 
 body.dark-mode .snt-feature,

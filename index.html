@@ -32,7 +32,7 @@
             document.documentElement.classList.add("welcome-seen");
         }
     </script>
-    <link rel="stylesheet" href="css/index.css?v=footer-cookie-settings-v6" />
+    <link rel="stylesheet" href="css/index.css?v=review-controls-a11y-v1" />
     <link rel="stylesheet" href="css/santanderianidad.css?v=editorial-agenda-db-v22" />
     <link rel="stylesheet" href="home/entrada.css?v=home-editorial-v7" />
     <link rel="stylesheet" href="css/login.css?v=admin-menu-icons-v1" />
@@ -122,14 +122,14 @@
                         <input type="text" class="resena-anon-input" id="resenaNombreAnonimo" placeholder="¿Cómo te llamas?" maxlength="60" autocomplete="name">
                         <p class="resena-anon-hint">Publica tu reseña con tu nombre. No necesitas crear una cuenta.</p>
                     </div>
-                    <div class="resena-stars-row" id="resenaStars">
-                        <span class="resena-star" data-val="1">&#9733;</span>
-                        <span class="resena-star" data-val="2">&#9733;</span>
-                        <span class="resena-star" data-val="3">&#9733;</span>
-                        <span class="resena-star" data-val="4">&#9733;</span>
-                        <span class="resena-star" data-val="5">&#9733;</span>
+                    <div class="resena-stars-row" id="resenaStars" role="radiogroup" aria-label="Calificación de tu experiencia">
+                        <button class="resena-star" type="button" role="radio" aria-label="1 estrella" aria-checked="false" tabindex="0" data-val="1">&#9733;</button>
+                        <button class="resena-star" type="button" role="radio" aria-label="2 estrellas" aria-checked="false" tabindex="-1" data-val="2">&#9733;</button>
+                        <button class="resena-star" type="button" role="radio" aria-label="3 estrellas" aria-checked="false" tabindex="-1" data-val="3">&#9733;</button>
+                        <button class="resena-star" type="button" role="radio" aria-label="4 estrellas" aria-checked="false" tabindex="-1" data-val="4">&#9733;</button>
+                        <button class="resena-star" type="button" role="radio" aria-label="5 estrellas" aria-checked="false" tabindex="-1" data-val="5">&#9733;</button>
                     </div>
-                    <textarea class="resena-textarea" id="resenaTexto" placeholder="Cuéntanos tu experiencia con TourismEasy..." maxlength="140"></textarea>
+                    <textarea class="resena-textarea" id="resenaTexto" aria-label="Tu reseña" placeholder="Cuéntanos tu experiencia con TourismEasy..." maxlength="140"></textarea>
                     <div class="resena-form-footer">
                         <span class="resena-char-count" id="resenaCharCount">0 / 140</span>
                         <button class="btn-resena-submit" id="resenaSubmit" type="button">Publicar reseña</button>
@@ -151,7 +151,7 @@
     </div>
 
     <script defer src="home/entrada.js?v=cookie-welcome-v2"></script>
-    <script defer src="componentes/navbar.js"></script>
+    <script defer src="componentes/navbar.js?v=accessible-menu-v1"></script>
     <script defer src="componentes/btn-acceder.js"></script>
     <script defer src="componentes/dark-mode-toggle.js"></script>
     <script defer src="js/catalog-cache.js?v=background-refresh-v1"></script>
@@ -222,11 +222,11 @@
     </script>
     <script defer src="componentes/articulos.js?v=live-destinations-v2"></script>
     <script defer src="componentes/control-sonido-video.js?v=video-sound-v4"></script>
-    <script defer src="componentes/footer.js?v=footer-cookie-settings-v6"></script>
+    <script defer src="componentes/footer.js?v=footer-accessible-links-v1"></script>
     <script defer src="js/captcha.js"></script>
     <script defer src="js/cookies.js?v=cookie-visible-v3"></script>
     <script defer src="js/auth.js?v=secure-client-session-v3"></script>
-    <script defer src="js/resenas.js?v=live-like-counts-v1"></script>
+    <script defer src="js/resenas.js?v=review-controls-a11y-v1"></script>
     <script defer src="componentes/agente-ia.js?v=cookie-visible-v3"></script>
     <script defer src="js/santanderianidad.js?v=live-festivals-v1"></script>
     <script defer src="menu_accesibilidad/menu.js?v=cookie-visible-v4"></script>

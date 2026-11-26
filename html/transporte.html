@@ -32,7 +32,7 @@
     <link rel="stylesheet" href="../css/agente-ia.css?v=editorial-v1" />
     <link rel="stylesheet" href="../componentes/modal-empresa.css?v=company-modal-layout-v2" />
     <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
-    <script src="../componentes/ui-feedback.js?v=ui-feedback-v6"></script>
+    <script src="../componentes/ui-feedback.js?v=ui-dialog-focus-v1"></script>
     <link rel="stylesheet" href="../css/estilo-editorial.css?v=editorial-v2" />
 </head>
 
@@ -102,9 +102,9 @@
     <!-- ================================================
      MODAL DETALLES DE TRANSPORTE (propio de esta página)
      ================================================ -->
-    <div id="transporte-detalle-overlay" class="vd-overlay" aria-hidden="true" role="dialog" aria-modal="true">
+    <div id="transporte-detalle-overlay" class="vd-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="vd-titulo" tabindex="-1">
         <div class="vd-box">
-            <button class="vd-cerrar" id="vd-cerrar" aria-label="Cerrar">&times;</button>
+            <button class="vd-cerrar" id="vd-cerrar" type="button" aria-label="Cerrar">&times;</button>
             <img class="vd-img" id="vd-img" src="" alt="">
             <div class="vd-body">
                 <h2 class="vd-titulo" id="vd-titulo"></h2>
@@ -173,10 +173,10 @@
     <div id="site-footer"></div>
 
     <!-- ==== COMPONENTES GLOBALES (mismo orden que index.html) ==== -->
-    <script src="../componentes/navbar.js"></script>
+    <script src="../componentes/navbar.js?v=accessible-menu-v1"></script>
     <script src="../componentes/btn-acceder.js"></script>
     <script src="../componentes/dark-mode-toggle.js"></script>
-    <script src="../componentes/footer.js?v=footer-cookie-settings-v6"></script>
+    <script src="../componentes/footer.js?v=footer-accessible-links-v1"></script>
 
     <!-- ==== SCRIPTS PROPIOS DE ESTA PÁGINA ==== -->
 
@@ -186,7 +186,7 @@
     <script src="../js/catalog-cache.js?v=background-refresh-v1"></script>
     <script src="../js/imagen-cloudinary.js?v=cloudinary-delivery-v1"></script>
     <script src="../componentes/modal-empresa.js"></script>
-    <script src="../js/transporte.js?v=background-refresh-v1"></script>
+    <script src="../js/transporte.js?v=transporte-dialog-focus-v1"></script>
     <script src="../js/registrar_click_whatsapp.js"></script>
 
     <script src="../menu_accesibilidad/menu.js?v=editorial-v3"></script>

@@ -43,6 +43,8 @@ function actualizarBotonWhatsApp(plan) {
     }
 }
 
+var planesDialogFocus = null;
+
 function mostrarDetallePlan(plan) {
     var titulo = plan.titulo || "";
     var image = document.getElementById("plan-img");
@@ -64,12 +66,14 @@ function mostrarDetallePlan(plan) {
     overlay.removeAttribute("aria-hidden");
     overlay.classList.add("visible");
     document.body.style.overflow = "hidden";
+    planesDialogFocus.open(document.activeElement);
 }
 
 // ── MODAL VER DETALLES DE PLAN TURÍSTICO ─────────────────────
 (function () {
     var overlay = document.getElementById('plan-detalle-overlay');
     var cerrar = document.getElementById('plan-cerrar');
+    planesDialogFocus = window.TEUI.createDialogFocusManager(overlay);
 
     document.querySelectorAll('.btn-ver-detalles').forEach(function (btn) {
         btn.addEventListener('click', function () {
@@ -80,7 +84,9 @@ function mostrarDetallePlan(plan) {
     function cerrarModal() {
         if (!overlay.classList.contains('visible')) return;
         overlay.classList.remove('visible');
+        overlay.setAttribute('aria-hidden', 'true');
         document.body.style.overflow = '';
+        planesDialogFocus.close();
         window.TEUI.notifyClosed("Detalle");
     }
 

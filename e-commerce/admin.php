@@ -322,7 +322,7 @@ $artesanoNombreSesion = $_SESSION['artesano_nombre'] ?? 'Artesano';
     </main>
 
     <div id="site-footer"></div>
-    <script src="../componentes/footer.js?v=footer-cookie-settings-v6"></script>
+    <script src="../componentes/footer.js?v=footer-accessible-links-v1"></script>
     <script src="../componentes/dark-mode-toggle.js"></script>
     <script src="../componentes/click-metrics-dashboard.js?v=click-metrics-v2"></script>
     <script src="../js/metricas_clics.js"></script>

@@ -288,6 +288,72 @@
         toast(label + (feminineSubjects.includes(label) ? " cerrada correctamente." : " cerrado correctamente."));
     }
 
+    function createDialogFocusManager(dialog) {
+        let returnFocus = null;
+        const focusableSelector = [
+            "a[href]",
+            "button:not([disabled])",
+            "input:not([disabled]):not([type='hidden'])",
+            "select:not([disabled])",
+            "textarea:not([disabled])",
+            "[tabindex]:not([tabindex='-1'])"
+        ].join(", ");
+
+        function getFocusableElements() {
+            return Array.from(dialog.querySelectorAll(focusableSelector)).filter((element) =>
+                !element.hidden && element.getClientRects().length > 0
+            );
+        }
+
+        function trapTab(event) {
+            if (
+                event.key !== "Tab" ||
+                !dialog.getClientRects().length ||
+                dialog.closest('[aria-hidden="true"]')
+            ) return;
+
+            const focusable = getFocusableElements();
+            if (!focusable.length) {
+                event.preventDefault();
+                dialog.focus();
+                return;
+            }
+
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+            if (!dialog.contains(document.activeElement)) {
+                event.preventDefault();
+                (event.shiftKey ? last : first).focus();
+            } else if (event.shiftKey && document.activeElement === first) {
+                event.preventDefault();
+                last.focus();
+            } else if (!event.shiftKey && document.activeElement === last) {
+                event.preventDefault();
+                first.focus();
+            }
+        }
+
+        document.addEventListener("keydown", trapTab);
+        return {
+            open(trigger) {
+                returnFocus = trigger || document.activeElement;
+                const first = getFocusableElements()[0];
+                (first || dialog).focus();
+            },
+            close() {
+                if (
+                    returnFocus &&
+                    returnFocus.isConnected &&
+                    !returnFocus.disabled &&
+                    returnFocus.getClientRects().length
+                ) {
+                    returnFocus.focus();
+                }
+                returnFocus = null;
+            }
+        };
+    }
+
     function snapshotForm(form) {
         return Array.from(form.querySelectorAll("input, select, textarea"))
             .filter((element) => !element.disabled && !["button", "submit", "reset"].includes(element.type))
@@ -389,5 +455,15 @@
         }
     }
 
-    window.TEUI = { confirm, alert: alertDialog, confirmDelete, toast, notifyClosed, markClean, confirmDiscard, logoutAdmin };
+    window.TEUI = {
+        confirm,
+        alert: alertDialog,
+        confirmDelete,
+        toast,
+        notifyClosed,
+        createDialogFocusManager,
+        markClean,
+        confirmDiscard,
+        logoutAdmin
+    };
 })();

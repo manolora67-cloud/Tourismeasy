@@ -13,6 +13,7 @@ let productFiltersLoaded = false;
 let productSearchTimer = null;
 let productSearchInFlight = false;
 let lastProductSnapshot = null;
+let productDialogFocus = null;
 
 // Productos publicados en la base de datos.
 let dbProducts = [];
@@ -213,8 +214,10 @@ function openDetailModal(product) {
     whatsappLink.dataset.categoria = "Artesanía";
 
     // Mostramos el modal y bloqueamos el scroll del fondo
+    overlay.removeAttribute("aria-hidden");
     overlay.classList.add("active");
     document.body.style.overflow = "hidden";
+    productDialogFocus.open(document.activeElement);
 }
 
 /**
@@ -225,7 +228,9 @@ function closeDetailModal() {
     const overlay = document.getElementById("productModalOverlay");
     if (!overlay.classList.contains("active")) return;
     overlay.classList.remove("active");
+    overlay.setAttribute("aria-hidden", "true");
     document.body.style.overflow = "";
+    productDialogFocus.close();
     window.TEUI.notifyClosed("Detalle");
 }
 
@@ -361,6 +366,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // ── Modal de detalle: cerrar ──
     const pmOverlay = document.getElementById("productModalOverlay");
     if (pmOverlay) {
+        productDialogFocus = window.TEUI.createDialogFocusManager(
+            pmOverlay.querySelector(".pm-box")
+        );
         // Cerrar al hacer clic en la X
         document
             .getElementById("pmClose")
@@ -368,6 +376,11 @@ document.addEventListener("DOMContentLoaded", () => {
         // Cerrar al hacer clic fuera del modal (en el fondo oscuro)
         pmOverlay.addEventListener("click", (e) => {
             if (e.target === pmOverlay) closeDetailModal();
+        });
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape" && pmOverlay.classList.contains("active")) {
+                closeDetailModal();
+            }
         });
     }
 
@@ -437,7 +450,12 @@ var hamburgerBtn = document.getElementById('hamburger');
 var navMobileMenu = document.getElementById('navMobile');
 if (hamburgerBtn && navMobileMenu) {
     hamburgerBtn.addEventListener('click', function() {
-        navMobileMenu.classList.toggle('open');
+        const isOpen = navMobileMenu.classList.toggle('open');
+        hamburgerBtn.setAttribute('aria-expanded', String(isOpen));
+        hamburgerBtn.setAttribute(
+            'aria-label',
+            isOpen ? 'Cerrar menú de navegación' : 'Abrir menú de navegación'
+        );
     });
 }
 

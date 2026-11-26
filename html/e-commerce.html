@@ -27,7 +27,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="stylesheet" href="../css/agente-ia.css?v=editorial-v1" />
     <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
-    <script src="../componentes/ui-feedback.js?v=ui-feedback-v6"></script>
+    <script src="../componentes/ui-feedback.js?v=ui-dialog-focus-v1"></script>
     <link rel="stylesheet" href="../css/estilo-editorial.css?v=editorial-v2" />
 </head>
 
@@ -54,7 +54,7 @@
                 <div class="nav-slot">
                     <!-- Botón Acceder (oculto si ya hay sesión, ver e-commerce.js → Sesión artesano) -->
                     <a href="login_ecommerce.html" class="btn-acceder" id="btnAcceder">Acceso artesanos</a>
-                    <button class="hamburger" id="hamburger">&#9776;</button>
+                    <button class="hamburger" id="hamburger" type="button" aria-label="Abrir menú de navegación" aria-controls="navMobile" aria-expanded="false">&#9776;</button>
                     <div id="dark-mode-toggle"></div>
                 </div>
             </div>
@@ -80,8 +80,8 @@
 
         <div class="search-bar">
             <i class="fa-solid fa-magnifying-glass"></i>
-            <input type="text" id="searchInput" placeholder="Buscar artesanos, productos o categorías…" />
-            <button id="searchClear" class="search-clear" style="display: none">
+            <input type="text" id="searchInput" aria-label="Buscar artesanos, productos o categorías" placeholder="Buscar artesanos, productos o categorías…" />
+            <button id="searchClear" class="search-clear" type="button" aria-label="Borrar búsqueda" style="display: none">
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
@@ -111,15 +111,15 @@
     <div id="site-footer"></div>
 
     <!-- MODAL DETALLE PRODUCTO -->
-    <div class="pm-overlay" id="productModalOverlay">
-        <div class="pm-box">
-            <button class="pm-close" id="pmClose">
+    <div class="pm-overlay" id="productModalOverlay" aria-hidden="true">
+        <div class="pm-box" role="dialog" aria-modal="true" aria-labelledby="pmName" tabindex="-1">
+            <button class="pm-close" id="pmClose" type="button" aria-label="Cerrar detalle del producto">
                 <i class="fa-solid fa-xmark"></i>
             </button>
             <img class="pm-img" src="" alt="" />
             <div class="pm-body">
                 <span class="pm-cat category-tag"></span>
-                <h2 class="pm-name"></h2>
+                <h2 class="pm-name" id="pmName"></h2>
                 <p class="pm-provider-row">
                     <i class="fa-solid fa-store"></i> <span class="pm-provider"></span>
                 </p>
@@ -148,7 +148,7 @@
     </div>
 
     <script src="../componentes/dark-mode-toggle.js"></script>
-    <script src="../componentes/footer.js?v=footer-cookie-settings-v6"></script>
+    <script src="../componentes/footer.js?v=footer-accessible-links-v1"></script>
     <script src="../componentes/modal.js"></script>
     <script src="../componentes/toast.js"></script>
     <script src="../componentes/boton-accion.js"></script>
@@ -161,7 +161,7 @@
     <script src="../componentes/paginacion.js"></script>
     <script src="../js/catalog-cache.js?v=background-refresh-v1"></script>
     <script src="../js/imagen-cloudinary.js?v=cloudinary-delivery-v1"></script>
-    <script src="../js/e-commerce.js?v=whatsapp-message-live-v1"></script>
+    <script src="../js/e-commerce.js?v=store-dialog-focus-v1"></script>
     <script src="../js/captcha.js"></script>
     <script src="../js/auth.js?v=secure-client-session-v3"></script>
     <script src="../js/registrar_click_whatsapp.js"></script>

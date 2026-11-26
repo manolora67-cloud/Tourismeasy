@@ -64,6 +64,16 @@
     prepararFiltro();
 
     // ── Interactividad de estrellas ──
+    function selectRating(star) {
+        rating = +star.dataset.val;
+        stars.forEach(function (item) {
+            var selected = +item.dataset.val === rating;
+            item.setAttribute("aria-checked", String(selected));
+            item.tabIndex = selected ? 0 : -1;
+            item.classList.toggle("selected", +item.dataset.val <= rating);
+        });
+    }
+
     stars.forEach(function (star) {
         star.addEventListener("mouseover", function () {
             var val = +this.dataset.val;
@@ -73,8 +83,27 @@
             stars.forEach(function (s) { s.classList.remove("hovered"); });
         });
         star.addEventListener("click", function () {
-            rating = +this.dataset.val;
-            stars.forEach(function (s) { s.classList.toggle("selected", +s.dataset.val <= rating); });
+            selectRating(this);
+        });
+        star.addEventListener("keydown", function (event) {
+            var currentIndex = Array.prototype.indexOf.call(stars, this);
+            var nextIndex = currentIndex;
+
+            if (event.key === "ArrowRight" || event.key === "ArrowDown") {
+                nextIndex = (currentIndex + 1) % stars.length;
+            } else if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
+                nextIndex = (currentIndex - 1 + stars.length) % stars.length;
+            } else if (event.key === "Home") {
+                nextIndex = 0;
+            } else if (event.key === "End") {
+                nextIndex = stars.length - 1;
+            } else {
+                return;
+            }
+
+            event.preventDefault();
+            stars[nextIndex].focus();
+            selectRating(stars[nextIndex]);
         });
     });
 
@@ -243,10 +272,13 @@
         var starsDisplay = document.createElement("div");
         starsDisplay.className = "resena-stars-display";
         var score = r.rating || r.puntuacion;
+        starsDisplay.setAttribute("role", "img");
+        starsDisplay.setAttribute("aria-label", "Calificación: " + (Number(score) || 0) + " de 5 estrellas");
         for (var i = 1; i <= 5; i++) {
             var star = document.createElement("span");
             star.style.color = i <= score ? "#f59e0b" : "#cbd5e1";
             star.textContent = "★";
+            star.setAttribute("aria-hidden", "true");
             starsDisplay.appendChild(star);
         }
         footer.appendChild(starsDisplay);
@@ -257,7 +289,11 @@
         btnLike.className = likeClass;
         btnLike.dataset.id = r.id;
         btnLike.dataset.liked = yaLeDiLike ? "1" : "0";
-        btnLike.title = "¿Te gustó esta reseña?";
+        btnLike.title = yaLeDiLike ? "Quitar me gusta" : "Me gusta esta reseña";
+        btnLike.setAttribute(
+            "aria-label",
+            (yaLeDiLike ? "Quitar me gusta" : "Me gusta esta reseña") + ". Me gusta: " + likesCount
+        );
         var likeIcon = document.createElement("span");
         likeIcon.className = "like-icon";
         likeIcon.textContent = yaLeDiLike ? "♥" : "♡";
@@ -321,6 +357,11 @@
                         btn.dataset.liked = nuevoLiked ? "1" : "0";
                         btn.querySelector(".like-icon").textContent = nuevoLiked ? "♥" : "♡";
                         btn.querySelector(".like-count").textContent = res.likes;
+                        btn.title = nuevoLiked ? "Quitar me gusta" : "Me gusta esta reseña";
+                        btn.setAttribute(
+                            "aria-label",
+                            (nuevoLiked ? "Quitar me gusta" : "Me gusta esta reseña") + ". Me gusta: " + res.likes
+                        );
                         if (nuevoLiked) {
                             btn.classList.add("liked");
                         } else {
@@ -521,6 +562,8 @@
                 var b = document.createElement("button");
                 b.className = "dot" + (idx === slideIndex ? " active" : "");
                 b.type = "button";
+                b.setAttribute("aria-label", "Mostrar grupo de reseñas " + (idx + 1) + " de " + total);
+                if (idx === slideIndex) b.setAttribute("aria-current", "true");
                 b.addEventListener("click", function () {
                     stopAutoplay();
                     goToSlide(idx);

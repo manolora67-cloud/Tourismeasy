@@ -45,7 +45,7 @@
         </ul>
         <div class="nav-slot">
           <div data-component="btn-acceder" data-context="${context}" id="btnAccederNav"></div>
-          <button class="hamburger" id="hamburger">&#9776;</button>
+          <button class="hamburger" id="hamburger" type="button" aria-label="Abrir menú de navegación" aria-controls="navMobile" aria-expanded="false">&#9776;</button>
           <div id="dark-mode-toggle"></div>
         </div>
       </div>
@@ -59,5 +59,12 @@
   // ---- Lógica del hamburger (móvil) ----
   const hamburger = document.getElementById("hamburger");
   const navMobile = document.getElementById("navMobile");
-  hamburger.addEventListener("click", () => navMobile.classList.toggle("open"));
+  hamburger.addEventListener("click", () => {
+    const isOpen = navMobile.classList.toggle("open");
+    hamburger.setAttribute("aria-expanded", String(isOpen));
+    hamburger.setAttribute(
+      "aria-label",
+      isOpen ? "Cerrar menú de navegación" : "Abrir menú de navegación"
+    );
+  });
 })();

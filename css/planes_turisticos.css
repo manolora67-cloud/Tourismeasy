@@ -103,6 +103,13 @@
     border-color: var(--purple);
 }
 
+.search-group input:focus-visible,
+.search-group select:focus-visible,
+.plan-search-actions button:focus-visible {
+    outline: 3px solid var(--purple-dark);
+    outline-offset: 3px;
+}
+
 
 /* Las acciones ocupan las columnas completas */
 

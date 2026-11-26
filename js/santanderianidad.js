@@ -554,7 +554,7 @@
                             <h2 id="sntSectionTitle">Tradiciones que nos conectan</h2>
                             <p>Fechas y celebraciones de Santander para descubrir durante todo el año.</p>
                         </header>
-                        <div class="snt-gallery" aria-label="Paisajes y expresiones culturales de Santander">
+                        <div class="snt-gallery" role="group" aria-label="Filtrar festividades por categoría">
                             ${CATEGORIAS_FESTIVIDADES.map((categoria) => {
                                 const cantidad = festividades.filter(
                                     (fiesta) => categoriaValida(fiesta.categoria) === categoria.id
@@ -637,10 +637,12 @@
             botonPaginaAnterior.addEventListener("click", () => {
                 paginaActual -= 1;
                 actualizarCalendario();
+                if (botonPaginaAnterior.disabled) botonPaginaSiguiente.focus();
             });
             botonPaginaSiguiente.addEventListener("click", () => {
                 paginaActual += 1;
                 actualizarCalendario();
+                if (botonPaginaSiguiente.disabled) botonPaginaAnterior.focus();
             });
             actualizarCalendario();
         }
@@ -658,6 +660,7 @@
                     behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
                     block: "start"
                 });
+                filtroCategoria.focus({ preventScroll: true });
             });
         });
 
@@ -668,6 +671,14 @@
             if (fiesta) button.addEventListener("click", () => visitarDestino(fiesta));
         });
         const dialogoDetalle = mount.querySelector("[data-snt-detail-dialog]");
+        if (dialogoDetalle) {
+            dialogoDetalle.addEventListener("keydown", (event) => {
+                if (event.key === "Escape" && dialogoDetalle.open) {
+                    event.preventDefault();
+                    dialogoDetalle.close();
+                }
+            });
+        }
         mount.querySelectorAll("[data-snt-detail]").forEach((button) => {
             const fiesta = festividades.find(
                 (item) => String(item.id) === button.dataset.sntDetail

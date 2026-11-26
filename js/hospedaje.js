@@ -30,14 +30,19 @@ function actualizarBotonWhatsApp(btn) {
 }
 
 // ── MODAL VER DETALLES DE HOSPEDAJE ──────────────────────────
+var hospedajeDialogFocus = null;
+
 (function() {
     var overlay = document.getElementById('hosp-detalle-overlay');
     var cerrar = document.getElementById('hosp-cerrar');
+    hospedajeDialogFocus = window.TEUI.createDialogFocusManager(overlay);
 
     document.querySelectorAll('.btn-ver-detalles').forEach(function(btn) {
         btn.addEventListener('click', function() {
             var _s = btn.dataset.img || '';
-            document.getElementById('hosp-img').src = _s ? (_s.startsWith('http') || _s.startsWith('../') ? _s : '../' + _s) : '';
+            var imagen = document.getElementById('hosp-img');
+            imagen.src = _s ? (_s.startsWith('http') || _s.startsWith('../') ? _s : '../' + _s) : '';
+            imagen.alt = _s ? (btn.dataset.titulo || "Alojamiento") : "";
             document.getElementById('hosp-titulo').textContent = btn.dataset.titulo || '';
             document.getElementById('hosp-tipo').textContent = btn.dataset.tipo || '';
             document.getElementById('hosp-ubicacion').textContent = btn.dataset.ubicacion || '';
@@ -47,15 +52,19 @@ function actualizarBotonWhatsApp(btn) {
                 || "Consulta con la empresa sobre las condiciones de accesibilidad.";
             document.getElementById('hosp-precio').textContent = btn.dataset.precio || '';
             actualizarBotonWhatsApp(btn);
+            overlay.removeAttribute('aria-hidden');
             overlay.classList.add('visible');
             document.body.style.overflow = 'hidden';
+            hospedajeDialogFocus.open(btn);
         });
     });
 
     function cerrarModal() {
         if (!overlay.classList.contains('visible')) return;
         overlay.classList.remove('visible');
+        overlay.setAttribute('aria-hidden', 'true');
         document.body.style.overflow = '';
+        hospedajeDialogFocus.close();
         window.TEUI.notifyClosed("Detalle");
     }
 
@@ -310,7 +319,9 @@ function actualizarBotonWhatsApp(btn) {
             var btn = this;
             var overlay = document.getElementById("hosp-detalle-overlay");
             var _s = btn.dataset.img || "";
-            document.getElementById("hosp-img").src = _s ? (_s.startsWith("http") || _s.startsWith("../") ? _s : "../" + _s) : "";
+            var imagen = document.getElementById("hosp-img");
+            imagen.src = _s ? (_s.startsWith("http") || _s.startsWith("../") ? _s : "../" + _s) : "";
+            imagen.alt = _s ? (btn.dataset.titulo || "Alojamiento") : "";
             document.getElementById("hosp-titulo").textContent = btn.dataset.titulo || "";
             document.getElementById("hosp-tipo").textContent = btn.dataset.tipo || "";
             document.getElementById("hosp-ubicacion").textContent = btn.dataset.ubicacion || "";
@@ -322,6 +333,7 @@ function actualizarBotonWhatsApp(btn) {
             overlay.removeAttribute("aria-hidden");
             overlay.classList.add("visible");
             document.body.style.overflow = "hidden";
+            hospedajeDialogFocus.open(btn);
         });
         card.querySelector(".btn-ver-empresa").addEventListener("click", function() {
             window.TEEmpresaModal.open({

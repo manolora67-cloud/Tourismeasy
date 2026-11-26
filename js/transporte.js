@@ -158,8 +158,10 @@ function mostrarDetalleTransporte(datos) {
     overlay.removeAttribute("aria-hidden");
     overlay.classList.add("visible");
     document.body.style.overflow = "hidden";
+    transporteDialogFocus.open(document.activeElement);
 }
 
+var transporteDialogFocus = null;
 
 (function () {
 
@@ -168,6 +170,7 @@ function mostrarDetalleTransporte(datos) {
     );
 
     var cerrar = document.getElementById('vd-cerrar');
+    transporteDialogFocus = window.TEUI.createDialogFocusManager(overlay);
 
 
     document.querySelectorAll('.btn-ver-detalles').forEach(function (btn) {
@@ -186,6 +189,7 @@ function mostrarDetalleTransporte(datos) {
         document.getElementById('vd-img').src = '';
         document.getElementById('vd-img').style.display = '';
         document.body.style.overflow = '';
+        transporteDialogFocus.close();
         window.TEUI.notifyClosed("Detalle");
     }
 

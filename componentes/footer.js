@@ -36,10 +36,10 @@
           <div class="footer-col">
             <h4>Síguenos</h4>
             <div class="social-icons">
-              <a href="https://www.facebook.com/share/1RiJvhh1Gp/" class="social-icon"><i class="fab fa-facebook-f"></i></a>
-              <a href="https://www.instagram.com/d4iv_id?igsh=cGhhOWZmOTN6Y2Rn" class="social-icon"><i class="fab fa-instagram"></i></a>
-              <a href="https://www.tiktok.com/@d4ividd?_r=1&_t=ZS-95d2BgEYsez" class="social-icon"><i class="fab fa-tiktok"></i></a>
-              <a href="https://wa.me/573174613395" class="social-icon"><i class="fab fa-whatsapp"></i></a>
+              <a href="https://www.facebook.com/share/1RiJvhh1Gp/" class="social-icon" aria-label="Visitar TourismEasy en Facebook"><i class="fab fa-facebook-f" aria-hidden="true"></i></a>
+              <a href="https://www.instagram.com/d4iv_id?igsh=cGhhOWZmOTN6Y2Rn" class="social-icon" aria-label="Visitar TourismEasy en Instagram"><i class="fab fa-instagram" aria-hidden="true"></i></a>
+              <a href="https://www.tiktok.com/@d4ividd?_r=1&_t=ZS-95d2BgEYsez" class="social-icon" aria-label="Visitar TourismEasy en TikTok"><i class="fab fa-tiktok" aria-hidden="true"></i></a>
+              <a href="https://wa.me/573174613395" class="social-icon" aria-label="Contactar a TourismEasy por WhatsApp"><i class="fab fa-whatsapp" aria-hidden="true"></i></a>
             </div>
             <p class="footer-social-note">Descubre destinos y experiencias para tu próxima visita a Santander.</p>
           </div>
