@@ -161,13 +161,49 @@
         },
         ayuda: {
             title: "Centro de Ayuda",
-            content: `<p>Encuentra recursos para sacar el máximo provecho de Tourismeasy:</p>
-        <ul>
-          <li>📖 <a href="#">Guía para empresas aliadas</a></li>
-          <li>🎥 <a href="#">Videos: cómo registrar tu empresa</a></li>
-          <li>📋 <a href="#">Guía de verificación de aliados</a></li>
-          <li>💳 <a href="#">Modelos de suscripción para empresas</a></li>
-        </ul>
+            content: `<p>Estos recursos son ejemplos ficticios para mostrar cómo podría funcionar TourismEasy. No representan requisitos oficiales, videos publicados ni planes con cobros activos.</p>
+        <details>
+          <summary>📖 Guía para empresas aliadas</summary>
+          <p>Una empresa aliada presenta sus servicios turísticos para que los viajeros puedan conocerlos y contactarla.</p>
+          <ol>
+            <li>Elige la categoría que mejor describe tu servicio.</li>
+            <li>Prepara el nombre de tu empresa, municipio, descripción y datos de contacto.</li>
+            <li>Añade información clara sobre tus servicios y fotografías propias.</li>
+            <li>Revisa que los datos estén correctos antes de publicarlos.</li>
+          </ol>
+          <p>Los pasos y datos solicitados aquí son de demostración; pueden cambiar.</p>
+        </details>
+        <details>
+          <summary>Pasos para registrar tu empresa</summary>
+          <ol>
+            <li>Selecciona el tipo de servicio que ofreces.</li>
+            <li>Completa el formulario con los datos de tu empresa y una forma de contacto.</li>
+            <li>Describe tus servicios con información útil para los viajeros.</li>
+            <li>Envía el formulario y consulta con el equipo si tienes dudas sobre la publicación.</li>
+          </ol>
+          <p>Este proceso es un ejemplo y no confirma cómo funciona actualmente el registro.</p>
+        </details>
+        <details>
+          <summary>Guía de verificación de aliados</summary>
+          <p>Como ejemplo, antes de publicar un perfil se podrían revisar estos puntos:</p>
+          <ul>
+            <li>Que el nombre y los datos de contacto estén completos.</li>
+            <li>Que la descripción explique claramente el servicio ofrecido.</li>
+            <li>Que las fotografías correspondan al servicio o al negocio.</li>
+            <li>Que la información de ubicación y accesibilidad sea clara y esté actualizada.</li>
+          </ul>
+          <p>Esta lista es ficticia y no constituye una certificación ni una política oficial de verificación.</p>
+        </details>
+        <details>
+          <summary>Modelos de suscripción para empresas</summary>
+          <p>Las siguientes opciones son ideas ficticias para demostración. No están activas, no tienen precios definidos y no generan cobros.</p>
+          <ul>
+            <li><strong>Básico:</strong> perfil informativo de la empresa.</li>
+            <li><strong>Destacado:</strong> idea de mayor visibilidad para el perfil.</li>
+            <li><strong>Plus:</strong> idea de herramientas adicionales para administrar publicaciones.</li>
+          </ul>
+          <p>Las opciones, beneficios y precios reales deben definirse antes de ofrecer cualquier suscripción.</p>
+        </details>
         <p>¿No encuentras lo que buscas? <a href="#" data-modal="contacto">Contáctanos.</a></p>`,
         },
         privacidad: {

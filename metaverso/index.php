@@ -7,9 +7,23 @@ declare(strict_types=1);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Recorre en primera persona el mapa futurista de las siete provincias de Santander.">
+    <meta name="description" content="Explora en primera persona el mapa interactivo de las siete provincias de Santander con TourismEasy.">
+    <link rel="canonical" href="https://www.adsoserver.site/Tourismeasy/metaverso/index.php">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="TourismEasy">
+    <meta property="og:locale" content="es_CO">
+    <meta property="og:title" content="Metaverso de Santander | TourismEasy">
+    <meta property="og:description" content="Explora en primera persona el mapa interactivo de las siete provincias de Santander con TourismEasy.">
+    <meta property="og:url" content="https://www.adsoserver.site/Tourismeasy/metaverso/index.php">
+    <meta property="og:image" content="https://www.adsoserver.site/Tourismeasy/img/web/hero.jpeg">
+    <meta property="og:image:alt" content="Experiencia turística interactiva de Santander">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Metaverso de Santander | TourismEasy">
+    <meta name="twitter:description" content="Explora en primera persona el mapa interactivo de las siete provincias de Santander con TourismEasy.">
+    <meta name="twitter:image" content="https://www.adsoserver.site/Tourismeasy/img/web/hero.jpeg">
+    <meta name="twitter:image:alt" content="Experiencia turística interactiva de Santander">
     <meta name="theme-color" content="#080b12">
-    <title>Metaverso de Santander - TourismEasy</title>
+    <title>Metaverso de Santander | TourismEasy</title>
     <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
     <link rel="stylesheet" href="metaverso.css">
     <link rel="stylesheet" href="../css/estilo-editorial.css?v=editorial-v2" />

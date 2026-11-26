@@ -341,6 +341,7 @@ body.dark-mode .nav-mobile {
     color: white;
 }
 
+.hero h1,
 .hero h2 {
     font-family: var(--font-head);
     font-size: 2.2rem;
@@ -1399,6 +1400,7 @@ input[type="number"] {
         gap: 0.9rem;
         padding: 1.5rem 4%;
     }
+    .hero h1,
     .hero h2 {
         font-size: 1.6rem;
     }
