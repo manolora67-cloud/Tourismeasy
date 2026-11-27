@@ -55,7 +55,7 @@
                 </div>
                 <p class="loader-brand">TOURISMEASY</p>
                 <h1 id="loaderTitle">Preparando el metaverso</h1>
-                <p class="loader-status" id="loaderStatus">Conectando con la experiencia 3D...</p>
+                <p class="loader-status" id="loaderStatus" tabindex="-1">Conectando con la experiencia 3D...</p>
                 <div class="progress-track" id="progressTrack" role="progressbar" aria-label="Carga del metaverso" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
                     <span class="progress-bar" id="progressBar"></span>
                 </div>
@@ -68,6 +68,14 @@
 
         <section class="world-screen" id="worldScreen" aria-label="Mapa interactivo de las provincias de Santander" hidden>
             <div class="scene-host" id="sceneHost"></div>
+
+            <details class="keyboard-province-controls" id="keyboardProvinceControls" hidden>
+                <summary>Explorar el mapa con teclado</summary>
+                <p>Selecciona una provincia con estos botones. Para caminar por el escenario usa WASD o las flechas.</p>
+                <div class="keyboard-province-buttons" id="keyboardProvinceButtons" role="group" aria-label="Seleccionar provincia"></div>
+                <p class="keyboard-province-status" id="keyboardProvinceStatus" role="status" aria-live="polite">Elige una provincia para consultar su información.</p>
+                <a class="keyboard-province-home" href="../index.html">Volver al inicio</a>
+            </details>
 
             <div class="touch-controls" aria-label="Joysticks de movimiento y vista">
                 <button class="touch-stick" type="button" data-stick="move" aria-label="Joystick izquierdo: caminar">

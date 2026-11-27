@@ -7,6 +7,14 @@
 
         const rootBase = context === "subpage" ? "../" : "";
         const pagesBase = context === "subpage" ? "" : "html/";
+        const mainContent = document.querySelector("main") || document.getElementById("inicioHero");
+        let skipLinkHTML = "";
+
+        if (mainContent) {
+            if (!mainContent.id) mainContent.id = "main-content";
+            if (!mainContent.hasAttribute("tabindex")) mainContent.setAttribute("tabindex", "-1");
+            skipLinkHTML = `<a class="skip-link" href="#${mainContent.id}">Saltar al contenido principal</a>`;
+        }
 
         const links = [
             { key: "transporte", label: "Transporte", file: "transporte.html" },
@@ -29,6 +37,7 @@
             .join("");
 
         mount.innerHTML = `
+    ${skipLinkHTML}
     <nav class="navbar">
       <div class="nav-container">
         <a href="${rootBase}index.html" class="nav-logo">
@@ -59,12 +68,28 @@
   // ---- Lógica del hamburger (móvil) ----
   const hamburger = document.getElementById("hamburger");
   const navMobile = document.getElementById("navMobile");
-  hamburger.addEventListener("click", () => {
-    const isOpen = navMobile.classList.toggle("open");
+
+  const setMobileMenuOpen = (isOpen, restoreFocus) => {
+    navMobile.classList.toggle("open", isOpen);
     hamburger.setAttribute("aria-expanded", String(isOpen));
     hamburger.setAttribute(
       "aria-label",
       isOpen ? "Cerrar menú de navegación" : "Abrir menú de navegación"
     );
+    if (restoreFocus) hamburger.focus();
+  };
+
+  hamburger.addEventListener("click", () => {
+    setMobileMenuOpen(!navMobile.classList.contains("open"));
+  });
+  navMobile.addEventListener("click", (event) => {
+    if (event.target instanceof Element && event.target.closest("a[href]")) {
+      setMobileMenuOpen(false);
+    }
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && navMobile.classList.contains("open")) {
+      setMobileMenuOpen(false, true);
+    }
   });
 })();

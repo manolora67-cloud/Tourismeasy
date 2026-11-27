@@ -595,6 +595,7 @@ body.dark-mode .hero {
     justify-content: center;
     color: var(--white);
     font-size: 0.9rem;
+    text-decoration: none;
     transition: background 0.2s, transform 0.2s;
 }
 

@@ -308,6 +308,9 @@
     const progressBar = document.getElementById("progressBar");
     const progressValue = document.getElementById("progressValue");
     const sceneHost = document.getElementById("sceneHost");
+    const keyboardProvinceControls = document.getElementById("keyboardProvinceControls");
+    const keyboardProvinceButtons = document.getElementById("keyboardProvinceButtons");
+    const keyboardProvinceStatus = document.getElementById("keyboardProvinceStatus");
     const exploredProvinces = new Set();
     const touchSticks = { move: [0, 0], look: [0, 0] };
     const keyboardKeys = new Set();
@@ -342,6 +345,15 @@
     let soundStatusMessage = "";
     let vrStatusMessage = "";
     let routeStatusMessage = "";
+
+    provinces.forEach((province, index) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.textContent = province.name;
+        button.setAttribute("aria-pressed", "false");
+        button.addEventListener("click", () => showProvince(index));
+        keyboardProvinceButtons.appendChild(button);
+    });
 
     function roundedRect(context, x, y, width, height, radius) {
         const corner = Math.min(radius, width / 2, height / 2);
@@ -1036,6 +1048,7 @@
         loaderError.hidden = false;
         retryButton.hidden = false;
         loaderStatus.textContent = "No se pudo preparar la experiencia.";
+        retryButton.focus();
     }
 
     function markProvinceExplored(index) {
@@ -1054,6 +1067,10 @@
         selectedProvinceIndex = index;
         provinceInfoVisible = true;
         panoramaStatusMessage = "";
+        keyboardProvinceButtons.querySelectorAll("button").forEach((button, buttonIndex) => {
+            button.setAttribute("aria-pressed", String(buttonIndex === index));
+        });
+        keyboardProvinceStatus.textContent = `Provincia ${province.name}. Capital: ${province.capital}. ${provinceDescriptions[province.id]} Municipios destacados: ${province.municipalities.join(", ")}.`;
         if (markExplored) markProvinceExplored(index);
         if (guide) guideToProvince(index);
         syncHudHitboxes();
@@ -2228,6 +2245,8 @@
                     if (attempt !== activeAttempt) return;
                     loaderScreen.hidden = true;
                     worldScreen.hidden = false;
+                    keyboardProvinceControls.hidden = false;
+                    keyboardProvinceControls.querySelector("summary").focus();
                 }, 350);
             };
 
@@ -2279,11 +2298,13 @@
         activateButton.disabled = true;
         loaderError.hidden = true;
         retryButton.hidden = true;
+        keyboardProvinceControls.hidden = true;
         sceneHost.replaceChildren();
         worldScreen.hidden = false;
         consentScreen.hidden = true;
         loaderScreen.hidden = false;
         setProgress(8, "Iniciando la experiencia...");
+        loaderStatus.focus();
         loadAFrame(attempt);
     }
 

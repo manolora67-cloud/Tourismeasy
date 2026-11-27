@@ -106,6 +106,27 @@ body :is(input, select, textarea):focus-visible {
     outline-offset: 2px;
 }
 
+body .skip-link {
+    position: fixed;
+    z-index: 2147483647;
+    top: 0.75rem;
+    left: 0.75rem;
+    transform: translateY(calc(-100% - 0.75rem));
+    padding: 0.75rem 1rem;
+    border: 2px solid #4c1d95;
+    background: #fff;
+    color: #1f2937;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+body .skip-link:focus,
+body .skip-link:focus-visible {
+    transform: translateY(0);
+    outline: 3px solid #4c1d95;
+    outline-offset: 3px;
+}
+
 body button:not(.te-chat-fab):not(.te-accessibility-toggle):not(.te-chat-send):not(.te-close-mobile):not(.btn-sound):not(.art-btn-sound):not(.destinos-arrow):not(.dot):not(.social-icon):not(.hamburger):not(#darkModeToggle):not(.te-accessibility button):not(.te-chat-panel button),
 body input[type="button"],
 body input[type="submit"],

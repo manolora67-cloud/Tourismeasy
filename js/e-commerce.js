@@ -348,9 +348,15 @@ function renderProducts() {
     });
 
     pageSummary.textContent = `Mostrando ${start + 1}–${start + pageProducts.length} de ${dbProducts.length} productos · Página ${currentPage} de ${totalPages}`;
+    const focusedPageButton = document.activeElement;
     previousPage.disabled = currentPage === 1;
     nextPage.disabled = currentPage === totalPages;
     pagination.hidden = totalPages <= 1;
+    if (focusedPageButton === nextPage && nextPage.disabled && !previousPage.disabled) {
+        previousPage.focus();
+    } else if (focusedPageButton === previousPage && previousPage.disabled && !nextPage.disabled) {
+        nextPage.focus();
+    }
 
     if (hasActiveFilters) {
         storeStatus.textContent = `${dbProducts.length} ${dbProducts.length === 1 ? "producto encontrado." : "productos encontrados."}`;
@@ -449,13 +455,28 @@ document.addEventListener("DOMContentLoaded", () => {
 var hamburgerBtn = document.getElementById('hamburger');
 var navMobileMenu = document.getElementById('navMobile');
 if (hamburgerBtn && navMobileMenu) {
-    hamburgerBtn.addEventListener('click', function() {
-        const isOpen = navMobileMenu.classList.toggle('open');
+    function setEcommerceMenuOpen(isOpen, restoreFocus) {
+        navMobileMenu.classList.toggle('open', isOpen);
         hamburgerBtn.setAttribute('aria-expanded', String(isOpen));
         hamburgerBtn.setAttribute(
             'aria-label',
             isOpen ? 'Cerrar menú de navegación' : 'Abrir menú de navegación'
         );
+        if (restoreFocus) hamburgerBtn.focus();
+    }
+
+    hamburgerBtn.addEventListener('click', function() {
+        setEcommerceMenuOpen(!navMobileMenu.classList.contains('open'));
+    });
+    navMobileMenu.addEventListener('click', function(event) {
+        if (event.target instanceof Element && event.target.closest('a[href]')) {
+            setEcommerceMenuOpen(false);
+        }
+    });
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape' && navMobileMenu.classList.contains('open')) {
+            setEcommerceMenuOpen(false, true);
+        }
     });
 }
 

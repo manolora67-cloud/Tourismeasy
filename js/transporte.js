@@ -367,9 +367,15 @@ function actualizarPaginacionTransporte() {
 
     resumen.textContent = 'Mostrando ' + (inicio + 1) + '–' + fin + ' de ' + total +
         ' rutas · Página ' + transportePaginaActual + ' de ' + totalPaginas;
+    var focusedPageButton = document.activeElement;
     anterior.disabled = transportePaginaActual === 1;
     siguiente.disabled = transportePaginaActual === totalPaginas;
     paginacion.hidden = totalPaginas <= 1;
+    if (focusedPageButton === siguiente && siguiente.disabled && !anterior.disabled) {
+        anterior.focus();
+    } else if (focusedPageButton === anterior && anterior.disabled && !siguiente.disabled) {
+        siguiente.focus();
+    }
 }
 
 document.getElementById('transportePreviousPage').addEventListener('click', function () {

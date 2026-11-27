@@ -149,9 +149,15 @@ var hospedajeDialogFocus = null;
 
         pageSummary.textContent = "Mostrando " + (start + 1) + "–" + end + " de " + matches.length +
             " hospedajes · Página " + currentPage + " de " + pageCount;
+        var focusedPageButton = document.activeElement;
         previousPage.disabled = currentPage === 1;
         nextPage.disabled = currentPage === pageCount;
         pagination.hidden = matches.length <= pageSize;
+        if (focusedPageButton === nextPage && nextPage.disabled && !previousPage.disabled) {
+            previousPage.focus();
+        } else if (focusedPageButton === previousPage && previousPage.disabled && !nextPage.disabled) {
+            nextPage.focus();
+        }
     }
 
     function filterHospedajes(options) {

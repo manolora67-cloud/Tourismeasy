@@ -179,9 +179,15 @@ function mostrarDetallePlan(plan) {
         noResults.remove();
         pageSummary.textContent = "Mostrando " + (start + 1) + "–" + end + " de " + cards.length +
             " planes · Página " + currentPage + " de " + totalPages;
+        var focusedPageButton = document.activeElement;
         previousPage.disabled = currentPage === 1;
         nextPage.disabled = currentPage === totalPages;
         pagination.hidden = totalPages <= 1;
+        if (focusedPageButton === nextPage && nextPage.disabled && !previousPage.disabled) {
+            previousPage.focus();
+        } else if (focusedPageButton === previousPage && previousPage.disabled && !nextPage.disabled) {
+            nextPage.focus();
+        }
     }
 
     function searchPlans(options) {
