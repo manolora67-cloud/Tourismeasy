@@ -311,6 +311,8 @@
     const keyboardProvinceControls = document.getElementById("keyboardProvinceControls");
     const keyboardProvinceButtons = document.getElementById("keyboardProvinceButtons");
     const keyboardProvinceStatus = document.getElementById("keyboardProvinceStatus");
+    const worldReturnStateKey = "tourismeasy.metaverso-return-state";
+    const worldReturnStateMaxAge = 10 * 60 * 1000;
     const exploredProvinces = new Set();
     const touchSticks = { move: [0, 0], look: [0, 0] };
     const keyboardKeys = new Set();
@@ -337,14 +339,36 @@
     let municipalityCarouselPaused = false;
     let municipalityCarouselProvinceIndex = null;
     let municipalityCarouselProvinceMarker = null;
-    let activePanorama = null;
-    let panoramaStatusMessage = "";
-    let panoramaRequestId = 0;
     let selectedProvinceIndex = null;
     let provinceInfoVisible = true;
     let soundStatusMessage = "";
     let vrStatusMessage = "";
     let routeStatusMessage = "";
+    let pendingWorldReturnState = null;
+
+    try {
+        const serializedState = window.sessionStorage.getItem(worldReturnStateKey);
+        if (serializedState) {
+            window.sessionStorage.removeItem(worldReturnStateKey);
+            const state = JSON.parse(serializedState);
+            if (Number.isFinite(state.savedAt)
+                && Date.now() >= state.savedAt
+                && Date.now() - state.savedAt <= worldReturnStateMaxAge) {
+                pendingWorldReturnState = state;
+            }
+        }
+    } catch (error) {
+        console.error("No se pudo recuperar la posición anterior del metaverso.", error);
+    }
+
+    window.addEventListener("pageshow", (event) => {
+        if (!event.persisted) return;
+        try {
+            window.sessionStorage.removeItem(worldReturnStateKey);
+        } catch (error) {
+            console.error("No se pudo limpiar el estado de regreso del metaverso.", error);
+        }
+    });
 
     provinces.forEach((province, index) => {
         const button = document.createElement("button");
@@ -665,122 +689,123 @@
         drawWorldHud3d();
     }
 
+    function saveWorldReturnState() {
+        const scene = sceneHost.querySelector("a-scene");
+        const touristRig = scene?.querySelector("#touristRig");
+        const camera = scene?.querySelector("#metaversoCamera");
+        if (!touristRig || !camera) return false;
+
+        const lookControls = camera.components["look-controls"];
+        const cameraRotation = camera.object3D.rotation;
+        const state = {
+            savedAt: Date.now(),
+            rigPosition: touristRig.object3D.position.toArray(),
+            rigRotation: [
+                touristRig.object3D.rotation.x,
+                touristRig.object3D.rotation.y,
+                touristRig.object3D.rotation.z,
+            ],
+            cameraYaw: lookControls?.yawObject?.rotation.y ?? cameraRotation.y,
+            cameraPitch: lookControls?.pitchObject?.rotation.x ?? cameraRotation.x,
+            cameraRotation: [cameraRotation.x, cameraRotation.y, cameraRotation.z],
+            selectedProvinceIndex,
+            exploredProvinces: Array.from(exploredProvinces),
+            provinceInfoVisible,
+            municipalityCarouselVisible: municipalityCarousel?.object3D.visible === true,
+            municipalityCarouselProvinceIndex,
+            municipalityCarouselPaused,
+            keyboardControlsOpen: keyboardProvinceControls.open,
+            routeStatusMessage,
+        };
+
+        try {
+            window.sessionStorage.setItem(worldReturnStateKey, JSON.stringify(state));
+            return true;
+        } catch (error) {
+            console.error("No se pudo guardar la posición del metaverso.", error);
+            return false;
+        }
+    }
+
+    function restoreWorldReturnState(scene) {
+        const state = pendingWorldReturnState;
+        pendingWorldReturnState = null;
+        if (!state) return;
+
+        const isVector3 = (value) => Array.isArray(value)
+            && value.length === 3
+            && value.every(Number.isFinite);
+        const touristRig = scene.querySelector("#touristRig");
+        const camera = scene.querySelector("#metaversoCamera");
+        if (!touristRig || !camera
+            || !isVector3(state.rigPosition)
+            || !isVector3(state.rigRotation)
+            || !Number.isFinite(state.cameraYaw)
+            || !Number.isFinite(state.cameraPitch)) {
+            console.error("El estado guardado del metaverso no es válido; se iniciará en la posición predeterminada.");
+            return;
+        }
+
+        touristRig.object3D.position.fromArray(state.rigPosition);
+        touristRig.object3D.rotation.set(...state.rigRotation);
+        const lookControls = camera.components["look-controls"];
+        if (lookControls?.yawObject && lookControls?.pitchObject) {
+            lookControls.yawObject.rotation.y = state.cameraYaw;
+            lookControls.pitchObject.rotation.x = state.cameraPitch;
+        } else if (isVector3(state.cameraRotation)) {
+            camera.object3D.rotation.set(...state.cameraRotation);
+        }
+        touristRig.object3D.updateMatrixWorld(true);
+        camera.object3D.updateMatrixWorld(true);
+
+        if (Array.isArray(state.exploredProvinces)) {
+            exploredProvinces.clear();
+            state.exploredProvinces.forEach((provinceId) => {
+                if (provinces.some((province) => province.id === provinceId)) {
+                    exploredProvinces.add(provinceId);
+                }
+            });
+        }
+
+        if (Number.isInteger(state.selectedProvinceIndex)
+            && provinces[state.selectedProvinceIndex]) {
+            selectedProvinceIndex = state.selectedProvinceIndex;
+            const province = provinces[selectedProvinceIndex];
+            keyboardProvinceButtons.querySelectorAll("button").forEach((button, index) => {
+                button.setAttribute("aria-pressed", String(index === selectedProvinceIndex));
+            });
+            keyboardProvinceStatus.textContent = `Provincia ${province.name}. Capital: ${province.capital}. ${provinceDescriptions[province.id]} Municipios destacados: ${province.municipalities.join(", ")}.`;
+        }
+
+        provinceInfoVisible = state.provinceInfoVisible !== false;
+        if (state.municipalityCarouselVisible === true
+            && Number.isInteger(state.municipalityCarouselProvinceIndex)
+            && provinces[state.municipalityCarouselProvinceIndex]) {
+            setMunicipalityCarousel(state.municipalityCarouselProvinceIndex);
+            municipalityCarouselPaused = state.municipalityCarouselPaused === true;
+            updateMunicipalityCarouselControl();
+        }
+        keyboardProvinceControls.open = state.keyboardControlsOpen === true;
+        routeStatusMessage = typeof state.routeStatusMessage === "string"
+            ? state.routeStatusMessage
+            : "";
+        drawWorldHud3d();
+    }
+
     function openMunicipalityPanorama(provinceIndex, municipalityIndex) {
         const province = provinces[provinceIndex];
         const municipality = province?.municipalities[municipalityIndex];
         if (!province || !municipality) return;
 
-        const requestId = ++panoramaRequestId;
-        const slug = municipalitySlug(municipality);
-        const localPath = `../img/panoramas/${province.id}-${slug}.jpg`;
-        panoramaStatusMessage = `Cargando el panorama 360 de ${municipality}...`;
-        drawWorldHud3d();
-
-        const showPanorama = (imageUrl, attribution = "", sourceUrl = "") => {
-            const panorama = new Image();
-            panorama.onload = () => {
-                if (requestId !== panoramaRequestId) return;
-                if (Math.abs((panorama.naturalWidth / panorama.naturalHeight) - 2) > 0.05) {
-                    panoramaStatusMessage = "La imagen no es un panorama equirectangular 360 válido.";
-                    drawWorldHud3d();
-                    return;
-                }
-                const scene = sceneHost.querySelector("a-scene");
-                const sky = scene?.querySelector("#worldSky");
-                const camera = scene?.querySelector("#metaversoCamera");
-                const map = scene?.querySelector("#santanderMap");
-                if (!scene || !sky || !camera || !map) {
-                    const error = new Error("No se pudo preparar el visor 360 del municipio.");
-                    console.error(error.message, error);
-                    panoramaStatusMessage = "No se pudo preparar el visor 360. Vuelve al mapa e inténtalo otra vez.";
-                    drawWorldHud3d();
-                    return;
-                }
-
-                scene.object3D.updateMatrixWorld(true);
-                const cameraPosition = camera.object3D.getWorldPosition(new window.AFRAME.THREE.Vector3());
-                sky.object3D.position.copy(cameraPosition);
-                map.object3D.visible = false;
-                if (routeGuideMesh) routeGuideMesh.visible = false;
-                sky.setAttribute("src", imageUrl);
-                sky.setAttribute("color", "#ffffff");
-                activePanorama = { province, municipality, filePath: imageUrl, attribution, sourceUrl };
-                panoramaStatusMessage = "";
-                syncHudHitboxes();
-                drawWorldHud3d();
-            };
-            panorama.onerror = () => {
-                if (requestId !== panoramaRequestId) return;
-                panoramaStatusMessage = "No se pudo cargar la imagen 360. Verifica la conexión e inténtalo otra vez.";
-                drawWorldHud3d();
-            };
-            panorama.src = imageUrl;
-        };
-
-        const coordinates = municipalityCoordinates[slug];
-        if (!coordinates) {
-            panoramaStatusMessage = `No hay coordenadas configuradas para ${municipality}.`;
+        if (!saveWorldReturnState()) {
+            routeStatusMessage = "No se pudo guardar tu posición; no se abrió el panorama.";
             drawWorldHud3d();
             return;
         }
 
-        fetch(`mapillary-panorama.php?lat=${coordinates[0]}&lon=${coordinates[1]}`)
-            .then(async (response) => {
-                const result = await response.json();
-                if (!response.ok) throw new Error(result.error || `Mapillary respondió con HTTP ${response.status}.`);
-                return result;
-            })
-            .then((result) => {
-                if (requestId !== panoramaRequestId) return;
-                showPanorama(result.imageUrl, `Foto: ${result.creatorName} · ${result.license}`, result.sourceUrl);
-            })
-            .catch((error) => {
-                if (requestId !== panoramaRequestId) return;
-                console.error(`No se pudo cargar un panorama Mapillary para ${municipality}.`, error);
-                const localPanorama = new Image();
-                localPanorama.onload = () => {
-                    if (requestId !== panoramaRequestId) return;
-                    showPanorama(localPath);
-                };
-                localPanorama.onerror = () => {
-                    if (requestId !== panoramaRequestId) return;
-                    panoramaStatusMessage = error.message || `No se encontró un panorama 360 de ${municipality}.`;
-                    drawWorldHud3d();
-                };
-                localPanorama.src = localPath;
-            });
-    }
-
-    function closeMunicipalityPanorama() {
-        if (!activePanorama) return;
-        panoramaRequestId += 1;
-        const scene = sceneHost.querySelector("a-scene");
-        const sky = scene?.querySelector("#worldSky");
-        const map = scene?.querySelector("#santanderMap");
-        if (sky) {
-            sky.removeAttribute("src");
-            sky.setAttribute("color", "#a9c8d1");
-        }
-        if (map) map.object3D.visible = true;
-        if (routeGuideMesh) routeGuideMesh.visible = true;
-        activePanorama = null;
-        panoramaStatusMessage = "";
-        syncHudHitboxes();
-        drawWorldHud3d();
-    }
-
-    function syncHudHitboxes() {
-        document.querySelectorAll(".interactive-3d").forEach((hitbox) => {
-            if (hitbox.id === "panoramaCloseHitbox") {
-                hitbox.setAttribute("visible", Boolean(activePanorama));
-                return;
-            }
-            if (hitbox.id === "panoramaSourceHitbox") {
-                hitbox.setAttribute("visible", Boolean(activePanorama?.sourceUrl));
-                return;
-            }
-            hitbox.setAttribute("visible", !activePanorama);
-        });
+        const panoramaUrl = new URL("panorama.html", window.location.href);
+        panoramaUrl.searchParams.set("municipio", municipality);
+        window.location.assign(panoramaUrl.href);
     }
 
     function drawWorldHud3d() {
@@ -791,27 +816,6 @@
         context.textBaseline = "middle";
         context.textAlign = "left";
         context.shadowBlur = 0;
-        if (activePanorama) {
-            drawPanel(context, 18, 16, 720, 110, 16);
-            context.fillStyle = "#f7f8ff";
-            context.font = "800 22px Segoe UI, Arial, sans-serif";
-            context.fillText(`VISTA 360° · ${activePanorama.municipality}`, 36, 38, 410);
-            context.fillStyle = "#e0e8f4";
-            context.font = "600 15px Segoe UI, Arial, sans-serif";
-            context.fillText("Mira alrededor con el mouse o los controles de tus gafas", 36, 65, 410);
-            if (activePanorama.attribution) {
-                context.fillStyle = "#c5ccdb";
-                context.font = "600 13px Segoe UI, Arial, sans-serif";
-                context.fillText(activePanorama.attribution, 36, 91, 420);
-            }
-            if (activePanorama.sourceUrl) {
-                drawHudButton(context, 470, 68, 140, 34, "VER EN MAPILLARY", "#253d2b");
-            }
-            drawHudButton(context, 620, 36, 84, 48, "VOLVER", "#227c54");
-            context.restore();
-            worldHudTexture.needsUpdate = true;
-            return;
-        }
         context.shadowColor = "rgba(0, 0, 0, 0.25)";
         context.shadowBlur = 18;
 
@@ -934,14 +938,6 @@
             }
         }
 
-        if (panoramaStatusMessage) {
-            drawPanel(context, 520, 710, 640, 92, 14);
-            context.textAlign = "left";
-            context.fillStyle = "#ffd1c9";
-            context.font = "800 16px Segoe UI, Arial, sans-serif";
-            drawWrappedText(context, panoramaStatusMessage, 540, 738, 600, 22, 3);
-        }
-
         drawPanel(context, 445, 846, 710, 42, 9);
         context.fillStyle = "#d3dae7";
         context.font = "600 14px Segoe UI, Arial, sans-serif";
@@ -1019,14 +1015,9 @@
         addHitbox("provinceInfoClose3d", 1536, 448, 30, 30, closeProvinceInfo);
         addHitbox("sound3dButton", 1428, 16, 154, 38, toggleAmbientSound);
         addHitbox("vr3dButton", 1428, 70, 154, 42, toggleVr);
-        addHitbox("panoramaSourceHitbox", 470, 68, 140, 34, () => {
-            if (activePanorama?.sourceUrl) window.open(activePanorama.sourceUrl, "_blank", "noopener,noreferrer");
-        });
-        addHitbox("panoramaCloseHitbox", 620, 36, 84, 48, closeMunicipalityPanorama);
         addHitbox("home3dButton", 18, 16, 178, 56, () => {
             window.location.href = "../index.html";
         });
-        syncHudHitboxes();
         drawWorldHud3d();
     }
 
@@ -1063,24 +1054,19 @@
         const province = provinces[index];
         if (!province) return;
 
-        panoramaRequestId += 1;
         selectedProvinceIndex = index;
         provinceInfoVisible = true;
-        panoramaStatusMessage = "";
         keyboardProvinceButtons.querySelectorAll("button").forEach((button, buttonIndex) => {
             button.setAttribute("aria-pressed", String(buttonIndex === index));
         });
         keyboardProvinceStatus.textContent = `Provincia ${province.name}. Capital: ${province.capital}. ${provinceDescriptions[province.id]} Municipios destacados: ${province.municipalities.join(", ")}.`;
         if (markExplored) markProvinceExplored(index);
         if (guide) guideToProvince(index);
-        syncHudHitboxes();
         drawWorldHud3d();
     }
 
     function closeProvinceInfo() {
-        panoramaRequestId += 1;
         provinceInfoVisible = false;
-        syncHudHitboxes();
         drawWorldHud3d();
     }
 
@@ -2043,7 +2029,7 @@
                 },
                 tick(time, delta) {
                     const camera = this.scene.camera;
-                    if (!camera || activePanorama) return;
+                    if (!camera) return;
                     const elapsed = Math.min(delta / 1000, 0.04);
                     if (!elapsed) return;
                     const leftStick = this.readThumbstick("left");
@@ -2234,6 +2220,7 @@
                 sceneLoaded = true;
                 try {
                     setupWorldHud3d(scene);
+                    restoreWorldReturnState(scene);
                 } catch (error) {
                     console.error("No se pudo crear la interfaz 3D del metaverso.", error);
                     showLoadError("No se pudo preparar la interfaz 3D. Vuelve a intentarlo.", attempt);
@@ -2310,4 +2297,5 @@
 
     activateButton.addEventListener("click", beginExperience);
     retryButton.addEventListener("click", beginExperience);
+    if (pendingWorldReturnState) beginExperience();
 })();

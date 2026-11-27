@@ -35,8 +35,6 @@ function mapillaryRequest(string $path, array $parameters, string $token): array
     $body = curl_exec($request);
     $status = (int) curl_getinfo($request, CURLINFO_HTTP_CODE);
     $error = curl_error($request);
-    curl_close($request);
-
     if (!is_string($body)) {
         throw new RuntimeException('Falló la conexión con Mapillary: ' . $error);
     }
@@ -55,6 +53,21 @@ function isPanorama(array $image): bool
 {
     return filter_var($image['is_pano'] ?? false, FILTER_VALIDATE_BOOLEAN)
         && !empty($image['thumb_2048_url']);
+}
+
+function isAllowedMapillaryImageUrl($imageUrl): bool
+{
+    if (!is_string($imageUrl)
+        || filter_var($imageUrl, FILTER_VALIDATE_URL) === false
+        || parse_url($imageUrl, PHP_URL_SCHEME) !== 'https') {
+        return false;
+    }
+
+    $imageHost = strtolower((string) parse_url($imageUrl, PHP_URL_HOST));
+    return $imageHost === 'fbcdn.net'
+        || substr($imageHost, -strlen('.fbcdn.net')) === '.fbcdn.net'
+        || $imageHost === 'mapillary.com'
+        || substr($imageHost, -strlen('.mapillary.com')) === '.mapillary.com';
 }
 
 function distanceMeters(float $latitudeA, float $longitudeA, float $latitudeB, float $longitudeB): float
@@ -106,60 +119,12 @@ if (is_string($imageId) && $imageId !== '') {
     }
 
     $imageUrl = $image['thumb_2048_url'] ?? null;
-    if (!is_string($imageUrl) || filter_var($imageUrl, FILTER_VALIDATE_URL) === false) {
-        respondJson(502, ['error' => 'Mapillary devolvió una dirección de imagen no válida.']);
-    }
-    $imageHost = strtolower((string) parse_url($imageUrl, PHP_URL_HOST));
-    $allowedHost = $imageHost === 'fbcdn.net'
-        || substr($imageHost, -strlen('.fbcdn.net')) === '.fbcdn.net'
-        || $imageHost === 'mapillary.com'
-        || substr($imageHost, -strlen('.mapillary.com')) === '.mapillary.com';
-    if (!$allowedHost || parse_url($imageUrl, PHP_URL_SCHEME) !== 'https') {
+    if (!isAllowedMapillaryImageUrl($imageUrl)) {
         respondJson(502, ['error' => 'Mapillary devolvió una dirección de imagen no válida.']);
     }
 
-    $request = curl_init($imageUrl);
-    if ($request === false) {
-        respondJson(502, ['error' => 'No se pudo iniciar la descarga del panorama.']);
-    }
-    $imageBytes = '';
-    $maximumBytes = 8388608;
-    curl_setopt_array($request, [
-        CURLOPT_CONNECTTIMEOUT => 5,
-        CURLOPT_TIMEOUT => 20,
-        CURLOPT_PROTOCOLS => CURLPROTO_HTTPS,
-        CURLOPT_WRITEFUNCTION => static function ($handle, string $chunk) use (&$imageBytes, $maximumBytes): int {
-            if (strlen($imageBytes) + strlen($chunk) > $maximumBytes) {
-                return 0;
-            }
-            $imageBytes .= $chunk;
-            return strlen($chunk);
-        },
-    ]);
-    $downloaded = curl_exec($request);
-    $status = (int) curl_getinfo($request, CURLINFO_HTTP_CODE);
-    $downloadError = curl_error($request);
-    curl_close($request);
-
-    if ($downloaded === false || $status < 200 || $status >= 300) {
-        error_log('No se pudo descargar un panorama de Mapillary: ' . $downloadError);
-        respondJson(502, ['error' => 'No se pudo descargar el panorama 360.']);
-    }
-    $imageInfo = getimagesizefromstring($imageBytes);
-    if (!is_array($imageInfo) || $imageInfo[1] < 1
-        || abs(($imageInfo[0] / $imageInfo[1]) - 2) > 0.05) {
-        respondJson(415, ['error' => 'La imagen encontrada no tiene formato panorámico 360 equirectangular.']);
-    }
-
-    $mimeType = $imageInfo['mime'] ?? '';
-    if (!in_array($mimeType, ['image/jpeg', 'image/png', 'image/webp'], true)) {
-        respondJson(415, ['error' => 'Formato de panorama no compatible.']);
-    }
-    header('Content-Type: ' . $mimeType);
-    header('Content-Length: ' . strlen($imageBytes));
-    header('Cache-Control: private, max-age=3600');
-    header('X-Content-Type-Options: nosniff');
-    echo $imageBytes;
+    header('Location: ' . $imageUrl, true, 302);
+    header('Cache-Control: no-store');
     exit;
 }
 
@@ -170,17 +135,12 @@ if ($latitude === false || $longitude === false
     respondJson(400, ['error' => 'Coordenadas fuera de la zona turística configurada.']);
 }
 
-$box = sprintf(
-    '%.6F,%.6F,%.6F,%.6F',
-    $longitude - 0.04,
-    $latitude - 0.04,
-    $longitude + 0.04,
-    $latitude + 0.04,
-);
 try {
     $results = mapillaryRequest('images', [
         'fields' => 'id,is_pano,thumb_2048_url,captured_at,computed_geometry,creator',
-        'bbox' => $box,
+        'lat' => $latitude,
+        'lng' => $longitude,
+        'radius' => 50,
         'limit' => 100,
     ], $token);
 } catch (RuntimeException $error) {
@@ -197,6 +157,10 @@ foreach ($images as $image) {
     if (!is_array($image) || !isPanorama($image)) {
         continue;
     }
+    $imageUrl = $image['thumb_2048_url'] ?? null;
+    if (!isAllowedMapillaryImageUrl($imageUrl)) {
+        continue;
+    }
     $imageId = $image['id'] ?? null;
     if (!is_scalar($imageId) || !preg_match('/^\d{1,32}$/', (string) $imageId)) {
         continue;
@@ -206,7 +170,7 @@ foreach ($images as $image) {
         continue;
     }
     $distance = distanceMeters($latitude, $longitude, (float) $coordinates[1], (float) $coordinates[0]);
-    if ($distance <= 5000) {
+    if ($distance <= 50) {
         $image['distance_meters'] = $distance;
         $candidates[] = $image;
     }
@@ -234,7 +198,7 @@ foreach ($candidates as $image) {
     $id = (string) $imageId;
     respondJson(200, [
         'id' => $id,
-        'imageUrl' => 'mapillary-panorama.php?image=' . rawurlencode($id),
+        'imageUrl' => $imageUrl,
         'sourceUrl' => 'https://www.mapillary.com/app/?pKey=' . rawurlencode($id),
         'creatorName' => $creatorName,
         'license' => 'CC BY-SA 4.0',

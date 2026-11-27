@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Vista 360 de demostración de TourismEasy.">
+    <meta name="theme-color" content="#080b12">
+    <link rel="icon" type="image/png" href="../img/TURISMEASY.png">
+    <link rel="stylesheet" href="metaverso.css">
+    <title>Prueba 360° - TourismEasy</title>
+    <style>
+        .panorama-page {
+            min-height: 100dvh;
+        }
+
+        .panorama-page a-scene {
+            position: fixed !important;
+            inset: 0;
+            width: 100vw;
+            height: 100dvh;
+            z-index: 0;
+        }
+
+        .panorama-toolbar {
+            position: fixed;
+            z-index: 5;
+            top: 16px;
+            left: 16px;
+            width: min(520px, calc(100vw - 32px));
+            padding: 18px 20px;
+            border: 1px solid rgba(126, 238, 255, 0.48);
+            border-radius: 14px;
+            background: rgba(8, 11, 18, 0.88);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(12px);
+        }
+
+        .panorama-eyebrow {
+            margin: 0 0 6px;
+            color: #5cecff;
+            font-size: 0.76rem;
+            font-weight: 850;
+            letter-spacing: 0.1em;
+        }
+
+        .panorama-toolbar h1 {
+            margin: 0 0 8px;
+            font-size: clamp(1.1rem, 3vw, 1.45rem);
+        }
+
+        .panorama-toolbar p {
+            color: var(--text-muted);
+            line-height: 1.45;
+        }
+
+        .panorama-disclaimer {
+            margin: 0 0 6px;
+            color: #ffd98a !important;
+            font-weight: 750;
+        }
+
+        .panorama-credit {
+            margin: 0 0 14px;
+            font-size: 0.82rem;
+        }
+
+        .panorama-guide {
+            position: fixed;
+            z-index: 5;
+            right: 16px;
+            bottom: 16px;
+            max-width: min(560px, calc(100vw - 32px));
+            margin: 0;
+            padding: 10px 14px;
+            border: 1px solid rgba(126, 238, 255, 0.3);
+            border-radius: 10px;
+            background: rgba(8, 11, 18, 0.82);
+            color: var(--text-light);
+            font-size: 0.86rem;
+        }
+
+        @media (max-width: 600px) {
+            .panorama-toolbar {
+                top: 10px;
+                left: 10px;
+                width: calc(100vw - 20px);
+                padding: 14px;
+            }
+
+            .panorama-guide {
+                right: 10px;
+                bottom: 10px;
+                max-width: calc(100vw - 20px);
+            }
+        }
+    </style>
+    <script src="https://aframe.io/releases/1.6.0/aframe.min.js" defer></script>
+    <script src="panorama.js" defer></script>
+</head>
+
+<body class="panorama-page">
+    <main>
+        <a-scene embedded vr-mode-ui="enabled: true"
+            renderer="antialias: true; colorManagement: true; physicallyCorrectLights: true">
+            <a-sky id="panoramaSky" src="../img/panoramas/panorama-prueba.jpg" rotation="0 -90 0"></a-sky>
+            <a-entity camera look-controls position="0 1.6 0"></a-entity>
+        </a-scene>
+        <section class="panorama-toolbar" aria-labelledby="panoramaTitle">
+            <p class="panorama-eyebrow">PRUEBA 360°</p>
+            <h1 id="panoramaTitle">Panorama de prueba</h1>
+            <p class="panorama-disclaimer">Imagen genérica; no representa este municipio.</p>
+            <p class="panorama-credit">Ticknock 02 · Poly Haven · CC0</p>
+            <a class="button button-primary" id="backToMetaverso" href="index.html">Volver al metaverso</a>
+        </section>
+        <p class="panorama-guide" id="panoramaStatus" role="status" aria-live="polite">
+            Arrastra para mirar alrededor. También puedes usar el botón de realidad virtual.
+        </p>
+    </main>
+</body>
+
+</html>
